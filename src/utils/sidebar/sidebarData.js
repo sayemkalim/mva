@@ -5,6 +5,11 @@ import {
   CheckSquare,
   PlusSquare,
   ListTodo,
+  User,
+  Briefcase,
+  GraduationCap,
+  FileCheck,
+  Upload,
 } from "lucide-react";
 import { getItem } from "../local_storage";
 
@@ -17,7 +22,6 @@ export const data = {
     email: userEmail,
     avatar: "/user.jpg",
   },
-
   navMain: [
     {
       title: "Dashboard",
@@ -26,73 +30,64 @@ export const data = {
       isActive: true,
       items: [],
     },
-
     {
       title: "WorkStation",
       url: "/dashboard/workstation",
       icon: CheckSquare,
       isActive: false,
+      items: [],
+    },
+  ],
+  projects: [],
+};
+
+export const editModeData = {
+  user: {
+    name: userName,
+    email: userEmail,
+    avatar: "/user.jpg",
+  },
+  navMain: [
+    {
+      title: "Initial",
+      url: "#initial",
+      icon: FileText,
+      isActive: true,
+      items: [],
+    },
+    {
+      title: "Applicant",
+      url: "",
+      icon: ListTodo,
+      isActive: false,
       items: [
         {
-          title: "Intial",
-          name: "Intial",
-          url: "/dashboard/workstation",
+          title: "Applicant Information",
+          url: "",
+          icon: User,
         },
         {
-          title: "Applicant",
-          name: "All Tasks",
-          url: "/dashboard/tasks/all",
+          title: "Identification",
+          url: "#work-experience",
+          icon: Briefcase,
         },
+        {
+          title: "Employement",
+          url: "#education",
+          icon: GraduationCap,
+        },
+        {
+          title: "School or Caregiver",
+          url: "#documents",
+          icon: Upload,
+        },
+        // {
+        //   title: "Review & Submit",
+        //   url: "#review-submit",
+        //   icon: FileCheck,
+        // },
       ],
     },
-    // {
-    //   title: "Admin",
-    //   url: "/dashboard/admins",
-    //   icon: Users2,
-    //   isActive: true,
-    //   items: [],
-    //   roles: ["super_admin"],
-    // },
   ],
-
-  projects: [
-    // {
-    //   title: "Contact us form",
-    //   name: "Contact us form",
-    //   url: "/dashboard/contact-us",
-    //   icon: ContactIcon,
-    //   roles: ["super_admin", "admin"],
-    // },
-    // {
-    //   title: "Info & Policy",
-    //   name: "Info & Policy",
-    //   url: "/dashboard/info-policy",
-    //   icon: BadgeInfo,
-    //   roles: ["super_admin", "admin"],
-    //   items: [
-    //     {
-    //       title: "Terms & Conditions",
-    //       name: "Terms & Conditions",
-    //       url: "/dashboard/info-policy/terms-conditions",
-    //     },
-    //     {
-    //       title: "Privacy Policy",
-    //       name: "Privacy Policy",
-    //       url: "/dashboard/info-policy/privacy-policy",
-    //     },
-    //     {
-    //       title: "FAQ",
-    //       name: "FAQ",
-    //       url: "/dashboard/info-policy/faq",
-    //     },
-    //   ],
-    // },
-    // {
-    //   title: "Testimonial",
-    //   name: "Testimonial",
-    //   url: "/dashboard/testimonials",
-    //   icon: MessageSquarePlus,
-    //   roles: ["super_admin", "admin"],
-    // },
-  ],
+  projects: [],
 };

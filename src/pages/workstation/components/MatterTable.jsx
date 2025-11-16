@@ -182,11 +182,11 @@ const MatterTable = ({ setBlogsLength }) => {
       render: (value, row) => (
         <ActionMenu
           options={[
-            // {
-            //   label: "View Details",
-            //   icon: Eye,
-            //   action: () => onNavigateDetails(row),
-            // },
+            {
+              label: "View Details",
+              icon: Eye,
+              action: () => onNavigateDetails(row),
+            },
             {
               label: "Edit",
               icon: Pencil,

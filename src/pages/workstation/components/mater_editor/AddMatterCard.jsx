@@ -186,7 +186,7 @@ const AddMatterCard = ({
       }
     },
     onSuccess: (res) => {
-      if (res?.response?.success || res?.Apistatus) {
+      if (res?.response?.message || res?.Apistatus) {
         toast.success(
           res?.message || isEditMode
             ? "Matter updated successfully"
