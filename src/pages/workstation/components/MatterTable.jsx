@@ -55,7 +55,6 @@ const MatterTable = ({ setBlogsLength }) => {
     deleteWorkstationMutation(id);
   };
 
-  // ✅ FIX: Extract data from nested response object
   const workstations = Array.isArray(apiWorkstationResponse?.response)
     ? apiWorkstationResponse.response
     : [];
@@ -70,11 +69,27 @@ const MatterTable = ({ setBlogsLength }) => {
   }, [workstations, setBlogsLength]);
 
   const onNavigateToEdit = (workstation) => {
-    navigate(`/dashboard/workstations/edit/${workstation.slug}`);
+    console.log("Full workstation object:", workstation);
+    console.log("Slug value:", workstation.slug);
+    console.log("Slug type:", typeof workstation.slug);
+    console.log(
+      "Navigate URL:",
+      `/dashboard/workstations/edit/${workstation.slug}`
+    );
+
+    if (!workstation?.slug) {
+      toast.error("Invalid workstation data");
+      return;
+    }
+    navigate(`/dashboard/workstation/edit/${workstation.slug}`);
   };
 
   const onNavigateDetails = (workstation) => {
-    navigate(`/dashboard/workstations/${workstation.slug}`);
+    if (!workstation?.slug) {
+      toast.error("Invalid workstation data");
+      return;
+    }
+    navigate(`/dashboard/workstation/${workstation.slug}`);
   };
 
   const columns = [
@@ -167,11 +182,11 @@ const MatterTable = ({ setBlogsLength }) => {
       render: (value, row) => (
         <ActionMenu
           options={[
-            {
-              label: "View Details",
-              icon: Eye,
-              action: () => onNavigateDetails(row),
-            },
+            // {
+            //   label: "View Details",
+            //   icon: Eye,
+            //   action: () => onNavigateDetails(row),
+            // },
             {
               label: "Edit",
               icon: Pencil,

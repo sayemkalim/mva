@@ -1,11 +1,12 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import { createMatter } from "../../helpers/createMatter";
+import { updateMatter } from "../../helpers/updateMatter";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
   Popover,
@@ -24,10 +25,14 @@ import { Badge } from "@/components/ui/badge";
 import { X, Check, ChevronsUpDown, Loader2, Plus, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-const AddMatterCard = ({ metadata = null }) => {
+const AddMatterCard = ({
+  metadata = null,
+  initialData = null,
+  isEditMode = false,
+}) => {
   const navigate = useNavigate();
-
-  const [formData, setFormData] = useState({
+  const queryClient = useQueryClient();
+  const getInitialFormData = () => ({
     file_no: "",
     intake_date: "",
     conflict_search_date: "",
@@ -93,23 +98,49 @@ const AddMatterCard = ({ metadata = null }) => {
     country: "Canada",
   });
 
+  const [formData, setFormData] = useState(getInitialFormData());
   const [openPopovers, setOpenPopovers] = useState({});
-
+  useEffect(() => {
+    if (isEditMode && initialData) {
+      let parsedMVAs = [];
+      if (initialData.other_mvas) {
+        try {
+          parsedMVAs =
+            typeof initialData.other_mvas === "string"
+              ? JSON.parse(initialData.other_mvas)
+              : initialData.other_mvas;
+        } catch (error) {
+          console.error("Error parsing other_mvas:", error);
+          parsedMVAs = [];
+        }
+      }
+      setFormData({
+        ...getInitialFormData(),
+        ...initialData,
+        other_mvas: Array.isArray(parsedMVAs) ? parsedMVAs : [],
+        non_engagement_issued_id: Array.isArray(
+          initialData.non_engagement_issued_id
+        )
+          ? initialData.non_engagement_issued_id
+          : [],
+        claim_type_id: Array.isArray(initialData.claim_type_id)
+          ? initialData.claim_type_id
+          : [],
+      });
+    }
+  }, [isEditMode, initialData]);
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
-
   const handleSelectChange = (name, value, popoverKey) => {
     setFormData((prev) => ({ ...prev, [name]: value }));
     setOpenPopovers((prev) => ({ ...prev, [popoverKey]: false }));
   };
-
   const toggleMultiSelect = (fieldName, itemId) => {
     setFormData((prev) => {
       const currentArray = prev[fieldName] || [];
       const isSelected = currentArray.includes(itemId);
-
       return {
         ...prev,
         [fieldName]: isSelected
@@ -118,14 +149,12 @@ const AddMatterCard = ({ metadata = null }) => {
       };
     });
   };
-
   const removeFromMultiSelect = (fieldName, itemId) => {
     setFormData((prev) => ({
       ...prev,
       [fieldName]: prev[fieldName].filter((id) => id !== itemId),
     }));
   };
-
   const addMVA = () => {
     setFormData((prev) => ({
       ...prev,
@@ -135,14 +164,12 @@ const AddMatterCard = ({ metadata = null }) => {
       ],
     }));
   };
-
   const removeMVA = (index) => {
     setFormData((prev) => ({
       ...prev,
       other_mvas: prev.other_mvas.filter((_, i) => i !== index),
     }));
   };
-
   const handleMVAChange = (index, field, value) => {
     setFormData((prev) => {
       const updatedMVAs = [...prev.other_mvas];
@@ -150,16 +177,29 @@ const AddMatterCard = ({ metadata = null }) => {
       return { ...prev, other_mvas: updatedMVAs };
     });
   };
-
-  const createMutation = useMutation({
-    mutationFn: createMatter,
+  const saveMutation = useMutation({
+    mutationFn: (data) => {
+      if (isEditMode) {
+        return updateMatter(initialData.slug || initialData.id, data);
+      } else {
+        return createMatter(data);
+      }
+    },
     onSuccess: (res) => {
       if (res?.response?.success || res?.Apistatus) {
-        toast.success(res?.message || "Matter created successfully");
+        toast.success(
+          res?.message || isEditMode
+            ? "Matter updated successfully"
+            : "Matter created successfully"
+        );
+        queryClient.invalidateQueries(["matters"]);
+        queryClient.invalidateQueries(["matter", initialData?.slug]);
         navigate("/dashboard/workstation", { replace: true });
       } else {
         toast.error(
-          res?.response?.message || res?.message || "Failed to create matter"
+          res?.response?.message ||
+            res?.message ||
+            `Failed to ${isEditMode ? "update" : "create"} matter`
         );
       }
     },
@@ -168,12 +208,11 @@ const AddMatterCard = ({ metadata = null }) => {
       toast.error(
         error?.response?.data?.message ||
           error?.message ||
-          "Failed to create matter"
+          `Failed to ${isEditMode ? "update" : "create"} matter`
       );
     },
     retry: 1,
   });
-
   const handleSubmit = (e) => {
     e.preventDefault();
 
@@ -181,19 +220,22 @@ const AddMatterCard = ({ metadata = null }) => {
       toast.error("File Number is required");
       return;
     }
-
     const payload = {
       ...formData,
-      other_mvas:
-        formData.other_mvas.length > 0
-          ? JSON.stringify(formData.other_mvas)
-          : undefined,
+      non_engagement_issued_id: formData.non_engagement_issued_id || [],
+      claim_type_id: formData.claim_type_id || [],
+      other_mvas: formData.other_mvas.length > 0 ? formData.other_mvas : [],
     };
-
-    createMutation.mutate(payload);
+    Object.keys(payload).forEach((key) => {
+      if (payload[key] === "") {
+        payload[key] = null;
+      }
+    });
+    console.log("Final Payload:", JSON.stringify(payload, null, 2));
+    saveMutation.mutate(payload);
   };
 
-  const isSubmitting = createMutation.isPending;
+  const isSubmitting = saveMutation.isPending;
 
   if (!metadata) {
     return (
@@ -345,7 +387,9 @@ const AddMatterCard = ({ metadata = null }) => {
       onSubmit={handleSubmit}
       className="max-w-6xl mx-auto bg-white p-8 rounded-lg shadow space-y-6"
     >
-      <h2 className="text-2xl font-bold mb-6">Add New Matter</h2>
+      <h2 className="text-2xl font-bold mb-6">
+        {isEditMode ? "Edit Matter" : "Add New Matter"}
+      </h2>
 
       {/* File Details */}
       <div className="space-y-4">
@@ -1201,16 +1245,29 @@ const AddMatterCard = ({ metadata = null }) => {
         </div>
       </div>
 
-      <Button type="submit" disabled={isSubmitting} className="w-full">
-        {isSubmitting ? (
-          <>
-            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            Creating...
-          </>
-        ) : (
-          "Create Matter"
-        )}
-      </Button>
+      {/* Submit Button */}
+      <div className="flex gap-3">
+        <Button
+          type="button"
+          variant="outline"
+          onClick={() => navigate("/dashboard/workstation")}
+          className="flex-1"
+        >
+          Cancel
+        </Button>
+        <Button type="submit" disabled={isSubmitting} className="flex-1">
+          {isSubmitting ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              {isEditMode ? "Updating..." : "Creating..."}
+            </>
+          ) : isEditMode ? (
+            "Update Matter"
+          ) : (
+            "Create Matter"
+          )}
+        </Button>
+      </div>
     </form>
   );
 };

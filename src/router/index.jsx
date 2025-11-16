@@ -29,6 +29,11 @@ const Router = () => {
           {/* ProductsRoute */}
           <Route path="/dashboard/workstation" element={<Matter />} />
           <Route path="/dashboard/workstation/add" element={<MatterEditor />} />
+          <Route
+            path="/dashboard/workstation/edit/:slug"
+            element={<MatterEditor />}
+          />
+
           {/* Blogs */}
           {/* <Route path="/dashboard/blogs" element={<Blogs />} />
           <Route path="/dashboard/blogs/add" element={<BlogEditor />} />

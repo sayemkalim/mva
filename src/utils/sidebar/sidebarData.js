@@ -26,36 +26,25 @@ export const data = {
       isActive: true,
       items: [],
     },
+
     {
       title: "WorkStation",
       url: "/dashboard/workstation",
       icon: CheckSquare,
       isActive: false,
-      items: [],
+      items: [
+        {
+          title: "Intial",
+          name: "Intial",
+          url: "/dashboard/workstation",
+        },
+        {
+          title: "Applicant",
+          name: "All Tasks",
+          url: "/dashboard/tasks/all",
+        },
+      ],
     },
-    // {
-    //   title: "WorkStation",
-    //   url: "/dashboard/blogs",
-    //   icon: CheckSquare,
-    //   isActive: false,
-    //   items: [
-    //     {
-    //       title: "Create Task",
-    //       name: "Create Task",
-    //       url: "/dashboard/tasks/create",
-    //     },
-    //     {
-    //       title: "All Tasks",
-    //       name: "All Tasks",
-    //       url: "/dashboard/tasks/all",
-    //     },
-    //     {
-    //       title: "My Tasks",
-    //       name: "My Tasks",
-    //       url: "/dashboard/tasks/my-tasks",
-    //     },
-    //   ],
-    // },
     // {
     //   title: "Admin",
     //   url: "/dashboard/admins",

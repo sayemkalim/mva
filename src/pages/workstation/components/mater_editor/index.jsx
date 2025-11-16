@@ -1,10 +1,16 @@
 import React from "react";
 import { useQuery } from "@tanstack/react-query";
+import { useParams, useNavigate } from "react-router-dom";
 import NavbarItem from "@/components/navbar/navbar_item";
 import AddMatterCard from "./AddMatterCard";
 import { fetchMatterMetadata } from "../../helpers/fetchMatterMetadata";
+import { fetchMatterBySlug } from "../../helpers/fetchMatterBySlug";
 
 const MatterEditor = () => {
+  const { slug } = useParams();
+  const navigate = useNavigate();
+  const isEditMode = !!slug;
+
   // Fetch matter metadata (dropdown options)
   const {
     data: metadataRes,
@@ -13,36 +19,77 @@ const MatterEditor = () => {
   } = useQuery({
     queryKey: ["matterMetadata"],
     queryFn: fetchMatterMetadata,
-    staleTime: 5 * 60 * 1000, // 5 minutes
+    staleTime: 5 * 60 * 1000,
     refetchOnMount: false,
   });
 
+  // Fetch existing matter data if editing
+  const {
+    data: matterData,
+    isLoading: isMatterLoading,
+    error: matterError,
+  } = useQuery({
+    queryKey: ["matter", slug],
+    queryFn: () => {
+      // Slug validation check - agar undefined hai to function call mat karo
+      if (!slug) {
+        return Promise.reject(new Error("Slug is required"));
+      }
+      return fetchMatterBySlug(slug);
+    },
+    enabled: isEditMode && !!slug, // Double check slug exists
+    staleTime: 5 * 60 * 1000,
+    retry: 1, // Only 1 retry for invalid slugs
+    onError: (error) => {
+      console.error("Matter fetch error:", error);
+      // Agar matter nahi mila to 404 show karo ya back jao
+    },
+  });
+
   const metadata = metadataRes?.response || metadataRes;
+  const existingMatter = matterData?.response || matterData;
 
   const breadcrumbs = [
-    { title: "Matters", isNavigation: true, path: "/dashboard/workstation" },
-    { title: "Add Matter", isNavigation: false },
+    { title: "Matters", isNavigation: true, path: "/dashboard/workstations" },
+    { title: isEditMode ? "Edit Matter" : "Add Matter", isNavigation: false },
   ];
+
+  // Combined loading state
+  const isLoading = isMetadataLoading || (isEditMode && isMatterLoading);
+  const error = metadataError || matterError;
 
   return (
     <div className="flex flex-col gap-2">
-      <NavbarItem title="Add Matter" breadcrumbs={breadcrumbs} />
+      <NavbarItem
+        title={isEditMode ? "Edit Matter" : "Add Matter"}
+        breadcrumbs={breadcrumbs}
+      />
       <div className="px-8 pb-8">
-        {isMetadataLoading ? (
+        {isLoading ? (
           <div className="flex justify-center items-center h-48">
             <div className="flex flex-col items-center gap-3">
               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900"></div>
-              <span className="text-gray-600">Loading form data...</span>
+              <span className="text-gray-600">
+                {isMetadataLoading
+                  ? "Loading form data..."
+                  : "Loading matter details..."}
+              </span>
             </div>
           </div>
-        ) : metadataError ? (
+        ) : error ? (
           <div className="bg-red-50 border border-red-200 rounded-lg p-6 text-center">
-            <p className="text-red-600 font-medium">
-              Failed to load form metadata. Please try again.
+            <p className="text-red-600 font-medium mb-2">
+              {metadataError
+                ? "Failed to load form metadata."
+                : "Failed to load matter details."}
             </p>
-            <p className="text-sm text-red-500 mt-2">
-              Error: {metadataError.message}
-            </p>
+            <p className="text-sm text-red-500 mb-4">Error: {error.message}</p>
+            <button
+              onClick={() => navigate("/dashboard/workstations")}
+              className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
+            >
+              Go Back to Matters
+            </button>
           </div>
         ) : !metadata?.Apistatus ? (
           <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-6 text-center">
@@ -51,7 +98,11 @@ const MatterEditor = () => {
             </p>
           </div>
         ) : (
-          <AddMatterCard metadata={metadata} />
+          <AddMatterCard
+            metadata={metadata}
+            initialData={existingMatter}
+            isEditMode={isEditMode}
+          />
         )}
       </div>
     </div>

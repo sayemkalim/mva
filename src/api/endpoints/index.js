@@ -7,4 +7,5 @@ export const endpoints = {
   workstation_list: "api/v2/file/workstation",
   matterMeta: "api/v2/file/initial/meta",
   createMatter: "api/v2/file/initial/save",
+  matter: "api/v2/file/initial/show",
 };
