@@ -25,7 +25,7 @@ import { createApplicantInfo } from "../helpers/createApplicantInfo";
 import { getApplicantMeta } from "../helpers/fetchApplicantInfoMetadata";
 import { fetchApplicantInfoBySlug } from "../helpers/fetchApplicantInfoBySlug";
 import { uploadAttachment } from "../helpers/uploadAttachment";
-import { SidebarTrigger } from "@/components/ui/sidebar";
+import { Navbar2 } from "@/components/navbar2";
 
 export default function ApplicantInformation() {
   const { slug } = useParams();
@@ -498,6 +498,7 @@ export default function ApplicantInformation() {
 
   return (
     <div className="min-h-screen bg-gray-50">
+      <Navbar2 />
       <div className="bg-white border-b px-6 py-3">
         <div className="flex items-center justify-end gap-6 text-sm">
           <span className="text-gray-700">
@@ -517,7 +518,6 @@ export default function ApplicantInformation() {
 
       <div className="bg-white border-b px-6 py-4">
         <div className="flex items-center gap-2 text-sm text-gray-600">
-          <SidebarTrigger className="-ml-1" />
           <button
             onClick={() => navigate("/dashboard")}
             className="hover:text-gray-900 transition"

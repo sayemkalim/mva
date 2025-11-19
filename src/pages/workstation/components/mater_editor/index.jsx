@@ -57,7 +57,7 @@ const MatterEditor = () => {
         title={isEditMode ? "Initial Info" : "Add Matter"}
         breadcrumbs={breadcrumbs}
       /> */}
-      <div className="px-8 pb-8">
+      <div>
         {isLoading ? (
           <div className="flex justify-center items-center h-48">
             <div className="flex flex-col items-center gap-3">

@@ -4,6 +4,7 @@ import { useDebounce } from "@uidotdev/usehooks";
 import CustomActionMenu from "@/components/custom_action";
 import NavbarItem from "@/components/navbar/navbar_item";
 import MatterTable from "./components/MatterTable";
+import { Navbar2 } from "@/components/navbar2";
 
 const Matter = () => {
   const navigate = useNavigate();
@@ -47,6 +48,7 @@ const Matter = () => {
 
   return (
     <div className="flex flex-col">
+      <Navbar2 theme={theme} toggleTheme={toggleTheme} />
       <NavbarItem title="Matters" breadcrumbs={breadcrumbs} />
 
       <div className="px-4">

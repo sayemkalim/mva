@@ -1,19 +1,13 @@
+import { Toaster } from "sonner";
 
-import { Toaster } from "sonner"
-
-import Router from './router';
-
+import Router from "./router";
 
 const App = () => {
   return (
     <>
-    <Toaster position="top-center" richColors />
-    <Router/>
-    
- 
-    
+      <Toaster position="top-center" richColors />
+      <Router />
     </>
-   
   );
 };
 

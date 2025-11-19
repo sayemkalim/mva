@@ -18,7 +18,7 @@ import { toast } from "sonner";
 import { getAccidentInfoMeta } from "../helpers/fetchAccidentInfoMetadata";
 import { fetchAccidentInfoBySlug } from "../helpers/fetchAccidentInfoBySlug";
 import { createAccidentInfo } from "../helpers/createAccidentInfo";
-import { SidebarTrigger } from "@/components/ui/sidebar";
+import { Navbar2 } from "@/components/navbar2";
 
 export default function AccidentalInformation() {
   const { slug } = useParams();
@@ -245,7 +245,7 @@ export default function AccidentalInformation() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header with Financial Stats */}
+      <Navbar2 />
       <div className="bg-white border-b px-6 py-3">
         <div className="flex items-center justify-end gap-6 text-sm">
           <span className="text-gray-700">
@@ -266,7 +266,6 @@ export default function AccidentalInformation() {
       {/* Breadcrumb */}
       <div className="bg-white border-b px-6 py-4">
         <div className="flex items-center gap-2 text-sm text-gray-600">
-          <SidebarTrigger className="-ml-1" />
           <button
             onClick={() => navigate("/dashboard")}
             className="hover:text-gray-900 transition"
