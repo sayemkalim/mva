@@ -234,9 +234,7 @@ const AddMatterCard = ({
     console.log("Final Payload:", JSON.stringify(payload, null, 2));
     saveMutation.mutate(payload);
   };
-
   const isSubmitting = saveMutation.isPending;
-
   if (!metadata) {
     return (
       <div className="max-w-6xl mx-auto bg-white p-8 rounded-lg shadow">
@@ -388,12 +386,12 @@ const AddMatterCard = ({
       className="max-w-6xl mx-auto bg-white p-8 rounded-lg shadow space-y-6"
     >
       <h2 className="text-2xl font-bold mb-6">
-        {isEditMode ? "Edit Matter" : "Add New Matter"}
+        {isEditMode ? "Initial Info Overview" : "Add New Matter"}
       </h2>
 
       {/* File Details */}
       <div className="space-y-4">
-        <h3 className="text-lg font-semibold">File Details</h3>
+        {/* <h3 className="text-lg font-semibold">File Details</h3> */}
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>

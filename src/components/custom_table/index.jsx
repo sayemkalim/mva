@@ -37,11 +37,10 @@ function CustomTable({
   currentPage,
   perPage,
   onPageChange,
+  onRowClick,
   emptyStateMessage = "No records available.",
 }) {
   const [sorting, setSorting] = useState([]);
-
-  // Check if pagination is enabled
   const isPaginationEnabled =
     totalPages && currentPage && perPage && onPageChange;
 
@@ -136,9 +135,24 @@ function CustomTable({
         </TableHeader>
         <TableBody>
           {table.getRowModel().rows.map((row) => (
-            <TableRow key={row.id}>
+            <TableRow
+              key={row.id}
+              onClick={() => onRowClick && onRowClick(row.original)}
+              className={
+                onRowClick
+                  ? "cursor-pointer hover:bg-gray-50 transition-colors"
+                  : ""
+              }
+            >
               {row.getVisibleCells().map((cell) => (
-                <TableCell key={cell.id}>
+                <TableCell
+                  key={cell.id}
+                  onClick={(e) => {
+                    if (cell.column.id === "actions") {
+                      e.stopPropagation();
+                    }
+                  }}
+                >
                   {flexRender(cell.column.columnDef.cell, cell.getContext())}
                 </TableCell>
               ))}
@@ -146,12 +160,9 @@ function CustomTable({
           ))}
         </TableBody>
       </Table>
-
-      {/* Conditionally render pagination */}
       {isPaginationEnabled && (
         <Pagination>
           <PaginationContent>
-            {/* Previous Button */}
             <PaginationItem>
               <PaginationPrevious
                 href="#"

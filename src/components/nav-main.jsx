@@ -42,7 +42,7 @@ export function NavMain({ items, showHeader = false, header }) {
                       item.items.some(
                         (subItem) => subItem.url === location.pathname
                       )
-                        ? "bg-gray-200 dark:bg-gray-700"
+                        ? "bg-[#7f24fd]/10 text-[#7f24fd] dark:bg-[#7f24fd]/10 dark:text-[#7f24fd]"
                         : ""
                     }
                   >
@@ -60,7 +60,7 @@ export function NavMain({ items, showHeader = false, header }) {
                             onClick={() => navigate(subItem.url)}
                             className={
                               location.pathname === subItem.url
-                                ? "bg-gray-300 dark:bg-gray-600"
+                                ? "bg-[#7f24fd]/10 text-[#7f24fd] dark:bg-[#7f24fd]/10 dark:text-[#7f24fd]"
                                 : ""
                             }
                           >
@@ -80,7 +80,7 @@ export function NavMain({ items, showHeader = false, header }) {
                 onClick={() => navigate(item.url)}
                 className={
                   location.pathname === item.url
-                    ? "bg-gray-200 dark:bg-gray-700"
+                    ? "bg-[#7f24fd]/10 text-[#7f24fd] dark:bg-[#7f24fd]/10 dark:text-[#7f24fd]"
                     : ""
                 }
               >

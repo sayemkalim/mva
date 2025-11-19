@@ -13,6 +13,10 @@ import Signup from "@/pages/signup";
 import ForgotPassword from "@/pages/forget-password";
 import Matter from "@/pages/workstation";
 import MatterEditor from "@/pages/workstation/components/mater_editor";
+import ApplicantInformation from "@/pages/applicantInfo/applicantInfo_editor";
+import Identification from "@/pages/identification/identification_editor";
+import Employment from "@/pages/employment/employment_editor";
+import SchoolCaregiver from "@/pages/schoolOrCaregiver/schoolOrCaregiver_editor";
 
 const Router = () => {
   return (
@@ -26,19 +30,32 @@ const Router = () => {
       <Route element={<ProtectedRoute />}>
         <Route path="/dashboard" element={<Layout />}>
           <Route index element={<Dashboard />} />
-          {/* ProductsRoute */}
           <Route path="/dashboard/workstation" element={<Matter />} />
           <Route path="/dashboard/workstation/add" element={<MatterEditor />} />
           <Route
             path="/dashboard/workstation/edit/:slug"
             element={<MatterEditor />}
           />
-
-          {/* Blogs */}
-          {/* <Route path="/dashboard/blogs" element={<Blogs />} />
-          <Route path="/dashboard/blogs/add" element={<BlogEditor />} />
-          <Route path="/dashboard/blogs/edit/:id" element={<BlogEditor />} /> */}
-          {/* <Route path="/dashboard/blogs/:id" element={<BlogDetails />} /> */}
+          <Route
+            path="/dashboard/workstation/edit/:slug/applicant-information"
+            element={<ApplicantInformation />}
+          />
+          <Route
+            path="/dashboard/workstation/edit/:slug/identification"
+            element={<Identification />}
+          />
+          <Route
+            path="/dashboard/workstation/edit/:slug/employment"
+            element={<Employment />}
+          />
+          <Route
+            path="/dashboard/workstation/edit/:slug/school-caregiver"
+            element={<SchoolCaregiver />}
+          />
+          <Route
+            path="/dashboard/workstation/edit/:slug/representative-referral"
+            element={<SchoolCaregiver />}
+          />
           <Route path="/dashboard/contact-us" element={<ContactUs />} />
         </Route>
       </Route>

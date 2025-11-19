@@ -31,7 +31,6 @@ const MatterEditor = () => {
   } = useQuery({
     queryKey: ["matter", slug],
     queryFn: () => {
-      // Slug validation check - agar undefined hai to function call mat karo
       if (!slug) {
         return Promise.reject(new Error("Slug is required"));
       }
@@ -51,17 +50,16 @@ const MatterEditor = () => {
 
   const breadcrumbs = [
     { title: "Matters", isNavigation: true, path: "/dashboard/workstations" },
-    { title: isEditMode ? "Edit Matter" : "Add Matter", isNavigation: false },
+    { title: isEditMode ? "Initial Info " : "Add Matter", isNavigation: false },
   ];
 
-  // Combined loading state
   const isLoading = isMetadataLoading || (isEditMode && isMatterLoading);
   const error = metadataError || matterError;
 
   return (
     <div className="flex flex-col gap-2">
       <NavbarItem
-        title={isEditMode ? "Edit Matter" : "Add Matter"}
+        title={isEditMode ? "Initial Info" : "Add Matter"}
         breadcrumbs={breadcrumbs}
       />
       <div className="px-8 pb-8">
@@ -85,10 +83,10 @@ const MatterEditor = () => {
             </p>
             <p className="text-sm text-red-500 mb-4">Error: {error.message}</p>
             <button
-              onClick={() => navigate("/dashboard/workstations")}
+              onClick={() => navigate("/dashboard/workstation")}
               className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
             >
-              Go Back to Matters
+              Go Back to Workstation
             </button>
           </div>
         ) : !metadata?.Apistatus ? (

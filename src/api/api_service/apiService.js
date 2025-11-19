@@ -11,7 +11,7 @@ export const apiService = async ({
   headers = {},
   customUrl,
   removeToken = false,
-  signal
+  signal,
 }) => {
   try {
     const token = getItem("token");

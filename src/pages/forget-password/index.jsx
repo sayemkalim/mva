@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useMutation } from "@tanstack/react-query";
+import { useNavigate } from "react-router-dom";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -11,11 +12,21 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Loader2, Mail, CheckCircle, XCircle } from "lucide-react";
+import { Loader2, Mail, CheckCircle, XCircle, Lock, Key } from "lucide-react";
 import { apiService } from "@/api/api_service/apiService";
 
 const ForgotPassword = () => {
+  const navigate = useNavigate();
   const [email, setEmail] = useState("");
+  const [showResetForm, setShowResetForm] = useState(false);
+  const [resetData, setResetData] = useState({
+    otp_code: "",
+    password: "",
+    password_confirmation: "",
+  });
+  const [passwordError, setPasswordError] = useState("");
+
+  // Forgot Password Mutation
   const forgotPasswordMutation = useMutation({
     mutationFn: async (email) => {
       return await apiService({
@@ -26,8 +37,9 @@ const ForgotPassword = () => {
       });
     },
     onSuccess: (data) => {
-      if (data.response?.success) {
+      if (data.response?.message) {
         console.log("Password reset link sent successfully");
+        setShowResetForm(true);
       }
     },
     onError: (error) => {
@@ -35,14 +47,88 @@ const ForgotPassword = () => {
     },
   });
 
-  const handleSubmit = (e) => {
+  // Reset Password Mutation
+  const resetPasswordMutation = useMutation({
+    mutationFn: async (data) => {
+      return await apiService({
+        endpoint: "api/reset-password",
+        method: "POST",
+        data: {
+          email: email,
+          otp_code: data.otp_code,
+          password: data.password,
+          password_confirmation: data.password_confirmation,
+        },
+        removeToken: true,
+      });
+    },
+    onSuccess: (data) => {
+      if (data.response?.message) {
+        console.log("Password reset successful");
+        setTimeout(() => {
+          navigate("/login");
+        }, 2000);
+      }
+    },
+    onError: (error) => {
+      console.error("Reset password error:", error);
+    },
+  });
+
+  const validatePassword = (password) => {
+    const hasUpperCase = /[A-Z]/.test(password);
+    const hasLowerCase = /[a-z]/.test(password);
+    const hasNumber = /[0-9]/.test(password);
+    const hasSymbol = /[!@#$%^&*(),.?":{}|<>]/.test(password);
+
+    if (!hasUpperCase || !hasLowerCase || !hasNumber || !hasSymbol) {
+      return "Password must include at least 1 uppercase letter, 1 lowercase letter, 1 number, and 1 symbol.";
+    }
+    return "";
+  };
+
+  const handleEmailSubmit = (e) => {
+    e.preventDefault();
+    if (!email) return;
+    forgotPasswordMutation.mutate(email);
+  };
+
+  const handleResetSubmit = (e) => {
     e.preventDefault();
 
-    if (!email) {
+    if (
+      !resetData.otp_code ||
+      !resetData.password ||
+      !resetData.password_confirmation
+    ) {
       return;
     }
 
-    forgotPasswordMutation.mutate(email);
+    // Password validation
+    const passwordValidationError = validatePassword(resetData.password);
+    if (passwordValidationError) {
+      setPasswordError(passwordValidationError);
+      return;
+    }
+
+    // Check if passwords match
+    if (resetData.password !== resetData.password_confirmation) {
+      setPasswordError("Passwords do not match");
+      return;
+    }
+
+    setPasswordError("");
+    resetPasswordMutation.mutate(resetData);
+  };
+
+  const handleResetDataChange = (field, value) => {
+    setResetData((prev) => ({
+      ...prev,
+      [field]: value,
+    }));
+    if (field === "password" || field === "password_confirmation") {
+      setPasswordError("");
+    }
   };
 
   return (
@@ -50,79 +136,213 @@ const ForgotPassword = () => {
       <Card className="w-full max-w-md shadow-lg">
         <CardHeader className="space-y-1">
           <CardTitle className="text-2xl font-bold text-center">
-            Forgot Password{" "}
+            {!showResetForm ? "Forgot Password" : "Reset Password"}
           </CardTitle>
           <CardDescription className="text-center">
-            Enter your email address to receive an OTP
+            {!showResetForm
+              ? "Enter your email address to receive an OTP"
+              : "Enter OTP and create a new password"}
           </CardDescription>
         </CardHeader>
 
         <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-4">
-            {/* Email Input Field */}
-            <div className="space-y-2">
-              <Label htmlFor="email" className="text-sm font-medium">
-                Email Address
-              </Label>
-              <div className="relative">
-                <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
-                <Input
-                  id="email"
-                  type="email"
-                  placeholder="Enter your email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="pl-10"
-                  required
-                  disabled={forgotPasswordMutation.isPending}
-                />
+          {/* Email Form - Shows by default */}
+          {!showResetForm && (
+            <form onSubmit={handleEmailSubmit} className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="email" className="text-sm font-medium">
+                  Email Address
+                </Label>
+                <div className="relative">
+                  <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+                  <Input
+                    id="email"
+                    type="email"
+                    placeholder="Enter your email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="pl-10"
+                    required
+                    disabled={forgotPasswordMutation.isPending}
+                  />
+                </div>
               </div>
-            </div>
 
-            {/* Success Message */}
-            {forgotPasswordMutation.isSuccess &&
-              forgotPasswordMutation.data?.response?.success && (
-                <Alert className="border-green-200 bg-green-50">
-                  <CheckCircle className="h-4 w-4 text-green-600" />
-                  <AlertDescription className="text-green-800">
-                    Send Reset Code
+              {forgotPasswordMutation.isError && (
+                <Alert className="border-red-200 bg-red-50">
+                  <XCircle className="h-4 w-4 text-red-600" />
+                  <AlertDescription className="text-red-800">
+                    {forgotPasswordMutation.error?.message ||
+                      "Failed to send reset code. Please try again."}
                   </AlertDescription>
                 </Alert>
               )}
 
-            {/* Error Message */}
-            {forgotPasswordMutation.isError && (
-              <Alert className="border-red-200 bg-red-50">
-                <XCircle className="h-4 w-4 text-red-600" />
-                <AlertDescription className="text-red-800">
-                  Error
+              <Button
+                type="submit"
+                className="w-full"
+                disabled={forgotPasswordMutation.isPending}
+              >
+                {forgotPasswordMutation.isPending ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Sending...
+                  </>
+                ) : (
+                  "Send Reset Code"
+                )}
+              </Button>
+
+              <div className="text-center text-sm">
+                <a
+                  href="/login"
+                  className="text-primary hover:underline font-medium"
+                >
+                  Login
+                </a>
+              </div>
+            </form>
+          )}
+
+          {/* Reset Password Form - Shows only after email success */}
+          {showResetForm && (
+            <form onSubmit={handleResetSubmit} className="space-y-4">
+              <Alert className="border-green-200 bg-green-50">
+                <CheckCircle className="h-4 w-4 text-green-600" />
+                <AlertDescription className="text-green-800">
+                  OTP sent to {email}. Check your email!
                 </AlertDescription>
               </Alert>
-            )}
 
-            <Button
-              type="submit"
-              className="w-full"
-              disabled={forgotPasswordMutation.isPending}
-            >
-              {forgotPasswordMutation.isPending ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                </>
-              ) : (
-                "                    Send Reset Code"
+              <div className="space-y-2">
+                <Label htmlFor="otp" className="text-sm font-medium">
+                  OTP Code
+                </Label>
+                <div className="relative">
+                  <Key className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+                  <Input
+                    id="otp"
+                    type="text"
+                    placeholder="Enter OTP"
+                    value={resetData.otp_code}
+                    onChange={(e) =>
+                      handleResetDataChange("otp_code", e.target.value)
+                    }
+                    className="pl-10"
+                    required
+                    disabled={resetPasswordMutation.isPending}
+                    maxLength={6}
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="password" className="text-sm font-medium">
+                  New Password
+                </Label>
+                <div className="relative">
+                  <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+                  <Input
+                    id="password"
+                    type="password"
+                    placeholder="Enter new password"
+                    value={resetData.password}
+                    onChange={(e) =>
+                      handleResetDataChange("password", e.target.value)
+                    }
+                    className="pl-10"
+                    required
+                    disabled={resetPasswordMutation.isPending}
+                  />
+                </div>
+                <p className="text-xs text-gray-500">
+                  Must include 1 uppercase, 1 lowercase, 1 number, and 1 symbol
+                </p>
+              </div>
+
+              <div className="space-y-2">
+                <Label
+                  htmlFor="password_confirmation"
+                  className="text-sm font-medium"
+                >
+                  Confirm Password
+                </Label>
+                <div className="relative">
+                  <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+                  <Input
+                    id="password_confirmation"
+                    type="password"
+                    placeholder="Confirm new password"
+                    value={resetData.password_confirmation}
+                    onChange={(e) =>
+                      handleResetDataChange(
+                        "password_confirmation",
+                        e.target.value
+                      )
+                    }
+                    className="pl-10"
+                    required
+                    disabled={resetPasswordMutation.isPending}
+                  />
+                </div>
+              </div>
+
+              {passwordError && (
+                <Alert className="border-red-200 bg-red-50">
+                  <XCircle className="h-4 w-4 text-red-600" />
+                  <AlertDescription className="text-red-800">
+                    {passwordError}
+                  </AlertDescription>
+                </Alert>
               )}
-            </Button>
 
-            <div className="text-center text-sm">
-              <a
-                href="/login"
-                className="text-primary hover:underline font-medium"
+              {resetPasswordMutation.isSuccess &&
+                resetPasswordMutation.data?.response?.success && (
+                  <Alert className="border-green-200 bg-green-50">
+                    <CheckCircle className="h-4 w-4 text-green-600" />
+                    <AlertDescription className="text-green-800">
+                      Password reset successful! Redirecting to login...
+                    </AlertDescription>
+                  </Alert>
+                )}
+
+              {resetPasswordMutation.isError && (
+                <Alert className="border-red-200 bg-red-50">
+                  <XCircle className="h-4 w-4 text-red-600" />
+                  <AlertDescription className="text-red-800">
+                    {resetPasswordMutation.error?.message ||
+                      "Failed to reset password. Please check your OTP."}
+                  </AlertDescription>
+                </Alert>
+              )}
+
+              <Button
+                type="submit"
+                className="w-full"
+                disabled={resetPasswordMutation.isPending}
               >
-                Login
-              </a>
-            </div>
-          </form>
+                {resetPasswordMutation.isPending ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Resetting...
+                  </>
+                ) : (
+                  "Reset Password"
+                )}
+              </Button>
+
+              <div className="text-center text-sm">
+                <button
+                  type="button"
+                  onClick={() => setShowResetForm(false)}
+                  className="text-primary hover:underline font-medium"
+                  disabled={resetPasswordMutation.isPending}
+                >
+                  Back to Email
+                </button>
+              </div>
+            </form>
+          )}
         </CardContent>
       </Card>
     </div>

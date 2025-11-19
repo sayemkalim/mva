@@ -91,6 +91,9 @@ const MatterTable = ({ setBlogsLength }) => {
     }
     navigate(`/dashboard/workstation/${workstation.slug}`);
   };
+  const handleRowClick = (row) => {
+    onNavigateToEdit(row);
+  };
 
   const columns = [
     {
@@ -176,32 +179,32 @@ const MatterTable = ({ setBlogsLength }) => {
         </div>
       ),
     },
-    {
-      key: "actions",
-      label: "Actions",
-      render: (value, row) => (
-        <ActionMenu
-          options={[
-            {
-              label: "View Details",
-              icon: Eye,
-              action: () => onNavigateDetails(row),
-            },
-            {
-              label: "Edit",
-              icon: Pencil,
-              action: () => onNavigateToEdit(row),
-            },
-            {
-              label: "Delete",
-              icon: Trash2,
-              action: () => onOpenDialog(row),
-              className: "text-red-500",
-            },
-          ]}
-        />
-      ),
-    },
+    // {
+    //   key: "actions",
+    //   label: "Actions",
+    //   render: (value, row) => (
+    //     <ActionMenu
+    //       options={[
+    //         // {
+    //         //   label: "View Details",
+    //         //   icon: Eye,
+    //         //   action: () => onNavigateDetails(row),
+    //         // },
+    //         {
+    //           label: "Edit",
+    //           icon: Pencil,
+    //           action: () => onNavigateToEdit(row),
+    //         },
+    //         {
+    //           label: "Delete",
+    //           icon: Trash2,
+    //           action: () => onOpenDialog(row),
+    //           className: "text-red-500",
+    //         },
+    //       ]}
+    //     />
+    //   ),
+    // },
   ];
 
   return (
@@ -211,6 +214,7 @@ const MatterTable = ({ setBlogsLength }) => {
         data={workstations}
         isLoading={isLoading}
         error={error}
+        onRowClick={handleRowClick}
       />
       <CustomDialog
         onOpen={openDelete}

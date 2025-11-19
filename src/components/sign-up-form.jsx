@@ -234,9 +234,7 @@ export function SignupForm() {
     return (
       <div className="flex flex-col items-center justify-center gap-4 py-8">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
-        <p className="text-sm text-muted-foreground">
-          Form load ho raha hai...
-        </p>
+        <p className="text-sm text-muted-foreground">Loading Meta Data</p>
       </div>
     );
   }
