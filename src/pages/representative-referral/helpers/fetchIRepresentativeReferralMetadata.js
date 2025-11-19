@@ -1,17 +1,19 @@
 import { apiService } from "@/api/api_service/apiService";
 import { endpoints } from "@/api/endpoints";
 
-export const fetchWorkstationList = async () => {
+export const getRepresentativeReferralMeta = async () => {
   try {
     const apiResponse = await apiService({
-      endpoint: `${endpoints.workstation_list}`,
+      endpoint: `${endpoints.representativeReferralMeta}`,
       method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
     });
 
-    console.log("ApFull API response:", apiResponse);
     return apiResponse;
   } catch (error) {
-    console.error("Error fetching workstation list:", error);
+    console.error("Error fetching Employment meta:", error);
     throw error;
   }
 };

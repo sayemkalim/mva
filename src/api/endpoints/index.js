@@ -1,4 +1,4 @@
-import { create } from "domain";
+import { createSecondaryEhc } from "@/pages/secondary-ehc/helpers/createSecondaryEhc";
 
 export const endpoints = {
   login: "api/login",
@@ -26,4 +26,10 @@ export const endpoints = {
   representativeReferral: "api/v2/file/representative-referral/show",
   createRepresentativeReferral: "api/v2/file/representative-referral",
   representativeReferralMeta: "api/v2/file/representative-referral/meta",
+  createPrimaryEhc: "api/v2/file/primary-ehc",
+  primaryEhcmeta: "api/v2/file/primary-ehc/meta",
+  primaryEhc: "api/v2/file/primary-ehc/show",
+  createSecondaryEhc: "api/v2/file/secondary-ehc",
+  secondaryEhcMeta: "api/v2/file/secondary-ehc/meta",
+  secondaryEhc: "api/v2/file/secondary-ehc/show",
 };

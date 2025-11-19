@@ -95,6 +95,23 @@ export const getEditModeData = (slug) => ({
           url: `/dashboard/workstation/edit/${slug}/primary-ehc`,
           icon: Heart,
         },
+        {
+          title: "Secondary Ehc",
+          url: `/dashboard/workstation/edit/${slug}/secondary-ehc`,
+          icon: Heart,
+        },
+      ],
+    },
+    {
+      title: "Accident Detail",
+      url: ``,
+      icon: FileText,
+      items: [
+        {
+          title: "Accident Information",
+          url: `/dashboard/workstation/edit/${slug}/accident-information`,
+          icon: User,
+        },
       ],
     },
   ],

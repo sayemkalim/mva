@@ -36,8 +36,6 @@ export default function SchoolCaregiver() {
   });
 
   const metadata = apiResponse?.response || {};
-
-  // Fetch school/caregiver data by slug (for edit mode)
   const { data: schoolCaregiverData, isLoading: isLoadingSchoolCaregiver } =
     useQuery({
       queryKey: ["schoolCaregiver", slug],
@@ -65,11 +63,11 @@ export default function SchoolCaregiver() {
   const createMutation = useMutation({
     mutationFn: createSchoolorCaregiver,
     onSuccess: (apiResponse) => {
-      console.log("✅ Success Response:", apiResponse);
+      // console.log("✅ Success Response:", apiResponse);
 
       if (apiResponse?.response?.Apistatus) {
         toast.success("School/Caregiver information saved successfully!");
-        navigate(`/dashboard/workstation/edit/${slug}/next-page`);
+        navigate(`/dashboard/workstation/edit/${slug}/representative-referral`);
       }
     },
     onError: (error) => {
@@ -79,7 +77,6 @@ export default function SchoolCaregiver() {
   });
 
   const [formData, setFormData] = useState({
-    // School Information
     was_full_time_student_id: null,
     school_name: "",
     address: {
@@ -97,12 +94,9 @@ export default function SchoolCaregiver() {
     currently_attending_id: null,
     returned_to_school_id: null,
 
-    // Caregiving Information
     caregiving_description: "",
     injuries_prevented_caregiving_id: null,
     returned_to_caregiving_id: null,
-
-    // Caregivers 1-5
     caregiver_name_1: "",
     caregiver_dob_1: "",
     caregiver_disabled_1: null,
@@ -124,7 +118,6 @@ export default function SchoolCaregiver() {
     caregiver_disabled_5: null,
   });
 
-  // Check for valid slug
   useEffect(() => {
     if (!slug) {
       toast.error("Invalid URL - Slug not found!");
@@ -132,13 +125,12 @@ export default function SchoolCaregiver() {
     }
   }, [slug, navigate]);
 
-  // Populate form when data is loaded
   useEffect(() => {
     if (schoolCaregiverData) {
-      console.log(
-        "📝 Populating form with existing data:",
-        schoolCaregiverData
-      );
+      // console.log(
+      //   "📝 Populating form with existing data:",
+      //   schoolCaregiverData
+      // );
 
       setFormData({
         was_full_time_student_id:
@@ -223,15 +215,11 @@ export default function SchoolCaregiver() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    // Helper to check if address has any filled field
     const isAddressFilled = (address) => {
       return Object.values(address).some(
         (value) => value && value.trim() !== ""
       );
     };
-
-    // Build payload
     const payload = {
       was_full_time_student_id: formData.was_full_time_student_id || null,
       school_name: formData.school_name || null,
@@ -279,7 +267,6 @@ export default function SchoolCaregiver() {
     });
   };
 
-  // Loading state
   if (isLoadingMetadata || isLoadingSchoolCaregiver) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -288,8 +275,6 @@ export default function SchoolCaregiver() {
       </div>
     );
   }
-
-  // Critical error: Metadata failed
   if (isMetadataError) {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen gap-4">

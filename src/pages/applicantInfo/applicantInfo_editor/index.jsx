@@ -23,8 +23,6 @@ export default function ApplicantInformation() {
   const { slug } = useParams();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-
-  // Fetch metadata
   const {
     data: apiResponse,
     isLoading: isLoadingMetadata,
@@ -36,10 +34,7 @@ export default function ApplicantInformation() {
     staleTime: 5 * 60 * 1000,
     retry: 2,
   });
-
   const metadata = apiResponse?.response || {};
-
-  // Fetch applicant data by slug (for edit mode)
   const { data: applicantData, isLoading: isLoadingApplicant } = useQuery({
     queryKey: ["applicantInfo", slug],
     queryFn: async () => {
@@ -62,8 +57,6 @@ export default function ApplicantInformation() {
     staleTime: 5 * 60 * 1000,
     retry: 1,
   });
-
-  // Mutation for creating applicant info
   const createMutation = useMutation({
     mutationFn: createApplicantInfo,
     onSuccess: (data) => {
@@ -142,19 +135,15 @@ export default function ApplicantInformation() {
     children: [{ first_name: "", middle_number: "", last_name: "", dob: "" }],
     meeting_clients: [{ date: "" }],
   });
-
-  // Check for valid slug
   useEffect(() => {
     if (!slug) {
       toast.error("Invalid URL - Slug not found!");
       navigate("/dashboard/workstation");
     }
   }, [slug, navigate]);
-
-  // Populate form when applicant data is loaded
   useEffect(() => {
     if (applicantData) {
-      console.log("📝 Populating form with existing data");
+      console.log("Populating form with existing data");
 
       setFormData({
         gender_id: applicantData.gender_id || "",
@@ -317,15 +306,11 @@ export default function ApplicantInformation() {
       toast.error("Please fill all required fields!");
       return;
     }
-
-    // Helper function to check if address has any data
     const isAddressFilled = (address) => {
       return Object.values(address).some(
         (value) => value && value.trim() !== ""
       );
     };
-
-    // Prepare payload
     const payload = {
       gender_id: formData.gender_id || null,
       last_name: formData.last_name,
@@ -393,8 +378,6 @@ export default function ApplicantInformation() {
       data: payload,
     });
   };
-
-  // Loading state
   if (isLoadingMetadata || isLoadingApplicant) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -403,8 +386,6 @@ export default function ApplicantInformation() {
       </div>
     );
   }
-
-  // Critical error: Metadata failed
   if (isMetadataError) {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen gap-4">

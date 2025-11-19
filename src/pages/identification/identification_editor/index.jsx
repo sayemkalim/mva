@@ -22,8 +22,6 @@ export default function Identification() {
   const { slug } = useParams();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-
-  // Fetch metadata
   const {
     data: apiResponse,
     isLoading: isLoadingMetadata,
@@ -85,24 +83,18 @@ export default function Identification() {
       identification_number: "",
     },
   ]);
-
-  // Check for valid slug
   useEffect(() => {
     if (!slug) {
       toast.error("Invalid URL - Slug not found!");
       navigate("/dashboard/workstation");
     }
   }, [slug, navigate]);
-
-  // Populate form when identification data is loaded
   useEffect(() => {
     if (
       identificationData &&
       Array.isArray(identificationData) &&
       identificationData.length > 0
     ) {
-      console.log("📝 Populating form with existing data");
-
       setIdentifications(
         identificationData.map((item) => ({
           attachment_id: item.attachment_id || 1,
@@ -135,7 +127,6 @@ export default function Identification() {
     );
   };
 
-  // ✅ Special handler for identification type (stores name, not ID)
   const handleTypeChange = (index, value) => {
     const selectedType = metadata?.type?.find((t) => t.id === Number(value));
 
@@ -190,7 +181,6 @@ export default function Identification() {
       return;
     }
 
-    // Filter and clean payload
     const payload = identifications
       .filter(
         (item) =>
@@ -207,19 +197,12 @@ export default function Identification() {
         identification_country: item.identification_country || null,
         identification_number: item.identification_number || null,
       }));
-
-    console.log(
-      "📤 Submitting Identification Payload:",
-      JSON.stringify(payload, null, 2)
-    );
-
     createMutation.mutate({
       slug: slug,
       data: payload,
     });
   };
 
-  // Loading state
   if (isLoadingMetadata || isLoadingIdentification) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -229,7 +212,6 @@ export default function Identification() {
     );
   }
 
-  // Critical error: Metadata failed
   if (isMetadataError) {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen gap-4">

@@ -17,6 +17,9 @@ import ApplicantInformation from "@/pages/applicantInfo/applicantInfo_editor";
 import Identification from "@/pages/identification/identification_editor";
 import Employment from "@/pages/employment/employment_editor";
 import SchoolCaregiver from "@/pages/schoolOrCaregiver/schoolOrCaregiver_editor";
+import RepresentativeReferral from "@/pages/representative-referral/representative-referral_editor";
+import PrimaryEhc from "@/pages/primary-ehc/primary-ehc_editor";
+import SecondaryEhc from "@/pages/secondary-ehc/secondary-ehc_editor";
 
 const Router = () => {
   return (
@@ -54,7 +57,15 @@ const Router = () => {
           />
           <Route
             path="/dashboard/workstation/edit/:slug/representative-referral"
-            element={<SchoolCaregiver />}
+            element={<RepresentativeReferral />}
+          />
+          <Route
+            path="/dashboard/workstation/edit/:slug/primary-ehc"
+            element={<PrimaryEhc />}
+          />
+          <Route
+            path="/dashboard/workstation/edit/:slug/secondary-ehc"
+            element={<SecondaryEhc />}
           />
           <Route path="/dashboard/contact-us" element={<ContactUs />} />
         </Route>

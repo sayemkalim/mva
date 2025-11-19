@@ -23,8 +23,6 @@ export default function Employment() {
   const { slug } = useParams();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-
-  // Fetch metadata
   const {
     data: apiResponse,
     isLoading: isLoadingMetadata,
@@ -36,9 +34,7 @@ export default function Employment() {
     staleTime: 5 * 60 * 1000,
     retry: 2,
   });
-
   const metadata = apiResponse?.response || {};
-
   const { data: employmentData, isLoading: isLoadingEmployment } = useQuery({
     queryKey: ["employment", slug],
     queryFn: async () => {
@@ -61,20 +57,15 @@ export default function Employment() {
     staleTime: 5 * 60 * 1000,
     retry: 1,
   });
-
-  // Mutation for creating employment
   const createMutation = useMutation({
     mutationFn: createEmployment,
     onSuccess: (apiResponse) => {
-      console.log("✅ Success Response:", apiResponse);
-
       if (apiResponse?.response?.Apistatus) {
         toast.success("Employment information saved successfully!");
         navigate(`/dashboard/workstation/edit/${slug}/next-page`);
       }
     },
     onError: (error) => {
-      console.error("❌ Mutation Error:", error);
       toast.error("Failed to save employment. Please try again.");
     },
   });
@@ -108,8 +99,6 @@ export default function Employment() {
       },
     ],
   });
-
-  // Check for valid slug
   useEffect(() => {
     if (!slug) {
       toast.error("Invalid URL - Slug not found!");
@@ -117,12 +106,8 @@ export default function Employment() {
     }
   }, [slug, navigate]);
 
-  // Populate form when employment data is loaded
-  // Populate form when employment data is loaded
   useEffect(() => {
     if (employmentData) {
-      console.log("📝 Populating form with existing data");
-
       setFormData({
         employer_name: employmentData.employer_name || "",
         address: {
@@ -143,8 +128,6 @@ export default function Employment() {
         employed_id: employmentData.employed_id || null,
         not_employed_id: employmentData.not_employed_id || null,
         unemployed_and_id: employmentData.unemployed_and_id || null,
-
-        // ✅ Map other_incomes (from response) to other_income (form state)
         other_income:
           employmentData.other_incomes &&
           employmentData.other_incomes.length > 0
@@ -241,15 +224,11 @@ export default function Employment() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    // Helper to check if address has any filled field
     const isAddressFilled = (address) => {
       return Object.values(address).some(
         (value) => value && value.trim() !== ""
       );
     };
-
-    // Build payload
     const payload = {
       employer_name: formData.employer_name || null,
       address: isAddressFilled(formData.address) ? formData.address : null,
@@ -275,14 +254,11 @@ export default function Employment() {
       "📤 Submitting Employment Payload:",
       JSON.stringify(payload, null, 2)
     );
-
     createMutation.mutate({
       slug: slug,
       data: payload,
     });
   };
-
-  // Loading state
   if (isLoadingMetadata || isLoadingEmployment) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -291,8 +267,6 @@ export default function Employment() {
       </div>
     );
   }
-
-  // Critical error: Metadata failed
   if (isMetadataError) {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen gap-4">

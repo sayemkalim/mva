@@ -10,8 +10,6 @@ const MatterEditor = () => {
   const { slug } = useParams();
   const navigate = useNavigate();
   const isEditMode = !!slug;
-
-  // Fetch matter metadata (dropdown options)
   const {
     data: metadataRes,
     isLoading: isMetadataLoading,
@@ -22,8 +20,6 @@ const MatterEditor = () => {
     staleTime: 5 * 60 * 1000,
     refetchOnMount: false,
   });
-
-  // Fetch existing matter data if editing
   const {
     data: matterData,
     isLoading: isMatterLoading,
@@ -36,12 +32,11 @@ const MatterEditor = () => {
       }
       return fetchMatterBySlug(slug);
     },
-    enabled: isEditMode && !!slug, // Double check slug exists
+    enabled: isEditMode && !!slug,
     staleTime: 5 * 60 * 1000,
-    retry: 1, // Only 1 retry for invalid slugs
+    retry: 1,
     onError: (error) => {
       console.error("Matter fetch error:", error);
-      // Agar matter nahi mila to 404 show karo ya back jao
     },
   });
 
@@ -58,10 +53,10 @@ const MatterEditor = () => {
 
   return (
     <div className="flex flex-col gap-2">
-      <NavbarItem
+      {/* <NavbarItem
         title={isEditMode ? "Initial Info" : "Add Matter"}
         breadcrumbs={breadcrumbs}
-      />
+      /> */}
       <div className="px-8 pb-8">
         {isLoading ? (
           <div className="flex justify-center items-center h-48">
