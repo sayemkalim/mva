@@ -20,6 +20,7 @@ import SchoolCaregiver from "@/pages/schoolOrCaregiver/schoolOrCaregiver_editor"
 import RepresentativeReferral from "@/pages/representative-referral/representative-referral_editor";
 import PrimaryEhc from "@/pages/primary-ehc/primary-ehc_editor";
 import SecondaryEhc from "@/pages/secondary-ehc/secondary-ehc_editor";
+import AccidentalInformation from "@/pages/accidentInfo/accidentInfo_editor";
 
 const Router = () => {
   return (
@@ -66,6 +67,10 @@ const Router = () => {
           <Route
             path="/dashboard/workstation/edit/:slug/secondary-ehc"
             element={<SecondaryEhc />}
+          />
+          <Route
+            path="/dashboard/workstation/edit/:slug/accident-information"
+            element={<AccidentalInformation />}
           />
           <Route path="/dashboard/contact-us" element={<ContactUs />} />
         </Route>

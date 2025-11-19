@@ -18,6 +18,7 @@ import { toast } from "sonner";
 import { getPrimaryEhcMeta } from "../helpers/fetchIPrimaryEhcMetadata";
 import { fetchPrimaryEhcBySlug } from "../helpers/fetchPrimaryEhcBySlug";
 import { createPrimaryEhc } from "../helpers/createPrimaryEhc";
+import { SidebarTrigger } from "@/components/ui/sidebar";
 
 export default function PrimaryEhc() {
   const { slug } = useParams();
@@ -139,7 +140,7 @@ export default function PrimaryEhc() {
         ref_last_name_1: primaryEhcData.ref_last_name_1 || "",
       });
 
-      toast.success("Data loaded successfully!");
+      // toast.success("Data loaded successfully!");
     } else {
       console.log("📝 No existing data - showing empty form");
     }
@@ -271,6 +272,8 @@ export default function PrimaryEhc() {
       {/* Breadcrumb */}
       <div className="bg-white border-b px-6 py-4">
         <div className="flex items-center gap-2 text-sm text-gray-600">
+          <SidebarTrigger className="-ml-1" />
+
           <button
             onClick={() => navigate("/dashboard")}
             className="hover:text-gray-900 transition"

@@ -18,6 +18,7 @@ import { toast } from "sonner";
 import { createApplicantInfo } from "../helpers/createApplicantInfo";
 import { getApplicantMeta } from "../helpers/fetchApplicantInfoMetadata";
 import { fetchApplicantInfoBySlug } from "../helpers/fetchApplicantInfoBySlug";
+import { SidebarTrigger } from "@/components/ui/sidebar";
 
 export default function ApplicantInformation() {
   const { slug } = useParams();
@@ -246,7 +247,7 @@ export default function ApplicantInformation() {
             : [{ date: "" }],
       });
 
-      toast.success("Data loaded successfully!");
+      // toast.success("Data loaded successfully!");
     } else {
       console.log("📝 No existing data - showing empty form");
     }
@@ -435,11 +436,19 @@ export default function ApplicantInformation() {
       {/* Breadcrumb */}
       <div className="bg-white border-b px-6 py-4">
         <div className="flex items-center gap-2 text-sm text-gray-600">
+          <SidebarTrigger className="-ml-1" />
           <button
             onClick={() => navigate("/dashboard")}
             className="hover:text-gray-900 transition"
           >
             Dashboard
+          </button>
+          <ChevronRight className="w-4 h-4" />
+          <button
+            onClick={() => navigate("/dashboard/workstation")}
+            className="hover:text-gray-900 transition"
+          >
+            Workstation
           </button>
           <ChevronRight className="w-4 h-4" />
           <button

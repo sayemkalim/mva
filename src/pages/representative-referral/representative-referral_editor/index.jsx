@@ -17,6 +17,7 @@ import { toast } from "sonner";
 import { getRepresentativeReferralMeta } from "../helpers/fetchIRepresentativeReferralMetadata";
 import { fetchRepresentReferralBySlug } from "../helpers/fetchRepresentativeReferralBySlug";
 import { createRepresentativeReferral } from "../helpers/createRepresentativeReferral";
+import { SidebarTrigger } from "@/components/ui/sidebar";
 
 export default function RepresentativeReferral() {
   const { slug } = useParams();
@@ -175,7 +176,7 @@ export default function RepresentativeReferral() {
         referral_email: representativeReferralData.referral_email || "",
       });
 
-      toast.success("Data loaded successfully!");
+      // toast.success("Data loaded successfully!");
     } else {
       console.log("📝 No existing data - showing empty form");
     }
@@ -307,6 +308,8 @@ export default function RepresentativeReferral() {
       {/* Breadcrumb */}
       <div className="bg-white border-b px-6 py-4">
         <div className="flex items-center gap-2 text-sm text-gray-600">
+          <SidebarTrigger className="-ml-1" />
+
           <button
             onClick={() => navigate("/dashboard")}
             className="hover:text-gray-900 transition"

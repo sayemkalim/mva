@@ -18,6 +18,7 @@ import { toast } from "sonner";
 import { getEmploymentMeta } from "../helpers/fetchIEmploymentMetadata";
 import { createEmployment } from "../helpers/createEmployment";
 import { fetchEmploymentyBySlug } from "../helpers/fetchEmploymentBySlug";
+import { SidebarTrigger } from "@/components/ui/sidebar";
 
 export default function Employment() {
   const { slug } = useParams();
@@ -147,7 +148,7 @@ export default function Employment() {
               ],
       });
 
-      toast.success("Data loaded successfully!");
+      // toast.success("Data loaded successfully!");
     } else {
       console.log("📝 No existing data - showing empty form");
     }
@@ -316,6 +317,8 @@ export default function Employment() {
       {/* Breadcrumb */}
       <div className="bg-white border-b px-6 py-4">
         <div className="flex items-center gap-2 text-sm text-gray-600">
+          <SidebarTrigger className="-ml-1" />
+
           <button
             onClick={() => navigate("/dashboard")}
             className="hover:text-gray-900 transition"

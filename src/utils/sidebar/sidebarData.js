@@ -15,6 +15,10 @@ import {
   School,
   UserCheck,
   Heart,
+  AlertTriangle,
+  ShieldAlert,
+  Ambulance,
+  AmbulanceIcon,
 } from "lucide-react";
 import { getItem } from "../local_storage";
 
@@ -105,7 +109,7 @@ export const getEditModeData = (slug) => ({
     {
       title: "Accident Detail",
       url: ``,
-      icon: FileText,
+      icon: AlertTriangle,
       items: [
         {
           title: "Accident Information",

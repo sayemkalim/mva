@@ -27,7 +27,12 @@ export default NavbarItem;
 export const NavbarBreadcrumb = ({ title, isBack }) => {
   return (
     <header className="flex shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-6">
-      {isBack && <ChevronLeft className="w-5 h-5 rounded-full hover:cursor-pointer hover:bg-gray-200" onClick={() => history.back()} />}
+      {isBack && (
+        <ChevronLeft
+          className="w-5 h-5 rounded-full hover:cursor-pointer hover:bg-gray-200"
+          onClick={() => history.back()}
+        />
+      )}
       <div className="flex items-center gap-2">
         <Breadcrumb>
           <BreadcrumbList>

@@ -1,5 +1,3 @@
-import { createSecondaryEhc } from "@/pages/secondary-ehc/helpers/createSecondaryEhc";
-
 export const endpoints = {
   login: "api/login",
   signup: "api/firm/register",
@@ -32,4 +30,7 @@ export const endpoints = {
   createSecondaryEhc: "api/v2/file/secondary-ehc",
   secondaryEhcMeta: "api/v2/file/secondary-ehc/meta",
   secondaryEhc: "api/v2/file/secondary-ehc/show",
+  createAccidentInfo: "api/v2/file/accident-detail",
+  accidentInfoMeta: "api/v2/file/accident-detail/meta",
+  accidentInfo: "api/v2/file/accident-detail/show",
 };
