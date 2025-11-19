@@ -13,17 +13,25 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { Loader2, ChevronRight, Upload, X } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Loader2, ChevronRight, Upload, X, Eye } from "lucide-react";
 import { toast } from "sonner";
 import { createApplicantInfo } from "../helpers/createApplicantInfo";
 import { getApplicantMeta } from "../helpers/fetchApplicantInfoMetadata";
 import { fetchApplicantInfoBySlug } from "../helpers/fetchApplicantInfoBySlug";
+import { uploadAttachment } from "../helpers/uploadAttachment";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 
 export default function ApplicantInformation() {
   const { slug } = useParams();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+
   const {
     data: apiResponse,
     isLoading: isLoadingMetadata,
@@ -35,7 +43,9 @@ export default function ApplicantInformation() {
     staleTime: 5 * 60 * 1000,
     retry: 2,
   });
+
   const metadata = apiResponse?.response || {};
+
   const { data: applicantData, isLoading: isLoadingApplicant } = useQuery({
     queryKey: ["applicantInfo", slug],
     queryFn: async () => {
@@ -58,11 +68,31 @@ export default function ApplicantInformation() {
     staleTime: 5 * 60 * 1000,
     retry: 1,
   });
+
+  const uploadMutation = useMutation({
+    mutationFn: uploadAttachment,
+    onSuccess: (data) => {
+      console.log("✅ File uploaded:", data);
+      const attachmentId = data?.response?.attachment_id;
+      if (attachmentId) {
+        setFormData((prev) => ({
+          ...prev,
+          attachment_id: attachmentId,
+        }));
+        toast.success("Photo uploaded successfully!");
+      }
+    },
+    onError: (error) => {
+      toast.error("Failed to upload photo. Please try again.");
+      console.error("Upload error:", error);
+    },
+  });
+
   const createMutation = useMutation({
     mutationFn: createApplicantInfo,
     onSuccess: (data) => {
       toast.success("Application submitted successfully!");
-      navigate(`/dashboard/workstation/edit/${slug}/identification`);
+      // navigate(`/dashboard/workstation/edit/${slug}/identification`);
     },
     onError: (error) => {
       toast.error("Failed to submit application. Please try again.");
@@ -85,7 +115,10 @@ export default function ApplicantInformation() {
     ext: "",
     fax: "",
     email: "",
-    attachment_id: 1,
+    attachment_id: null,
+    file: null,
+    fileName: "",
+    filePreview: null,
     social_media_facebook: "",
     social_media_instagram: "",
     social_media_tiktok: "",
@@ -136,12 +169,16 @@ export default function ApplicantInformation() {
     children: [{ first_name: "", middle_number: "", last_name: "", dob: "" }],
     meeting_clients: [{ date: "" }],
   });
+
+  const [isPreviewOpen, setIsPreviewOpen] = useState(false);
+
   useEffect(() => {
     if (!slug) {
       toast.error("Invalid URL - Slug not found!");
       navigate("/dashboard/workstation");
     }
   }, [slug, navigate]);
+
   useEffect(() => {
     if (applicantData) {
       console.log("Populating form with existing data");
@@ -152,7 +189,7 @@ export default function ApplicantInformation() {
         first_name: applicantData.first_name || "",
         middle_name: applicantData.middle_name || "",
         marital_status_id: applicantData.marital_status_id || "",
-        dob: applicantData.dob || "",
+        dob: applicantData.dob ? applicantData.dob.split("T")[0] : "",
         canadian_resident_id: applicantData.canadian_resident_id || "",
         resident_status_id: applicantData.resident_status_id || "",
         language_spoken: applicantData.language_spoken || "",
@@ -161,14 +198,16 @@ export default function ApplicantInformation() {
         ext: applicantData.ext || "",
         fax: applicantData.fax || "",
         email: applicantData.email || "",
-        attachment_id: applicantData.attachment_id || 1,
+        attachment_id: applicantData.attachment_id || null,
+        file: null,
+        fileName: "",
+        filePreview: null,
         social_media_facebook: applicantData.social_media_facebook || "",
         social_media_instagram: applicantData.social_media_instagram || "",
         social_media_tiktok: applicantData.social_media_tiktok || "",
         social_media_x: applicantData.social_media_x || "",
         social_media_snapchat: applicantData.social_media_snapchat || "",
         social_media_linkedin: applicantData.social_media_linkedin || "",
-
         reaches:
           applicantData.reaches && applicantData.reaches.length > 0
             ? applicantData.reaches.map((r) => ({
@@ -179,8 +218,12 @@ export default function ApplicantInformation() {
 
         client_availability_away_id:
           applicantData.client_availability_away_id || "",
-        client_availability_from: applicantData.client_availability_from || "",
-        client_availability_to: applicantData.client_availability_to || "",
+        client_availability_from: applicantData.client_availability_from
+          ? applicantData.client_availability_from.split("T")[0]
+          : "",
+        client_availability_to: applicantData.client_availability_to
+          ? applicantData.client_availability_to.split("T")[0]
+          : "",
 
         current_address: {
           unit_number: applicantData.current_address?.unit_number || "",
@@ -206,7 +249,9 @@ export default function ApplicantInformation() {
         family_member_middle_name:
           applicantData.family_member_middle_name || "",
         family_member_last_name: applicantData.family_member_last_name || "",
-        family_member_dob: applicantData.family_member_dob || "",
+        family_member_dob: applicantData.family_member_dob
+          ? applicantData.family_member_dob.split("T")[0]
+          : "",
         family_member_spouse_status_id:
           applicantData.family_member_spouse_status_id || "",
         family_member_employment_status_id:
@@ -234,7 +279,7 @@ export default function ApplicantInformation() {
                 first_name: c.first_name || "",
                 middle_number: c.middle_number || "",
                 last_name: c.last_name || "",
-                dob: c.dob || "",
+                dob: c.dob ? c.dob.split("T")[0] : "",
               }))
             : [{ first_name: "", middle_number: "", last_name: "", dob: "" }],
 
@@ -242,12 +287,10 @@ export default function ApplicantInformation() {
           applicantData.meeting_clients &&
           applicantData.meeting_clients.length > 0
             ? applicantData.meeting_clients.map((m) => ({
-                date: m.date || "",
+                date: m.date ? m.date.split("T")[0] : "",
               }))
             : [{ date: "" }],
       });
-
-      // toast.success("Data loaded successfully!");
     } else {
       console.log("📝 No existing data - showing empty form");
     }
@@ -300,6 +343,42 @@ export default function ApplicantInformation() {
       [arrayName]: prev[arrayName].filter((_, i) => i !== index),
     }));
   };
+
+  const handleFileChange = async (file) => {
+    if (file) {
+      if (file.size > 1048576) {
+        toast.error("File size must be less than 1MB");
+        return;
+      }
+
+      const previewUrl = URL.createObjectURL(file);
+
+      setFormData((prev) => ({
+        ...prev,
+        file: file,
+        fileName: file.name,
+        filePreview: previewUrl,
+      }));
+
+      await uploadMutation.mutateAsync({ file });
+    }
+  };
+
+  const removeFile = () => {
+    setFormData((prev) => ({
+      ...prev,
+      file: null,
+      fileName: "",
+      filePreview: null,
+      attachment_id: null,
+    }));
+
+    const fileInput = document.getElementById("applicant_photo");
+    if (fileInput) {
+      fileInput.value = "";
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -307,11 +386,13 @@ export default function ApplicantInformation() {
       toast.error("Please fill all required fields!");
       return;
     }
+
     const isAddressFilled = (address) => {
       return Object.values(address).some(
         (value) => value && value.trim() !== ""
       );
     };
+
     const payload = {
       gender_id: formData.gender_id || null,
       last_name: formData.last_name,
@@ -327,7 +408,7 @@ export default function ApplicantInformation() {
       ext: formData.ext || null,
       fax: formData.fax || null,
       email: formData.email,
-      attachment_id: formData.attachment_id || 1,
+      attachment_id: formData.attachment_id || null,
       social_media_facebook: formData.social_media_facebook || null,
       social_media_instagram: formData.social_media_instagram || null,
       social_media_tiktok: formData.social_media_tiktok || null,
@@ -379,6 +460,7 @@ export default function ApplicantInformation() {
       data: payload,
     });
   };
+
   if (isLoadingMetadata || isLoadingApplicant) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -387,6 +469,7 @@ export default function ApplicantInformation() {
       </div>
     );
   }
+
   if (isMetadataError) {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen gap-4">
@@ -415,7 +498,6 @@ export default function ApplicantInformation() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header with Financial Stats */}
       <div className="bg-white border-b px-6 py-3">
         <div className="flex items-center justify-end gap-6 text-sm">
           <span className="text-gray-700">
@@ -433,7 +515,6 @@ export default function ApplicantInformation() {
         </div>
       </div>
 
-      {/* Breadcrumb */}
       <div className="bg-white border-b px-6 py-4">
         <div className="flex items-center gap-2 text-sm text-gray-600">
           <SidebarTrigger className="-ml-1" />
@@ -451,16 +532,12 @@ export default function ApplicantInformation() {
             Workstation
           </button>
           <ChevronRight className="w-4 h-4" />
-          <button
-            onClick={() => navigate("/dashboard/workstation")}
-            className="hover:text-gray-900 transition"
-          >
+          <span className="text-gray-900 font-medium">
             Applicant Information
-          </button>
+          </span>
         </div>
       </div>
 
-      {/* Main Content */}
       <div className="container mx-auto px-6 py-8 max-w-7xl">
         <div className="bg-white rounded-lg shadow-sm border p-8">
           <h1 className="text-2xl font-bold mb-8 text-gray-900 uppercase">
@@ -468,7 +545,7 @@ export default function ApplicantInformation() {
           </h1>
 
           <form onSubmit={handleSubmit} className="space-y-8">
-            {/* Row 1: Gender, Last Name, First Name */}
+            {/* Row 1: Gender, Last Name, First Name, Photo Upload - NO GAP */}
             <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
               <div className="space-y-2">
                 <Label
@@ -483,7 +560,7 @@ export default function ApplicantInformation() {
                     handleSelectChange("gender_id", value)
                   }
                 >
-                  <SelectTrigger className="bg-gray-50 border-gray-300">
+                  <SelectTrigger className="w-full h-11 bg-gray-50 border-gray-300">
                     <SelectValue placeholder="Select gender" />
                   </SelectTrigger>
                   <SelectContent>
@@ -509,7 +586,7 @@ export default function ApplicantInformation() {
                   value={formData.last_name}
                   onChange={handleChange}
                   placeholder="Doe"
-                  className="bg-gray-50 border-gray-300"
+                  className="w-full h-9 bg-gray-50 border-gray-300"
                 />
               </div>
 
@@ -526,15 +603,28 @@ export default function ApplicantInformation() {
                   value={formData.first_name}
                   onChange={handleChange}
                   placeholder="John"
-                  className="bg-gray-50 border-gray-300"
+                  className="w-full h-9 bg-gray-50 border-gray-300"
                 />
               </div>
 
-              <div></div>
+              <div className="space-y-2">
+                <Label htmlFor="email" className="text-gray-700 font-medium">
+                  Email
+                </Label>
+                <Input
+                  id="email"
+                  name="email"
+                  type="email"
+                  value={formData.email}
+                  onChange={handleChange}
+                  placeholder="john.doe@example.com"
+                  className="w-full h-9 bg-gray-50 border-gray-300"
+                />
+              </div>
             </div>
 
             {/* Row 2: Middle Name, Marital Status, DOB */}
-            <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               <div className="space-y-2">
                 <Label
                   htmlFor="middle_name"
@@ -548,7 +638,7 @@ export default function ApplicantInformation() {
                   value={formData.middle_name}
                   onChange={handleChange}
                   placeholder="Michael"
-                  className="bg-gray-50 border-gray-300"
+                  className="w-full h-9 bg-gray-50 border-gray-300"
                 />
               </div>
 
@@ -565,7 +655,7 @@ export default function ApplicantInformation() {
                     handleSelectChange("marital_status_id", value)
                   }
                 >
-                  <SelectTrigger className="bg-gray-50 border-gray-300">
+                  <SelectTrigger className="w-full h-11 bg-gray-50 border-gray-300">
                     <SelectValue placeholder="Select status" />
                   </SelectTrigger>
                   <SelectContent>
@@ -588,15 +678,13 @@ export default function ApplicantInformation() {
                   type="date"
                   value={formData.dob}
                   onChange={handleChange}
-                  className="bg-gray-50 border-gray-300"
+                  className="w-full h-9 bg-gray-50 border-gray-300"
                 />
               </div>
-
-              <div></div>
             </div>
 
             {/* Row 3: Canadian Resident, Resident Status, Language Spoken */}
-            <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               <div className="space-y-2">
                 <Label
                   htmlFor="canadian_resident_id"
@@ -610,7 +698,7 @@ export default function ApplicantInformation() {
                     handleSelectChange("canadian_resident_id", value)
                   }
                 >
-                  <SelectTrigger className="bg-gray-50 border-gray-300">
+                  <SelectTrigger className="w-full h-11 bg-gray-50 border-gray-300">
                     <SelectValue placeholder="Select option" />
                   </SelectTrigger>
                   <SelectContent>
@@ -636,7 +724,7 @@ export default function ApplicantInformation() {
                     handleSelectChange("resident_status_id", value)
                   }
                 >
-                  <SelectTrigger className="bg-gray-50 border-gray-300">
+                  <SelectTrigger className="w-full h-11 bg-gray-50 border-gray-300">
                     <SelectValue placeholder="Select status" />
                   </SelectTrigger>
                   <SelectContent>
@@ -662,11 +750,9 @@ export default function ApplicantInformation() {
                   value={formData.language_spoken}
                   onChange={handleChange}
                   placeholder="English"
-                  className="bg-gray-50 border-gray-300"
+                  className="w-full h-9 bg-gray-50 border-gray-300"
                 />
               </div>
-
-              <div></div>
             </div>
 
             {/* Row 4: Contact Method, Telephone, Ext, Fax */}
@@ -684,7 +770,7 @@ export default function ApplicantInformation() {
                     handleSelectChange("contact_method_id", value)
                   }
                 >
-                  <SelectTrigger className="bg-gray-50 border-gray-300">
+                  <SelectTrigger className="w-full h-11 bg-gray-50 border-gray-300">
                     <SelectValue placeholder="Select method" />
                   </SelectTrigger>
                   <SelectContent>
@@ -710,7 +796,7 @@ export default function ApplicantInformation() {
                   value={formData.telephone}
                   onChange={handleChange}
                   placeholder="1234567890"
-                  className="bg-gray-50 border-gray-300"
+                  className="w-full h-9 bg-gray-50 border-gray-300"
                 />
               </div>
 
@@ -724,7 +810,7 @@ export default function ApplicantInformation() {
                   value={formData.ext}
                   onChange={handleChange}
                   placeholder="2"
-                  className="bg-gray-50 border-gray-300"
+                  className="w-full h-9 bg-gray-50 border-gray-300"
                 />
               </div>
 
@@ -738,33 +824,103 @@ export default function ApplicantInformation() {
                   value={formData.fax}
                   onChange={handleChange}
                   placeholder="2"
-                  className="bg-gray-50 border-gray-300"
+                  className="w-full h-9 bg-gray-50 border-gray-300"
                 />
               </div>
             </div>
 
             {/* Row 5: Email */}
-            <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-              <div className="space-y-2">
-                <Label htmlFor="email" className="text-gray-700 font-medium">
-                  Email
-                </Label>
-                <Input
-                  id="email"
-                  name="email"
-                  type="email"
-                  value={formData.email}
-                  onChange={handleChange}
-                  placeholder="john.doe@example.com"
-                  className="bg-gray-50 border-gray-300"
+
+            <div className="space-y-2">
+              <Label className="text-gray-700 font-medium">
+                Applicant Photo <span className="text-red-500">(Max 1M)</span>
+              </Label>
+              <div
+                className={`relative border-2 border-dashed rounded-lg transition-all overflow-hidden ${
+                  formData.filePreview
+                    ? "border-green-500 bg-green-50/50 h-[200px]"
+                    : "border-gray-300 bg-gray-50 hover:border-gray-400 hover:bg-gray-100 h-[200px]"
+                }`}
+              >
+                <input
+                  id="applicant_photo"
+                  type="file"
+                  className="hidden"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) handleFileChange(file);
+                  }}
+                  accept="image/*"
                 />
+
+                {formData.filePreview ? (
+                  <div className="relative h-full flex flex-col items-center justify-center p-4">
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        removeFile();
+                      }}
+                      className="absolute top-3 right-3 z-10 w-8 h-8 bg-red-500 hover:bg-red-600 text-white rounded-full flex items-center justify-center transition-colors shadow-md"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+
+                    <div
+                      className="flex flex-col items-center justify-center gap-3 cursor-pointer group"
+                      onClick={() => setIsPreviewOpen(true)}
+                    >
+                      <div className="relative">
+                        <img
+                          src={formData.filePreview}
+                          alt="Preview"
+                          className="w-28 h-28 object-cover rounded-xl border-2 border-green-500 shadow-md group-hover:shadow-lg transition-shadow"
+                        />
+                        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 rounded-xl transition-colors flex items-center justify-center">
+                          <Eye className="w-6 h-6 text-white opacity-0 group-hover:opacity-100 transition-opacity" />
+                        </div>
+                      </div>
+                      <div className="text-center">
+                        <p className="text-sm font-medium text-green-700">
+                          Photo Uploaded
+                        </p>
+                        <p className="text-xs text-gray-600 mt-1 max-w-[150px] truncate">
+                          {formData.fileName}
+                        </p>
+                        <p className="text-xs text-green-600 mt-1 flex items-center gap-1 justify-center">
+                          <Eye className="w-3 h-3" />
+                          Click to view
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  <div
+                    className="h-full flex flex-col items-center justify-center cursor-pointer p-6 group"
+                    onClick={() =>
+                      document.getElementById("applicant_photo").click()
+                    }
+                  >
+                    <div className="flex flex-col items-center gap-3">
+                      <div className="w-20 h-20 rounded-full bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center group-hover:from-blue-50 group-hover:to-blue-100 transition-all">
+                        <Upload className="w-9 h-9 text-gray-400 group-hover:text-blue-500 transition-colors" />
+                      </div>
+                      <div className="text-center">
+                        <p className="text-base font-semibold text-gray-700 group-hover:text-blue-600 transition-colors">
+                          Upload
+                        </p>
+                        <p className="text-xs text-gray-500 mt-1">
+                          Drag and drop or click
+                        </p>
+                        <p className="text-xs text-gray-400 mt-1">
+                          PNG, JPG (Max 1MB)
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
-
-              <div></div>
-              <div></div>
-              <div></div>
             </div>
-
             {/* Social Media Section */}
             <div className="space-y-6 pt-6 border-t">
               <h2 className="text-xl font-semibold text-gray-900">
@@ -785,7 +941,7 @@ export default function ApplicantInformation() {
                     value={formData.social_media_facebook}
                     onChange={handleChange}
                     placeholder="https://facebook.com/john.doe"
-                    className="bg-gray-50 border-gray-300"
+                    className="w-full h-9 bg-gray-50 border-gray-300"
                   />
                 </div>
 
@@ -802,7 +958,7 @@ export default function ApplicantInformation() {
                     value={formData.social_media_instagram}
                     onChange={handleChange}
                     placeholder="https://instagram.com/johndoe"
-                    className="bg-gray-50 border-gray-300"
+                    className="w-full h-9 bg-gray-50 border-gray-300"
                   />
                 </div>
 
@@ -819,7 +975,7 @@ export default function ApplicantInformation() {
                     value={formData.social_media_tiktok}
                     onChange={handleChange}
                     placeholder="@johndoe"
-                    className="bg-gray-50 border-gray-300"
+                    className="w-full h-9 bg-gray-50 border-gray-300"
                   />
                 </div>
 
@@ -836,7 +992,7 @@ export default function ApplicantInformation() {
                     value={formData.social_media_x}
                     onChange={handleChange}
                     placeholder="@john_doe"
-                    className="bg-gray-50 border-gray-300"
+                    className="w-full h-9 bg-gray-50 border-gray-300"
                   />
                 </div>
 
@@ -853,7 +1009,7 @@ export default function ApplicantInformation() {
                     value={formData.social_media_snapchat}
                     onChange={handleChange}
                     placeholder="john_snap"
-                    className="bg-gray-50 border-gray-300"
+                    className="w-full h-9 bg-gray-50 border-gray-300"
                   />
                 </div>
 
@@ -870,30 +1026,37 @@ export default function ApplicantInformation() {
                     value={formData.social_media_linkedin}
                     onChange={handleChange}
                     placeholder="https://linkedin.com/in/john-doe"
-                    className="bg-gray-50 border-gray-300"
+                    className="w-full h-9 bg-gray-50 border-gray-300"
                   />
                 </div>
               </div>
             </div>
 
-            {/* Best Time to Reach Section */}
+            {/* Best Times to Reach Section */}
             <div className="space-y-6 pt-6 border-t">
-              <h2 className="text-xl font-semibold text-gray-900">
-                Best Time to Reach
-              </h2>
+              <div className="flex items-center justify-between">
+                <h2 className="text-xl font-semibold text-gray-900">
+                  Best Times to Reach
+                </h2>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() =>
+                    addArrayItem("reaches", { day_id: "", time: "" })
+                  }
+                >
+                  Add Time
+                </Button>
+              </div>
 
               {formData.reaches.map((reach, index) => (
                 <div
                   key={index}
-                  className="grid grid-cols-1 md:grid-cols-3 gap-4 items-end"
+                  className="grid grid-cols-1 lg:grid-cols-3 gap-6"
                 >
                   <div className="space-y-2">
-                    <Label
-                      htmlFor={`reach_day_${index}`}
-                      className="text-gray-700 font-medium"
-                    >
-                      Day
-                    </Label>
+                    <Label className="text-gray-700 font-medium">Day</Label>
                     <Select
                       value={reach.day_id?.toString()}
                       onValueChange={(value) =>
@@ -905,11 +1068,11 @@ export default function ApplicantInformation() {
                         )
                       }
                     >
-                      <SelectTrigger className="bg-gray-50 border-gray-300">
+                      <SelectTrigger className="w-full h-11 bg-gray-50 border-gray-300">
                         <SelectValue placeholder="Select day" />
                       </SelectTrigger>
                       <SelectContent>
-                        {metadata?.day?.map((day) => (
+                        {metadata?.days?.map((day) => (
                           <SelectItem key={day.id} value={day.id.toString()}>
                             {day.name}
                           </SelectItem>
@@ -919,14 +1082,8 @@ export default function ApplicantInformation() {
                   </div>
 
                   <div className="space-y-2">
-                    <Label
-                      htmlFor={`reach_time_${index}`}
-                      className="text-gray-700 font-medium"
-                    >
-                      Time
-                    </Label>
+                    <Label className="text-gray-700 font-medium">Time</Label>
                     <Input
-                      id={`reach_time_${index}`}
                       type="time"
                       value={reach.time}
                       onChange={(e) =>
@@ -937,46 +1094,39 @@ export default function ApplicantInformation() {
                           e.target.value
                         )
                       }
-                      className="bg-gray-50 border-gray-300"
+                      className="w-full h-9 bg-gray-50 border-gray-300"
                     />
                   </div>
 
-                  <Button
-                    type="button"
-                    variant="destructive"
-                    onClick={() => removeArrayItem("reaches", index)}
-                    disabled={formData.reaches.length === 1}
-                  >
-                    <X className="w-4 h-4 mr-2" />
-                    Remove
-                  </Button>
+                  <div className="flex items-end">
+                    <Button
+                      type="button"
+                      variant="destructive"
+                      size="sm"
+                      onClick={() => removeArrayItem("reaches", index)}
+                      disabled={formData.reaches.length === 1}
+                      className="w-full h-11"
+                    >
+                      Remove
+                    </Button>
+                  </div>
                 </div>
               ))}
-
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() =>
-                  addArrayItem("reaches", { day_id: "", time: "" })
-                }
-              >
-                Add Time Slot
-              </Button>
             </div>
 
-            {/* Availability Section */}
+            {/* Client Availability Section */}
             <div className="space-y-6 pt-6 border-t">
               <h2 className="text-xl font-semibold text-gray-900">
-                Availability
+                Client Availability
               </h2>
 
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <div className="space-y-2">
                   <Label
                     htmlFor="client_availability_away_id"
                     className="text-gray-700 font-medium"
                   >
-                    Will you be away?
+                    Away Status
                   </Label>
                   <Select
                     value={formData.client_availability_away_id?.toString()}
@@ -984,8 +1134,8 @@ export default function ApplicantInformation() {
                       handleSelectChange("client_availability_away_id", value)
                     }
                   >
-                    <SelectTrigger className="bg-gray-50 border-gray-300">
-                      <SelectValue placeholder="Select option" />
+                    <SelectTrigger className="w-full h-11 bg-gray-50 border-gray-300">
+                      <SelectValue placeholder="Select status" />
                     </SelectTrigger>
                     <SelectContent>
                       {metadata?.yes_no_option?.map((option) => (
@@ -1013,7 +1163,7 @@ export default function ApplicantInformation() {
                     type="date"
                     value={formData.client_availability_from}
                     onChange={handleChange}
-                    className="bg-gray-50 border-gray-300"
+                    className="w-full h-9 bg-gray-50 border-gray-300"
                   />
                 </div>
 
@@ -1030,7 +1180,7 @@ export default function ApplicantInformation() {
                     type="date"
                     value={formData.client_availability_to}
                     onChange={handleChange}
-                    className="bg-gray-50 border-gray-300"
+                    className="w-full h-9 bg-gray-50 border-gray-300"
                   />
                 </div>
               </div>
@@ -1042,16 +1192,12 @@ export default function ApplicantInformation() {
                 Current Address
               </h2>
 
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <div className="space-y-2">
-                  <Label
-                    htmlFor="current_unit_number"
-                    className="text-gray-700 font-medium"
-                  >
+                  <Label className="text-gray-700 font-medium">
                     Unit Number
                   </Label>
                   <Input
-                    id="current_unit_number"
                     value={formData.current_address.unit_number}
                     onChange={(e) =>
                       handleAddressChange(
@@ -1061,19 +1207,15 @@ export default function ApplicantInformation() {
                       )
                     }
                     placeholder="5B"
-                    className="bg-gray-50 border-gray-300"
+                    className="w-full h-9 bg-gray-50 border-gray-300"
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label
-                    htmlFor="current_street_number"
-                    className="text-gray-700 font-medium"
-                  >
+                  <Label className="text-gray-700 font-medium">
                     Street Number
                   </Label>
                   <Input
-                    id="current_street_number"
                     value={formData.current_address.street_number}
                     onChange={(e) =>
                       handleAddressChange(
@@ -1083,19 +1225,15 @@ export default function ApplicantInformation() {
                       )
                     }
                     placeholder="221"
-                    className="bg-gray-50 border-gray-300"
+                    className="w-full h-9 bg-gray-50 border-gray-300"
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label
-                    htmlFor="current_street_name"
-                    className="text-gray-700 font-medium"
-                  >
+                  <Label className="text-gray-700 font-medium">
                     Street Name
                   </Label>
                   <Input
-                    id="current_street_name"
                     value={formData.current_address.street_name}
                     onChange={(e) =>
                       handleAddressChange(
@@ -1105,19 +1243,13 @@ export default function ApplicantInformation() {
                       )
                     }
                     placeholder="King Street West"
-                    className="bg-gray-50 border-gray-300"
+                    className="w-full h-9 bg-gray-50 border-gray-300"
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label
-                    htmlFor="current_city"
-                    className="text-gray-700 font-medium"
-                  >
-                    City
-                  </Label>
+                  <Label className="text-gray-700 font-medium">City</Label>
                   <Input
-                    id="current_city"
                     value={formData.current_address.city}
                     onChange={(e) =>
                       handleAddressChange(
@@ -1127,19 +1259,13 @@ export default function ApplicantInformation() {
                       )
                     }
                     placeholder="Toronto"
-                    className="bg-gray-50 border-gray-300"
+                    className="w-full h-9 bg-gray-50 border-gray-300"
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label
-                    htmlFor="current_province"
-                    className="text-gray-700 font-medium"
-                  >
-                    Province
-                  </Label>
+                  <Label className="text-gray-700 font-medium">Province</Label>
                   <Input
-                    id="current_province"
                     value={formData.current_address.province}
                     onChange={(e) =>
                       handleAddressChange(
@@ -1149,19 +1275,15 @@ export default function ApplicantInformation() {
                       )
                     }
                     placeholder="Ontario"
-                    className="bg-gray-50 border-gray-300"
+                    className="w-full h-9 bg-gray-50 border-gray-300"
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label
-                    htmlFor="current_postal_code"
-                    className="text-gray-700 font-medium"
-                  >
+                  <Label className="text-gray-700 font-medium">
                     Postal Code
                   </Label>
                   <Input
-                    id="current_postal_code"
                     value={formData.current_address.postal_code}
                     onChange={(e) =>
                       handleAddressChange(
@@ -1171,19 +1293,13 @@ export default function ApplicantInformation() {
                       )
                     }
                     placeholder="M5H 1K5"
-                    className="bg-gray-50 border-gray-300"
+                    className="w-full h-9 bg-gray-50 border-gray-300"
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label
-                    htmlFor="current_country"
-                    className="text-gray-700 font-medium"
-                  >
-                    Country
-                  </Label>
+                  <Label className="text-gray-700 font-medium">Country</Label>
                   <Input
-                    id="current_country"
                     value={formData.current_address.country}
                     onChange={(e) =>
                       handleAddressChange(
@@ -1193,7 +1309,7 @@ export default function ApplicantInformation() {
                       )
                     }
                     placeholder="Canada"
-                    className="bg-gray-50 border-gray-300"
+                    className="w-full h-9 bg-gray-50 border-gray-300"
                   />
                 </div>
               </div>
@@ -1205,16 +1321,12 @@ export default function ApplicantInformation() {
                 Mailing Address
               </h2>
 
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <div className="space-y-2">
-                  <Label
-                    htmlFor="mailing_unit_number"
-                    className="text-gray-700 font-medium"
-                  >
+                  <Label className="text-gray-700 font-medium">
                     Unit Number
                   </Label>
                   <Input
-                    id="mailing_unit_number"
                     value={formData.mailing_address.unit_number}
                     onChange={(e) =>
                       handleAddressChange(
@@ -1224,19 +1336,15 @@ export default function ApplicantInformation() {
                       )
                     }
                     placeholder="5B"
-                    className="bg-gray-50 border-gray-300"
+                    className="w-full h-9 bg-gray-50 border-gray-300"
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label
-                    htmlFor="mailing_street_number"
-                    className="text-gray-700 font-medium"
-                  >
+                  <Label className="text-gray-700 font-medium">
                     Street Number
                   </Label>
                   <Input
-                    id="mailing_street_number"
                     value={formData.mailing_address.street_number}
                     onChange={(e) =>
                       handleAddressChange(
@@ -1246,19 +1354,15 @@ export default function ApplicantInformation() {
                       )
                     }
                     placeholder="221"
-                    className="bg-gray-50 border-gray-300"
+                    className="w-full h-9 bg-gray-50 border-gray-300"
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label
-                    htmlFor="mailing_street_name"
-                    className="text-gray-700 font-medium"
-                  >
+                  <Label className="text-gray-700 font-medium">
                     Street Name
                   </Label>
                   <Input
-                    id="mailing_street_name"
                     value={formData.mailing_address.street_name}
                     onChange={(e) =>
                       handleAddressChange(
@@ -1268,19 +1372,13 @@ export default function ApplicantInformation() {
                       )
                     }
                     placeholder="King Street West"
-                    className="bg-gray-50 border-gray-300"
+                    className="w-full h-9 bg-gray-50 border-gray-300"
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label
-                    htmlFor="mailing_city"
-                    className="text-gray-700 font-medium"
-                  >
-                    City
-                  </Label>
+                  <Label className="text-gray-700 font-medium">City</Label>
                   <Input
-                    id="mailing_city"
                     value={formData.mailing_address.city}
                     onChange={(e) =>
                       handleAddressChange(
@@ -1290,19 +1388,13 @@ export default function ApplicantInformation() {
                       )
                     }
                     placeholder="Toronto"
-                    className="bg-gray-50 border-gray-300"
+                    className="w-full h-9 bg-gray-50 border-gray-300"
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label
-                    htmlFor="mailing_province"
-                    className="text-gray-700 font-medium"
-                  >
-                    Province
-                  </Label>
+                  <Label className="text-gray-700 font-medium">Province</Label>
                   <Input
-                    id="mailing_province"
                     value={formData.mailing_address.province}
                     onChange={(e) =>
                       handleAddressChange(
@@ -1312,19 +1404,15 @@ export default function ApplicantInformation() {
                       )
                     }
                     placeholder="Ontario"
-                    className="bg-gray-50 border-gray-300"
+                    className="w-full h-9 bg-gray-50 border-gray-300"
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label
-                    htmlFor="mailing_postal_code"
-                    className="text-gray-700 font-medium"
-                  >
+                  <Label className="text-gray-700 font-medium">
                     Postal Code
                   </Label>
                   <Input
-                    id="mailing_postal_code"
                     value={formData.mailing_address.postal_code}
                     onChange={(e) =>
                       handleAddressChange(
@@ -1334,19 +1422,13 @@ export default function ApplicantInformation() {
                       )
                     }
                     placeholder="M5H 1K5"
-                    className="bg-gray-50 border-gray-300"
+                    className="w-full h-9 bg-gray-50 border-gray-300"
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label
-                    htmlFor="mailing_country"
-                    className="text-gray-700 font-medium"
-                  >
-                    Country
-                  </Label>
+                  <Label className="text-gray-700 font-medium">Country</Label>
                   <Input
-                    id="mailing_country"
                     value={formData.mailing_address.country}
                     onChange={(e) =>
                       handleAddressChange(
@@ -1356,7 +1438,7 @@ export default function ApplicantInformation() {
                       )
                     }
                     placeholder="Canada"
-                    className="bg-gray-50 border-gray-300"
+                    className="w-full h-9 bg-gray-50 border-gray-300"
                   />
                 </div>
               </div>
@@ -1365,10 +1447,10 @@ export default function ApplicantInformation() {
             {/* Family Member Section */}
             <div className="space-y-6 pt-6 border-t">
               <h2 className="text-xl font-semibold text-gray-900">
-                Family Member / Spouse Information
+                Family Member Information
               </h2>
 
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <div className="space-y-2">
                   <Label
                     htmlFor="family_member_first_name"
@@ -1382,7 +1464,7 @@ export default function ApplicantInformation() {
                     value={formData.family_member_first_name}
                     onChange={handleChange}
                     placeholder="Jane"
-                    className="bg-gray-50 border-gray-300"
+                    className="w-full h-9 bg-gray-50 border-gray-300"
                   />
                 </div>
 
@@ -1399,7 +1481,7 @@ export default function ApplicantInformation() {
                     value={formData.family_member_middle_name}
                     onChange={handleChange}
                     placeholder="K"
-                    className="bg-gray-50 border-gray-300"
+                    className="w-full h-9 bg-gray-50 border-gray-300"
                   />
                 </div>
 
@@ -1416,7 +1498,7 @@ export default function ApplicantInformation() {
                     value={formData.family_member_last_name}
                     onChange={handleChange}
                     placeholder="Doe"
-                    className="bg-gray-50 border-gray-300"
+                    className="w-full h-9 bg-gray-50 border-gray-300"
                   />
                 </div>
 
@@ -1433,7 +1515,7 @@ export default function ApplicantInformation() {
                     type="date"
                     value={formData.family_member_dob}
                     onChange={handleChange}
-                    className="bg-gray-50 border-gray-300"
+                    className="w-full h-9 bg-gray-50 border-gray-300"
                   />
                 </div>
 
@@ -1453,16 +1535,16 @@ export default function ApplicantInformation() {
                       )
                     }
                   >
-                    <SelectTrigger className="bg-gray-50 border-gray-300">
+                    <SelectTrigger className="w-full h-11 bg-gray-50 border-gray-300">
                       <SelectValue placeholder="Select status" />
                     </SelectTrigger>
                     <SelectContent>
-                      {metadata?.marital_status?.map((status) => (
+                      {metadata?.yes_no_option?.map((option) => (
                         <SelectItem
-                          key={status.id}
-                          value={status.id.toString()}
+                          key={option.id}
+                          value={option.id.toString()}
                         >
-                          {status.name}
+                          {option.name}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -1485,11 +1567,11 @@ export default function ApplicantInformation() {
                       )
                     }
                   >
-                    <SelectTrigger className="bg-gray-50 border-gray-300">
+                    <SelectTrigger className="w-full h-11 bg-gray-50 border-gray-300">
                       <SelectValue placeholder="Select status" />
                     </SelectTrigger>
                     <SelectContent>
-                      {metadata?.contact_employed?.map((status) => (
+                      {metadata?.employment_status?.map((status) => (
                         <SelectItem
                           key={status.id}
                           value={status.id.toString()}
@@ -1514,7 +1596,7 @@ export default function ApplicantInformation() {
                     value={formData.family_member_annual_income}
                     onChange={handleChange}
                     placeholder="85000"
-                    className="bg-gray-50 border-gray-300"
+                    className="w-full h-9 bg-gray-50 border-gray-300"
                   />
                 </div>
 
@@ -1531,7 +1613,7 @@ export default function ApplicantInformation() {
                     value={formData.family_member_telephone}
                     onChange={handleChange}
                     placeholder="1231231234"
-                    className="bg-gray-50 border-gray-300"
+                    className="w-full h-9 bg-gray-50 border-gray-300"
                   />
                 </div>
 
@@ -1549,172 +1631,188 @@ export default function ApplicantInformation() {
                     value={formData.family_member_email}
                     onChange={handleChange}
                     placeholder="jane.doe@example.com"
-                    className="bg-gray-50 border-gray-300"
+                    className="w-full h-9 bg-gray-50 border-gray-300"
+                  />
+                </div>
+
+                <div className="space-y-2 lg:col-span-3">
+                  <Label
+                    htmlFor="family_member_note"
+                    className="text-gray-700 font-medium"
+                  >
+                    Note
+                  </Label>
+                  <Textarea
+                    id="family_member_note"
+                    name="family_member_note"
+                    value={formData.family_member_note}
+                    onChange={handleChange}
+                    placeholder="Available on weekends"
+                    className="w-full bg-gray-50 border-gray-300 min-h-[100px]"
                   />
                 </div>
               </div>
+            </div>
 
-              <div className="space-y-2">
-                <Label
-                  htmlFor="family_member_note"
-                  className="text-gray-700 font-medium"
-                >
-                  Notes
-                </Label>
-                <Textarea
-                  id="family_member_note"
-                  name="family_member_note"
-                  value={formData.family_member_note}
-                  onChange={handleChange}
-                  placeholder="Available on weekends"
-                  rows={3}
-                  className="bg-gray-50 border-gray-300"
-                />
-              </div>
+            {/* Family Member Address Section */}
+            <div className="space-y-6 pt-6 border-t">
+              <h2 className="text-xl font-semibold text-gray-900">
+                Family Member Address
+              </h2>
 
-              {/* Family Member Address */}
-              <div className="space-y-4 pl-4 border-l-2 border-gray-200">
-                <h3 className="text-lg font-medium text-gray-900">
-                  Family Member Address
-                </h3>
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div className="space-y-2">
+                  <Label className="text-gray-700 font-medium">
+                    Unit Number
+                  </Label>
+                  <Input
+                    value={formData.family_member_address.unit_number}
+                    onChange={(e) =>
+                      handleAddressChange(
+                        "family_member_address",
+                        "unit_number",
+                        e.target.value
+                      )
+                    }
+                    placeholder="5B"
+                    className="w-full h-9 bg-gray-50 border-gray-300"
+                  />
+                </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div className="space-y-2">
-                    <Label className="text-gray-700 font-medium">
-                      Unit Number
-                    </Label>
-                    <Input
-                      value={formData.family_member_address.unit_number}
-                      onChange={(e) =>
-                        handleAddressChange(
-                          "family_member_address",
-                          "unit_number",
-                          e.target.value
-                        )
-                      }
-                      placeholder="5B"
-                      className="bg-gray-50 border-gray-300"
-                    />
-                  </div>
+                <div className="space-y-2">
+                  <Label className="text-gray-700 font-medium">
+                    Street Number
+                  </Label>
+                  <Input
+                    value={formData.family_member_address.street_number}
+                    onChange={(e) =>
+                      handleAddressChange(
+                        "family_member_address",
+                        "street_number",
+                        e.target.value
+                      )
+                    }
+                    placeholder="221"
+                    className="w-full h-9 bg-gray-50 border-gray-300"
+                  />
+                </div>
 
-                  <div className="space-y-2">
-                    <Label className="text-gray-700 font-medium">
-                      Street Number
-                    </Label>
-                    <Input
-                      value={formData.family_member_address.street_number}
-                      onChange={(e) =>
-                        handleAddressChange(
-                          "family_member_address",
-                          "street_number",
-                          e.target.value
-                        )
-                      }
-                      placeholder="221"
-                      className="bg-gray-50 border-gray-300"
-                    />
-                  </div>
+                <div className="space-y-2">
+                  <Label className="text-gray-700 font-medium">
+                    Street Name
+                  </Label>
+                  <Input
+                    value={formData.family_member_address.street_name}
+                    onChange={(e) =>
+                      handleAddressChange(
+                        "family_member_address",
+                        "street_name",
+                        e.target.value
+                      )
+                    }
+                    placeholder="King Street West"
+                    className="w-full h-9 bg-gray-50 border-gray-300"
+                  />
+                </div>
 
-                  <div className="space-y-2">
-                    <Label className="text-gray-700 font-medium">
-                      Street Name
-                    </Label>
-                    <Input
-                      value={formData.family_member_address.street_name}
-                      onChange={(e) =>
-                        handleAddressChange(
-                          "family_member_address",
-                          "street_name",
-                          e.target.value
-                        )
-                      }
-                      placeholder="King Street West"
-                      className="bg-gray-50 border-gray-300"
-                    />
-                  </div>
+                <div className="space-y-2">
+                  <Label className="text-gray-700 font-medium">City</Label>
+                  <Input
+                    value={formData.family_member_address.city}
+                    onChange={(e) =>
+                      handleAddressChange(
+                        "family_member_address",
+                        "city",
+                        e.target.value
+                      )
+                    }
+                    placeholder="Toronto"
+                    className="w-full h-9 bg-gray-50 border-gray-300"
+                  />
+                </div>
 
-                  <div className="space-y-2">
-                    <Label className="text-gray-700 font-medium">City</Label>
-                    <Input
-                      value={formData.family_member_address.city}
-                      onChange={(e) =>
-                        handleAddressChange(
-                          "family_member_address",
-                          "city",
-                          e.target.value
-                        )
-                      }
-                      placeholder="Toronto"
-                      className="bg-gray-50 border-gray-300"
-                    />
-                  </div>
+                <div className="space-y-2">
+                  <Label className="text-gray-700 font-medium">Province</Label>
+                  <Input
+                    value={formData.family_member_address.province}
+                    onChange={(e) =>
+                      handleAddressChange(
+                        "family_member_address",
+                        "province",
+                        e.target.value
+                      )
+                    }
+                    placeholder="Ontario"
+                    className="w-full h-9 bg-gray-50 border-gray-300"
+                  />
+                </div>
 
-                  <div className="space-y-2">
-                    <Label className="text-gray-700 font-medium">
-                      Province
-                    </Label>
-                    <Input
-                      value={formData.family_member_address.province}
-                      onChange={(e) =>
-                        handleAddressChange(
-                          "family_member_address",
-                          "province",
-                          e.target.value
-                        )
-                      }
-                      placeholder="Ontario"
-                      className="bg-gray-50 border-gray-300"
-                    />
-                  </div>
+                <div className="space-y-2">
+                  <Label className="text-gray-700 font-medium">
+                    Postal Code
+                  </Label>
+                  <Input
+                    value={formData.family_member_address.postal_code}
+                    onChange={(e) =>
+                      handleAddressChange(
+                        "family_member_address",
+                        "postal_code",
+                        e.target.value
+                      )
+                    }
+                    placeholder="M5H 1K5"
+                    className="w-full h-9 bg-gray-50 border-gray-300"
+                  />
+                </div>
 
-                  <div className="space-y-2">
-                    <Label className="text-gray-700 font-medium">
-                      Postal Code
-                    </Label>
-                    <Input
-                      value={formData.family_member_address.postal_code}
-                      onChange={(e) =>
-                        handleAddressChange(
-                          "family_member_address",
-                          "postal_code",
-                          e.target.value
-                        )
-                      }
-                      placeholder="M5H 1K5"
-                      className="bg-gray-50 border-gray-300"
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label className="text-gray-700 font-medium">Country</Label>
-                    <Input
-                      value={formData.family_member_address.country}
-                      onChange={(e) =>
-                        handleAddressChange(
-                          "family_member_address",
-                          "country",
-                          e.target.value
-                        )
-                      }
-                      placeholder="Canada"
-                      className="bg-gray-50 border-gray-300"
-                    />
-                  </div>
+                <div className="space-y-2">
+                  <Label className="text-gray-700 font-medium">Country</Label>
+                  <Input
+                    value={formData.family_member_address.country}
+                    onChange={(e) =>
+                      handleAddressChange(
+                        "family_member_address",
+                        "country",
+                        e.target.value
+                      )
+                    }
+                    placeholder="Canada"
+                    className="w-full h-9 bg-gray-50 border-gray-300"
+                  />
                 </div>
               </div>
             </div>
 
             {/* Children Section */}
             <div className="space-y-6 pt-6 border-t">
-              <h2 className="text-xl font-semibold text-gray-900">Children</h2>
+              <div className="flex items-center justify-between">
+                <h2 className="text-xl font-semibold text-gray-900">
+                  Children
+                </h2>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() =>
+                    addArrayItem("children", {
+                      first_name: "",
+                      middle_number: "",
+                      last_name: "",
+                      dob: "",
+                    })
+                  }
+                >
+                  Add Child
+                </Button>
+              </div>
 
               {formData.children.map((child, index) => (
                 <div
                   key={index}
-                  className="border border-gray-200 p-6 rounded-lg space-y-4 bg-gray-50"
+                  className="space-y-6 p-6 border rounded-lg bg-gray-50"
                 >
                   <div className="flex justify-between items-center">
-                    <h3 className="font-semibold text-gray-900">
+                    <h3 className="font-medium text-gray-900">
                       Child {index + 1}
                     </h3>
                     <Button
@@ -1729,7 +1827,7 @@ export default function ApplicantInformation() {
                     </Button>
                   </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
                     <div className="space-y-2">
                       <Label className="text-gray-700 font-medium">
                         First Name
@@ -1745,7 +1843,7 @@ export default function ApplicantInformation() {
                           )
                         }
                         placeholder="Anna"
-                        className="bg-white border-gray-300"
+                        className="w-full h-9 bg-white border-gray-300"
                       />
                     </div>
 
@@ -1764,7 +1862,7 @@ export default function ApplicantInformation() {
                           )
                         }
                         placeholder="M"
-                        className="bg-white border-gray-300"
+                        className="w-full h-9 bg-white border-gray-300"
                       />
                     </div>
 
@@ -1783,7 +1881,7 @@ export default function ApplicantInformation() {
                           )
                         }
                         placeholder="Doe"
-                        className="bg-white border-gray-300"
+                        className="w-full h-9 bg-white border-gray-300"
                       />
                     </div>
 
@@ -1802,39 +1900,34 @@ export default function ApplicantInformation() {
                             e.target.value
                           )
                         }
-                        className="bg-white border-gray-300"
+                        className="w-full h-9 bg-white border-gray-300"
                       />
                     </div>
                   </div>
                 </div>
               ))}
-
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() =>
-                  addArrayItem("children", {
-                    first_name: "",
-                    middle_number: "",
-                    last_name: "",
-                    dob: "",
-                  })
-                }
-              >
-                Add Child
-              </Button>
             </div>
 
-            {/* Meeting Dates Section */}
+            {/* Meeting Clients Section */}
             <div className="space-y-6 pt-6 border-t">
-              <h2 className="text-xl font-semibold text-gray-900">
-                Meeting Dates
-              </h2>
+              <div className="flex items-center justify-between">
+                <h2 className="text-xl font-semibold text-gray-900">
+                  Meeting Dates with Clients
+                </h2>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => addArrayItem("meeting_clients", { date: "" })}
+                >
+                  Add Meeting Date
+                </Button>
+              </div>
 
               {formData.meeting_clients.map((meeting, index) => (
                 <div
                   key={index}
-                  className="grid grid-cols-1 md:grid-cols-2 gap-4 items-end"
+                  className="grid grid-cols-1 lg:grid-cols-3 gap-6"
                 >
                   <div className="space-y-2">
                     <Label className="text-gray-700 font-medium">
@@ -1851,29 +1944,24 @@ export default function ApplicantInformation() {
                           e.target.value
                         )
                       }
-                      className="bg-gray-50 border-gray-300"
+                      className="w-full h-9 bg-gray-50 border-gray-300"
                     />
                   </div>
 
-                  <Button
-                    type="button"
-                    variant="destructive"
-                    onClick={() => removeArrayItem("meeting_clients", index)}
-                    disabled={formData.meeting_clients.length === 1}
-                  >
-                    <X className="w-4 h-4 mr-2" />
-                    Remove
-                  </Button>
+                  <div className="flex items-end">
+                    <Button
+                      type="button"
+                      variant="destructive"
+                      size="sm"
+                      onClick={() => removeArrayItem("meeting_clients", index)}
+                      disabled={formData.meeting_clients.length === 1}
+                      className="w-full h-11"
+                    >
+                      Remove
+                    </Button>
+                  </div>
                 </div>
               ))}
-
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => addArrayItem("meeting_clients", { date: "" })}
-              >
-                Add Meeting Date
-              </Button>
             </div>
 
             {/* Submit Buttons */}
@@ -1889,10 +1977,10 @@ export default function ApplicantInformation() {
               </Button>
               <Button
                 type="submit"
-                disabled={createMutation.isPending}
+                disabled={createMutation.isPending || uploadMutation.isPending}
                 size="lg"
               >
-                {createMutation.isPending ? (
+                {createMutation.isPending || uploadMutation.isPending ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                     Saving...
@@ -1905,6 +1993,24 @@ export default function ApplicantInformation() {
           </form>
         </div>
       </div>
+
+      {/* Image Preview Modal */}
+      <Dialog open={isPreviewOpen} onOpenChange={setIsPreviewOpen}>
+        <DialogContent className="max-w-4xl">
+          <DialogHeader>
+            <DialogTitle>Applicant Photo Preview</DialogTitle>
+          </DialogHeader>
+          <div className="flex items-center justify-center p-4">
+            {formData.filePreview && (
+              <img
+                src={formData.filePreview}
+                alt="Full Preview"
+                className="max-w-full max-h-[70vh] object-contain rounded-lg"
+              />
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

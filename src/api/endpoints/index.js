@@ -1,3 +1,5 @@
+import { uploadAttachment } from "@/pages/identification/helpers/uploadAttachment";
+
 export const endpoints = {
   login: "api/login",
   signup: "api/firm/register",
@@ -5,6 +7,7 @@ export const endpoints = {
   forgotpassword: "api/forgot-password",
   resetpassword: "/api/reset-password",
   dashboard: "api/v2/dashboard",
+  uploadAttachment: "api/v2/attachment",
   workstation_list: "api/v2/file/workstation",
   matterMeta: "api/v2/file/initial/meta",
   createMatter: "api/v2/file/initial/save",

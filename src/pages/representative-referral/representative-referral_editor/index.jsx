@@ -68,7 +68,7 @@ export default function RepresentativeReferral() {
         toast.success(
           "Representative & Referral information saved successfully!"
         );
-        navigate(`/dashboard/workstation/edit/${slug}/primary-ehc`);
+        // navigate(`/dashboard/workstation/edit/${slug}/primary-ehc`);
       }
     },
     onError: (error) => {

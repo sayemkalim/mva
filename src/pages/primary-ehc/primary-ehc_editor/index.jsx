@@ -65,7 +65,7 @@ export default function PrimaryEhc() {
     onSuccess: (apiResponse) => {
       if (apiResponse?.response?.Apistatus) {
         toast.success("Primary EHC information saved successfully!");
-        navigate(`/dashboard/workstation/edit/${slug}/secondary-ehc`);
+        // navigate(`/dashboard/workstation/edit/${slug}/secondary-ehc`);
       }
     },
     onError: (error) => {

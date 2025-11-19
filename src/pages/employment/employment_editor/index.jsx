@@ -63,7 +63,7 @@ export default function Employment() {
     onSuccess: (apiResponse) => {
       if (apiResponse?.response?.Apistatus) {
         toast.success("Employment information saved successfully!");
-        navigate(`/dashboard/workstation/edit/${slug}/next-page`);
+        // navigate(`/dashboard/workstation/edit/${slug}/next-page`);
       }
     },
     onError: (error) => {

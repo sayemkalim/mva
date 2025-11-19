@@ -68,7 +68,7 @@ export default function SchoolCaregiver() {
 
       if (apiResponse?.response?.Apistatus) {
         toast.success("School/Caregiver information saved successfully!");
-        navigate(`/dashboard/workstation/edit/${slug}/representative-referral`);
+        // navigate(`/dashboard/workstation/edit/${slug}/representative-referral`);
       }
     },
     onError: (error) => {
