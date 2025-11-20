@@ -432,9 +432,9 @@ export default function Vehicle() {
             <h1 className="text-2xl font-bold text-gray-900 uppercase">
               Vehicle Information
             </h1>
-            <Button type="button" variant="destructive" onClick={handleDelete}>
+            {/* <Button type="button" variant="destructive" onClick={handleDelete}>
               Delete Vehicle
-            </Button>
+            </Button> */}
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-8">
