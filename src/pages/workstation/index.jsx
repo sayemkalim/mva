@@ -48,7 +48,7 @@ const Matter = () => {
 
   return (
     <div className="flex flex-col">
-      <Navbar2 theme={theme} toggleTheme={toggleTheme} />
+      <Navbar2 />
       <NavbarItem title="Matters" breadcrumbs={breadcrumbs} />
 
       <div className="px-4">

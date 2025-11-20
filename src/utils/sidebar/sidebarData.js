@@ -19,6 +19,7 @@ import {
   ShieldAlert,
   Ambulance,
   AmbulanceIcon,
+  LifeBuoy,
 } from "lucide-react";
 import { getItem } from "../local_storage";
 
@@ -114,6 +115,43 @@ export const getEditModeData = (slug) => ({
         {
           title: "Accident Information",
           url: `/dashboard/workstation/edit/${slug}/accident-information`,
+          icon: User,
+        },
+      ],
+    },
+    {
+      title: "Accident Benefit",
+      url: ``,
+      icon: LifeBuoy,
+      items: [
+        {
+          title: "Insurance",
+          url: `/dashboard/workstation/edit/${slug}/insurance`,
+          icon: User,
+        },
+        {
+          title: "Adjuster",
+          url: `/dashboard/workstation/edit/${slug}/adjuster`,
+          icon: User,
+        },
+        {
+          title: "Vechile",
+          url: `/dashboard/workstation/edit/${slug}/vechile`,
+          icon: User,
+        },
+        {
+          title: "Section 33",
+          url: `/dashboard/workstation/edit/${slug}/section-33`,
+          icon: User,
+        },
+        {
+          title: "LAT",
+          url: `/dashboard/workstation/edit/${slug}/lat`,
+          icon: User,
+        },
+        {
+          title: "AB Counsel",
+          url: `/dashboard/workstation/edit/${slug}/ab-counsel`,
           icon: User,
         },
       ],

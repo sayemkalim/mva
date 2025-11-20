@@ -1,5 +1,3 @@
-import { uploadAttachment } from "@/pages/identification/helpers/uploadAttachment";
-
 export const endpoints = {
   login: "api/login",
   signup: "api/firm/register",
@@ -36,4 +34,13 @@ export const endpoints = {
   createAccidentInfo: "api/v2/file/accident-detail",
   accidentInfoMeta: "api/v2/file/accident-detail/meta",
   accidentInfo: "api/v2/file/accident-detail/show",
+  createInsurance: "api/v2/file/accident-benefits/insurance",
+  insurance: "api/v2/file/accident-benefits/insurance/show",
+  metaAccidentBenefits: "api/v2/file/accident-benefits/meta",
+  adjuster: "api/v2/file/accident-benefits/adjuster/show",
+  createAdjuster: "api/v2/file/accident-benefits/adjuster",
+  deleteAdjuster: "api/v2/file/accident-benefits/adjuster/delete",
+  vechile: "api/v2/file/accident-benefits/vehicle/show",
+  createVechile: "api/v2/file/accident-benefits/vehicle",
+  deleteVechile: "api/v2/file/accident-benefits/adjuster/delete",
 };

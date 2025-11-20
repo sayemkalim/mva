@@ -21,6 +21,9 @@ import RepresentativeReferral from "@/pages/representative-referral/representati
 import PrimaryEhc from "@/pages/primary-ehc/primary-ehc_editor";
 import SecondaryEhc from "@/pages/secondary-ehc/secondary-ehc_editor";
 import AccidentalInformation from "@/pages/accidentInfo/accidentInfo_editor";
+import Insurance from "@/pages/insurance/insurance_editor";
+import Adjuster from "@/pages/adjuster/adjuster_editor";
+import Vehicle from "@/pages/vechile/vechile_editor";
 
 const Router = () => {
   return (
@@ -71,6 +74,18 @@ const Router = () => {
           <Route
             path="/dashboard/workstation/edit/:slug/accident-information"
             element={<AccidentalInformation />}
+          />
+          <Route
+            path="/dashboard/workstation/edit/:slug/insurance"
+            element={<Insurance />}
+          />
+          <Route
+            path="/dashboard/workstation/edit/:slug/adjuster"
+            element={<Adjuster />}
+          />
+          <Route
+            path="/dashboard/workstation/edit/:slug/vechile"
+            element={<Vehicle />}
           />
           <Route path="/dashboard/contact-us" element={<ContactUs />} />
         </Route>
