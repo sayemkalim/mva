@@ -141,7 +141,7 @@ export const getEditModeData = (slug) => ({
         },
         {
           title: "Section 33",
-          url: `/dashboard/workstation/edit/${slug}/section-33`,
+          url: `/dashboard/workstation/edit/${slug}/section-33-list`,
           icon: User,
         },
         {

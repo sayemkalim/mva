@@ -2,9 +2,10 @@ import React from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useParams, useNavigate } from "react-router-dom";
 import NavbarItem from "@/components/navbar/navbar_item";
-import AddMatterCard from "./AddMatterCard";
-import { fetchMatterMetadata } from "../../helpers/fetchMatterMetadata";
-import { fetchMatterBySlug } from "../../helpers/fetchMatterBySlug";
+
+import AddMatterCard from "@/pages/workstation/components/mater_editor/AddMatterCard";
+import { fetchMatterMetadata } from "@/pages/workstation/helpers/fetchMatterMetadata";
+import { fetchMatterBySlug } from "@/pages/workstation/helpers/fetchMatterBySlug";
 
 const MatterEditor = () => {
   const { slug } = useParams();

@@ -43,4 +43,7 @@ export const endpoints = {
   vechile: "api/v2/file/accident-benefits/vehicle/show",
   createVechile: "api/v2/file/accident-benefits/vehicle",
   deleteVechile: "api/v2/file/accident-benefits/adjuster/delete",
+  sectionList: "api/v2/file/accident-benefits/section-33/list",
+  section: "api/v2/file/accident-benefits/section-33/show",
+  createSection: "api/v2/file/accident-benefits/section-33",
 };

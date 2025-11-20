@@ -24,6 +24,9 @@ import AccidentalInformation from "@/pages/accidentInfo/accidentInfo_editor";
 import Insurance from "@/pages/insurance/insurance_editor";
 import Adjuster from "@/pages/adjuster/adjuster_editor";
 import Vehicle from "@/pages/vechile/vechile_editor";
+import Section33Table from "@/pages/section33/components/Section33Table";
+import Section from "@/pages/section33";
+import SectionEditor from "@/pages/section33/components/section33_editor";
 
 const Router = () => {
   return (
@@ -87,6 +90,11 @@ const Router = () => {
             path="/dashboard/workstation/edit/:slug/vechile"
             element={<Vehicle />}
           />
+          <Route
+            path="/dashboard/workstation/edit/:slug/section-33-list"
+            element={<Section />}
+          />
+          {/* <Route path="dashboard/section/:id" element={<SectionEditor />} /> */}
           <Route path="/dashboard/contact-us" element={<ContactUs />} />
         </Route>
       </Route>
