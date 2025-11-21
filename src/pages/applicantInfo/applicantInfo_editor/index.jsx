@@ -5,13 +5,6 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import {
   Dialog,
@@ -26,6 +19,56 @@ import { getApplicantMeta } from "../helpers/fetchApplicantInfoMetadata";
 import { fetchApplicantInfoBySlug } from "../helpers/fetchApplicantInfoBySlug";
 import { uploadAttachment } from "../helpers/uploadAttachment";
 import { Navbar2 } from "@/components/navbar2";
+
+/* shadcn-style components for searchable select */
+import {
+  Popover,
+  PopoverTrigger,
+  PopoverContent,
+} from "@/components/ui/popover";
+import {
+  Command,
+  CommandInput,
+  CommandEmpty,
+  CommandGroup,
+  CommandItem,
+} from "@/components/ui/command";
+
+function ShadcnSelect({ value, onValueChange, options, placeholder, label }) {
+  const selected = options.find((o) => String(o.id) === String(value)) || null;
+
+  return (
+    <Popover>
+      <PopoverTrigger asChild>
+        <Button
+          variant="outline"
+          role="combobox"
+          className="w-full justify-between"
+        >
+          {selected ? selected.name : placeholder}
+          <ChevronRight className="ml-2 h-4 w-4 rotate-90" />
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent className="w-300px p-0">
+        <Command>
+          <CommandInput placeholder={label.toLowerCase()} />
+          <CommandEmpty>No results found.</CommandEmpty>
+          <CommandGroup>
+            {options.map((opt) => (
+              <CommandItem
+                key={opt.id}
+                onSelect={() => onValueChange(opt.id)}
+                value={opt.name}
+              >
+                {opt.name}
+              </CommandItem>
+            ))}
+          </CommandGroup>
+        </Command>
+      </PopoverContent>
+    </Popover>
+  );
+}
 
 export default function ApplicantInformation() {
   const { slug } = useParams();
@@ -50,7 +93,6 @@ export default function ApplicantInformation() {
     queryKey: ["applicantInfo", slug],
     queryFn: async () => {
       if (!slug) return null;
-
       try {
         const data = await fetchApplicantInfoBySlug(slug);
         return data;
@@ -75,10 +117,7 @@ export default function ApplicantInformation() {
       console.log("✅ File uploaded:", data);
       const attachmentId = data?.response?.attachment_id;
       if (attachmentId) {
-        setFormData((prev) => ({
-          ...prev,
-          attachment_id: attachmentId,
-        }));
+        setFormData((prev) => ({ ...prev, attachment_id: attachmentId }));
         toast.success("Photo uploaded successfully!");
       }
     },
@@ -92,7 +131,6 @@ export default function ApplicantInformation() {
     mutationFn: createApplicantInfo,
     onSuccess: (data) => {
       toast.success("Application submitted successfully!");
-      // navigate(`/dashboard/workstation/edit/${slug}/identification`);
     },
     onError: (error) => {
       toast.error("Failed to submit application. Please try again.");
@@ -180,144 +218,134 @@ export default function ApplicantInformation() {
   }, [slug, navigate]);
 
   useEffect(() => {
-    if (applicantData) {
-      console.log("Populating form with existing data");
+    console.log(
+      "DEBUG reaches before submit:",
+      JSON.stringify(formData.reaches, null, 2)
+    );
 
+    if (applicantData) {
+      // populate form using correct response keys
       setFormData({
-        gender_id: applicantData.gender_id || "",
-        last_name: applicantData.last_name || "",
-        first_name: applicantData.first_name || "",
-        middle_name: applicantData.middle_name || "",
-        marital_status_id: applicantData.marital_status_id || "",
+        gender_id: applicantData.gender_id ?? "",
+        last_name: applicantData.last_name ?? "",
+        first_name: applicantData.first_name ?? "",
+        middle_name: applicantData.middle_name ?? "",
+        marital_status_id: applicantData.marital_status_id ?? "",
         dob: applicantData.dob ? applicantData.dob.split("T")[0] : "",
-        canadian_resident_id: applicantData.canadian_resident_id || "",
-        resident_status_id: applicantData.resident_status_id || "",
-        language_spoken: applicantData.language_spoken || "",
-        contact_method_id: applicantData.contact_method_id || "",
-        telephone: applicantData.telephone || "",
-        ext: applicantData.ext || "",
-        fax: applicantData.fax || "",
-        email: applicantData.email || "",
-        attachment_id: applicantData.attachment_id || null,
+        canadian_resident_id: applicantData.canadian_resident_id ?? "",
+        resident_status_id: applicantData.resident_status_id ?? "",
+        language_spoken: applicantData.language_spoken ?? "",
+        contact_method_id: applicantData.contact_method_id ?? "",
+        telephone: applicantData.telephone ?? "",
+        ext: applicantData.ext ?? "",
+        fax: applicantData.fax ?? "",
+        email: applicantData.email ?? "",
+        attachment_id: applicantData.attachment_id ?? null,
         file: null,
         fileName: "",
         filePreview: null,
-        social_media_facebook: applicantData.social_media_facebook || "",
-        social_media_instagram: applicantData.social_media_instagram || "",
-        social_media_tiktok: applicantData.social_media_tiktok || "",
-        social_media_x: applicantData.social_media_x || "",
-        social_media_snapchat: applicantData.social_media_snapchat || "",
-        social_media_linkedin: applicantData.social_media_linkedin || "",
+        social_media_facebook: applicantData.social_media_facebook ?? "",
+        social_media_instagram: applicantData.social_media_instagram ?? "",
+        social_media_tiktok: applicantData.social_media_tiktok ?? "",
+        social_media_x: applicantData.social_media_x ?? "",
+        social_media_snapchat: applicantData.social_media_snapchat ?? "",
+        social_media_linkedin: applicantData.social_media_linkedin ?? "",
         reaches:
-          applicantData.reaches && applicantData.reaches.length > 0
-            ? applicantData.reaches.map((r) => ({
-                day_id: r.day_id || "",
-                time: r.time || "",
+          applicantData.reach && applicantData.reach.length > 0
+            ? applicantData.reach.map((r) => ({
+                day_id: r.day_id ?? "",
+                // trim seconds from "HH:MM:SS" => "HH:MM"
+                time: r.time ? r.time.slice(0, 5) : "",
               }))
             : [{ day_id: "", time: "" }],
-
         client_availability_away_id:
-          applicantData.client_availability_away_id || "",
+          applicantData.client_availability_away_id ?? "",
         client_availability_from: applicantData.client_availability_from
           ? applicantData.client_availability_from.split("T")[0]
           : "",
         client_availability_to: applicantData.client_availability_to
           ? applicantData.client_availability_to.split("T")[0]
           : "",
-
         current_address: {
-          unit_number: applicantData.current_address?.unit_number || "",
-          street_number: applicantData.current_address?.street_number || "",
-          street_name: applicantData.current_address?.street_name || "",
-          city: applicantData.current_address?.city || "",
-          province: applicantData.current_address?.province || "",
-          postal_code: applicantData.current_address?.postal_code || "",
-          country: applicantData.current_address?.country || "",
+          unit_number: applicantData.current_address?.unit_number ?? "",
+          street_number: applicantData.current_address?.street_number ?? "",
+          street_name: applicantData.current_address?.street_name ?? "",
+          city: applicantData.current_address?.city ?? "",
+          province: applicantData.current_address?.province ?? "",
+          postal_code: applicantData.current_address?.postal_code ?? "",
+          country: applicantData.current_address?.country ?? "",
         },
-
         mailing_address: {
-          unit_number: applicantData.mailing_address?.unit_number || "",
-          street_number: applicantData.mailing_address?.street_number || "",
-          street_name: applicantData.mailing_address?.street_name || "",
-          city: applicantData.mailing_address?.city || "",
-          province: applicantData.mailing_address?.province || "",
-          postal_code: applicantData.mailing_address?.postal_code || "",
-          country: applicantData.mailing_address?.country || "",
+          unit_number: applicantData.mailing_address?.unit_number ?? "",
+          street_number: applicantData.mailing_address?.street_number ?? "",
+          street_name: applicantData.mailing_address?.street_name ?? "",
+          city: applicantData.mailing_address?.city ?? "",
+          province: applicantData.mailing_address?.province ?? "",
+          postal_code: applicantData.mailing_address?.postal_code ?? "",
+          country: applicantData.mailing_address?.country ?? "",
         },
-
-        family_member_first_name: applicantData.family_member_first_name || "",
+        family_member_first_name: applicantData.family_member_first_name ?? "",
         family_member_middle_name:
-          applicantData.family_member_middle_name || "",
-        family_member_last_name: applicantData.family_member_last_name || "",
+          applicantData.family_member_middle_name ?? "",
+        family_member_last_name: applicantData.family_member_last_name ?? "",
         family_member_dob: applicantData.family_member_dob
           ? applicantData.family_member_dob.split("T")[0]
           : "",
         family_member_spouse_status_id:
-          applicantData.family_member_spouse_status_id || "",
+          applicantData.family_member_spouse_status_id ?? "",
         family_member_employment_status_id:
-          applicantData.family_member_employment_status_id || "",
+          applicantData.family_member_employment_status_id ?? "",
         family_member_annual_income:
-          applicantData.family_member_annual_income || "",
-        family_member_telephone: applicantData.family_member_telephone || "",
-        family_member_email: applicantData.family_member_email || "",
-        family_member_note: applicantData.family_member_note || "",
-
+          applicantData.family_member_annual_income ?? "",
+        family_member_telephone: applicantData.family_member_telephone ?? "",
+        family_member_email: applicantData.family_member_email ?? "",
+        family_member_note: applicantData.family_member_note ?? "",
         family_member_address: {
-          unit_number: applicantData.family_member_address?.unit_number || "",
+          unit_number: applicantData.family_member_address?.unit_number ?? "",
           street_number:
-            applicantData.family_member_address?.street_number || "",
-          street_name: applicantData.family_member_address?.street_name || "",
-          city: applicantData.family_member_address?.city || "",
-          province: applicantData.family_member_address?.province || "",
-          postal_code: applicantData.family_member_address?.postal_code || "",
-          country: applicantData.family_member_address?.country || "",
+            applicantData.family_member_address?.street_number ?? "",
+          street_name: applicantData.family_member_address?.street_name ?? "",
+          city: applicantData.family_member_address?.city ?? "",
+          province: applicantData.family_member_address?.province ?? "",
+          postal_code: applicantData.family_member_address?.postal_code ?? "",
+          country: applicantData.family_member_address?.country ?? "",
         },
-
         children:
           applicantData.children && applicantData.children.length > 0
             ? applicantData.children.map((c) => ({
-                first_name: c.first_name || "",
-                middle_number: c.middle_number || "",
-                last_name: c.last_name || "",
+                first_name: c.first_name ?? "",
+                middle_number: c.middle_number ?? "",
+                last_name: c.last_name ?? "",
                 dob: c.dob ? c.dob.split("T")[0] : "",
               }))
             : [{ first_name: "", middle_number: "", last_name: "", dob: "" }],
-
         meeting_clients:
-          applicantData.meeting_clients &&
-          applicantData.meeting_clients.length > 0
-            ? applicantData.meeting_clients.map((m) => ({
+          applicantData.meeting_client &&
+          applicantData.meeting_client.length > 0
+            ? applicantData.meeting_client.map((m) => ({
                 date: m.date ? m.date.split("T")[0] : "",
               }))
             : [{ date: "" }],
       });
-    } else {
-      console.log("📝 No existing data - showing empty form");
-    }
+    } // end if applicantData
   }, [applicantData]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleAddressChange = (addressType, field, value) => {
     setFormData((prev) => ({
       ...prev,
-      [addressType]: {
-        ...prev[addressType],
-        [field]: value,
-      },
+      [addressType]: { ...prev[addressType], [field]: value },
     }));
   };
 
   const handleSelectChange = (name, value) => {
     setFormData((prev) => ({
       ...prev,
-      [name]: Number(value),
+      [name]: value === "" ? "" : value,
     }));
   };
 
@@ -345,23 +373,19 @@ export default function ApplicantInformation() {
   };
 
   const handleFileChange = async (file) => {
-    if (file) {
-      if (file.size > 1048576) {
-        toast.error("File size must be less than 1MB");
-        return;
-      }
-
-      const previewUrl = URL.createObjectURL(file);
-
-      setFormData((prev) => ({
-        ...prev,
-        file: file,
-        fileName: file.name,
-        filePreview: previewUrl,
-      }));
-
-      await uploadMutation.mutateAsync({ file });
+    if (!file) return;
+    if (file.size > 1048576) {
+      toast.error("File size must be less than 1MB");
+      return;
     }
+    const previewUrl = URL.createObjectURL(file);
+    setFormData((prev) => ({
+      ...prev,
+      file,
+      fileName: file.name,
+      filePreview: previewUrl,
+    }));
+    await uploadMutation.mutateAsync({ file });
   };
 
   const removeFile = () => {
@@ -372,11 +396,8 @@ export default function ApplicantInformation() {
       filePreview: null,
       attachment_id: null,
     }));
-
     const fileInput = document.getElementById("applicant_photo");
-    if (fileInput) {
-      fileInput.value = "";
-    }
+    if (fileInput) fileInput.value = "";
   };
 
   const handleSubmit = async (e) => {
@@ -387,11 +408,8 @@ export default function ApplicantInformation() {
       return;
     }
 
-    const isAddressFilled = (address) => {
-      return Object.values(address).some(
-        (value) => value && value.trim() !== ""
-      );
-    };
+    const isAddressFilled = (address) =>
+      Object.values(address).some((value) => value && value.trim() !== "");
 
     const payload = {
       gender_id: formData.gender_id || null,
@@ -416,7 +434,23 @@ export default function ApplicantInformation() {
       social_media_snapchat: formData.social_media_snapchat || null,
       social_media_linkedin: formData.social_media_linkedin || null,
 
-      reaches: formData.reaches.filter((r) => r.day_id && r.time),
+      reaches: formData.reaches
+        .map((r, idx) => {
+          const rawDay = r.day_id;
+          const dayId =
+            rawDay !== "" && rawDay !== null && !Number.isNaN(Number(rawDay))
+              ? Number(rawDay)
+              : null;
+
+          // normalize time to HH:MM:SS (as earlier)
+          let timeVal = null;
+          if (r.time) {
+            timeVal = r.time.length === 5 ? `${r.time}:00` : r.time;
+          }
+
+          return { day_id: dayId, time: timeVal };
+        })
+        .filter((r) => r.day_id !== null && r.time),
 
       client_availability_away_id: formData.client_availability_away_id || null,
       client_availability_from: formData.client_availability_from || null,
@@ -425,7 +459,6 @@ export default function ApplicantInformation() {
       ...(isAddressFilled(formData.current_address) && {
         current_address: formData.current_address,
       }),
-
       ...(isAddressFilled(formData.mailing_address) && {
         mailing_address: formData.mailing_address,
       }),
@@ -447,18 +480,23 @@ export default function ApplicantInformation() {
         family_member_address: formData.family_member_address,
       }),
 
-      children: formData.children.filter(
-        (c) => c.first_name || c.last_name || c.dob
-      ),
-      meeting_clients: formData.meeting_clients.filter((m) => m.date),
+      children: formData.children
+        .map((c) => ({
+          first_name: c.first_name || null,
+          middle_number: c.middle_number || null,
+          last_name: c.last_name || null,
+          dob: c.dob || null,
+        }))
+        .filter((c) => c.first_name || c.last_name || c.dob),
+
+      meeting_clients: formData.meeting_clients
+        .map((m) => (m.date ? { date: m.date } : null))
+        .filter(Boolean),
     };
 
     console.log("📤 Final Payload:", JSON.stringify(payload, null, 2));
 
-    createMutation.mutate({
-      slug: slug,
-      data: payload,
-    });
+    createMutation.mutate({ slug, data: payload });
   };
 
   if (isLoadingMetadata || isLoadingApplicant) {
@@ -545,7 +583,7 @@ export default function ApplicantInformation() {
           </h1>
 
           <form onSubmit={handleSubmit} className="space-y-8">
-            {/* Row 1: Gender, Last Name, First Name, Photo Upload - NO GAP */}
+            {/* Row 1 */}
             <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
               <div className="space-y-2">
                 <Label
@@ -554,23 +592,13 @@ export default function ApplicantInformation() {
                 >
                   Gender
                 </Label>
-                <Select
-                  value={formData.gender_id?.toString()}
-                  onValueChange={(value) =>
-                    handleSelectChange("gender_id", value)
-                  }
-                >
-                  <SelectTrigger className="w-full h-11 bg-gray-50 border-gray-300">
-                    <SelectValue placeholder="Select gender" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {metadata?.contact_gender?.map((gender) => (
-                      <SelectItem key={gender.id} value={gender.id.toString()}>
-                        {gender.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <ShadcnSelect
+                  value={formData.gender_id}
+                  onValueChange={(val) => handleSelectChange("gender_id", val)}
+                  options={metadata?.contact_gender || []}
+                  placeholder="Select gender"
+                  label="Gender"
+                />
               </div>
 
               <div className="space-y-2">
@@ -623,7 +651,7 @@ export default function ApplicantInformation() {
               </div>
             </div>
 
-            {/* Row 2: Middle Name, Marital Status, DOB */}
+            {/* Row 2 */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               <div className="space-y-2">
                 <Label
@@ -649,23 +677,15 @@ export default function ApplicantInformation() {
                 >
                   Marital Status
                 </Label>
-                <Select
-                  value={formData.marital_status_id?.toString()}
-                  onValueChange={(value) =>
-                    handleSelectChange("marital_status_id", value)
+                <ShadcnSelect
+                  value={formData.marital_status_id}
+                  onValueChange={(val) =>
+                    handleSelectChange("marital_status_id", val)
                   }
-                >
-                  <SelectTrigger className="w-full h-11 bg-gray-50 border-gray-300">
-                    <SelectValue placeholder="Select status" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {metadata?.marital_status?.map((status) => (
-                      <SelectItem key={status.id} value={status.id.toString()}>
-                        {status.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                  options={metadata?.marital_status || []}
+                  placeholder="Select status"
+                  label="Marital Status"
+                />
               </div>
 
               <div className="space-y-2">
@@ -683,7 +703,7 @@ export default function ApplicantInformation() {
               </div>
             </div>
 
-            {/* Row 3: Canadian Resident, Resident Status, Language Spoken */}
+            {/* Row 3 */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               <div className="space-y-2">
                 <Label
@@ -692,23 +712,15 @@ export default function ApplicantInformation() {
                 >
                   Canadian Resident
                 </Label>
-                <Select
-                  value={formData.canadian_resident_id?.toString()}
-                  onValueChange={(value) =>
-                    handleSelectChange("canadian_resident_id", value)
+                <ShadcnSelect
+                  value={formData.canadian_resident_id}
+                  onValueChange={(val) =>
+                    handleSelectChange("canadian_resident_id", val)
                   }
-                >
-                  <SelectTrigger className="w-full h-11 bg-gray-50 border-gray-300">
-                    <SelectValue placeholder="Select option" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {metadata?.yes_no_option?.map((option) => (
-                      <SelectItem key={option.id} value={option.id.toString()}>
-                        {option.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                  options={metadata?.yes_no_option || []}
+                  placeholder="Select option"
+                  label="Canadian Resident"
+                />
               </div>
 
               <div className="space-y-2">
@@ -718,23 +730,15 @@ export default function ApplicantInformation() {
                 >
                   Resident Status
                 </Label>
-                <Select
-                  value={formData.resident_status_id?.toString()}
-                  onValueChange={(value) =>
-                    handleSelectChange("resident_status_id", value)
+                <ShadcnSelect
+                  value={formData.resident_status_id}
+                  onValueChange={(val) =>
+                    handleSelectChange("resident_status_id", val)
                   }
-                >
-                  <SelectTrigger className="w-full h-11 bg-gray-50 border-gray-300">
-                    <SelectValue placeholder="Select status" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {metadata?.resident_status?.map((status) => (
-                      <SelectItem key={status.id} value={status.id.toString()}>
-                        {status.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                  options={metadata?.resident_status || []}
+                  placeholder="Select status"
+                  label="Resident Status"
+                />
               </div>
 
               <div className="space-y-2">
@@ -755,7 +759,7 @@ export default function ApplicantInformation() {
               </div>
             </div>
 
-            {/* Row 4: Contact Method, Telephone, Ext, Fax */}
+            {/* Row 4 */}
             <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
               <div className="space-y-2">
                 <Label
@@ -764,23 +768,15 @@ export default function ApplicantInformation() {
                 >
                   Contact Method
                 </Label>
-                <Select
-                  value={formData.contact_method_id?.toString()}
-                  onValueChange={(value) =>
-                    handleSelectChange("contact_method_id", value)
+                <ShadcnSelect
+                  value={formData.contact_method_id}
+                  onValueChange={(val) =>
+                    handleSelectChange("contact_method_id", val)
                   }
-                >
-                  <SelectTrigger className="w-full h-11 bg-gray-50 border-gray-300">
-                    <SelectValue placeholder="Select method" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {metadata?.contact_method?.map((method) => (
-                      <SelectItem key={method.id} value={method.id.toString()}>
-                        {method.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                  options={metadata?.contact_method || []}
+                  placeholder="Select method"
+                  label="Contact Method"
+                />
               </div>
 
               <div className="space-y-2">
@@ -829,11 +825,10 @@ export default function ApplicantInformation() {
               </div>
             </div>
 
-            {/* Row 5: Email */}
-
+            {/* Photo Upload (unchanged) */}
             <div className="space-y-2">
               <Label className="text-gray-700 font-medium">
-                Applicant Photo <span className="text-red-500">(Max 1M)</span>
+                Applicant Photo <span className="text-red-500">(Max 1MB)</span>
               </Label>
               <div
                 className={`relative border-2 border-dashed rounded-lg transition-all overflow-hidden ${
@@ -921,12 +916,12 @@ export default function ApplicantInformation() {
                 )}
               </div>
             </div>
-            {/* Social Media Section */}
+
+            {/* Social Media */}
             <div className="space-y-6 pt-6 border-t">
               <h2 className="text-xl font-semibold text-gray-900">
                 Social Media
               </h2>
-
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <div className="space-y-2">
                   <Label
@@ -1032,7 +1027,7 @@ export default function ApplicantInformation() {
               </div>
             </div>
 
-            {/* Best Times to Reach Section */}
+            {/* Best Times to Reach */}
             <div className="space-y-6 pt-6 border-t">
               <div className="flex items-center justify-between">
                 <h2 className="text-xl font-semibold text-gray-900">
@@ -1057,28 +1052,15 @@ export default function ApplicantInformation() {
                 >
                   <div className="space-y-2">
                     <Label className="text-gray-700 font-medium">Day</Label>
-                    <Select
-                      value={reach.day_id?.toString()}
-                      onValueChange={(value) =>
-                        handleArrayChange(
-                          "reaches",
-                          index,
-                          "day_id",
-                          Number(value)
-                        )
+                    <ShadcnSelect
+                      value={reach.day_id}
+                      onValueChange={(val) =>
+                        handleArrayChange("reaches", index, "day_id", val)
                       }
-                    >
-                      <SelectTrigger className="w-full h-11 bg-gray-50 border-gray-300">
-                        <SelectValue placeholder="Select day" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {metadata?.days?.map((day) => (
-                          <SelectItem key={day.id} value={day.id.toString()}>
-                            {day.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                      options={metadata?.day || []}
+                      placeholder="Select day"
+                      label="Day"
+                    />
                   </div>
 
                   <div className="space-y-2">
@@ -1114,12 +1096,11 @@ export default function ApplicantInformation() {
               ))}
             </div>
 
-            {/* Client Availability Section */}
+            {/* Client Availability */}
             <div className="space-y-6 pt-6 border-t">
               <h2 className="text-xl font-semibold text-gray-900">
                 Client Availability
               </h2>
-
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <div className="space-y-2">
                   <Label
@@ -1128,26 +1109,15 @@ export default function ApplicantInformation() {
                   >
                     Away Status
                   </Label>
-                  <Select
-                    value={formData.client_availability_away_id?.toString()}
-                    onValueChange={(value) =>
-                      handleSelectChange("client_availability_away_id", value)
+                  <ShadcnSelect
+                    value={formData.client_availability_away_id}
+                    onValueChange={(val) =>
+                      handleSelectChange("client_availability_away_id", val)
                     }
-                  >
-                    <SelectTrigger className="w-full h-11 bg-gray-50 border-gray-300">
-                      <SelectValue placeholder="Select status" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {metadata?.yes_no_option?.map((option) => (
-                        <SelectItem
-                          key={option.id}
-                          value={option.id.toString()}
-                        >
-                          {option.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                    options={metadata?.yes_no_option || []}
+                    placeholder="Select status"
+                    label="Away Status"
+                  />
                 </div>
 
                 <div className="space-y-2">
@@ -1186,12 +1156,11 @@ export default function ApplicantInformation() {
               </div>
             </div>
 
-            {/* Current Address Section */}
+            {/* Current Address */}
             <div className="space-y-6 pt-6 border-t">
               <h2 className="text-xl font-semibold text-gray-900">
                 Current Address
               </h2>
-
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <div className="space-y-2">
                   <Label className="text-gray-700 font-medium">
@@ -1210,7 +1179,6 @@ export default function ApplicantInformation() {
                     className="w-full h-9 bg-gray-50 border-gray-300"
                   />
                 </div>
-
                 <div className="space-y-2">
                   <Label className="text-gray-700 font-medium">
                     Street Number
@@ -1228,7 +1196,6 @@ export default function ApplicantInformation() {
                     className="w-full h-9 bg-gray-50 border-gray-300"
                   />
                 </div>
-
                 <div className="space-y-2">
                   <Label className="text-gray-700 font-medium">
                     Street Name
@@ -1246,7 +1213,6 @@ export default function ApplicantInformation() {
                     className="w-full h-9 bg-gray-50 border-gray-300"
                   />
                 </div>
-
                 <div className="space-y-2">
                   <Label className="text-gray-700 font-medium">City</Label>
                   <Input
@@ -1262,7 +1228,6 @@ export default function ApplicantInformation() {
                     className="w-full h-9 bg-gray-50 border-gray-300"
                   />
                 </div>
-
                 <div className="space-y-2">
                   <Label className="text-gray-700 font-medium">Province</Label>
                   <Input
@@ -1278,7 +1243,6 @@ export default function ApplicantInformation() {
                     className="w-full h-9 bg-gray-50 border-gray-300"
                   />
                 </div>
-
                 <div className="space-y-2">
                   <Label className="text-gray-700 font-medium">
                     Postal Code
@@ -1296,7 +1260,6 @@ export default function ApplicantInformation() {
                     className="w-full h-9 bg-gray-50 border-gray-300"
                   />
                 </div>
-
                 <div className="space-y-2">
                   <Label className="text-gray-700 font-medium">Country</Label>
                   <Input
@@ -1315,12 +1278,11 @@ export default function ApplicantInformation() {
               </div>
             </div>
 
-            {/* Mailing Address Section */}
+            {/* Mailing Address */}
             <div className="space-y-6 pt-6 border-t">
               <h2 className="text-xl font-semibold text-gray-900">
                 Mailing Address
               </h2>
-
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <div className="space-y-2">
                   <Label className="text-gray-700 font-medium">
@@ -1339,7 +1301,6 @@ export default function ApplicantInformation() {
                     className="w-full h-9 bg-gray-50 border-gray-300"
                   />
                 </div>
-
                 <div className="space-y-2">
                   <Label className="text-gray-700 font-medium">
                     Street Number
@@ -1357,7 +1318,6 @@ export default function ApplicantInformation() {
                     className="w-full h-9 bg-gray-50 border-gray-300"
                   />
                 </div>
-
                 <div className="space-y-2">
                   <Label className="text-gray-700 font-medium">
                     Street Name
@@ -1375,7 +1335,6 @@ export default function ApplicantInformation() {
                     className="w-full h-9 bg-gray-50 border-gray-300"
                   />
                 </div>
-
                 <div className="space-y-2">
                   <Label className="text-gray-700 font-medium">City</Label>
                   <Input
@@ -1391,7 +1350,6 @@ export default function ApplicantInformation() {
                     className="w-full h-9 bg-gray-50 border-gray-300"
                   />
                 </div>
-
                 <div className="space-y-2">
                   <Label className="text-gray-700 font-medium">Province</Label>
                   <Input
@@ -1407,7 +1365,6 @@ export default function ApplicantInformation() {
                     className="w-full h-9 bg-gray-50 border-gray-300"
                   />
                 </div>
-
                 <div className="space-y-2">
                   <Label className="text-gray-700 font-medium">
                     Postal Code
@@ -1425,7 +1382,6 @@ export default function ApplicantInformation() {
                     className="w-full h-9 bg-gray-50 border-gray-300"
                   />
                 </div>
-
                 <div className="space-y-2">
                   <Label className="text-gray-700 font-medium">Country</Label>
                   <Input
@@ -1444,12 +1400,11 @@ export default function ApplicantInformation() {
               </div>
             </div>
 
-            {/* Family Member Section */}
+            {/* Family Member Information */}
             <div className="space-y-6 pt-6 border-t">
               <h2 className="text-xl font-semibold text-gray-900">
                 Family Member Information
               </h2>
-
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <div className="space-y-2">
                   <Label
@@ -1467,7 +1422,6 @@ export default function ApplicantInformation() {
                     className="w-full h-9 bg-gray-50 border-gray-300"
                   />
                 </div>
-
                 <div className="space-y-2">
                   <Label
                     htmlFor="family_member_middle_name"
@@ -1484,7 +1438,6 @@ export default function ApplicantInformation() {
                     className="w-full h-9 bg-gray-50 border-gray-300"
                   />
                 </div>
-
                 <div className="space-y-2">
                   <Label
                     htmlFor="family_member_last_name"
@@ -1501,7 +1454,6 @@ export default function ApplicantInformation() {
                     className="w-full h-9 bg-gray-50 border-gray-300"
                   />
                 </div>
-
                 <div className="space-y-2">
                   <Label
                     htmlFor="family_member_dob"
@@ -1526,29 +1478,15 @@ export default function ApplicantInformation() {
                   >
                     Spouse Status
                   </Label>
-                  <Select
-                    value={formData.family_member_spouse_status_id?.toString()}
-                    onValueChange={(value) =>
-                      handleSelectChange(
-                        "family_member_spouse_status_id",
-                        value
-                      )
+                  <ShadcnSelect
+                    value={formData.family_member_spouse_status_id}
+                    onValueChange={(val) =>
+                      handleSelectChange("family_member_spouse_status_id", val)
                     }
-                  >
-                    <SelectTrigger className="w-full h-11 bg-gray-50 border-gray-300">
-                      <SelectValue placeholder="Select status" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {metadata?.yes_no_option?.map((option) => (
-                        <SelectItem
-                          key={option.id}
-                          value={option.id.toString()}
-                        >
-                          {option.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                    options={metadata?.yes_no_option || []}
+                    placeholder="Select status"
+                    label="Spouse Status"
+                  />
                 </div>
 
                 <div className="space-y-2">
@@ -1558,29 +1496,18 @@ export default function ApplicantInformation() {
                   >
                     Employment Status
                   </Label>
-                  <Select
-                    value={formData.family_member_employment_status_id?.toString()}
-                    onValueChange={(value) =>
+                  <ShadcnSelect
+                    value={formData.family_member_employment_status_id}
+                    onValueChange={(val) =>
                       handleSelectChange(
                         "family_member_employment_status_id",
-                        value
+                        val
                       )
                     }
-                  >
-                    <SelectTrigger className="w-full h-11 bg-gray-50 border-gray-300">
-                      <SelectValue placeholder="Select status" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {metadata?.employment_status?.map((status) => (
-                        <SelectItem
-                          key={status.id}
-                          value={status.id.toString()}
-                        >
-                          {status.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                    options={metadata?.contact_employed || []}
+                    placeholder="Select status"
+                    label="Employment Status"
+                  />
                 </div>
 
                 <div className="space-y-2">
@@ -1599,7 +1526,6 @@ export default function ApplicantInformation() {
                     className="w-full h-9 bg-gray-50 border-gray-300"
                   />
                 </div>
-
                 <div className="space-y-2">
                   <Label
                     htmlFor="family_member_telephone"
@@ -1616,7 +1542,6 @@ export default function ApplicantInformation() {
                     className="w-full h-9 bg-gray-50 border-gray-300"
                   />
                 </div>
-
                 <div className="space-y-2">
                   <Label
                     htmlFor="family_member_email"
@@ -1654,12 +1579,11 @@ export default function ApplicantInformation() {
               </div>
             </div>
 
-            {/* Family Member Address Section */}
+            {/* Family Member Address */}
             <div className="space-y-6 pt-6 border-t">
               <h2 className="text-xl font-semibold text-gray-900">
                 Family Member Address
               </h2>
-
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <div className="space-y-2">
                   <Label className="text-gray-700 font-medium">
@@ -1678,7 +1602,6 @@ export default function ApplicantInformation() {
                     className="w-full h-9 bg-gray-50 border-gray-300"
                   />
                 </div>
-
                 <div className="space-y-2">
                   <Label className="text-gray-700 font-medium">
                     Street Number
@@ -1696,7 +1619,6 @@ export default function ApplicantInformation() {
                     className="w-full h-9 bg-gray-50 border-gray-300"
                   />
                 </div>
-
                 <div className="space-y-2">
                   <Label className="text-gray-700 font-medium">
                     Street Name
@@ -1714,7 +1636,6 @@ export default function ApplicantInformation() {
                     className="w-full h-9 bg-gray-50 border-gray-300"
                   />
                 </div>
-
                 <div className="space-y-2">
                   <Label className="text-gray-700 font-medium">City</Label>
                   <Input
@@ -1730,7 +1651,6 @@ export default function ApplicantInformation() {
                     className="w-full h-9 bg-gray-50 border-gray-300"
                   />
                 </div>
-
                 <div className="space-y-2">
                   <Label className="text-gray-700 font-medium">Province</Label>
                   <Input
@@ -1746,7 +1666,6 @@ export default function ApplicantInformation() {
                     className="w-full h-9 bg-gray-50 border-gray-300"
                   />
                 </div>
-
                 <div className="space-y-2">
                   <Label className="text-gray-700 font-medium">
                     Postal Code
@@ -1764,7 +1683,6 @@ export default function ApplicantInformation() {
                     className="w-full h-9 bg-gray-50 border-gray-300"
                   />
                 </div>
-
                 <div className="space-y-2">
                   <Label className="text-gray-700 font-medium">Country</Label>
                   <Input
@@ -1783,7 +1701,7 @@ export default function ApplicantInformation() {
               </div>
             </div>
 
-            {/* Children Section */}
+            {/* Children */}
             <div className="space-y-6 pt-6 border-t">
               <div className="flex items-center justify-between">
                 <h2 className="text-xl font-semibold text-gray-900">
@@ -1846,7 +1764,6 @@ export default function ApplicantInformation() {
                         className="w-full h-9 bg-white border-gray-300"
                       />
                     </div>
-
                     <div className="space-y-2">
                       <Label className="text-gray-700 font-medium">
                         Middle Name
@@ -1865,7 +1782,6 @@ export default function ApplicantInformation() {
                         className="w-full h-9 bg-white border-gray-300"
                       />
                     </div>
-
                     <div className="space-y-2">
                       <Label className="text-gray-700 font-medium">
                         Last Name
@@ -1884,7 +1800,6 @@ export default function ApplicantInformation() {
                         className="w-full h-9 bg-white border-gray-300"
                       />
                     </div>
-
                     <div className="space-y-2">
                       <Label className="text-gray-700 font-medium">
                         Date of Birth
@@ -1908,7 +1823,7 @@ export default function ApplicantInformation() {
               ))}
             </div>
 
-            {/* Meeting Clients Section */}
+            {/* Meeting Clients */}
             <div className="space-y-6 pt-6 border-t">
               <div className="flex items-center justify-between">
                 <h2 className="text-xl font-semibold text-gray-900">
@@ -1964,7 +1879,7 @@ export default function ApplicantInformation() {
               ))}
             </div>
 
-            {/* Submit Buttons */}
+            {/* Submit */}
             <div className="flex justify-end gap-4 pt-6 border-t">
               <Button
                 type="button"
@@ -1994,7 +1909,6 @@ export default function ApplicantInformation() {
         </div>
       </div>
 
-      {/* Image Preview Modal */}
       <Dialog open={isPreviewOpen} onOpenChange={setIsPreviewOpen}>
         <DialogContent className="max-w-4xl">
           <DialogHeader>
