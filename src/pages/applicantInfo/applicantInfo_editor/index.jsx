@@ -1594,7 +1594,7 @@ export default function ApplicantInformation() {
                     onValueChange={(val) =>
                       handleSelectChange("family_member_spouse_status_id", val)
                     }
-                    options={metadata?.yes_no_option || []}
+                    options={metadata?.marital_status || []}
                     placeholder="Select status"
                     label="Spouse Status"
                   />
