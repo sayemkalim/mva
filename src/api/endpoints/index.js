@@ -1,3 +1,5 @@
+import { updateSection } from "@/pages/section33/helpers/createSection";
+
 export const endpoints = {
   login: "api/login",
   signup: "api/firm/register",
@@ -46,4 +48,10 @@ export const endpoints = {
   sectionList: "api/v2/file/accident-benefits/section-33/list",
   section: "api/v2/file/accident-benefits/section-33/show",
   createSection: "api/v2/file/accident-benefits/section-33",
+  updateSection: "api/v2/file/accident-benefits/section-33",
+  deleteSectionList: "api/v2/file/accident-benefits/section-33/delete",
+  deleteSectionCommunication:
+    "api/v2/file/accident-benefits/section-33/delete-communication",
+  deleteSectiondocument:
+    "api/v2/file/accident-benefits/section-33/delete-document",
 };

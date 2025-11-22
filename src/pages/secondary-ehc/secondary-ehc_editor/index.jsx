@@ -6,24 +6,93 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+  Popover,
+  PopoverTrigger,
+  PopoverContent,
+} from "@/components/ui/popover";
+import {
+  Command,
+  CommandInput,
+  CommandList,
+  CommandEmpty,
+  CommandGroup,
+  CommandItem,
+} from "@/components/ui/command";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Loader2, ChevronRight } from "lucide-react";
+import { Loader2, ChevronRight, ChevronsUpDown, Check } from "lucide-react";
 import { toast } from "sonner";
 import { getSecondaryEhcMeta } from "../helpers/fetchISecondaryEhcMetadata";
 import { fetchSecondaryEhcBySlug } from "../helpers/fetchSecondaryEhcrBySlug";
 import { createSecondaryEhc } from "../helpers/createSecondaryEhc";
 import { Navbar2 } from "@/components/navbar2";
 
+const SearchableDropdown = ({
+  value,
+  options,
+  onSelect,
+  placeholder,
+  popoverKey,
+  fieldName,
+  popoverOpen,
+  setPopoverOpen,
+}) => {
+  const selectedOption = options?.find((opt) => opt.id === value);
+
+  return (
+    <Popover
+      open={popoverOpen[popoverKey]}
+      onOpenChange={(open) =>
+        setPopoverOpen((p) => ({ ...p, [popoverKey]: open }))
+      }
+    >
+      <PopoverTrigger asChild>
+        <Button
+          variant="outline"
+          role="combobox"
+          className="w-full justify-between font-normal bg-gray-50"
+          type="button"
+        >
+          {selectedOption ? selectedOption.name : placeholder}
+          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent
+        className="w-[var(--radix-popover-trigger-width)] p-0"
+        align="start"
+      >
+        <Command>
+          <CommandInput placeholder="Search..." autoFocus />
+          <CommandList>
+            <CommandEmpty>No results found.</CommandEmpty>
+            <CommandGroup>
+              {options?.map((opt) => (
+                <CommandItem
+                  key={opt.id}
+                  value={opt.name}
+                  onSelect={() => onSelect(fieldName, opt.id, popoverKey)}
+                  className="cursor-pointer flex items-center"
+                >
+                  <Check
+                    className={`mr-2 h-4 w-4 ${
+                      value === opt.id ? "opacity-100" : "opacity-0"
+                    }`}
+                  />
+                  {opt.name}
+                </CommandItem>
+              ))}
+            </CommandGroup>
+          </CommandList>
+        </Command>
+      </PopoverContent>
+    </Popover>
+  );
+};
+
 export default function SecondaryEhc() {
   const { slug } = useParams();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+
   const {
     data: apiResponse,
     isLoading: isLoadingMetadata,
@@ -64,15 +133,14 @@ export default function SecondaryEhc() {
   const createMutation = useMutation({
     mutationFn: createSecondaryEhc,
     onSuccess: (apiResponse) => {
-      console.log("✅ Success Response:", apiResponse);
+      // console.log("Success Response:", apiResponse);
 
       if (apiResponse?.response?.Apistatus) {
         toast.success("Secondary EHC information saved successfully!");
-        // navigate(`/dashboard/workstation/edit/${slug}/next-page`);
       }
     },
     onError: (error) => {
-      console.error("❌ Mutation Error:", error);
+      console.error("Mutation Error:", error);
       toast.error("Failed to save information. Please try again.");
     },
   });
@@ -108,16 +176,17 @@ export default function SecondaryEhc() {
     Initial_date: "",
   });
 
+  const [popoverOpen, setPopoverOpen] = useState({ status: false });
+
   useEffect(() => {
     if (!slug) {
       toast.error("Invalid URL - Slug not found!");
       navigate("/dashboard/workstation");
     }
   }, [slug, navigate]);
+
   useEffect(() => {
     if (secondaryEhcData) {
-      // console.log("📝 Populating form with existing data:", secondaryEhcData);
-
       setFormData({
         which_ehc: secondaryEhcData.which_ehc || "",
         year: secondaryEhcData.year || "",
@@ -148,8 +217,6 @@ export default function SecondaryEhc() {
         initial: secondaryEhcData.initial || "",
         Initial_date: secondaryEhcData.Initial_date || "",
       });
-
-      //       // toast.success("Data loaded successfully!");
     } else {
       console.log("📝 No existing data - showing empty form");
     }
@@ -157,47 +224,33 @@ export default function SecondaryEhc() {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleAddressChange = (field, value) => {
     setFormData((prev) => ({
       ...prev,
-      address: {
-        ...prev.address,
-        [field]: value,
-      },
+      address: { ...prev.address, [field]: value },
     }));
   };
 
-  const handleSelectChange = (name, value) => {
-    setFormData((prev) => ({
-      ...prev,
-      [name]: Number(value),
-    }));
+  const handleSelectChange = (name, value, popoverKey) => {
+    setFormData((prev) => ({ ...prev, [name]: Number(value) }));
+    setPopoverOpen((p) => ({ ...p, [popoverKey]: false }));
   };
 
   const handleCheckboxChange = (checked) => {
     setFormData((prev) => ({
       ...prev,
       ref_policyholder_same: checked,
-      ...(checked && {
-        ref_first_name_1: "",
-        ref_last_name_1: "",
-      }),
+      ...(checked && { ref_first_name_1: "", ref_last_name_1: "" }),
     }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const isAddressFilled = (address) => {
-      return Object.values(address).some(
-        (value) => value && value.trim() !== ""
-      );
-    };
+    const isAddressFilled = (address) =>
+      Object.values(address).some((value) => value && value.trim() !== "");
     const payload = {
       which_ehc: formData.which_ehc || null,
       year: formData.year || null,
@@ -221,11 +274,9 @@ export default function SecondaryEhc() {
       Initial_date: formData.Initial_date || null,
     };
 
-    createMutation.mutate({
-      slug: slug,
-      data: payload,
-    });
+    createMutation.mutate({ slug: slug, data: payload });
   };
+
   if (isLoadingMetadata || isLoadingSecondaryEhc) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -301,7 +352,6 @@ export default function SecondaryEhc() {
         </div>
       </div>
 
-      {/* Main Content */}
       <div className="container mx-auto px-6 py-8 max-w-7xl">
         <div className="bg-white rounded-lg shadow-sm border p-8">
           <h1 className="text-2xl font-bold mb-8 text-gray-900 uppercase">
@@ -349,7 +399,7 @@ export default function SecondaryEhc() {
                   />
                 </div>
 
-                {/* Status */}
+                {/* Status - Searchable Dropdown */}
                 <div className="space-y-2">
                   <Label
                     htmlFor="status_id"
@@ -357,26 +407,16 @@ export default function SecondaryEhc() {
                   >
                     Status
                   </Label>
-                  <Select
-                    value={formData.status_id?.toString() || ""}
-                    onValueChange={(value) =>
-                      handleSelectChange("status_id", value)
-                    }
-                  >
-                    <SelectTrigger className="bg-gray-50 border-gray-300">
-                      <SelectValue placeholder="Select status" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {metadata?.status?.map((option) => (
-                        <SelectItem
-                          key={option.id}
-                          value={option.id.toString()}
-                        >
-                          {option.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <SearchableDropdown
+                    value={formData.status_id}
+                    options={metadata.status || []}
+                    onSelect={handleSelectChange}
+                    placeholder="Select status"
+                    popoverKey="status"
+                    fieldName="status_id"
+                    popoverOpen={popoverOpen}
+                    setPopoverOpen={setPopoverOpen}
+                  />
                 </div>
 
                 {/* Insurance Co */}
@@ -434,7 +474,7 @@ export default function SecondaryEhc() {
                   />
                 </div>
 
-                {/* Initial (NEW FIELD) */}
+                {/* Initial */}
                 <div className="space-y-2">
                   <Label
                     htmlFor="initial"
@@ -452,7 +492,7 @@ export default function SecondaryEhc() {
                   />
                 </div>
 
-                {/* Initial Date (NEW FIELD) */}
+                {/* Initial Date */}
                 <div className="space-y-2">
                   <Label
                     htmlFor="Initial_date"

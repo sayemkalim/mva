@@ -5,25 +5,111 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { Loader2, ChevronRight, X, Plus } from "lucide-react";
+import {
+  Loader2,
+  ChevronRight,
+  X,
+  Plus,
+  ChevronsUpDown,
+  Check,
+} from "lucide-react";
 import { toast } from "sonner";
 import { getEmploymentMeta } from "../helpers/fetchIEmploymentMetadata";
 import { createEmployment } from "../helpers/createEmployment";
 import { fetchEmploymentyBySlug } from "../helpers/fetchEmploymentBySlug";
 import { Navbar2 } from "@/components/navbar2";
 
+import {
+  Popover,
+  PopoverTrigger,
+  PopoverContent,
+} from "@/components/ui/popover";
+import {
+  Command,
+  CommandInput,
+  CommandEmpty,
+  CommandGroup,
+  CommandItem,
+} from "@/components/ui/command";
+
+function SearchableDropdown({
+  value,
+  onValueChange,
+  options = [],
+  placeholder = "Select",
+  label = "Search",
+  popoverKey,
+  popoverOpen,
+  setPopoverOpen,
+}) {
+  const selected = options.find((o) => String(o.id) === String(value)) || null;
+  const isOpen = !!(popoverOpen && popoverOpen[popoverKey]);
+
+  const handleSelect = (id) => {
+    const val = id == null ? "" : String(id);
+    if (onValueChange) onValueChange(val);
+    if (setPopoverOpen && popoverKey) {
+      setPopoverOpen((prev = {}) => ({ ...prev, [popoverKey]: false }));
+    }
+  };
+
+  return (
+    <Popover
+      open={isOpen}
+      onOpenChange={(open) =>
+        setPopoverOpen &&
+        setPopoverOpen((p = {}) => ({ ...p, [popoverKey]: open }))
+      }
+    >
+      <PopoverTrigger asChild>
+        <Button
+          variant="outline"
+          role="combobox"
+          className="w-full justify-between font-normal bg-gray-50 h-11 text-sm"
+          type="button"
+        >
+          {selected ? selected.name : placeholder}
+          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-60" />
+        </Button>
+      </PopoverTrigger>
+
+      <PopoverContent
+        className="w-[var(--radix-popover-trigger-width)] p-0"
+        align="start"
+      >
+        <Command>
+          <CommandInput placeholder={label.toLowerCase()} />
+          <CommandEmpty>No results found.</CommandEmpty>
+          <CommandGroup>
+            {options.map((opt) => (
+              <CommandItem
+                key={opt.id}
+                value={opt.name}
+                onSelect={() => handleSelect(opt.id)}
+              >
+                <Check
+                  className={`mr-2 h-4 w-4 ${
+                    String(value) === String(opt.id)
+                      ? "opacity-100"
+                      : "opacity-0"
+                  }`}
+                />
+                {opt.name}
+              </CommandItem>
+            ))}
+          </CommandGroup>
+        </Command>
+      </PopoverContent>
+    </Popover>
+  );
+}
+
 export default function Employment() {
   const { slug } = useParams();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+
   const {
     data: apiResponse,
     isLoading: isLoadingMetadata,
@@ -35,12 +121,13 @@ export default function Employment() {
     staleTime: 5 * 60 * 1000,
     retry: 2,
   });
+
   const metadata = apiResponse?.response || {};
+
   const { data: employmentData, isLoading: isLoadingEmployment } = useQuery({
     queryKey: ["employment", slug],
     queryFn: async () => {
       if (!slug) return null;
-
       try {
         const data = await fetchEmploymentyBySlug(slug);
         return data;
@@ -58,16 +145,37 @@ export default function Employment() {
     staleTime: 5 * 60 * 1000,
     retry: 1,
   });
+
   const createMutation = useMutation({
     mutationFn: createEmployment,
     onSuccess: (apiResponse) => {
-      if (apiResponse?.response?.Apistatus) {
+      const apiStatus =
+        apiResponse?.response?.Apistatus ?? apiResponse?.Apistatus ?? false;
+      if (apiStatus === true) {
         toast.success("Employment information saved successfully!");
-        // navigate(`/dashboard/workstation/edit/${slug}/next-page`);
+      } else {
+        const errors = apiResponse?.response?.errors ?? apiResponse?.errors;
+        if (errors && typeof errors === "object") {
+          const messages = [];
+          Object.entries(errors).forEach(([k, v]) => {
+            if (Array.isArray(v)) messages.push(`${k}: ${v.join(", ")}`);
+            else messages.push(`${k}: ${String(v)}`);
+          });
+          toast.error(messages.join(" — "));
+          console.error("API errors:", errors);
+        } else {
+          toast.error(
+            apiResponse?.response?.message ||
+              apiResponse?.message ||
+              "Failed to save employment. Please try again."
+          );
+          console.error("Create employment response:", apiResponse);
+        }
       }
     },
     onError: (error) => {
       toast.error("Failed to save employment. Please try again.");
+      console.error("createEmployment error:", error);
     },
   });
 
@@ -93,13 +201,16 @@ export default function Employment() {
     unemployed_and_id: null,
     other_income: [
       {
-        income_type_id: "",
-        income_period_id: "",
+        income_type_id: null,
+        income_period_id: null,
         income: "",
         description: "",
       },
     ],
   });
+
+  const [popoverOpen, setPopoverOpen] = useState({});
+
   useEffect(() => {
     if (!slug) {
       toast.error("Invalid URL - Slug not found!");
@@ -108,8 +219,19 @@ export default function Employment() {
   }, [slug, navigate]);
 
   useEffect(() => {
-    if (employmentData) {
-      setFormData({
+    if (!employmentData) return;
+
+    setFormData((prev) => {
+      const userEdited =
+        Boolean(prev.employer_name) ||
+        Boolean(prev.email) ||
+        Boolean(prev.telephone) ||
+        (prev.other_income &&
+          prev.other_income.some((inc) => inc.income || inc.description));
+
+      if (userEdited) return prev;
+
+      return {
         employer_name: employmentData.employer_name || "",
         address: {
           unit_number: employmentData.address?.unit_number || "",
@@ -126,32 +248,28 @@ export default function Employment() {
         fax: employmentData.fax || "",
         job_period_from: employmentData.job_period_from || "",
         job_period_to: employmentData.job_period_to || "",
-        employed_id: employmentData.employed_id || null,
-        not_employed_id: employmentData.not_employed_id || null,
-        unemployed_and_id: employmentData.unemployed_and_id || null,
+        employed_id: employmentData.employed_id ?? null,
+        not_employed_id: employmentData.not_employed_id ?? null,
+        unemployed_and_id: employmentData.unemployed_and_id ?? null,
         other_income:
           employmentData.other_incomes &&
           employmentData.other_incomes.length > 0
             ? employmentData.other_incomes.map((income) => ({
-                income_type_id: income.income_type_id || "",
-                income_period_id: income.income_period_id || "",
-                income: income.income || "",
-                description: income.description || "",
+                income_type_id: income.income_type_id ?? null,
+                income_period_id: income.income_period_id ?? null,
+                income: income.income ?? "",
+                description: income.description ?? "",
               }))
             : [
                 {
-                  income_type_id: "",
-                  income_period_id: "",
+                  income_type_id: null,
+                  income_period_id: null,
                   income: "",
                   description: "",
                 },
               ],
-      });
-
-      // toast.success("Data loaded successfully!");
-    } else {
-      console.log("📝 No existing data - showing empty form");
-    }
+      };
+    });
   }, [employmentData]);
 
   const handleChange = (e) => {
@@ -173,10 +291,26 @@ export default function Employment() {
   };
 
   const handleSelectChange = (name, value) => {
-    setFormData((prev) => ({
-      ...prev,
-      [name]: Number(value),
-    }));
+    setFormData((prev) => {
+      const numeric = value === "" ? null : Number(value);
+      let next = { ...prev, [name]: numeric };
+
+      if (name === "employed_id") {
+        if (numeric) {
+          next.not_employed_id = null;
+          next.unemployed_and_id = null;
+        }
+      }
+
+      if (name === "not_employed_id") {
+        if (numeric) {
+          next.employed_id = null;
+        } else {
+          next.unemployed_and_id = null;
+        }
+      }
+      return next;
+    });
   };
 
   const handleIncomeChange = (index, field, value) => {
@@ -192,7 +326,9 @@ export default function Employment() {
     setFormData((prev) => ({
       ...prev,
       other_income: prev.other_income.map((item, i) =>
-        i === index ? { ...item, [field]: Number(value) } : item
+        i === index
+          ? { ...item, [field]: value === "" ? null : Number(value) }
+          : item
       ),
     }));
   };
@@ -203,8 +339,8 @@ export default function Employment() {
       other_income: [
         ...prev.other_income,
         {
-          income_type_id: "",
-          income_period_id: "",
+          income_type_id: null,
+          income_period_id: null,
           income: "",
           description: "",
         },
@@ -225,11 +361,8 @@ export default function Employment() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const isAddressFilled = (address) => {
-      return Object.values(address).some(
-        (value) => value && value.trim() !== ""
-      );
-    };
+    const isAddressFilled = (address) =>
+      Object.values(address).some((value) => value && value.trim() !== "");
     const payload = {
       employer_name: formData.employer_name || null,
       address: isAddressFilled(formData.address) ? formData.address : null,
@@ -242,13 +375,20 @@ export default function Employment() {
       employed_id: formData.employed_id || null,
       not_employed_id: formData.not_employed_id || null,
       unemployed_and_id: formData.unemployed_and_id || null,
-      other_income: formData.other_income.filter(
-        (income) =>
-          income.income_type_id ||
-          income.income_period_id ||
-          income.income ||
-          income.description
-      ),
+      other_income: formData.other_income
+        .map((income) => ({
+          income_type_id: income.income_type_id || null,
+          income_period_id: income.income_period_id || null,
+          income: income.income || null,
+          description: income.description || null,
+        }))
+        .filter(
+          (income) =>
+            income.income_type_id ||
+            income.income_period_id ||
+            income.income ||
+            income.description
+        ),
     };
 
     console.log(
@@ -260,6 +400,7 @@ export default function Employment() {
       data: payload,
     });
   };
+
   if (isLoadingMetadata || isLoadingEmployment) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -268,6 +409,7 @@ export default function Employment() {
       </div>
     );
   }
+
   if (isMetadataError) {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen gap-4">
@@ -314,7 +456,6 @@ export default function Employment() {
         </div>
       </div>
 
-      {/* Breadcrumb */}
       <div className="bg-white border-b px-6 py-4">
         <div className="flex items-center gap-2 text-sm text-gray-600">
           <button
@@ -335,7 +476,6 @@ export default function Employment() {
         </div>
       </div>
 
-      {/* Main Content */}
       <div className="container mx-auto px-6 py-8 max-w-7xl">
         <div className="bg-white rounded-lg shadow-sm border p-8">
           <h1 className="text-2xl font-bold mb-8 text-gray-900 uppercase">
@@ -343,14 +483,11 @@ export default function Employment() {
           </h1>
 
           <form onSubmit={handleSubmit} className="space-y-8">
-            {/* Employment Status Section */}
             <div className="space-y-6">
               <h2 className="text-xl font-semibold text-gray-900">
                 Employment Status
               </h2>
-
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                {/* Employed */}
                 <div className="space-y-2">
                   <Label
                     htmlFor="employed_id"
@@ -358,29 +495,19 @@ export default function Employment() {
                   >
                     Employed
                   </Label>
-                  <Select
-                    value={formData.employed_id?.toString()}
+                  <SearchableDropdown
+                    popoverKey="employed"
+                    popoverOpen={popoverOpen}
+                    setPopoverOpen={setPopoverOpen}
+                    value={formData.employed_id?.toString() ?? ""}
                     onValueChange={(value) =>
                       handleSelectChange("employed_id", value)
                     }
-                  >
-                    <SelectTrigger className="bg-gray-50 border-gray-300">
-                      <SelectValue placeholder="Select status" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {metadata?.employed?.map((option) => (
-                        <SelectItem
-                          key={option.id}
-                          value={option.id.toString()}
-                        >
-                          {option.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                    options={metadata?.employed || []}
+                    placeholder="Select status"
+                    label="Employed"
+                  />
                 </div>
-
-                {/* Not Employed */}
                 <div className="space-y-2">
                   <Label
                     htmlFor="not_employed_id"
@@ -388,68 +515,58 @@ export default function Employment() {
                   >
                     Not Employed
                   </Label>
-                  <Select
-                    value={formData.not_employed_id?.toString()}
+                  <SearchableDropdown
+                    popoverKey="not_employed"
+                    popoverOpen={popoverOpen}
+                    setPopoverOpen={setPopoverOpen}
+                    value={formData.not_employed_id?.toString() ?? ""}
                     onValueChange={(value) =>
                       handleSelectChange("not_employed_id", value)
                     }
-                  >
-                    <SelectTrigger className="bg-gray-50 border-gray-300">
-                      <SelectValue placeholder="Select status" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {metadata?.not_employed?.map((option) => (
-                        <SelectItem
-                          key={option.id}
-                          value={option.id.toString()}
-                        >
-                          {option.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                    options={metadata?.not_employed || []}
+                    placeholder="Select status"
+                    label="Not Employed"
+                  />
                 </div>
-
-                {/* Unemployed And */}
-                <div className="space-y-2">
-                  <Label
-                    htmlFor="unemployed_and_id"
-                    className="text-gray-700 font-medium"
-                  >
-                    Unemployed And
-                  </Label>
-                  <Select
-                    value={formData.unemployed_and_id?.toString()}
-                    onValueChange={(value) =>
-                      handleSelectChange("unemployed_and_id", value)
-                    }
-                  >
-                    <SelectTrigger className="bg-gray-50 border-gray-300">
-                      <SelectValue placeholder="Select option" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {metadata?.unemployed_and?.map((option) => (
-                        <SelectItem
-                          key={option.id}
-                          value={option.id.toString()}
-                        >
-                          {option.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
+                {formData.not_employed_id ? (
+                  <div className="space-y-2">
+                    <Label
+                      htmlFor="unemployed_and_id"
+                      className="text-gray-700 font-medium"
+                    >
+                      Unemployed And
+                    </Label>
+                    <SearchableDropdown
+                      popoverKey="unemployed_and"
+                      popoverOpen={popoverOpen}
+                      setPopoverOpen={setPopoverOpen}
+                      value={formData.unemployed_and_id?.toString() ?? ""}
+                      onValueChange={(value) =>
+                        handleSelectChange("unemployed_and_id", value)
+                      }
+                      options={metadata?.unemployed_and || []}
+                      placeholder="Select option"
+                      label="Unemployed And"
+                    />
+                  </div>
+                ) : (
+                  <div className="space-y-2 opacity-50 pointer-events-none">
+                    <Label className="text-gray-400 font-medium">
+                      Unemployed And
+                    </Label>
+                    <div className="h-11 bg-gray-100 border border-gray-200 rounded px-3 flex items-center text-sm text-gray-400">
+                      Select "Not Employed" to choose
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
 
-            {/* Employer Information Section */}
             <div className="space-y-6 pt-6 border-t">
               <h2 className="text-xl font-semibold text-gray-900">
                 Employer Information
               </h2>
-
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {/* Employer Name */}
                 <div className="space-y-2">
                   <Label
                     htmlFor="employer_name"
@@ -462,12 +579,10 @@ export default function Employment() {
                     name="employer_name"
                     value={formData.employer_name}
                     onChange={handleChange}
-                    placeholder="Tech Solutions Inc."
+                    placeholder="Employer name"
                     className="bg-gray-50 border-gray-300"
                   />
                 </div>
-
-                {/* Telephone */}
                 <div className="space-y-2">
                   <Label
                     htmlFor="telephone"
@@ -484,8 +599,6 @@ export default function Employment() {
                     className="bg-gray-50 border-gray-300"
                   />
                 </div>
-
-                {/* Extension */}
                 <div className="space-y-2">
                   <Label htmlFor="ext" className="text-gray-700 font-medium">
                     Extension
@@ -499,8 +612,6 @@ export default function Employment() {
                     className="bg-gray-50 border-gray-300"
                   />
                 </div>
-
-                {/* Email */}
                 <div className="space-y-2">
                   <Label htmlFor="email" className="text-gray-700 font-medium">
                     Email
@@ -511,12 +622,10 @@ export default function Employment() {
                     type="email"
                     value={formData.email}
                     onChange={handleChange}
-                    placeholder="hr@techsolutions.com"
+                    placeholder="email@example.com"
                     className="bg-gray-50 border-gray-300"
                   />
                 </div>
-
-                {/* Fax */}
                 <div className="space-y-2">
                   <Label htmlFor="fax" className="text-gray-700 font-medium">
                     Fax
@@ -530,8 +639,6 @@ export default function Employment() {
                     className="bg-gray-50 border-gray-300"
                   />
                 </div>
-
-                {/* Job Period From */}
                 <div className="space-y-2">
                   <Label
                     htmlFor="job_period_from"
@@ -548,8 +655,6 @@ export default function Employment() {
                     className="bg-gray-50 border-gray-300"
                   />
                 </div>
-
-                {/* Job Period To */}
                 <div className="space-y-2">
                   <Label
                     htmlFor="job_period_to"
@@ -569,12 +674,10 @@ export default function Employment() {
               </div>
             </div>
 
-            {/* Employer Address Section */}
             <div className="space-y-6 pt-6 border-t">
               <h2 className="text-xl font-semibold text-gray-900">
                 Employer Address
               </h2>
-
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div className="space-y-2">
                   <Label className="text-gray-700 font-medium">
@@ -585,11 +688,10 @@ export default function Employment() {
                     onChange={(e) =>
                       handleAddressChange("unit_number", e.target.value)
                     }
-                    placeholder="5B"
+                    placeholder="Unit"
                     className="bg-gray-50 border-gray-300"
                   />
                 </div>
-
                 <div className="space-y-2">
                   <Label className="text-gray-700 font-medium">
                     Street Number
@@ -603,7 +705,6 @@ export default function Employment() {
                     className="bg-gray-50 border-gray-300"
                   />
                 </div>
-
                 <div className="space-y-2">
                   <Label className="text-gray-700 font-medium">
                     Street Name
@@ -613,11 +714,10 @@ export default function Employment() {
                     onChange={(e) =>
                       handleAddressChange("street_name", e.target.value)
                     }
-                    placeholder="King Street West"
+                    placeholder="Street name"
                     className="bg-gray-50 border-gray-300"
                   />
                 </div>
-
                 <div className="space-y-2">
                   <Label className="text-gray-700 font-medium">City</Label>
                   <Input
@@ -625,11 +725,10 @@ export default function Employment() {
                     onChange={(e) =>
                       handleAddressChange("city", e.target.value)
                     }
-                    placeholder="Toronto"
+                    placeholder="City"
                     className="bg-gray-50 border-gray-300"
                   />
                 </div>
-
                 <div className="space-y-2">
                   <Label className="text-gray-700 font-medium">Province</Label>
                   <Input
@@ -637,11 +736,10 @@ export default function Employment() {
                     onChange={(e) =>
                       handleAddressChange("province", e.target.value)
                     }
-                    placeholder="Ontario"
+                    placeholder="Province"
                     className="bg-gray-50 border-gray-300"
                   />
                 </div>
-
                 <div className="space-y-2">
                   <Label className="text-gray-700 font-medium">
                     Postal Code
@@ -651,11 +749,10 @@ export default function Employment() {
                     onChange={(e) =>
                       handleAddressChange("postal_code", e.target.value)
                     }
-                    placeholder="M5H 1K5"
+                    placeholder="Postal"
                     className="bg-gray-50 border-gray-300"
                   />
                 </div>
-
                 <div className="space-y-2">
                   <Label className="text-gray-700 font-medium">Country</Label>
                   <Input
@@ -663,19 +760,17 @@ export default function Employment() {
                     onChange={(e) =>
                       handleAddressChange("country", e.target.value)
                     }
-                    placeholder="Canada"
+                    placeholder="Country"
                     className="bg-gray-50 border-gray-300"
                   />
                 </div>
               </div>
             </div>
 
-            {/* Other Income Section */}
             <div className="space-y-6 pt-6 border-t">
               <h2 className="text-xl font-semibold text-gray-900">
                 Other Income
               </h2>
-
               {formData.other_income.map((income, index) => (
                 <div
                   key={index}
@@ -696,15 +791,16 @@ export default function Employment() {
                       Remove
                     </Button>
                   </div>
-
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {/* Income Type */}
                     <div className="space-y-2">
                       <Label className="text-gray-700 font-medium">
                         Income Type
                       </Label>
-                      <Select
-                        value={income.income_type_id?.toString()}
+                      <SearchableDropdown
+                        popoverKey={`income_type-${index}`}
+                        popoverOpen={popoverOpen}
+                        setPopoverOpen={setPopoverOpen}
+                        value={income.income_type_id?.toString() ?? ""}
                         onValueChange={(value) =>
                           handleIncomeSelectChange(
                             index,
@@ -712,30 +808,20 @@ export default function Employment() {
                             value
                           )
                         }
-                      >
-                        <SelectTrigger className="bg-white border-gray-300">
-                          <SelectValue placeholder="Select type" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {metadata?.income_type?.map((type) => (
-                            <SelectItem
-                              key={type.id}
-                              value={type.id.toString()}
-                            >
-                              {type.name}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                        options={metadata?.income_type || []}
+                        placeholder="Select type"
+                        label="Income type"
+                      />
                     </div>
-
-                    {/* Income Period */}
                     <div className="space-y-2">
                       <Label className="text-gray-700 font-medium">
                         Income Period
                       </Label>
-                      <Select
-                        value={income.income_period_id?.toString()}
+                      <SearchableDropdown
+                        popoverKey={`income_period-${index}`}
+                        popoverOpen={popoverOpen}
+                        setPopoverOpen={setPopoverOpen}
+                        value={income.income_period_id?.toString() ?? ""}
                         onValueChange={(value) =>
                           handleIncomeSelectChange(
                             index,
@@ -743,24 +829,11 @@ export default function Employment() {
                             value
                           )
                         }
-                      >
-                        <SelectTrigger className="bg-white border-gray-300">
-                          <SelectValue placeholder="Select period" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {metadata?.income_period?.map((period) => (
-                            <SelectItem
-                              key={period.id}
-                              value={period.id.toString()}
-                            >
-                              {period.name}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                        options={metadata?.income_period || []}
+                        placeholder="Select period"
+                        label="Income period"
+                      />
                     </div>
-
-                    {/* Income Amount */}
                     <div className="space-y-2">
                       <Label className="text-gray-700 font-medium">
                         Income Amount
@@ -776,8 +849,6 @@ export default function Employment() {
                         className="bg-white border-gray-300"
                       />
                     </div>
-
-                    {/* Description */}
                     <div className="space-y-2">
                       <Label className="text-gray-700 font-medium">
                         Description
@@ -791,7 +862,7 @@ export default function Employment() {
                             e.target.value
                           )
                         }
-                        placeholder="Monthly dividend from stock portfolio."
+                        placeholder="Income description"
                         rows={1}
                         className="bg-white border-gray-300"
                       />
@@ -799,7 +870,6 @@ export default function Employment() {
                   </div>
                 </div>
               ))}
-
               <Button
                 type="button"
                 variant="outline"
@@ -811,7 +881,6 @@ export default function Employment() {
               </Button>
             </div>
 
-            {/* Submit Buttons */}
             <div className="flex justify-end gap-4 pt-6 border-t">
               <Button
                 type="button"

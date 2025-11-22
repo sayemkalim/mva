@@ -6,25 +6,113 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Loader2, ChevronRight, X, Plus, Upload, Eye } from "lucide-react";
+import {
+  Loader2,
+  ChevronRight,
+  X,
+  Plus,
+  Upload,
+  Eye,
+  ChevronsUpDown,
+  Check,
+} from "lucide-react";
 import { toast } from "sonner";
 import { createIdentification } from "../helpers/createIdentification";
 import { getIdentificationMeta } from "../helpers/fetchIdentificationMetadata";
 import { fetchIdentificationBySlug } from "../helpers/fetchIdentificationBySlug";
 import { uploadAttachment } from "../helpers/uploadAttachment";
 import { Navbar2 } from "@/components/navbar2";
+
+/* shadcn-style popover/command */
+import {
+  Popover,
+  PopoverTrigger,
+  PopoverContent,
+} from "@/components/ui/popover";
+import {
+  Command,
+  CommandInput,
+  CommandEmpty,
+  CommandGroup,
+  CommandItem,
+} from "@/components/ui/command";
+
+function SearchableDropdown({
+  value,
+  onValueChange,
+  options = [],
+  placeholder = "Select",
+  label = "Search",
+  popoverKey,
+  popoverOpen,
+  setPopoverOpen,
+}) {
+  const selected = options.find((o) => String(o.id) === String(value)) || null;
+  const isOpen = !!(popoverOpen && popoverOpen[popoverKey]);
+
+  const handleSelect = (id) => {
+    const val = id?.toString?.() ?? id;
+    if (onValueChange) onValueChange(val);
+    if (setPopoverOpen && popoverKey) {
+      setPopoverOpen((prev = {}) => ({ ...prev, [popoverKey]: false }));
+    }
+  };
+
+  return (
+    <Popover
+      open={isOpen}
+      onOpenChange={(open) =>
+        setPopoverOpen &&
+        setPopoverOpen((p = {}) => ({ ...p, [popoverKey]: open }))
+      }
+    >
+      <PopoverTrigger asChild>
+        <Button
+          variant="outline"
+          role="combobox"
+          className="w-full justify-between font-normal bg-white h-11 text-sm"
+          type="button"
+        >
+          {selected ? selected.name : placeholder}
+          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-60" />
+        </Button>
+      </PopoverTrigger>
+
+      <PopoverContent
+        className="w-[var(--radix-popover-trigger-width)] p-0"
+        align="start"
+      >
+        <Command>
+          <CommandInput placeholder={label.toLowerCase()} />
+          <CommandEmpty>No results found.</CommandEmpty>
+          <CommandGroup>
+            {options.map((opt) => (
+              <CommandItem
+                key={opt.id}
+                value={opt.name}
+                onSelect={() => handleSelect(opt.id)}
+              >
+                <Check
+                  className={`mr-2 h-4 w-4 ${
+                    String(value) === String(opt.id)
+                      ? "opacity-100"
+                      : "opacity-0"
+                  }`}
+                />
+                {opt.name}
+              </CommandItem>
+            ))}
+          </CommandGroup>
+        </Command>
+      </PopoverContent>
+    </Popover>
+  );
+}
 
 export default function Identification() {
   const { slug } = useParams();
@@ -90,9 +178,30 @@ export default function Identification() {
   const createMutation = useMutation({
     mutationFn: createIdentification,
     onSuccess: (apiResponse) => {
-      if (apiResponse?.response?.Apistatus) {
+      // require Apistatus true in response
+      const apiStatus =
+        apiResponse?.response?.Apistatus ?? apiResponse?.Apistatus ?? false;
+      if (apiStatus === true) {
         toast.success("Identification saved successfully!");
-        // navigate(`/dashboard/workstation/edit/${slug}/employment`);
+      } else {
+        // show errors if available
+        const errors = apiResponse?.response?.errors ?? apiResponse?.errors;
+        if (errors && typeof errors === "object") {
+          const messages = [];
+          Object.entries(errors).forEach(([k, v]) => {
+            if (Array.isArray(v)) messages.push(`${k}: ${v.join(", ")}`);
+            else messages.push(`${k}: ${String(v)}`);
+          });
+          toast.error(messages.join(" — "));
+          console.error("API errors:", errors);
+        } else {
+          toast.error(
+            apiResponse?.response?.message ||
+              apiResponse?.message ||
+              "Failed to save identification."
+          );
+          console.error("Create identification response:", apiResponse);
+        }
       }
     },
     onError: () => {
@@ -117,6 +226,7 @@ export default function Identification() {
     },
   ]);
   const [previewIndex, setPreviewIndex] = useState(null);
+  const [popoverOpen, setPopoverOpen] = useState({});
 
   useEffect(() => {
     if (!slug) {
@@ -452,7 +562,7 @@ export default function Identification() {
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {/* Copy in File */}
+                  {/* Copy in File (searchable) */}
                   <div className="space-y-2">
                     <Label
                       htmlFor={`copy_in_file_id_${index}`}
@@ -460,26 +570,19 @@ export default function Identification() {
                     >
                       Copy in File
                     </Label>
-                    <Select
-                      value={identification.copy_in_file_id?.toString()}
+
+                    <SearchableDropdown
+                      popoverKey={`copy_in_file-${index}`}
+                      popoverOpen={popoverOpen}
+                      setPopoverOpen={setPopoverOpen}
+                      value={identification.copy_in_file_id?.toString() || ""}
                       onValueChange={(value) =>
                         handleSelectChange(index, "copy_in_file_id", value)
                       }
-                    >
-                      <SelectTrigger className="w-full h-11 bg-white border-gray-300">
-                        <SelectValue placeholder="Select option" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {metadata?.yes_no_option?.map((option) => (
-                          <SelectItem
-                            key={option.id}
-                            value={option.id.toString()}
-                          >
-                            {option.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                      options={metadata?.yes_no_option || []}
+                      placeholder="Select option"
+                      label="Copy in file"
+                    />
                   </div>
 
                   {/* ID Verification Date */}
@@ -528,7 +631,7 @@ export default function Identification() {
                     />
                   </div>
 
-                  {/* Identification Type */}
+                  {/* Identification Type (searchable) */}
                   <div className="space-y-2">
                     <Label
                       htmlFor={`identification_type_${index}`}
@@ -536,7 +639,11 @@ export default function Identification() {
                     >
                       Identification Type
                     </Label>
-                    <Select
+
+                    <SearchableDropdown
+                      popoverKey={`identification_type-${index}`}
+                      popoverOpen={popoverOpen}
+                      setPopoverOpen={setPopoverOpen}
                       value={
                         metadata?.type
                           ?.find(
@@ -545,18 +652,10 @@ export default function Identification() {
                           ?.id?.toString() || ""
                       }
                       onValueChange={(value) => handleTypeChange(index, value)}
-                    >
-                      <SelectTrigger className="w-full h-11 bg-white border-gray-300">
-                        <SelectValue placeholder="Select type" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {metadata?.type?.map((type) => (
-                          <SelectItem key={type.id} value={type.id.toString()}>
-                            {type.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                      options={metadata?.type || []}
+                      placeholder="Select type"
+                      label="Identification type"
+                    />
                   </div>
 
                   {/* Identification Country */}

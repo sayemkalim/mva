@@ -49,8 +49,7 @@ const Matter = () => {
   return (
     <div className="flex flex-col">
       <Navbar2 />
-      <NavbarItem title="Matters" breadcrumbs={breadcrumbs} />
-
+      <h1 className="text-xl md:text-xl font-semibold m-2">Matters</h1>
       <div className="px-4">
         <CustomActionMenu
           title="Matters"

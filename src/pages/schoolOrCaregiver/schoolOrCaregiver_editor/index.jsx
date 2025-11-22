@@ -5,25 +5,109 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { Loader2, ChevronRight } from "lucide-react";
+import { Loader2, ChevronRight, ChevronsUpDown, Check } from "lucide-react";
 import { toast } from "sonner";
 import { fetchSchoolCaregiverBySlug } from "../helpers/fetchSchoolCaregiverBySlug";
 import { getSchoolCaregiverMeta } from "../helpers/fetchISchoolCaregiverMetadata";
 import { createSchoolorCaregiver } from "../helpers/createSchoolorCaregiver";
 import { Navbar2 } from "@/components/navbar2";
 
+/* shadcn-style popover + command for searchable dropdowns */
+import {
+  Popover,
+  PopoverTrigger,
+  PopoverContent,
+} from "@/components/ui/popover";
+import {
+  Command,
+  CommandInput,
+  CommandEmpty,
+  CommandGroup,
+  CommandItem,
+} from "@/components/ui/command";
+
+/**
+ * SearchableDropdown - parent-managed open state, closes on select.
+ * - value passed as string ("" when empty). Parent handlers convert Number(value).
+ */
+function SearchableDropdown({
+  value,
+  onValueChange,
+  options = [],
+  placeholder = "Select",
+  label = "Search",
+  popoverKey,
+  popoverOpen,
+  setPopoverOpen,
+}) {
+  const selected = options.find((o) => String(o.id) === String(value)) || null;
+  const isOpen = !!(popoverOpen && popoverOpen[popoverKey]);
+
+  const handleSelect = (id) => {
+    const val = id == null ? "" : String(id);
+    if (onValueChange) onValueChange(val);
+    if (setPopoverOpen && popoverKey) {
+      setPopoverOpen((prev = {}) => ({ ...prev, [popoverKey]: false }));
+    }
+  };
+
+  return (
+    <Popover
+      open={isOpen}
+      onOpenChange={(open) =>
+        setPopoverOpen &&
+        setPopoverOpen((p = {}) => ({ ...p, [popoverKey]: open }))
+      }
+    >
+      <PopoverTrigger asChild>
+        <Button
+          variant="outline"
+          role="combobox"
+          className="w-full justify-between font-normal bg-gray-50 h-11 text-sm"
+          type="button"
+        >
+          {selected ? selected.name : placeholder}
+          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-60" />
+        </Button>
+      </PopoverTrigger>
+
+      <PopoverContent
+        className="w-[var(--radix-popover-trigger-width)] p-0"
+        align="start"
+      >
+        <Command>
+          <CommandInput placeholder={label.toLowerCase()} />
+          <CommandEmpty>No results found.</CommandEmpty>
+          <CommandGroup>
+            {options.map((opt) => (
+              <CommandItem
+                key={opt.id}
+                value={opt.name}
+                onSelect={() => handleSelect(opt.id)}
+              >
+                <Check
+                  className={`mr-2 h-4 w-4 ${
+                    String(value) === String(opt.id)
+                      ? "opacity-100"
+                      : "opacity-0"
+                  }`}
+                />
+                {opt.name}
+              </CommandItem>
+            ))}
+          </CommandGroup>
+        </Command>
+      </PopoverContent>
+    </Popover>
+  );
+}
+
 export default function SchoolCaregiver() {
   const { slug } = useParams();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+
   const {
     data: apiResponse,
     isLoading: isLoadingMetadata,
@@ -37,12 +121,12 @@ export default function SchoolCaregiver() {
   });
 
   const metadata = apiResponse?.response || {};
+
   const { data: schoolCaregiverData, isLoading: isLoadingSchoolCaregiver } =
     useQuery({
       queryKey: ["schoolCaregiver", slug],
       queryFn: async () => {
         if (!slug) return null;
-
         try {
           const data = await fetchSchoolCaregiverBySlug(slug);
           return data;
@@ -64,11 +148,16 @@ export default function SchoolCaregiver() {
   const createMutation = useMutation({
     mutationFn: createSchoolorCaregiver,
     onSuccess: (apiResponse) => {
-      // console.log("✅ Success Response:", apiResponse);
-
       if (apiResponse?.response?.Apistatus) {
         toast.success("School/Caregiver information saved successfully!");
-        // navigate(`/dashboard/workstation/edit/${slug}/representative-referral`);
+      } else {
+        const errs = apiResponse?.response?.errors ?? apiResponse?.errors;
+        if (errs) {
+          console.error("API errors:", errs);
+          toast.error("Server returned validation errors. Check console.");
+        } else {
+          toast.error(apiResponse?.response?.message || "Save failed");
+        }
       }
     },
     onError: (error) => {
@@ -119,6 +208,9 @@ export default function SchoolCaregiver() {
     caregiver_disabled_5: null,
   });
 
+  // parent-managed popover open state
+  const [popoverOpen, setPopoverOpen] = useState({});
+
   useEffect(() => {
     if (!slug) {
       toast.error("Invalid URL - Slug not found!");
@@ -126,67 +218,72 @@ export default function SchoolCaregiver() {
     }
   }, [slug, navigate]);
 
+  // Hydrate only if form appears untouched (prevents overwriting user's edits)
   useEffect(() => {
-    if (schoolCaregiverData) {
-      // console.log(
-      //   "📝 Populating form with existing data:",
-      //   schoolCaregiverData
-      // );
+    if (!schoolCaregiverData) return;
 
-      setFormData({
+    setFormData((prev) => {
+      const userEdited =
+        Boolean(prev.school_name) ||
+        Boolean(prev.date_last_attended) ||
+        Boolean(prev.caregiving_description) ||
+        Boolean(prev.address?.city);
+
+      if (userEdited) {
+        // preserve user edits
+        return prev;
+      }
+
+      return {
         was_full_time_student_id:
-          schoolCaregiverData.was_full_time_student_id || null,
-        school_name: schoolCaregiverData.school_name || "",
+          schoolCaregiverData.was_full_time_student_id ?? null,
+        school_name: schoolCaregiverData.school_name ?? "",
         address: {
-          unit_number: schoolCaregiverData.address?.unit_number || "",
-          street_number: schoolCaregiverData.address?.street_number || "",
-          street_name: schoolCaregiverData.address?.street_name || "",
-          city: schoolCaregiverData.address?.city || "",
-          province: schoolCaregiverData.address?.province || "",
-          postal_code: schoolCaregiverData.address?.postal_code || "",
-          country: schoolCaregiverData.address?.country || "",
+          unit_number: schoolCaregiverData.address?.unit_number ?? "",
+          street_number: schoolCaregiverData.address?.street_number ?? "",
+          street_name: schoolCaregiverData.address?.street_name ?? "",
+          city: schoolCaregiverData.address?.city ?? "",
+          province: schoolCaregiverData.address?.province ?? "",
+          postal_code: schoolCaregiverData.address?.postal_code ?? "",
+          country: schoolCaregiverData.address?.country ?? "",
         },
-        date_last_attended: schoolCaregiverData.date_last_attended || "",
-        program_and_level: schoolCaregiverData.program_and_level || "",
+        date_last_attended: schoolCaregiverData.date_last_attended ?? "",
+        program_and_level: schoolCaregiverData.program_and_level ?? "",
         projected_completion_date:
-          schoolCaregiverData.projected_completion_date || "",
+          schoolCaregiverData.projected_completion_date ?? "",
         currently_attending_id:
-          schoolCaregiverData.currently_attending_id || null,
+          schoolCaregiverData.currently_attending_id ?? null,
         returned_to_school_id:
-          schoolCaregiverData.returned_to_school_id || null,
+          schoolCaregiverData.returned_to_school_id ?? null,
 
         caregiving_description:
-          schoolCaregiverData.caregiving_description || "",
+          schoolCaregiverData.caregiving_description ?? "",
         injuries_prevented_caregiving_id:
-          schoolCaregiverData.injuries_prevented_caregiving_id || null,
+          schoolCaregiverData.injuries_prevented_caregiving_id ?? null,
         returned_to_caregiving_id:
-          schoolCaregiverData.returned_to_caregiving_id || null,
+          schoolCaregiverData.returned_to_caregiving_id ?? null,
 
-        caregiver_name_1: schoolCaregiverData.caregiver_name_1 || "",
-        caregiver_dob_1: schoolCaregiverData.caregiver_dob_1 || "",
-        caregiver_disabled_1: schoolCaregiverData.caregiver_disabled_1 || null,
+        caregiver_name_1: schoolCaregiverData.caregiver_name_1 ?? "",
+        caregiver_dob_1: schoolCaregiverData.caregiver_dob_1 ?? "",
+        caregiver_disabled_1: schoolCaregiverData.caregiver_disabled_1 ?? null,
 
-        caregiver_name_2: schoolCaregiverData.caregiver_name_2 || "",
-        caregiver_dob_2: schoolCaregiverData.caregiver_dob_2 || "",
-        caregiver_disabled_2: schoolCaregiverData.caregiver_disabled_2 || null,
+        caregiver_name_2: schoolCaregiverData.caregiver_name_2 ?? "",
+        caregiver_dob_2: schoolCaregiverData.caregiver_dob_2 ?? "",
+        caregiver_disabled_2: schoolCaregiverData.caregiver_disabled_2 ?? null,
 
-        caregiver_name_3: schoolCaregiverData.caregiver_name_3 || "",
-        caregiver_dob_3: schoolCaregiverData.caregiver_dob_3 || "",
-        caregiver_disabled_3: schoolCaregiverData.caregiver_disabled_3 || null,
+        caregiver_name_3: schoolCaregiverData.caregiver_name_3 ?? "",
+        caregiver_dob_3: schoolCaregiverData.caregiver_dob_3 ?? "",
+        caregiver_disabled_3: schoolCaregiverData.caregiver_disabled_3 ?? null,
 
-        caregiver_name_4: schoolCaregiverData.caregiver_name_4 || "",
-        caregiver_dob_4: schoolCaregiverData.caregiver_dob_4 || "",
-        caregiver_disabled_4: schoolCaregiverData.caregiver_disabled_4 || null,
+        caregiver_name_4: schoolCaregiverData.caregiver_name_4 ?? "",
+        caregiver_dob_4: schoolCaregiverData.caregiver_dob_4 ?? "",
+        caregiver_disabled_4: schoolCaregiverData.caregiver_disabled_4 ?? null,
 
-        caregiver_name_5: schoolCaregiverData.caregiver_name_5 || "",
-        caregiver_dob_5: schoolCaregiverData.caregiver_dob_5 || "",
-        caregiver_disabled_5: schoolCaregiverData.caregiver_disabled_5 || null,
-      });
-
-      // toast.success("Data loaded successfully!");
-    } else {
-      console.log("📝 No existing data - showing empty form");
-    }
+        caregiver_name_5: schoolCaregiverData.caregiver_name_5 ?? "",
+        caregiver_dob_5: schoolCaregiverData.caregiver_dob_5 ?? "",
+        caregiver_disabled_5: schoolCaregiverData.caregiver_disabled_5 ?? null,
+      };
+    });
   }, [schoolCaregiverData]);
 
   const handleChange = (e) => {
@@ -207,20 +304,18 @@ export default function SchoolCaregiver() {
     }));
   };
 
+  // accepts string value from SearchableDropdown; convert to Number or null
   const handleSelectChange = (name, value) => {
     setFormData((prev) => ({
       ...prev,
-      [name]: Number(value),
+      [name]: value === "" ? null : Number(value),
     }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const isAddressFilled = (address) => {
-      return Object.values(address).some(
-        (value) => value && value.trim() !== ""
-      );
-    };
+    const isAddressFilled = (address) =>
+      Object.values(address).some((value) => value && value.trim() !== "");
     const payload = {
       was_full_time_student_id: formData.was_full_time_student_id || null,
       school_name: formData.school_name || null,
@@ -304,6 +399,9 @@ export default function SchoolCaregiver() {
     );
   }
 
+  // helper alias for yes_no options
+  const yesNoOptions = metadata?.yes_no_option || [];
+
   return (
     <div className="min-h-screen bg-gray-50">
       <Navbar2 />
@@ -360,7 +458,7 @@ export default function SchoolCaregiver() {
               </h2>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {/* Was Full Time Student */}
+                {/* Was Full Time Student -> searchable */}
                 <div className="space-y-2">
                   <Label
                     htmlFor="was_full_time_student_id"
@@ -368,26 +466,18 @@ export default function SchoolCaregiver() {
                   >
                     Was Full Time Student
                   </Label>
-                  <Select
-                    value={formData.was_full_time_student_id?.toString() || ""}
+                  <SearchableDropdown
+                    popoverKey="was_full_time_student"
+                    popoverOpen={popoverOpen}
+                    setPopoverOpen={setPopoverOpen}
+                    value={formData.was_full_time_student_id?.toString() ?? ""}
                     onValueChange={(value) =>
                       handleSelectChange("was_full_time_student_id", value)
                     }
-                  >
-                    <SelectTrigger className="bg-gray-50 border-gray-300">
-                      <SelectValue placeholder="Select option" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {metadata?.yes_no_option?.map((option) => (
-                        <SelectItem
-                          key={option.id}
-                          value={option.id.toString()}
-                        >
-                          {option.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                    options={yesNoOptions}
+                    placeholder="Select option"
+                    label="Was full time student"
+                  />
                 </div>
 
                 {/* School Name */}
@@ -470,26 +560,18 @@ export default function SchoolCaregiver() {
                   >
                     Currently Attending
                   </Label>
-                  <Select
-                    value={formData.currently_attending_id?.toString() || ""}
+                  <SearchableDropdown
+                    popoverKey="currently_attending"
+                    popoverOpen={popoverOpen}
+                    setPopoverOpen={setPopoverOpen}
+                    value={formData.currently_attending_id?.toString() ?? ""}
                     onValueChange={(value) =>
                       handleSelectChange("currently_attending_id", value)
                     }
-                  >
-                    <SelectTrigger className="bg-gray-50 border-gray-300">
-                      <SelectValue placeholder="Select option" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {metadata?.yes_no_option?.map((option) => (
-                        <SelectItem
-                          key={option.id}
-                          value={option.id.toString()}
-                        >
-                          {option.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                    options={yesNoOptions}
+                    placeholder="Select option"
+                    label="Currently attending"
+                  />
                 </div>
 
                 {/* Returned to School */}
@@ -500,26 +582,18 @@ export default function SchoolCaregiver() {
                   >
                     Returned to School
                   </Label>
-                  <Select
-                    value={formData.returned_to_school_id?.toString() || ""}
+                  <SearchableDropdown
+                    popoverKey="returned_to_school"
+                    popoverOpen={popoverOpen}
+                    setPopoverOpen={setPopoverOpen}
+                    value={formData.returned_to_school_id?.toString() ?? ""}
                     onValueChange={(value) =>
                       handleSelectChange("returned_to_school_id", value)
                     }
-                  >
-                    <SelectTrigger className="bg-gray-50 border-gray-300">
-                      <SelectValue placeholder="Select option" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {metadata?.yes_no_option?.map((option) => (
-                        <SelectItem
-                          key={option.id}
-                          value={option.id.toString()}
-                        >
-                          {option.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                    options={yesNoOptions}
+                    placeholder="Select option"
+                    label="Returned to school"
+                  />
                 </div>
               </div>
             </div>
@@ -640,9 +714,12 @@ export default function SchoolCaregiver() {
                   >
                     Injuries Prevented Caregiving
                   </Label>
-                  <Select
+                  <SearchableDropdown
+                    popoverKey="injuries_prevented_caregiving"
+                    popoverOpen={popoverOpen}
+                    setPopoverOpen={setPopoverOpen}
                     value={
-                      formData.injuries_prevented_caregiving_id?.toString() ||
+                      formData.injuries_prevented_caregiving_id?.toString() ??
                       ""
                     }
                     onValueChange={(value) =>
@@ -651,21 +728,10 @@ export default function SchoolCaregiver() {
                         value
                       )
                     }
-                  >
-                    <SelectTrigger className="bg-gray-50 border-gray-300">
-                      <SelectValue placeholder="Select option" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {metadata?.yes_no_option?.map((option) => (
-                        <SelectItem
-                          key={option.id}
-                          value={option.id.toString()}
-                        >
-                          {option.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                    options={yesNoOptions}
+                    placeholder="Select option"
+                    label="Injuries prevented caregiving"
+                  />
                 </div>
 
                 {/* Returned to Caregiving */}
@@ -676,26 +742,18 @@ export default function SchoolCaregiver() {
                   >
                     Returned to Caregiving
                   </Label>
-                  <Select
-                    value={formData.returned_to_caregiving_id?.toString() || ""}
+                  <SearchableDropdown
+                    popoverKey="returned_to_caregiving"
+                    popoverOpen={popoverOpen}
+                    setPopoverOpen={setPopoverOpen}
+                    value={formData.returned_to_caregiving_id?.toString() ?? ""}
                     onValueChange={(value) =>
                       handleSelectChange("returned_to_caregiving_id", value)
                     }
-                  >
-                    <SelectTrigger className="bg-gray-50 border-gray-300">
-                      <SelectValue placeholder="Select option" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {metadata?.yes_no_option?.map((option) => (
-                        <SelectItem
-                          key={option.id}
-                          value={option.id.toString()}
-                        >
-                          {option.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                    options={yesNoOptions}
+                    placeholder="Select option"
+                    label="Returned to caregiving"
+                  />
                 </div>
 
                 {/* Caregiving Description - Full Width */}
@@ -766,29 +824,21 @@ export default function SchoolCaregiver() {
                       <Label className="text-gray-700 font-medium">
                         Disabled
                       </Label>
-                      <Select
+                      <SearchableDropdown
+                        popoverKey={`caregiver_disabled_${num}`}
+                        popoverOpen={popoverOpen}
+                        setPopoverOpen={setPopoverOpen}
                         value={
-                          formData[`caregiver_disabled_${num}`]?.toString() ||
+                          formData[`caregiver_disabled_${num}`]?.toString() ??
                           ""
                         }
                         onValueChange={(value) =>
                           handleSelectChange(`caregiver_disabled_${num}`, value)
                         }
-                      >
-                        <SelectTrigger className="bg-white border-gray-300">
-                          <SelectValue placeholder="Select option" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {metadata?.yes_no_option?.map((option) => (
-                            <SelectItem
-                              key={option.id}
-                              value={option.id.toString()}
-                            >
-                              {option.name}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                        options={yesNoOptions}
+                        placeholder="Select option"
+                        label="Disabled"
+                      />
                     </div>
                   </div>
                 </div>

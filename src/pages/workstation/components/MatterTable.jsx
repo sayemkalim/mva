@@ -59,9 +59,9 @@ const MatterTable = ({ setBlogsLength }) => {
     ? apiWorkstationResponse.response
     : [];
 
-  console.log("API Response:", apiWorkstationResponse);
-  console.log("Workstations:", workstations);
-  console.log("Is Loading:", isLoading);
+  // console.log("API Response:", apiWorkstationResponse);
+  // console.log("Workstations:", workstations);
+  // console.log("Is Loading:", isLoading);
   console.log("Error:", error);
 
   useEffect(() => {

@@ -12,7 +12,15 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Loader2, ChevronRight, Upload, X, Eye } from "lucide-react";
+import {
+  Loader2,
+  ChevronRight,
+  Upload,
+  X,
+  Eye,
+  ChevronsUpDown,
+  Check,
+} from "lucide-react";
 import { toast } from "sonner";
 import { createApplicantInfo } from "../helpers/createApplicantInfo";
 import { getApplicantMeta } from "../helpers/fetchApplicantInfoMetadata";
@@ -32,24 +40,66 @@ import {
   CommandEmpty,
   CommandGroup,
   CommandItem,
+  CommandList,
 } from "@/components/ui/command";
 
-function ShadcnSelect({ value, onValueChange, options, placeholder, label }) {
+/**
+ * Reusable ShadcnSelect that uses parent-managed popover state (popoverOpen object).
+ *
+ * Props:
+ * - value
+ * - onValueChange (fn)
+ * - options
+ * - placeholder
+ * - label
+ * - popoverKey
+ * - popoverOpen
+ * - setPopoverOpen
+ */
+function ShadcnSelect({
+  value,
+  onValueChange,
+  options = [],
+  placeholder = "Select",
+  label = "Select",
+  popoverKey,
+  popoverOpen,
+  setPopoverOpen,
+}) {
   const selected = options.find((o) => String(o.id) === String(value)) || null;
+  const isOpen = !!(popoverOpen && popoverOpen[popoverKey]);
+
+  const handleSelect = (id) => {
+    if (onValueChange) onValueChange(id);
+    if (setPopoverOpen && popoverKey) {
+      setPopoverOpen((prev = {}) => ({ ...prev, [popoverKey]: false }));
+    }
+  };
 
   return (
-    <Popover>
+    <Popover
+      open={isOpen}
+      onOpenChange={(open) =>
+        setPopoverOpen &&
+        setPopoverOpen((p = {}) => ({ ...p, [popoverKey]: open }))
+      }
+    >
       <PopoverTrigger asChild>
         <Button
           variant="outline"
           role="combobox"
-          className="w-full justify-between"
+          className="w-full justify-between font-normal bg-gray-50"
+          type="button"
         >
           {selected ? selected.name : placeholder}
-          <ChevronRight className="ml-2 h-4 w-4 rotate-90" />
+          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-300px p-0">
+
+      <PopoverContent
+        className="w-[var(--radix-popover-trigger-width)] p-0"
+        align="start"
+      >
         <Command>
           <CommandInput placeholder={label.toLowerCase()} />
           <CommandEmpty>No results found.</CommandEmpty>
@@ -57,9 +107,16 @@ function ShadcnSelect({ value, onValueChange, options, placeholder, label }) {
             {options.map((opt) => (
               <CommandItem
                 key={opt.id}
-                onSelect={() => onValueChange(opt.id)}
                 value={opt.name}
+                onSelect={() => handleSelect(opt.id)}
               >
+                <Check
+                  className={`mr-2 h-4 w-4 ${
+                    String(value) === String(opt.id)
+                      ? "opacity-100"
+                      : "opacity-0"
+                  }`}
+                />
                 {opt.name}
               </CommandItem>
             ))}
@@ -130,7 +187,34 @@ export default function ApplicantInformation() {
   const createMutation = useMutation({
     mutationFn: createApplicantInfo,
     onSuccess: (data) => {
-      toast.success("Application submitted successfully!");
+      const apiStatus = data?.Apistatus ?? data?.response?.Apistatus ?? false;
+      if (apiStatus === true) {
+        toast.success("Application submitted successfully!");
+      } else {
+        const errors = data?.errors ?? data?.response?.errors;
+        if (errors && typeof errors === "object") {
+          const messages = [];
+          Object.entries(errors).forEach(([key, val]) => {
+            if (Array.isArray(val)) {
+              messages.push(`${key}: ${val.join(", ")}`);
+            } else if (typeof val === "object") {
+              messages.push(`${key}: ${JSON.stringify(val)}`);
+            } else {
+              messages.push(`${key}: ${String(val)}`);
+            }
+          });
+          const message = messages.join(" — ");
+          toast.error(message || "Submission failed. See console for details.");
+          console.error("API returned errors:", errors);
+        } else {
+          toast.error(
+            data?.message ||
+              data?.response?.message ||
+              "Submission failed. Please try again."
+          );
+          console.error("Create mutation returned:", data);
+        }
+      }
     },
     onError: (error) => {
       toast.error("Failed to submit application. Please try again.");
@@ -207,6 +291,9 @@ export default function ApplicantInformation() {
     children: [{ first_name: "", middle_number: "", last_name: "", dob: "" }],
     meeting_clients: [{ date: "" }],
   });
+
+  // parent-managed popover open states
+  const [popoverOpen, setPopoverOpen] = useState({});
 
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
 
@@ -593,6 +680,9 @@ export default function ApplicantInformation() {
                   Gender
                 </Label>
                 <ShadcnSelect
+                  popoverKey="gender"
+                  popoverOpen={popoverOpen}
+                  setPopoverOpen={setPopoverOpen}
                   value={formData.gender_id}
                   onValueChange={(val) => handleSelectChange("gender_id", val)}
                   options={metadata?.contact_gender || []}
@@ -678,6 +768,9 @@ export default function ApplicantInformation() {
                   Marital Status
                 </Label>
                 <ShadcnSelect
+                  popoverKey="marital_status"
+                  popoverOpen={popoverOpen}
+                  setPopoverOpen={setPopoverOpen}
                   value={formData.marital_status_id}
                   onValueChange={(val) =>
                     handleSelectChange("marital_status_id", val)
@@ -713,6 +806,9 @@ export default function ApplicantInformation() {
                   Canadian Resident
                 </Label>
                 <ShadcnSelect
+                  popoverKey="canadian_resident"
+                  popoverOpen={popoverOpen}
+                  setPopoverOpen={setPopoverOpen}
                   value={formData.canadian_resident_id}
                   onValueChange={(val) =>
                     handleSelectChange("canadian_resident_id", val)
@@ -731,6 +827,9 @@ export default function ApplicantInformation() {
                   Resident Status
                 </Label>
                 <ShadcnSelect
+                  popoverKey="resident_status"
+                  popoverOpen={popoverOpen}
+                  setPopoverOpen={setPopoverOpen}
                   value={formData.resident_status_id}
                   onValueChange={(val) =>
                     handleSelectChange("resident_status_id", val)
@@ -769,6 +868,9 @@ export default function ApplicantInformation() {
                   Contact Method
                 </Label>
                 <ShadcnSelect
+                  popoverKey="contact_method"
+                  popoverOpen={popoverOpen}
+                  setPopoverOpen={setPopoverOpen}
                   value={formData.contact_method_id}
                   onValueChange={(val) =>
                     handleSelectChange("contact_method_id", val)
@@ -1053,6 +1155,9 @@ export default function ApplicantInformation() {
                   <div className="space-y-2">
                     <Label className="text-gray-700 font-medium">Day</Label>
                     <ShadcnSelect
+                      popoverKey={`reaches-${index}-day`}
+                      popoverOpen={popoverOpen}
+                      setPopoverOpen={setPopoverOpen}
                       value={reach.day_id}
                       onValueChange={(val) =>
                         handleArrayChange("reaches", index, "day_id", val)
@@ -1110,6 +1215,9 @@ export default function ApplicantInformation() {
                     Away Status
                   </Label>
                   <ShadcnSelect
+                    popoverKey="client_availability_away"
+                    popoverOpen={popoverOpen}
+                    setPopoverOpen={setPopoverOpen}
                     value={formData.client_availability_away_id}
                     onValueChange={(val) =>
                       handleSelectChange("client_availability_away_id", val)
@@ -1479,6 +1587,9 @@ export default function ApplicantInformation() {
                     Spouse Status
                   </Label>
                   <ShadcnSelect
+                    popoverKey="family_member_spouse_status"
+                    popoverOpen={popoverOpen}
+                    setPopoverOpen={setPopoverOpen}
                     value={formData.family_member_spouse_status_id}
                     onValueChange={(val) =>
                       handleSelectChange("family_member_spouse_status_id", val)
@@ -1497,6 +1608,9 @@ export default function ApplicantInformation() {
                     Employment Status
                   </Label>
                   <ShadcnSelect
+                    popoverKey="family_member_employment_status"
+                    popoverOpen={popoverOpen}
+                    setPopoverOpen={setPopoverOpen}
                     value={formData.family_member_employment_status_id}
                     onValueChange={(val) =>
                       handleSelectChange(

@@ -6,23 +6,92 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Loader2, ChevronRight } from "lucide-react";
+  Popover,
+  PopoverTrigger,
+  PopoverContent,
+} from "@/components/ui/popover";
+import {
+  Command,
+  CommandInput,
+  CommandList,
+  CommandEmpty,
+  CommandGroup,
+  CommandItem,
+} from "@/components/ui/command";
+import { Loader2, ChevronRight, ChevronsUpDown, Check } from "lucide-react";
 import { toast } from "sonner";
 import { getRepresentativeReferralMeta } from "../helpers/fetchIRepresentativeReferralMetadata";
 import { fetchRepresentReferralBySlug } from "../helpers/fetchRepresentativeReferralBySlug";
 import { createRepresentativeReferral } from "../helpers/createRepresentativeReferral";
 import { Navbar2 } from "@/components/navbar2";
 
+const SearchableDropdown = ({
+  value,
+  options,
+  onSelect,
+  placeholder,
+  popoverKey,
+  fieldName,
+  popoverOpen,
+  setPopoverOpen,
+}) => {
+  const selectedOption = options?.find((opt) => opt.id === value);
+
+  return (
+    <Popover
+      open={popoverOpen[popoverKey]}
+      onOpenChange={(open) =>
+        setPopoverOpen((p) => ({ ...p, [popoverKey]: open }))
+      }
+    >
+      <PopoverTrigger asChild>
+        <Button
+          variant="outline"
+          role="combobox"
+          className="w-full justify-between font-normal bg-gray-50"
+          type="button"
+        >
+          {selectedOption ? selectedOption.name : placeholder}
+          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent
+        className="w-[var(--radix-popover-trigger-width)] p-0"
+        align="start"
+      >
+        <Command>
+          <CommandInput placeholder="Search..." autoFocus />
+          <CommandList>
+            <CommandEmpty>No results found.</CommandEmpty>
+            <CommandGroup>
+              {options?.map((opt) => (
+                <CommandItem
+                  key={opt.id}
+                  value={opt.name}
+                  onSelect={() => onSelect(fieldName, opt.id, popoverKey)}
+                  className="cursor-pointer flex items-center"
+                >
+                  <Check
+                    className={`mr-2 h-4 w-4 ${
+                      value === opt.id ? "opacity-100" : "opacity-0"
+                    }`}
+                  />
+                  {opt.name}
+                </CommandItem>
+              ))}
+            </CommandGroup>
+          </CommandList>
+        </Command>
+      </PopoverContent>
+    </Popover>
+  );
+};
+
 export default function RepresentativeReferral() {
   const { slug } = useParams();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+
   const {
     data: apiResponse,
     isLoading: isLoadingMetadata,
@@ -36,6 +105,7 @@ export default function RepresentativeReferral() {
   });
 
   const metadata = apiResponse?.response || {};
+
   const {
     data: representativeReferralData,
     isLoading: isLoadingRepresentativeReferral,
@@ -68,10 +138,9 @@ export default function RepresentativeReferral() {
         toast.success(
           "Representative & Referral information saved successfully!"
         );
-        // navigate(`/dashboard/workstation/edit/${slug}/primary-ehc`);
       }
     },
-    onError: (error) => {
+    onError: () => {
       toast.error("Failed to save information. Please try again.");
     },
   });
@@ -112,18 +181,20 @@ export default function RepresentativeReferral() {
     referral_email: "",
   });
 
+  const [popoverOpen, setPopoverOpen] = useState({
+    relationship: false,
+    referralType: false,
+  });
+
   useEffect(() => {
     if (!slug) {
       toast.error("Invalid URL - Slug not found!");
       navigate("/dashboard/workstation");
     }
   }, [slug, navigate]);
+
   useEffect(() => {
     if (representativeReferralData) {
-      console.log(
-        "📝 Populating form with existing data:",
-        representativeReferralData
-      );
       setFormData({
         last_name: representativeReferralData.last_name || "",
         first_name: representativeReferralData.first_name || "",
@@ -175,10 +246,6 @@ export default function RepresentativeReferral() {
         referral_fax: representativeReferralData.referral_fax || "",
         referral_email: representativeReferralData.referral_email || "",
       });
-
-      // toast.success("Data loaded successfully!");
-    } else {
-      console.log("📝 No existing data - showing empty form");
     }
   }, [representativeReferralData]);
 
@@ -200,20 +267,20 @@ export default function RepresentativeReferral() {
     }));
   };
 
-  const handleSelectChange = (name, value) => {
+  const handleSelectChange = (fieldName, selectedId, popoverKey) => {
     setFormData((prev) => ({
       ...prev,
-      [name]: Number(value),
+      [fieldName]: selectedId,
     }));
+    setPopoverOpen((p) => ({ ...p, [popoverKey]: false }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const isAddressFilled = (address) => {
-      return Object.values(address).some(
-        (value) => value && value.trim() !== ""
-      );
-    };
+
+    const isAddressFilled = (address) =>
+      Object.values(address).some((value) => value && value.trim() !== "");
+
     const payload = {
       last_name: formData.last_name || null,
       first_name: formData.first_name || null,
@@ -239,16 +306,12 @@ export default function RepresentativeReferral() {
       referral_email: formData.referral_email || null,
     };
 
-    console.log(
-      "📤 Submitting Representative & Referral Payload:",
-      JSON.stringify(payload, null, 2)
-    );
-
     createMutation.mutate({
       slug: slug,
       data: payload,
     });
   };
+
   if (isLoadingMetadata || isLoadingRepresentativeReferral) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -305,7 +368,6 @@ export default function RepresentativeReferral() {
         </div>
       </div>
 
-      {/* Breadcrumb */}
       <div className="bg-white border-b px-6 py-4">
         <div className="flex items-center gap-2 text-sm text-gray-600">
           <button
@@ -328,7 +390,6 @@ export default function RepresentativeReferral() {
         </div>
       </div>
 
-      {/* Main Content */}
       <div className="container mx-auto px-6 py-8 max-w-7xl">
         <div className="bg-white rounded-lg shadow-sm border p-8">
           <h1 className="text-2xl font-bold mb-8 text-gray-900 uppercase">
@@ -336,13 +397,14 @@ export default function RepresentativeReferral() {
           </h1>
 
           <form onSubmit={handleSubmit} className="space-y-8">
-            {/* Representative Information Section */}
+            {/* Representative Information */}
             <div className="space-y-6">
               <h2 className="text-xl font-semibold text-gray-900">
                 Representative Information
               </h2>
 
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                {/* All inputs + searchable dropdown for relationship */}
                 {/* Last Name */}
                 <div className="space-y-2">
                   <Label
@@ -424,26 +486,17 @@ export default function RepresentativeReferral() {
                   >
                     Relationship to Applicant
                   </Label>
-                  <Select
-                    value={formData.relationship_applicant_id?.toString() || ""}
-                    onValueChange={(value) =>
-                      handleSelectChange("relationship_applicant_id", value)
-                    }
-                  >
-                    <SelectTrigger className="bg-gray-50 border-gray-300">
-                      <SelectValue placeholder="Select relationship" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {metadata?.relationshipt_applicant?.map((option) => (
-                        <SelectItem
-                          key={option.id}
-                          value={option.id.toString()}
-                        >
-                          {option.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+
+                  <SearchableDropdown
+                    value={formData.relationship_applicant_id}
+                    options={metadata.relationshipt_applicant || []}
+                    onSelect={handleSelectChange}
+                    placeholder="Select relationship"
+                    popoverKey="relationship"
+                    fieldName="relationship_applicant_id"
+                    popoverOpen={popoverOpen}
+                    setPopoverOpen={setPopoverOpen}
+                  />
                 </div>
 
                 {/* Telephone */}
@@ -512,13 +565,14 @@ export default function RepresentativeReferral() {
               </div>
             </div>
 
-            {/* Representative Address Section */}
+            {/* Representative Address */}
             <div className="space-y-6 pt-6 border-t">
               <h2 className="text-xl font-semibold text-gray-900">
                 Representative Address
               </h2>
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                {/* Unit Number */}
                 <div className="space-y-2">
                   <Label className="text-gray-700 font-medium">
                     Unit Number
@@ -537,6 +591,7 @@ export default function RepresentativeReferral() {
                   />
                 </div>
 
+                {/* Street Number */}
                 <div className="space-y-2">
                   <Label className="text-gray-700 font-medium">
                     Street Number
@@ -555,6 +610,7 @@ export default function RepresentativeReferral() {
                   />
                 </div>
 
+                {/* Street Name */}
                 <div className="space-y-2">
                   <Label className="text-gray-700 font-medium">
                     Street Name
@@ -573,6 +629,7 @@ export default function RepresentativeReferral() {
                   />
                 </div>
 
+                {/* City */}
                 <div className="space-y-2">
                   <Label className="text-gray-700 font-medium">City</Label>
                   <Input
@@ -589,6 +646,7 @@ export default function RepresentativeReferral() {
                   />
                 </div>
 
+                {/* Province */}
                 <div className="space-y-2">
                   <Label className="text-gray-700 font-medium">Province</Label>
                   <Input
@@ -605,6 +663,7 @@ export default function RepresentativeReferral() {
                   />
                 </div>
 
+                {/* Postal Code */}
                 <div className="space-y-2">
                   <Label className="text-gray-700 font-medium">
                     Postal Code
@@ -623,6 +682,7 @@ export default function RepresentativeReferral() {
                   />
                 </div>
 
+                {/* Country */}
                 <div className="space-y-2">
                   <Label className="text-gray-700 font-medium">Country</Label>
                   <Input
@@ -641,7 +701,7 @@ export default function RepresentativeReferral() {
               </div>
             </div>
 
-            {/* Referral Information Section */}
+            {/* Referral Information */}
             <div className="space-y-6 pt-6 border-t">
               <h2 className="text-xl font-semibold text-gray-900">
                 Referral Information
@@ -656,26 +716,17 @@ export default function RepresentativeReferral() {
                   >
                     Referral Type
                   </Label>
-                  <Select
-                    value={formData.referral_type_id?.toString() || ""}
-                    onValueChange={(value) =>
-                      handleSelectChange("referral_type_id", value)
-                    }
-                  >
-                    <SelectTrigger className="bg-gray-50 border-gray-300">
-                      <SelectValue placeholder="Select type" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {metadata?.type?.map((option) => (
-                        <SelectItem
-                          key={option.id}
-                          value={option.id.toString()}
-                        >
-                          {option.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+
+                  <SearchableDropdown
+                    value={formData.referral_type_id}
+                    options={metadata.type || []}
+                    onSelect={handleSelectChange}
+                    placeholder="Select type"
+                    popoverKey="referralType"
+                    fieldName="referral_type_id"
+                    popoverOpen={popoverOpen}
+                    setPopoverOpen={setPopoverOpen}
+                  />
                 </div>
 
                 {/* Referral Name */}
@@ -771,7 +822,7 @@ export default function RepresentativeReferral() {
               </div>
             </div>
 
-            {/* Referral Address Section */}
+            {/* Referral Address */}
             <div className="space-y-6 pt-6 border-t">
               <h2 className="text-xl font-semibold text-gray-900">
                 Referral Address
