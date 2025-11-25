@@ -22,9 +22,11 @@ import { toast } from "sonner";
 import { fetchSectionById } from "../../helpers/fetchSectionById";
 import { getABMeta } from "../../helpers/fetchABMeta";
 import { createSection, updateSection } from "../../helpers/createSection";
+import { deleteSectionCommunication } from "../../helpers/deleteSectionCommunication";
+import { deleteSectiondocument } from "../../helpers/deleteSectiondocument";
 import { Navbar2 } from "@/components/navbar2";
 
-// SearchableDropdown component (unchanged)
+// SearchableDropdown component
 const SearchableDropdown = ({
   value,
   options,
@@ -94,6 +96,7 @@ const emptyComm = {
   documents_received_id: "",
   reminder: "",
 };
+
 const emptyDocReq = {
   documents_requested_by_the_insurer_id: "",
   from_date: "",
@@ -109,8 +112,7 @@ const emptyDocReq = {
 };
 
 export default function Section33() {
-  const { id } = useParams();
-  const { slug } = useParams();
+  const { id, slug } = useParams();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
@@ -140,8 +142,28 @@ export default function Section33() {
     retry: 1,
   });
 
+  // Delete mutations
+  const deleteCommMutation = useMutation({
+    mutationFn: (commId) => deleteSectionCommunication(commId),
+    onSuccess: () => {
+      toast.success("Communication deleted successfully!");
+      queryClient.invalidateQueries(["section33", id]);
+    },
+    onError: (e) => toast.error(e.message || "Failed to delete communication"),
+  });
+
+  const deleteDocMutation = useMutation({
+    mutationFn: (docId) => deleteSectiondocument(docId),
+    onSuccess: () => {
+      toast.success("Document deleted successfully!");
+      queryClient.invalidateQueries(["section33", id]);
+    },
+    onError: (e) => toast.error(e.message || "Failed to delete document"),
+  });
+
   // Main form state (includes first document fields)
   const [mainForm, setMainForm] = useState({
+    id: "",
     request_id: "",
     s33_req_received: "",
     documents_requested_by_the_insurer_id: "",
@@ -167,6 +189,7 @@ export default function Section33() {
       const firstDoc = requestedDocs[0] || {};
 
       setMainForm({
+        id: firstDoc.id ?? "",
         request_id: section33.request_id ?? "",
         s33_req_received: section33.s33_req_received ?? "",
         documents_requested_by_the_insurer_id: firstDoc.requested_id ?? "",
@@ -193,6 +216,7 @@ export default function Section33() {
       setDocumentsRequested(
         requestedDocs.slice(1).map((doc) => ({
           ...emptyDocReq,
+          id: doc.id,
           documents_requested_by_the_insurer_id: doc.requested_id ?? "",
           from_date: doc.from_date ?? "",
           to_date: doc.to_date ?? "",
@@ -212,6 +236,7 @@ export default function Section33() {
       toast.success("Data loaded successfully!");
     } else if (!isEditMode) {
       setMainForm({
+        id: "",
         request_id: "",
         s33_req_received: "",
         documents_requested_by_the_insurer_id: "",
@@ -258,11 +283,21 @@ export default function Section33() {
       ...prev,
       communications: [...prev.communications, { ...emptyComm }],
     }));
-  const removeMainComm = (commIdx) =>
-    setMainForm((prev) => ({
-      ...prev,
-      communications: prev.communications.filter((_, i) => i !== commIdx),
-    }));
+
+  const removeMainComm = (commIdx) => {
+    const comm = mainForm.communications[commIdx];
+    if (comm.id) {
+      // If it has an ID, delete from server
+      handleDeleteCommunication(comm.id);
+    } else {
+      // If no ID, just remove from state
+      setMainForm((prev) => ({
+        ...prev,
+        communications: prev.communications.filter((_, i) => i !== commIdx),
+      }));
+    }
+  };
+
   const handleMainCommChange = (commIdx, key, value) =>
     setMainForm((prev) => ({
       ...prev,
@@ -270,6 +305,7 @@ export default function Section33() {
         i === commIdx ? { ...c, [key]: value } : c
       ),
     }));
+
   const handleMainCommSearchSelect = (commIdx, fieldName, value, popKey) => {
     handleMainCommChange(commIdx, fieldName, value);
     setPopoverOpen((p) => ({ ...p, [popKey]: false }));
@@ -290,12 +326,24 @@ export default function Section33() {
           : item
       )
     );
-    setPopoverOpen((p) => ({ ...p, [popKey]: false }));
+    if (popKey) {
+      setPopoverOpen((p) => ({ ...p, [popKey]: false }));
+    }
   };
+
   const addDocReq = () =>
     setDocumentsRequested((prev) => [...prev, { ...emptyDocReq }]);
-  const removeDocReq = (idx) =>
-    setDocumentsRequested((prev) => prev.filter((_, i) => i !== idx));
+
+  const removeDocReq = (idx) => {
+    const doc = documentsRequested[idx];
+    if (doc.id) {
+      // If it has an ID, delete from server
+      handleDeleteDocument(doc.id);
+    } else {
+      // If no ID, just remove from state
+      setDocumentsRequested((prev) => prev.filter((_, i) => i !== idx));
+    }
+  };
 
   // Communication inside documents handlers
   const addComm = (docIdx) =>
@@ -309,19 +357,29 @@ export default function Section33() {
           : doc
       )
     );
-  const removeComm = (docIdx, commIdx) =>
-    setDocumentsRequested((prev) =>
-      prev.map((doc, idx) =>
-        idx === docIdx
-          ? {
-              ...doc,
-              communications: doc.communications.filter(
-                (_, i) => i !== commIdx
-              ),
-            }
-          : doc
-      )
-    );
+
+  const removeComm = (docIdx, commIdx) => {
+    const comm = documentsRequested[docIdx].communications[commIdx];
+    if (comm.id) {
+      // If it has an ID, delete from server
+      handleDeleteCommunication(comm.id);
+    } else {
+      // If no ID, just remove from state
+      setDocumentsRequested((prev) =>
+        prev.map((doc, di) =>
+          di === docIdx
+            ? {
+                ...doc,
+                communications: doc.communications.filter(
+                  (_, i) => i !== commIdx
+                ),
+              }
+            : doc
+        )
+      );
+    }
+  };
+
   const handleCommChange = (docIdx, commIdx, key, value) => {
     setDocumentsRequested((prev) =>
       prev.map((doc, di) =>
@@ -336,6 +394,7 @@ export default function Section33() {
       )
     );
   };
+
   const handleCommSearchSelect = (
     docIdx,
     commIdx,
@@ -362,7 +421,6 @@ export default function Section33() {
     onError: (e) => toast.error(e.message || "Failed to save"),
   });
 
-  // Submit handler gathers form and documentsRequested for API
   const handleSubmit = (e) => {
     e.preventDefault();
     const payload = {
@@ -391,6 +449,49 @@ export default function Section33() {
     } else {
       mutation.mutate({ isEdit: false, idOrSlug: slug, data: payload });
     }
+  };
+
+  // Delete handlers
+  const handleDeleteDocument = (docId) => {
+    if (!docId) {
+      toast.error("Document does not have a valid ID to delete.");
+      return;
+    }
+    deleteDocMutation.mutate(docId);
+  };
+
+  const handleDeleteCommunication = (commId) => {
+    if (!commId) {
+      toast.error("Communication does not have a valid ID to delete.");
+      return;
+    }
+    deleteCommMutation.mutate(commId);
+  };
+
+  // NEW: Main document delete logic
+  const handleDeleteMainDocument = () => {
+    if (mainForm.id) {
+      handleDeleteDocument(mainForm.id);
+    }
+    setMainForm({
+      id: "",
+      request_id: "",
+      s33_req_received: "",
+      documents_requested_by_the_insurer_id: "",
+      from_date: "",
+      to_date: "",
+      deadline: "",
+      response_to_insurance: "",
+      s33_req_status_id: "",
+      ambulance_cnr: "",
+      medical_clinic_name: "",
+      phone: "",
+      fax: "",
+      email: "",
+      request_status_id: "",
+      communications: [{ ...emptyComm }],
+      expanded: false,
+    });
   };
 
   if (loadingMeta || (isEditMode && loadingSection33)) {
@@ -597,7 +698,6 @@ export default function Section33() {
                       variant="ghost"
                       className="absolute top-2 right-2"
                       onClick={() => removeMainComm(commIdx)}
-                      disabled={mainForm.communications.length === 1}
                     >
                       <Trash2 className="h-4 w-4 text-red-400" />
                     </Button>
@@ -667,8 +767,7 @@ export default function Section33() {
               </div>
             </>
           )}
-          {/* Add Document Button */}
-          <div className="flex gap-4 mb-4">
+          <div className="flex gap-4 mb-4 mt-4">
             <Button
               type="button"
               onClick={addDocReq}
@@ -677,8 +776,16 @@ export default function Section33() {
             >
               + Add Document
             </Button>
+            <Button
+              type="button"
+              onClick={handleDeleteMainDocument}
+              variant="destructive"
+              size="sm"
+              className="ml-2"
+            >
+              <Trash2 className="h-4 w-4 mr-2" /> Delete Document
+            </Button>
           </div>
-          {/* Additional Documents Blocks */}
           {documentsRequested.map((doc, idx) => {
             const selectedDocLabel =
               getLabel(
@@ -844,7 +951,6 @@ export default function Section33() {
                             variant="ghost"
                             className="absolute top-2 right-2"
                             onClick={() => removeComm(idx, commIdx)}
-                            disabled={doc.communications.length === 1}
                           >
                             <Trash2 className="h-4 w-4 text-red-400" />
                           </Button>
@@ -969,7 +1075,7 @@ export default function Section33() {
             </div>
           </div>
           {/* Submit Buttons */}
-          <div className="flex justify-end gap-4 pt-6 border-t">
+          <div className="flex justify-end gap-4 pt-6 border-t mt-6">
             <Button
               type="button"
               variant="outline"
