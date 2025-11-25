@@ -5,19 +5,108 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Loader2, ChevronRight, Plus, Trash2 } from "lucide-react";
+  Popover,
+  PopoverTrigger,
+  PopoverContent,
+} from "@/components/ui/popover";
+import {
+  Command,
+  CommandInput,
+  CommandList,
+  CommandEmpty,
+  CommandGroup,
+  CommandItem,
+} from "@/components/ui/command";
+import { Loader2, Plus, Trash2, ChevronsUpDown, Check } from "lucide-react";
 import { toast } from "sonner";
-
 import { fetchSectionById } from "../../helpers/fetchSectionById";
 import { getABMeta } from "../../helpers/fetchABMeta";
 import { createSection, updateSection } from "../../helpers/createSection";
 import { Navbar2 } from "@/components/navbar2";
+
+// SearchableDropdown component (unchanged)
+const SearchableDropdown = ({
+  value,
+  options,
+  onSelect,
+  placeholder,
+  popoverKey,
+  fieldName,
+  popoverOpen,
+  setPopoverOpen,
+}) => {
+  const selectedOption = options?.find(
+    (opt) => String(opt.id) === String(value)
+  );
+  return (
+    <Popover
+      open={popoverOpen[popoverKey]}
+      onOpenChange={(open) =>
+        setPopoverOpen((p) => ({ ...p, [popoverKey]: open }))
+      }
+    >
+      <PopoverTrigger asChild>
+        <Button
+          variant="outline"
+          role="combobox"
+          className="w-full justify-between font-normal bg-gray-50"
+          type="button"
+        >
+          {selectedOption ? selectedOption.name : placeholder}
+          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent
+        className="w-[var(--radix-popover-trigger-width)] p-0"
+        align="start"
+      >
+        <Command>
+          <CommandInput placeholder="Search..." autoFocus />
+          <CommandList>
+            <CommandEmpty>No results found.</CommandEmpty>
+            <CommandGroup>
+              {options?.map((opt) => (
+                <CommandItem
+                  key={opt.id}
+                  value={opt.name}
+                  onSelect={() => onSelect(fieldName, opt.id, popoverKey)}
+                  className="cursor-pointer flex items-center"
+                >
+                  <Check
+                    className={`mr-2 h-4 w-4 ${
+                      value === opt.id ? "opacity-100" : "opacity-0"
+                    }`}
+                  />
+                  {opt.name}
+                </CommandItem>
+              ))}
+            </CommandGroup>
+          </CommandList>
+        </Command>
+      </PopoverContent>
+    </Popover>
+  );
+};
+
+const emptyComm = {
+  date: "",
+  mode_id: "",
+  documents_received_id: "",
+  reminder: "",
+};
+const emptyDocReq = {
+  documents_requested_by_the_insurer_id: "",
+  from_date: "",
+  to_date: "",
+  ambulance_cnr: "",
+  medical_clinic_name: "",
+  phone: "",
+  fax: "",
+  email: "",
+  request_status_id: "",
+  communications: [{ ...emptyComm }],
+  expanded: false,
+};
 
 export default function Section33() {
   const { id } = useParams();
@@ -25,8 +114,10 @@ export default function Section33() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
+  const [popoverOpen, setPopoverOpen] = useState({});
   const isEditMode = Boolean(id);
 
+  // Fetch meta info for dropdown options
   const {
     data: metaResp,
     isLoading: loadingMeta,
@@ -40,6 +131,7 @@ export default function Section33() {
   });
   const meta = metaResp?.response || {};
 
+  // Fetch existing section33 data for editing
   const { data: section33, isLoading: loadingSection33 } = useQuery({
     queryKey: ["section33", id],
     queryFn: () => fetchSectionById(id),
@@ -48,29 +140,8 @@ export default function Section33() {
     retry: 1,
   });
 
-  const emptyDocReq = {
-    requested_id: "",
-    from_date: "",
-    to_date: "",
-    ambulance_cnr: "",
-    medical_clinic_name: "",
-    phone: "",
-    fax: "",
-    email: "",
-    request_status_id: "",
-    communications: [
-      { date: "", mode_id: "", documents_received_id: "", reminder: "" },
-    ],
-  };
-
-  const emptyComm = {
-    date: "",
-    mode_id: "",
-    documents_received_id: "",
-    reminder: "",
-  };
-
-  const [form, setForm] = useState({
+  // Main form state (includes first document fields)
+  const [mainForm, setMainForm] = useState({
     request_id: "",
     s33_req_received: "",
     documents_requested_by_the_insurer_id: "",
@@ -79,50 +150,68 @@ export default function Section33() {
     deadline: "",
     response_to_insurance: "",
     s33_req_status_id: "",
-    documents_requested: [{ ...emptyDocReq }],
+    ambulance_cnr: "",
+    medical_clinic_name: "",
+    phone: "",
+    fax: "",
+    email: "",
+    request_status_id: "",
+    communications: [{ ...emptyComm }],
+    expanded: false,
   });
+  const [documentsRequested, setDocumentsRequested] = useState([]);
+
   useEffect(() => {
     if (section33 && isEditMode) {
-      setForm({
-        request_id: section33.request_id || "",
-        s33_req_received: section33.s33_req_received || "",
-        documents_requested_by_the_insurer_id:
-          section33.documents_requested_by_the_insurer_id || "",
-        from_date: section33.from_date || "",
-        to_date: section33.to_date || "",
-        deadline: section33.deadline || "",
-        response_to_insurance: section33.response_to_insurance || "",
-        s33_req_status_id: section33.s33_req_status_id || "",
-        documents_requested:
-          section33.requested_documents && section33.requested_documents.length
-            ? section33.requested_documents.map((doc) => ({
-                id: doc.id || null,
-                requested_id: doc.requested_id || "",
-                from_date: doc.from_date || "",
-                to_date: doc.to_date || "",
-                ambulance_cnr: doc.ambulance_cnr || "",
-                medical_clinic_name: doc.medical_clinic_name || "",
-                phone: doc.phone || "",
-                fax: doc.fax || "",
-                email: doc.email || "",
-                request_status_id: doc.request_status_id || "",
-                communications:
-                  doc.communications && doc.communications.length
-                    ? doc.communications.map((comm) => ({
-                        id: comm.id || null,
-                        date: comm.date || "",
-                        mode_id: comm.mode_id || "",
-                        documents_received_id: comm.documents_received_id || "",
-                        reminder: comm.reminder || "",
-                      }))
-                    : [{ ...emptyComm }],
-              }))
-            : [{ ...emptyDocReq }],
+      const requestedDocs = section33.requested_documents || [];
+      const firstDoc = requestedDocs[0] || {};
+
+      setMainForm({
+        request_id: section33.request_id ?? "",
+        s33_req_received: section33.s33_req_received ?? "",
+        documents_requested_by_the_insurer_id: firstDoc.requested_id ?? "",
+        from_date: firstDoc.from_date ?? "",
+        to_date: firstDoc.to_date ?? "",
+        deadline: section33.deadline ?? "",
+        response_to_insurance: section33.response_to_insurance ?? "",
+        s33_req_status_id: section33.s33_req_status_id ?? "",
+        ambulance_cnr: firstDoc.ambulance_cnr ?? "",
+        medical_clinic_name: firstDoc.medical_clinic_name ?? "",
+        phone: firstDoc.phone ?? "",
+        fax: firstDoc.fax ?? "",
+        email: firstDoc.email ?? "",
+        request_status_id: firstDoc.request_status_id ?? "",
+        communications: firstDoc.communications?.length
+          ? firstDoc.communications.map((c) => ({
+              ...emptyComm,
+              ...c,
+            }))
+          : [{ ...emptyComm }],
+        expanded: !!firstDoc.requested_id,
       });
+
+      setDocumentsRequested(
+        requestedDocs.slice(1).map((doc) => ({
+          ...emptyDocReq,
+          documents_requested_by_the_insurer_id: doc.requested_id ?? "",
+          from_date: doc.from_date ?? "",
+          to_date: doc.to_date ?? "",
+          ambulance_cnr: doc.ambulance_cnr ?? "",
+          medical_clinic_name: doc.medical_clinic_name ?? "",
+          phone: doc.phone ?? "",
+          fax: doc.fax ?? "",
+          email: doc.email ?? "",
+          request_status_id: doc.request_status_id ?? "",
+          communications: doc.communications?.length
+            ? doc.communications.map((c) => ({ ...emptyComm, ...c }))
+            : [{ ...emptyComm }],
+          expanded: !!doc.requested_id,
+        }))
+      );
+
       toast.success("Data loaded successfully!");
-    }
-    if (!isEditMode) {
-      setForm({
+    } else if (!isEditMode) {
+      setMainForm({
         request_id: "",
         s33_req_received: "",
         documents_requested_by_the_insurer_id: "",
@@ -131,79 +220,134 @@ export default function Section33() {
         deadline: "",
         response_to_insurance: "",
         s33_req_status_id: "",
-        documents_requested: [{ ...emptyDocReq }],
+        ambulance_cnr: "",
+        medical_clinic_name: "",
+        phone: "",
+        fax: "",
+        email: "",
+        request_status_id: "",
+        communications: [{ ...emptyComm }],
+        expanded: false,
       });
+      setDocumentsRequested([]);
     }
   }, [section33, isEditMode]);
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setForm((prev) => ({ ...prev, [name]: value }));
+  // Helper to get label from options by id
+  const getLabel = (id, arr) =>
+    arr?.find((opt) => String(opt.id) === String(id))?.name || "";
+
+  // Main form dropdown selection handler
+  const handleMainSearchSelect = (fieldName, value, popKey) => {
+    if (fieldName === "documents_requested_by_the_insurer_id") {
+      setMainForm((prev) => ({
+        ...prev,
+        documents_requested_by_the_insurer_id: value,
+        expanded: !!value,
+      }));
+      setPopoverOpen((p) => ({ ...p, [popKey]: false }));
+    } else {
+      setMainForm((prev) => ({ ...prev, [fieldName]: value }));
+      setPopoverOpen((p) => ({ ...p, [popKey]: false }));
+    }
   };
 
-  const handleSelect = (name, val) =>
-    setForm((prev) => ({ ...prev, [name]: Number(val) }));
-
-  const updateDocReq = (idx, key, val) =>
-    setForm((prev) => ({
+  // Communication handlers for main form
+  const addMainComm = () =>
+    setMainForm((prev) => ({
       ...prev,
-      documents_requested: prev.documents_requested.map((d, i) =>
-        i === idx ? { ...d, [key]: val } : d
+      communications: [...prev.communications, { ...emptyComm }],
+    }));
+  const removeMainComm = (commIdx) =>
+    setMainForm((prev) => ({
+      ...prev,
+      communications: prev.communications.filter((_, i) => i !== commIdx),
+    }));
+  const handleMainCommChange = (commIdx, key, value) =>
+    setMainForm((prev) => ({
+      ...prev,
+      communications: prev.communications.map((c, i) =>
+        i === commIdx ? { ...c, [key]: value } : c
       ),
     }));
+  const handleMainCommSearchSelect = (commIdx, fieldName, value, popKey) => {
+    handleMainCommChange(commIdx, fieldName, value);
+    setPopoverOpen((p) => ({ ...p, [popKey]: false }));
+  };
 
-  const updateComm = (docIdx, commIdx, key, val) =>
-    setForm((prev) => ({
-      ...prev,
-      documents_requested: prev.documents_requested.map((d, i) =>
-        i === docIdx
-          ? {
-              ...d,
-              communications: d.communications.map((c, ci) =>
-                ci === commIdx ? { ...c, [key]: val } : c
-              ),
-            }
-          : d
-      ),
-    }));
-
+  // Additional documents handlers
+  const handleDocSearchSelect = (idx, fieldName, value, popKey) => {
+    setDocumentsRequested((prev) =>
+      prev.map((item, i) =>
+        i === idx
+          ? fieldName === "documents_requested_by_the_insurer_id"
+            ? {
+                ...item,
+                [fieldName]: value,
+                expanded: !!value,
+              }
+            : { ...item, [fieldName]: value }
+          : item
+      )
+    );
+    setPopoverOpen((p) => ({ ...p, [popKey]: false }));
+  };
   const addDocReq = () =>
-    setForm((prev) => ({
-      ...prev,
-      documents_requested: [...prev.documents_requested, { ...emptyDocReq }],
-    }));
-
+    setDocumentsRequested((prev) => [...prev, { ...emptyDocReq }]);
   const removeDocReq = (idx) =>
-    setForm((prev) => ({
-      ...prev,
-      documents_requested: prev.documents_requested.filter((_, i) => i !== idx),
-    }));
+    setDocumentsRequested((prev) => prev.filter((_, i) => i !== idx));
 
+  // Communication inside documents handlers
   const addComm = (docIdx) =>
-    setForm((prev) => ({
-      ...prev,
-      documents_requested: prev.documents_requested.map((d, i) =>
-        i === docIdx
-          ? { ...d, communications: [...d.communications, { ...emptyComm }] }
-          : d
-      ),
-    }));
-
-  const removeComm = (docIdx, commIdx) =>
-    setForm((prev) => ({
-      ...prev,
-      documents_requested: prev.documents_requested.map((d, i) =>
-        i === docIdx
+    setDocumentsRequested((prev) =>
+      prev.map((doc, idx) =>
+        idx === docIdx
           ? {
-              ...d,
-              communications: d.communications.filter(
-                (_, ci) => ci !== commIdx
+              ...doc,
+              communications: [...doc.communications, { ...emptyComm }],
+            }
+          : doc
+      )
+    );
+  const removeComm = (docIdx, commIdx) =>
+    setDocumentsRequested((prev) =>
+      prev.map((doc, idx) =>
+        idx === docIdx
+          ? {
+              ...doc,
+              communications: doc.communications.filter(
+                (_, i) => i !== commIdx
               ),
             }
-          : d
-      ),
-    }));
+          : doc
+      )
+    );
+  const handleCommChange = (docIdx, commIdx, key, value) => {
+    setDocumentsRequested((prev) =>
+      prev.map((doc, di) =>
+        di === docIdx
+          ? {
+              ...doc,
+              communications: doc.communications.map((c, ci) =>
+                ci === commIdx ? { ...c, [key]: value } : c
+              ),
+            }
+          : doc
+      )
+    );
+  };
+  const handleCommSearchSelect = (
+    docIdx,
+    commIdx,
+    fieldName,
+    value,
+    popKey
+  ) => {
+    handleCommChange(docIdx, commIdx, fieldName, value);
+    setPopoverOpen((p) => ({ ...p, [popKey]: false }));
+  };
 
+  // Mutation for save/update
   const mutation = useMutation({
     mutationFn: ({ isEdit, idOrSlug, data }) =>
       isEdit
@@ -218,30 +362,30 @@ export default function Section33() {
     onError: (e) => toast.error(e.message || "Failed to save"),
   });
 
+  // Submit handler gathers form and documentsRequested for API
   const handleSubmit = (e) => {
     e.preventDefault();
-
-    const safeDocumentsRequestedByInsurerId =
-      form.documents_requested_by_the_insurer_id > 0
-        ? form.documents_requested_by_the_insurer_id
-        : null;
-    const safeS33ReqStatusId =
-      form.s33_req_status_id > 0 ? form.s33_req_status_id : null;
-    const safeDocumentsRequested = form.documents_requested.map((doc) => ({
-      ...doc,
-      requested_id:
-        doc.requested_id && Number(doc.requested_id) > 0
-          ? Number(doc.requested_id)
-          : null,
-    }));
-
     const payload = {
-      ...form,
-      documents_requested_by_the_insurer_id: safeDocumentsRequestedByInsurerId,
-      s33_req_status_id: safeS33ReqStatusId,
-      documents_requested: safeDocumentsRequested,
+      ...mainForm,
+      documents_requested: documentsRequested.map((doc) => ({
+        ...doc,
+        documents_requested_by_the_insurer_id:
+          doc.documents_requested_by_the_insurer_id &&
+          Number(doc.documents_requested_by_the_insurer_id) > 0
+            ? Number(doc.documents_requested_by_the_insurer_id)
+            : null,
+        request_status_id:
+          doc.request_status_id && Number(doc.request_status_id) > 0
+            ? Number(doc.request_status_id)
+            : null,
+      })),
+      documents_requested_by_the_insurer_id:
+        mainForm.documents_requested_by_the_insurer_id > 0
+          ? mainForm.documents_requested_by_the_insurer_id
+          : null,
+      s33_req_status_id:
+        mainForm.s33_req_status_id > 0 ? mainForm.s33_req_status_id : null,
     };
-
     if (isEditMode) {
       mutation.mutate({ isEdit: true, idOrSlug: id, data: payload });
     } else {
@@ -259,7 +403,6 @@ export default function Section33() {
       </div>
     );
   }
-
   if (metaError) {
     return (
       <div className="text-red-500">
@@ -268,426 +411,503 @@ export default function Section33() {
     );
   }
 
-  const getLabel = (id, arr) =>
-    arr?.find((opt) => String(opt.id) === String(id))?.name || "";
-
   return (
     <div className="min-h-screen bg-gray-50">
       <Navbar2 />
-      <div className="bg-white border-b px-6 py-3">
-        <div className="flex items-center justify-end gap-6 text-sm">
-          <span className="text-gray-700">
-            Unpaid: <span className="font-semibold">$ 0</span>
-          </span>
-          <span className="text-gray-700">
-            Unbilled: <span className="font-semibold">$ 0</span>
-          </span>
-          <span className="text-gray-700">
-            Client Funds-Operating: <span className="font-semibold">$ 0</span>
-          </span>
-          <span className="text-gray-700">
-            Client Funds-Trust: <span className="font-semibold">$ 0</span>
-          </span>
-        </div>
-      </div>
-
-      <div className="bg-white border-b px-6 py-4">
-        <div className="flex items-center gap-2 text-sm text-gray-600">
-          <button
-            onClick={() => navigate("/dashboard")}
-            className="hover:text-gray-900 transition"
-          >
-            Dashboard
-          </button>
-          <ChevronRight className="w-4 h-4" />
-          <button
-            onClick={() => navigate("/dashboard/workstation")}
-            className="hover:text-gray-900 transition"
-          >
-            Workstation
-          </button>
-          <ChevronRight className="w-4 h-4" />
-          <span className="text-gray-900 font-medium">Section 33</span>
-        </div>
-      </div>
-
-      <div className="container mx-auto px-6 py-8 max-w-7xl">
+      <form
+        onSubmit={handleSubmit}
+        className="container mx-auto px-6 py-8 max-w-7xl"
+      >
         <div className="bg-white rounded-lg shadow-sm border p-8">
-          <h1 className="text-2xl font-bold mb-8 text-gray-900 uppercase">
-            {isEditMode
-              ? "Edit Section 33 Insurer Request"
-              : "Add Section 33 Insurer Request"}
-          </h1>
-
-          <form onSubmit={handleSubmit} className="space-y-10">
-            {/* Main info fields */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div className="space-y-2">
-                <Label htmlFor="s33_req_received">
-                  Section 33 Request Received
-                </Label>
-                <Input
-                  id="s33_req_received"
-                  type="date"
-                  name="s33_req_received"
-                  value={form.s33_req_received}
-                  onChange={handleChange}
-                  className="h-9 bg-gray-50 border-gray-300"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="documents_requested_by_the_insurer_id">
-                  Documents Requested By The Insurer
-                </Label>
-                <Select
-                  value={
-                    form.documents_requested_by_the_insurer_id?.toString() || ""
-                  }
-                  onValueChange={(val) =>
-                    handleSelect("documents_requested_by_the_insurer_id", val)
-                  }
-                >
-                  <SelectTrigger className="w-full h-11 bg-gray-50 border-gray-300">
-                    <SelectValue>
-                      {getLabel(
-                        form.documents_requested_by_the_insurer_id,
-                        meta.insurance_documents_requested_by_the_insurer
-                      ) || "Select document"}
-                    </SelectValue>
-                  </SelectTrigger>
-                  <SelectContent>
-                    {meta.insurance_documents_requested_by_the_insurer?.map(
-                      (opt) => (
-                        <SelectItem key={opt.id} value={opt.id.toString()}>
-                          {opt.name}
-                        </SelectItem>
-                      )
-                    )}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="from_date">From Date</Label>
-                <Input
-                  id="from_date"
-                  type="date"
-                  name="from_date"
-                  value={form.from_date}
-                  onChange={handleChange}
-                  className="h-9 bg-gray-50 border-gray-300"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="to_date">To Date</Label>
-                <Input
-                  id="to_date"
-                  type="date"
-                  name="to_date"
-                  value={form.to_date}
-                  onChange={handleChange}
-                  className="h-9 bg-gray-50 border-gray-300"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="deadline">Deadline</Label>
-                <Input
-                  id="deadline"
-                  type="date"
-                  name="deadline"
-                  value={form.deadline}
-                  onChange={handleChange}
-                  className="h-9 bg-gray-50 border-gray-300"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="response_to_insurance">
-                  Response to Insurance
-                </Label>
-                <Input
-                  id="response_to_insurance"
-                  type="date"
-                  name="response_to_insurance"
-                  value={form.response_to_insurance}
-                  onChange={handleChange}
-                  className="h-9 bg-gray-50 border-gray-300"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="s33_req_status_id">
-                  Section 33 Request Status
-                </Label>
-                <Select
-                  value={form.s33_req_status_id?.toString() || ""}
-                  onValueChange={(val) =>
-                    handleSelect("s33_req_status_id", val)
-                  }
-                >
-                  <SelectTrigger className="w-full h-11 bg-gray-50 border-gray-300">
-                    <SelectValue>
-                      {getLabel(
-                        form.s33_req_status_id,
-                        meta.insurance_status
-                      ) || "Select status"}
-                    </SelectValue>
-                  </SelectTrigger>
-                  <SelectContent>
-                    {meta.insurance_status?.map((opt) => (
-                      <SelectItem key={opt.id} value={opt.id.toString()}>
-                        {opt.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
+          {/* First document main fields */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-2">
+            <div className="space-y-2">
+              <Label>Request</Label>
+              <SearchableDropdown
+                value={mainForm.request_id}
+                options={meta.insurance_request}
+                onSelect={handleMainSearchSelect}
+                placeholder="Select request"
+                popoverKey="request_id"
+                fieldName="request_id"
+                popoverOpen={popoverOpen}
+                setPopoverOpen={setPopoverOpen}
+              />
             </div>
-
-            {/* Documents Requested */}
-            <div className="space-y-6 pt-6 border-t">
-              <div className="flex justify-between items-center">
-                <h2 className="text-xl font-semibold text-gray-900">
-                  Documents Requested
-                </h2>
-                <Button
-                  type="button"
-                  onClick={addDocReq}
-                  variant="outline"
-                  size="sm"
-                >
-                  <Plus className="h-4 w-4 mr-2" /> Add Document Request
-                </Button>
+            <div className="space-y-2">
+              <Label>S33 REQ Received</Label>
+              <Input
+                type="date"
+                name="s33_req_received"
+                value={mainForm.s33_req_received}
+                onChange={(e) =>
+                  setMainForm((p) => ({
+                    ...p,
+                    s33_req_received: e.target.value,
+                  }))
+                }
+                className="h-9 bg-gray-50 border-gray-300"
+              />
+            </div>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-2">
+            <div className="space-y-2">
+              <Label>Documents Requested by the Insurer</Label>
+              <SearchableDropdown
+                value={mainForm.documents_requested_by_the_insurer_id}
+                options={meta.insurance_documents_requested_by_the_insurer}
+                onSelect={handleMainSearchSelect}
+                placeholder="Select document"
+                popoverKey="documents_requested_by_the_insurer_id"
+                fieldName="documents_requested_by_the_insurer_id"
+                popoverOpen={popoverOpen}
+                setPopoverOpen={setPopoverOpen}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>From</Label>
+              <Input
+                type="date"
+                name="from_date"
+                value={mainForm.from_date}
+                onChange={(e) =>
+                  setMainForm((p) => ({ ...p, from_date: e.target.value }))
+                }
+                className="h-9 bg-gray-50 border-gray-300"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>To</Label>
+              <Input
+                type="date"
+                name="to_date"
+                value={mainForm.to_date}
+                onChange={(e) =>
+                  setMainForm((p) => ({ ...p, to_date: e.target.value }))
+                }
+                className="h-9 bg-gray-50 border-gray-300"
+              />
+            </div>
+          </div>
+          {/* Expanded first document additional fields */}
+          {mainForm.expanded && (
+            <>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-4">
+                <div className="space-y-2">
+                  <Label>
+                    {getLabel(
+                      mainForm.documents_requested_by_the_insurer_id,
+                      meta.insurance_documents_requested_by_the_insurer
+                    ) || "Ambulance CNR"}
+                  </Label>
+                  <Input
+                    value={mainForm.ambulance_cnr}
+                    onChange={(e) =>
+                      setMainForm((p) => ({
+                        ...p,
+                        ambulance_cnr: e.target.value,
+                      }))
+                    }
+                    className="h-9 bg-gray-50 border-gray-300"
+                    placeholder="Reference Number"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Medical Clinic Name</Label>
+                  <Input
+                    value={mainForm.medical_clinic_name}
+                    onChange={(e) =>
+                      setMainForm((p) => ({
+                        ...p,
+                        medical_clinic_name: e.target.value,
+                      }))
+                    }
+                    className="h-9 bg-gray-50 border-gray-300"
+                    placeholder="Clinic Name"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Phone</Label>
+                  <Input
+                    value={mainForm.phone}
+                    onChange={(e) =>
+                      setMainForm((p) => ({ ...p, phone: e.target.value }))
+                    }
+                    className="h-9 bg-gray-50 border-gray-300"
+                    placeholder="Phone"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Fax</Label>
+                  <Input
+                    value={mainForm.fax}
+                    onChange={(e) =>
+                      setMainForm((p) => ({ ...p, fax: e.target.value }))
+                    }
+                    className="h-9 bg-gray-50 border-gray-300"
+                    placeholder="Fax"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Email</Label>
+                  <Input
+                    value={mainForm.email}
+                    onChange={(e) =>
+                      setMainForm((p) => ({ ...p, email: e.target.value }))
+                    }
+                    className="h-9 bg-gray-50 border-gray-300"
+                    placeholder="Email"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Request Status</Label>
+                  <SearchableDropdown
+                    value={mainForm.request_status_id}
+                    options={meta.insurance_status}
+                    onSelect={handleMainSearchSelect}
+                    placeholder="Select status"
+                    popoverKey="main_request_status"
+                    fieldName="request_status_id"
+                    popoverOpen={popoverOpen}
+                    setPopoverOpen={setPopoverOpen}
+                  />
+                </div>
               </div>
-              {form.documents_requested.map((d, idx) => (
-                <div
-                  key={idx}
-                  className="border border-gray-200 rounded-lg p-6 mb-6 bg-gray-50"
-                >
-                  <div className="flex items-center justify-between mb-4">
-                    <h3 className="font-bold text-gray-800 text-lg">
-                      Document Request {idx + 1}
-                    </h3>
+              {/* First document communications */}
+              <div className="mt-6">
+                <div className="flex justify-between items-center mb-2">
+                  <span className="font-semibold">Communications</span>
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="outline"
+                    onClick={addMainComm}
+                  >
+                    <Plus className="h-4 w-4 mr-2" /> Add Communication
+                  </Button>
+                </div>
+                {mainForm.communications.map((c, commIdx) => (
+                  <div
+                    key={commIdx}
+                    className="grid grid-cols-1 md:grid-cols-4 gap-4 bg-white p-4 mb-3 border rounded-lg relative"
+                  >
                     <Button
                       type="button"
-                      variant="destructive"
-                      size="sm"
-                      onClick={() => removeDocReq(idx)}
-                      disabled={form.documents_requested.length === 1}
+                      size="icon"
+                      variant="ghost"
+                      className="absolute top-2 right-2"
+                      onClick={() => removeMainComm(commIdx)}
+                      disabled={mainForm.communications.length === 1}
                     >
-                      <Trash2 className="h-4 w-4 mr-2" /> Remove
+                      <Trash2 className="h-4 w-4 text-red-400" />
                     </Button>
-                  </div>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    {/* Requested ID */}
                     <div className="space-y-2">
-                      <Label>Requested ID</Label>
-                      <Input
-                        value={d.requested_id}
-                        onChange={(e) =>
-                          updateDocReq(idx, "requested_id", e.target.value)
-                        }
-                        className="h-9 bg-white border-gray-300"
-                      />
-                    </div>
-                    {/* From Date */}
-                    <div className="space-y-2">
-                      <Label>From Date</Label>
+                      <Label>Communication Date</Label>
                       <Input
                         type="date"
-                        value={d.from_date}
+                        value={c.date}
                         onChange={(e) =>
-                          updateDocReq(idx, "from_date", e.target.value)
+                          handleMainCommChange(commIdx, "date", e.target.value)
                         }
-                        className="h-9 bg-white border-gray-300"
+                        className="h-9 bg-gray-50 border-gray-300"
                       />
                     </div>
-                    {/* To Date */}
                     <div className="space-y-2">
-                      <Label>To Date</Label>
-                      <Input
-                        type="date"
-                        value={d.to_date}
-                        onChange={(e) =>
-                          updateDocReq(idx, "to_date", e.target.value)
+                      <Label>Mode of Communication</Label>
+                      <SearchableDropdown
+                        value={c.mode_id}
+                        options={meta.insurance_mode_of_communication}
+                        onSelect={(fieldName, value, popKey) =>
+                          handleMainCommSearchSelect(
+                            commIdx,
+                            fieldName,
+                            value,
+                            popKey
+                          )
                         }
-                        className="h-9 bg-white border-gray-300"
+                        placeholder="Select mode"
+                        popoverKey={`main_comm_mode_${commIdx}`}
+                        fieldName="mode_id"
+                        popoverOpen={popoverOpen}
+                        setPopoverOpen={setPopoverOpen}
                       />
                     </div>
-                    {/* Ambulance CNR */}
                     <div className="space-y-2">
-                      <Label>Ambulance CNR</Label>
+                      <Label>Documents Received</Label>
                       <Input
-                        value={d.ambulance_cnr}
+                        value={c.documents_received_id}
                         onChange={(e) =>
-                          updateDocReq(idx, "ambulance_cnr", e.target.value)
-                        }
-                        placeholder="CNR Ref No"
-                        className="h-9 bg-white border-gray-300"
-                      />
-                    </div>
-                    {/* Medical Clinic Name */}
-                    <div className="space-y-2">
-                      <Label>Medical Clinic Name</Label>
-                      <Input
-                        value={d.medical_clinic_name}
-                        onChange={(e) =>
-                          updateDocReq(
-                            idx,
-                            "medical_clinic_name",
+                          handleMainCommChange(
+                            commIdx,
+                            "documents_received_id",
                             e.target.value
                           )
                         }
-                        placeholder="Clinic Name"
-                        className="h-9 bg-white border-gray-300"
+                        className="h-9 bg-gray-50 border-gray-300"
+                        placeholder="Doc ID"
                       />
                     </div>
-                    {/* Phone */}
                     <div className="space-y-2">
-                      <Label>Phone</Label>
+                      <Label>1st Reminder</Label>
                       <Input
-                        value={d.phone}
+                        type="date"
+                        value={c.reminder}
                         onChange={(e) =>
-                          updateDocReq(idx, "phone", e.target.value)
+                          handleMainCommChange(
+                            commIdx,
+                            "reminder",
+                            e.target.value
+                          )
                         }
-                        placeholder="Phone"
-                        className="h-9 bg-white border-gray-300"
+                        className="h-9 bg-gray-50 border-gray-300"
                       />
-                    </div>
-                    {/* Fax */}
-                    <div className="space-y-2">
-                      <Label>Fax</Label>
-                      <Input
-                        value={d.fax}
-                        onChange={(e) =>
-                          updateDocReq(idx, "fax", e.target.value)
-                        }
-                        placeholder="Fax"
-                        className="h-9 bg-white border-gray-300"
-                      />
-                    </div>
-                    {/* Email */}
-                    <div className="space-y-2">
-                      <Label>Email</Label>
-                      <Input
-                        value={d.email}
-                        onChange={(e) =>
-                          updateDocReq(idx, "email", e.target.value)
-                        }
-                        placeholder="Email"
-                        className="h-9 bg-white border-gray-300"
-                      />
-                    </div>
-                    {/* Request Status */}
-                    <div className="space-y-2">
-                      <Label>Request Status</Label>
-                      <Select
-                        value={d.request_status_id?.toString() || ""}
-                        onValueChange={(val) =>
-                          updateDocReq(idx, "request_status_id", val)
-                        }
-                      >
-                        <SelectTrigger className="w-full h-11 bg-white border-gray-300">
-                          <SelectValue placeholder="Select status" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {meta.insurance_status?.map((opt) => (
-                            <SelectItem key={opt.id} value={opt.id.toString()}>
-                              {opt.name}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
                     </div>
                   </div>
-
-                  {/* Communications */}
-                  <div className="mt-6 pt-6 border-t border-gray-200">
-                    <div className="flex justify-between items-center mb-4">
-                      <span className="font-semibold text-gray-800">
-                        Communications
-                      </span>
-                      <Button
-                        type="button"
-                        size="sm"
-                        variant="outline"
-                        onClick={() => addComm(idx)}
-                      >
-                        <Plus className="h-4 w-4 mr-2" /> Add Communication
-                      </Button>
+                ))}
+              </div>
+            </>
+          )}
+          {/* Add Document Button */}
+          <div className="flex gap-4 mb-4">
+            <Button
+              type="button"
+              onClick={addDocReq}
+              variant="outline"
+              size="sm"
+            >
+              + Add Document
+            </Button>
+          </div>
+          {/* Additional Documents Blocks */}
+          {documentsRequested.map((doc, idx) => {
+            const selectedDocLabel =
+              getLabel(
+                doc.documents_requested_by_the_insurer_id,
+                meta.insurance_documents_requested_by_the_insurer
+              ) || "Ambulance CNR";
+            return (
+              <div key={idx} className="mb-8 border rounded-lg p-6 bg-gray-50">
+                <div className="flex items-center justify-between mb-2">
+                  <div className="font-bold">Document {idx + 2}</div>
+                  <Button
+                    type="button"
+                    variant="destructive"
+                    size="sm"
+                    onClick={() => removeDocReq(idx)}
+                  >
+                    <Trash2 className="h-4 w-4 mr-2" /> Remove
+                  </Button>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  <div className="space-y-2">
+                    <Label>Documents Requested by the Insurer</Label>
+                    <SearchableDropdown
+                      value={doc.documents_requested_by_the_insurer_id}
+                      options={
+                        meta.insurance_documents_requested_by_the_insurer
+                      }
+                      onSelect={(fieldName, value, popKey) =>
+                        handleDocSearchSelect(idx, fieldName, value, popKey)
+                      }
+                      placeholder="Select document"
+                      popoverKey={`requested_doc_${idx}`}
+                      fieldName="documents_requested_by_the_insurer_id"
+                      popoverOpen={popoverOpen}
+                      setPopoverOpen={setPopoverOpen}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>From</Label>
+                    <Input
+                      type="date"
+                      value={doc.from_date}
+                      onChange={(e) =>
+                        handleDocSearchSelect(idx, "from_date", e.target.value)
+                      }
+                      className="h-9 bg-gray-50 border-gray-300"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>To</Label>
+                    <Input
+                      type="date"
+                      value={doc.to_date}
+                      onChange={(e) =>
+                        handleDocSearchSelect(idx, "to_date", e.target.value)
+                      }
+                      className="h-9 bg-gray-50 border-gray-300"
+                    />
+                  </div>
+                </div>
+                {doc.expanded && (
+                  <>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-4">
+                      <div className="space-y-2">
+                        <Label>{selectedDocLabel}</Label>
+                        <Input
+                          value={doc.ambulance_cnr}
+                          onChange={(e) =>
+                            handleDocSearchSelect(
+                              idx,
+                              "ambulance_cnr",
+                              e.target.value
+                            )
+                          }
+                          className="h-9 bg-gray-50 border-gray-300"
+                          placeholder={`${selectedDocLabel} Ref No`}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label>Medical Clinic Name</Label>
+                        <Input
+                          value={doc.medical_clinic_name}
+                          onChange={(e) =>
+                            handleDocSearchSelect(
+                              idx,
+                              "medical_clinic_name",
+                              e.target.value
+                            )
+                          }
+                          className="h-9 bg-gray-50 border-gray-300"
+                          placeholder="Clinic Name"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label>Phone</Label>
+                        <Input
+                          value={doc.phone}
+                          onChange={(e) =>
+                            handleDocSearchSelect(idx, "phone", e.target.value)
+                          }
+                          className="h-9 bg-gray-50 border-gray-300"
+                          placeholder="Phone"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label>Fax</Label>
+                        <Input
+                          value={doc.fax}
+                          onChange={(e) =>
+                            handleDocSearchSelect(idx, "fax", e.target.value)
+                          }
+                          className="h-9 bg-gray-50 border-gray-300"
+                          placeholder="Fax"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label>Email</Label>
+                        <Input
+                          value={doc.email}
+                          onChange={(e) =>
+                            handleDocSearchSelect(idx, "email", e.target.value)
+                          }
+                          className="h-9 bg-gray-50 border-gray-300"
+                          placeholder="Email"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label>Request Status</Label>
+                        <SearchableDropdown
+                          value={doc.request_status_id}
+                          options={meta.insurance_status}
+                          onSelect={(fieldName, value, popKey) =>
+                            handleDocSearchSelect(idx, fieldName, value, popKey)
+                          }
+                          placeholder="Select status"
+                          popoverKey={`doc_request_status_${idx}`}
+                          fieldName="request_status_id"
+                          popoverOpen={popoverOpen}
+                          setPopoverOpen={setPopoverOpen}
+                        />
+                      </div>
                     </div>
-                    {d.communications.map((c, commIdx) => (
-                      <div
-                        key={commIdx}
-                        className="border border-gray-200 p-4 rounded-lg mb-3 bg-white relative"
-                      >
+                    <div className="mt-6">
+                      <div className="flex justify-between items-center mb-2">
+                        <span className="font-semibold">Communications</span>
                         <Button
                           type="button"
-                          size="icon"
-                          variant="ghost"
-                          className="absolute top-2 right-2"
-                          onClick={() => removeComm(idx, commIdx)}
-                          disabled={d.communications.length === 1}
+                          size="sm"
+                          variant="outline"
+                          onClick={() => addComm(idx)}
                         >
-                          <Trash2 className="h-4 w-4 text-red-400" />
+                          <Plus className="h-4 w-4 mr-2" /> Add Communication
                         </Button>
-                        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 pr-10">
+                      </div>
+                      {doc.communications.map((c, commIdx) => (
+                        <div
+                          key={commIdx}
+                          className="grid grid-cols-1 md:grid-cols-4 gap-4 bg-white p-4 mb-3 border rounded-lg relative"
+                        >
+                          <Button
+                            type="button"
+                            size="icon"
+                            variant="ghost"
+                            className="absolute top-2 right-2"
+                            onClick={() => removeComm(idx, commIdx)}
+                            disabled={doc.communications.length === 1}
+                          >
+                            <Trash2 className="h-4 w-4 text-red-400" />
+                          </Button>
                           <div className="space-y-2">
-                            <Label>Date</Label>
+                            <Label>Communication Date</Label>
                             <Input
                               type="date"
                               value={c.date}
                               onChange={(e) =>
-                                updateComm(idx, commIdx, "date", e.target.value)
+                                handleCommChange(
+                                  idx,
+                                  commIdx,
+                                  "date",
+                                  e.target.value
+                                )
                               }
                               className="h-9 bg-gray-50 border-gray-300"
                             />
                           </div>
                           <div className="space-y-2">
-                            <Label>Mode</Label>
-                            <Select
-                              value={c.mode_id?.toString() || ""}
-                              onValueChange={(val) =>
-                                updateComm(idx, commIdx, "mode_id", val)
+                            <Label>Mode of Communication</Label>
+                            <SearchableDropdown
+                              value={c.mode_id}
+                              options={meta.insurance_mode_of_communication}
+                              onSelect={(fieldName, value, popKey) =>
+                                handleCommSearchSelect(
+                                  idx,
+                                  commIdx,
+                                  fieldName,
+                                  value,
+                                  popKey
+                                )
                               }
-                            >
-                              <SelectTrigger className="w-full h-11 bg-gray-50 border-gray-300">
-                                <SelectValue placeholder="Select mode" />
-                              </SelectTrigger>
-                              <SelectContent>
-                                {meta.insurance_mode_of_communication?.map(
-                                  (opt) => (
-                                    <SelectItem
-                                      key={opt.id}
-                                      value={opt.id.toString()}
-                                    >
-                                      {opt.name}
-                                    </SelectItem>
-                                  )
-                                )}
-                              </SelectContent>
-                            </Select>
+                              placeholder="Select mode"
+                              popoverKey={`doc_comm_mode_${idx}_${commIdx}`}
+                              fieldName="mode_id"
+                              popoverOpen={popoverOpen}
+                              setPopoverOpen={setPopoverOpen}
+                            />
                           </div>
                           <div className="space-y-2">
-                            <Label>Documents Received ID</Label>
+                            <Label>Documents Received</Label>
                             <Input
                               value={c.documents_received_id}
                               onChange={(e) =>
-                                updateComm(
+                                handleCommChange(
                                   idx,
                                   commIdx,
                                   "documents_received_id",
                                   e.target.value
                                 )
                               }
-                              placeholder="Doc ID"
                               className="h-9 bg-gray-50 border-gray-300"
+                              placeholder="Doc ID"
                             />
                           </div>
                           <div className="space-y-2">
-                            <Label>Reminder</Label>
+                            <Label>1st Reminder</Label>
                             <Input
                               type="date"
                               value={c.reminder}
                               onChange={(e) =>
-                                updateComm(
+                                handleCommChange(
                                   idx,
                                   commIdx,
                                   "reminder",
@@ -698,40 +918,82 @@ export default function Section33() {
                             />
                           </div>
                         </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            {/* Submit buttons */}
-            <div className="flex justify-end gap-4 pt-6 border-t">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => navigate(-1)}
-                disabled={mutation.isPending}
-                size="lg"
-              >
-                Cancel
-              </Button>
-              <Button type="submit" disabled={mutation.isPending} size="lg">
-                {mutation.isPending ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    {isEditMode ? "Updating..." : "Saving..."}
+                      ))}
+                    </div>
                   </>
-                ) : isEditMode ? (
-                  "Update Section 33"
-                ) : (
-                  "Save Section 33"
                 )}
-              </Button>
+              </div>
+            );
+          })}
+          {/* Bottom fields */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
+            <div className="space-y-2">
+              <Label>Deadline</Label>
+              <Input
+                type="date"
+                name="deadline"
+                value={mainForm.deadline}
+                onChange={(e) =>
+                  setMainForm((p) => ({ ...p, deadline: e.target.value }))
+                }
+                className="h-9 bg-gray-50 border-gray-300"
+              />
             </div>
-          </form>
+            <div className="space-y-2">
+              <Label>Response to Insurance</Label>
+              <Input
+                type="date"
+                name="response_to_insurance"
+                value={mainForm.response_to_insurance}
+                onChange={(e) =>
+                  setMainForm((p) => ({
+                    ...p,
+                    response_to_insurance: e.target.value,
+                  }))
+                }
+                className="h-9 bg-gray-50 border-gray-300"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>S33 REQ Status</Label>
+              <SearchableDropdown
+                value={mainForm.s33_req_status_id}
+                options={meta.insurance_status}
+                onSelect={handleMainSearchSelect}
+                placeholder="Select status"
+                popoverKey="main_s33_req_status"
+                fieldName="s33_req_status_id"
+                popoverOpen={popoverOpen}
+                setPopoverOpen={setPopoverOpen}
+              />
+            </div>
+          </div>
+          {/* Submit Buttons */}
+          <div className="flex justify-end gap-4 pt-6 border-t">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => navigate(-1)}
+              disabled={mutation.isPending}
+              size="lg"
+            >
+              Cancel
+            </Button>
+            <Button type="submit" disabled={mutation.isPending} size="lg">
+              {mutation.isPending ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  {isEditMode ? "Updating..." : "Saving..."}
+                </>
+              ) : isEditMode ? (
+                "Update Section 33"
+              ) : (
+                "Save Section 33"
+              )}
+            </Button>
+          </div>
         </div>
-      </div>
+      </form>
     </div>
   );
 }

@@ -54,4 +54,5 @@ export const endpoints = {
     "api/v2/file/accident-benefits/section-33/delete-communication",
   deleteSectiondocument:
     "api/v2/file/accident-benefits/section-33/delete-document",
+  latList: "api/v2/file/accident-benefits/lat/list",
 };

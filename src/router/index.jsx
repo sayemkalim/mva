@@ -27,6 +27,7 @@ import Vehicle from "@/pages/vechile/vechile_editor";
 import Section from "@/pages/section33";
 import SectionEditor from "@/pages/section33/components/section33_editor";
 import Section33 from "@/pages/section33/components/section33_editor";
+import Lat from "@/pages/lat";
 
 const Router = () => {
   return (
@@ -96,7 +97,10 @@ const Router = () => {
           />
           <Route path="/dashboard/section/:id" element={<Section33 />} />
           <Route path="/dashboard/section/add/:slug" element={<Section33 />} />
-
+          <Route
+            path="/dashboard/workstation/edit/:slug/lat"
+            element={<Lat />}
+          />
           <Route path="/dashboard/contact-us" element={<ContactUs />} />
         </Route>
       </Route>
