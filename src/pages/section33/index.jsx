@@ -26,7 +26,7 @@ const Section = () => {
   };
 
   const onAdd = () => {
-    navigate("/dashboard/section/add");
+    navigate(`/dashboard/section/add/${slug}`);
   };
 
   const onRowsPerPageChange = (newRowsPerPage) => {

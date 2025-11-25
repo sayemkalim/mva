@@ -6,19 +6,33 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Loader2, ChevronRight, Upload, X, Eye } from "lucide-react";
+import {
+  Popover,
+  PopoverTrigger,
+  PopoverContent,
+} from "@/components/ui/popover";
+import {
+  Command,
+  CommandInput,
+  CommandList,
+  CommandEmpty,
+  CommandItem,
+  CommandGroup,
+} from "@/components/ui/command";
+import {
+  Loader2,
+  ChevronRight,
+  Upload,
+  X,
+  Eye,
+  ChevronsUpDown,
+  Check,
+} from "lucide-react";
 import { toast } from "sonner";
 import { uploadAttachment } from "../helpers/uploadAttachment";
 import { getABMeta } from "../helpers/fetchABMeta";
@@ -50,7 +64,6 @@ export default function Vehicle() {
     queryKey: ["vehicle", slug],
     queryFn: async () => {
       if (!slug) return null;
-
       try {
         const data = await fetchVechileBySlug(slug);
         return data;
@@ -125,6 +138,11 @@ export default function Vehicle() {
     isOpen: false,
     image: null,
     title: "",
+  });
+
+  // Popover open state for searchable dropdown
+  const [popoverOpen, setPopoverOpen] = useState({
+    driver_licence_same_as_applicant_id: false,
   });
 
   useEffect(() => {
@@ -305,6 +323,70 @@ export default function Vehicle() {
     return option ? option.name : "";
   };
 
+  // --- Inline SearchableDropdown component ---
+  const SearchableDropdown = ({
+    value,
+    options,
+    onSelect,
+    placeholder,
+    popoverKey,
+    fieldName,
+    popoverOpen,
+    setPopoverOpen,
+  }) => {
+    const selectedOption = options?.find((opt) => opt.id === value);
+
+    return (
+      <Popover
+        open={popoverOpen[popoverKey]}
+        onOpenChange={(open) =>
+          setPopoverOpen((p) => ({ ...p, [popoverKey]: open }))
+        }
+      >
+        <PopoverTrigger asChild>
+          <Button
+            variant="outline"
+            role="combobox"
+            className="w-full justify-between font-normal bg-gray-50"
+            type="button"
+          >
+            {selectedOption ? selectedOption.name : placeholder}
+            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent
+          className="w-[var(--radix-popover-trigger-width)] p-0"
+          align="start"
+        >
+          <Command>
+            <CommandInput placeholder="Search..." autoFocus />
+            <CommandList>
+              <CommandEmpty>No results found.</CommandEmpty>
+              <CommandGroup>
+                {options?.map((opt) => (
+                  <CommandItem
+                    key={opt.id}
+                    value={opt.name}
+                    onSelect={() => onSelect(fieldName, opt.id, popoverKey)}
+                    className="cursor-pointer flex items-center"
+                  >
+                    <Check
+                      className={`mr-2 h-4 w-4 ${
+                        value === opt.id ? "opacity-100" : "opacity-0"
+                      }`}
+                    />
+                    {opt.name}
+                  </CommandItem>
+                ))}
+              </CommandGroup>
+            </CommandList>
+          </Command>
+        </PopoverContent>
+      </Popover>
+    );
+  };
+  // --- End Inline SearchableDropdown component ---
+
   const ImageUploadBox = ({ side, label }) => (
     <div className="space-y-2">
       <Label className="text-gray-700 font-medium">{label}</Label>
@@ -432,9 +514,6 @@ export default function Vehicle() {
             <h1 className="text-2xl font-bold text-gray-900 uppercase">
               Vehicle Information
             </h1>
-            {/* <Button type="button" variant="destructive" onClick={handleDelete}>
-              Delete Vehicle
-            </Button> */}
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-8">
@@ -462,7 +541,6 @@ export default function Vehicle() {
                     className="h-9 bg-gray-50 border-gray-300"
                   />
                 </div>
-
                 {/* Vehicle Name */}
                 <div className="space-y-2">
                   <Label htmlFor="name" className="text-gray-700 font-medium">
@@ -477,7 +555,6 @@ export default function Vehicle() {
                     className="h-9 bg-gray-50 border-gray-300"
                   />
                 </div>
-
                 {/* Province */}
                 <div className="space-y-2">
                   <Label
@@ -495,7 +572,6 @@ export default function Vehicle() {
                     className="h-9 bg-gray-50 border-gray-300"
                   />
                 </div>
-
                 {/* Vehicle Year */}
                 <div className="space-y-2">
                   <Label
@@ -513,7 +589,6 @@ export default function Vehicle() {
                     className="h-9 bg-gray-50 border-gray-300"
                   />
                 </div>
-
                 {/* Vehicle Make */}
                 <div className="space-y-2">
                   <Label
@@ -531,7 +606,6 @@ export default function Vehicle() {
                     className="h-9 bg-gray-50 border-gray-300"
                   />
                 </div>
-
                 {/* Vehicle Model */}
                 <div className="space-y-2">
                   <Label
@@ -549,7 +623,6 @@ export default function Vehicle() {
                     className="h-9 bg-gray-50 border-gray-300"
                   />
                 </div>
-
                 {/* Vehicle Color */}
                 <div className="space-y-2">
                   <Label
@@ -567,8 +640,7 @@ export default function Vehicle() {
                     className="h-9 bg-gray-50 border-gray-300"
                   />
                 </div>
-
-                {/* Driver Licence Same as Applicant */}
+                {/* Driver Licence Same as Applicant (Searchable Dropdown) */}
                 <div className="space-y-2">
                   <Label
                     htmlFor="driver_licence_same_as_applicant_id"
@@ -576,37 +648,19 @@ export default function Vehicle() {
                   >
                     Driver Licence Same as Applicant
                   </Label>
-                  <Select
-                    value={
-                      formData.driver_licence_same_as_applicant_id?.toString() ||
-                      ""
-                    }
-                    onValueChange={(value) =>
-                      handleSelectChange(
-                        "driver_licence_same_as_applicant_id",
-                        value
-                      )
-                    }
-                  >
-                    <SelectTrigger className="w-full h-11 bg-gray-50 border-gray-300">
-                      <SelectValue placeholder="Select option">
-                        {getSelectedOptionName(
-                          formData.driver_licence_same_as_applicant_id,
-                          metadata?.yes_no_option
-                        ) || "Select option"}
-                      </SelectValue>
-                    </SelectTrigger>
-                    <SelectContent>
-                      {metadata?.yes_no_option?.map((option) => (
-                        <SelectItem
-                          key={option.id}
-                          value={option.id.toString()}
-                        >
-                          {option.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <SearchableDropdown
+                    value={formData.driver_licence_same_as_applicant_id}
+                    options={metadata?.yes_no_option}
+                    onSelect={(fieldName, id, key) => {
+                      handleSelectChange(fieldName, id);
+                      setPopoverOpen((prev) => ({ ...prev, [key]: false }));
+                    }}
+                    placeholder="Select option"
+                    popoverKey="driver_licence_same_as_applicant_id"
+                    fieldName="driver_licence_same_as_applicant_id"
+                    popoverOpen={popoverOpen}
+                    setPopoverOpen={setPopoverOpen}
+                  />
                 </div>
               </div>
             </div>
@@ -616,7 +670,6 @@ export default function Vehicle() {
               <h2 className="text-xl font-semibold text-gray-900">
                 Vehicle Images
               </h2>
-
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <ImageUploadBox side="front_side" label="Front Side" />
                 <ImageUploadBox side="back_side" label="Back Side" />

@@ -5,25 +5,96 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { Loader2, ChevronRight } from "lucide-react";
+import { Loader2, ChevronRight, ChevronsUpDown, Check } from "lucide-react";
 import { toast } from "sonner";
 import { getAccidentInfoMeta } from "../helpers/fetchAccidentInfoMetadata";
 import { fetchAccidentInfoBySlug } from "../helpers/fetchAccidentInfoBySlug";
 import { createAccidentInfo } from "../helpers/createAccidentInfo";
 import { Navbar2 } from "@/components/navbar2";
 
+import {
+  Popover,
+  PopoverTrigger,
+  PopoverContent,
+} from "@/components/ui/popover";
+import {
+  Command,
+  CommandInput,
+  CommandList,
+  CommandEmpty,
+  CommandGroup,
+  CommandItem,
+} from "@/components/ui/command";
+
+// ✅ Reusable Searchable Dropdown
+const SearchableDropdown = ({
+  value,
+  options,
+  onSelect,
+  placeholder,
+  popoverKey,
+  fieldName,
+  popoverOpen,
+  setPopoverOpen,
+}) => {
+  const selectedOption = options?.find((opt) => opt.id === value);
+
+  return (
+    <Popover
+      open={popoverOpen[popoverKey]}
+      onOpenChange={(open) =>
+        setPopoverOpen((p) => ({ ...p, [popoverKey]: open }))
+      }
+    >
+      <PopoverTrigger asChild>
+        <Button
+          variant="outline"
+          role="combobox"
+          className="w-full justify-between font-normal bg-gray-50"
+          type="button"
+        >
+          {selectedOption ? selectedOption.name : placeholder}
+          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent
+        className="w-[var(--radix-popover-trigger-width)] p-0"
+        align="start"
+      >
+        <Command>
+          <CommandInput placeholder="Search..." autoFocus />
+          <CommandList>
+            <CommandEmpty>No results found.</CommandEmpty>
+            <CommandGroup>
+              {options?.map((opt) => (
+                <CommandItem
+                  key={opt.id}
+                  value={opt.name}
+                  onSelect={() => onSelect(fieldName, opt.id, popoverKey)}
+                  className="cursor-pointer flex items-center"
+                >
+                  <Check
+                    className={`mr-2 h-4 w-4 ${
+                      value === opt.id ? "opacity-100" : "opacity-0"
+                    }`}
+                  />
+                  {opt.name}
+                </CommandItem>
+              ))}
+            </CommandGroup>
+          </CommandList>
+        </Command>
+      </PopoverContent>
+    </Popover>
+  );
+};
+
 export default function AccidentalInformation() {
   const { slug } = useParams();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+
   const {
     data: apiResponse,
     isLoading: isLoadingMetadata,
@@ -37,12 +108,12 @@ export default function AccidentalInformation() {
   });
 
   const metadata = apiResponse?.response || {};
+
   const { data: accidentalInfoData, isLoading: isLoadingAccidentalInfo } =
     useQuery({
       queryKey: ["accidentalInfo", slug],
       queryFn: async () => {
         if (!slug) return null;
-
         try {
           const data = await fetchAccidentInfoBySlug(slug);
           return data;
@@ -60,17 +131,17 @@ export default function AccidentalInformation() {
       staleTime: 5 * 60 * 1000,
       retry: 1,
     });
+
   const createMutation = useMutation({
     mutationFn: createAccidentInfo,
     onSuccess: (apiResponse) => {
       console.log("✅ Success Response:", apiResponse);
-
       if (apiResponse?.response?.Apistatus) {
         toast.success("Accidental information saved successfully!");
         // navigate(`/dashboard/workstation/edit/${slug}/next-page`);
       }
     },
-    onError: (error) => {
+    onError: () => {
       toast.error("Failed to save information. Please try again.");
     },
   });
@@ -99,16 +170,29 @@ export default function AccidentalInformation() {
     badge_no: "",
     date_accident_reported_to_the_police: "",
   });
+
+  // ✅ Popover open state for all searchable dropdowns
+  const [popoverOpen, setPopoverOpen] = useState({
+    day_of_accident_id: false,
+    applicant_werea_id: false,
+    accident_occur_while_you_were_id: false,
+    workplace_safety_and_insurance_board_id: false,
+    reported_to_police: false,
+    Seatbelted_id: false,
+    client_at_fault_id: false,
+    ticket_wlsb_id: false,
+    tparty_charge_id: false,
+  });
+
   useEffect(() => {
     if (!slug) {
       toast.error("Invalid URL - Slug not found!");
       navigate("/dashboard/workstation");
     }
   }, [slug, navigate]);
+
   useEffect(() => {
     if (accidentalInfoData) {
-      console.log("📝 Populating form with existing data:", accidentalInfoData);
-
       setFormData({
         date_of_accident: accidentalInfoData.date_of_accident || "",
         day_of_accident_id: accidentalInfoData.day_of_accident_id || null,
@@ -137,10 +221,6 @@ export default function AccidentalInformation() {
         date_accident_reported_to_the_police:
           accidentalInfoData.date_accident_reported_to_the_police || "",
       });
-
-      // toast.success("Data loaded successfully!");
-    } else {
-      console.log("📝 No existing data - showing empty form");
     }
   }, [accidentalInfoData]);
 
@@ -159,10 +239,15 @@ export default function AccidentalInformation() {
     }));
   };
 
+  // ✅ Wrapper used by SearchableDropdown
+  const handleDropdownSelect = (fieldName, id, popoverKey) => {
+    handleSelectChange(fieldName, id);
+    setPopoverOpen((prev) => ({ ...prev, [popoverKey]: false }));
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Build payload
     const payload = {
       date_of_accident: formData.date_of_accident || null,
       day_of_accident_id: formData.day_of_accident_id || null,
@@ -201,6 +286,7 @@ export default function AccidentalInformation() {
       data: payload,
     });
   };
+
   if (isLoadingMetadata || isLoadingAccidentalInfo) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -209,6 +295,7 @@ export default function AccidentalInformation() {
       </div>
     );
   }
+
   if (isMetadataError) {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen gap-4">
@@ -236,12 +323,6 @@ export default function AccidentalInformation() {
       </div>
     );
   }
-
-  const getSelectedOptionName = (fieldValue, optionsArray) => {
-    if (!fieldValue || !optionsArray) return "";
-    const option = optionsArray.find((opt) => opt.id === fieldValue);
-    return option ? option.name : "";
-  };
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -319,7 +400,7 @@ export default function AccidentalInformation() {
                   />
                 </div>
 
-                {/* Day of Accident - ✅ FIXED */}
+                {/* Day of Accident - Searchable */}
                 <div className="space-y-2">
                   <Label
                     htmlFor="day_of_accident_id"
@@ -327,31 +408,16 @@ export default function AccidentalInformation() {
                   >
                     Day of Accident
                   </Label>
-                  <Select
-                    value={formData.day_of_accident_id?.toString() || ""}
-                    onValueChange={(value) =>
-                      handleSelectChange("day_of_accident_id", value)
-                    }
-                  >
-                    <SelectTrigger className="bg-gray-50 border-gray-300">
-                      <SelectValue placeholder="Select day">
-                        {getSelectedOptionName(
-                          formData.day_of_accident_id,
-                          metadata?.accident_day
-                        ) || "Select day"}
-                      </SelectValue>
-                    </SelectTrigger>
-                    <SelectContent>
-                      {metadata?.accident_day?.map((option) => (
-                        <SelectItem
-                          key={option.id}
-                          value={option.id.toString()}
-                        >
-                          {option.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <SearchableDropdown
+                    value={formData.day_of_accident_id}
+                    options={metadata?.accident_day}
+                    onSelect={handleDropdownSelect}
+                    placeholder="Select day"
+                    popoverKey="day_of_accident_id"
+                    fieldName="day_of_accident_id"
+                    popoverOpen={popoverOpen}
+                    setPopoverOpen={setPopoverOpen}
+                  />
                 </div>
 
                 {/* Time of Accident */}
@@ -372,7 +438,7 @@ export default function AccidentalInformation() {
                   />
                 </div>
 
-                {/* Applicant Were A - ✅ FIXED */}
+                {/* Applicant Were A - Searchable */}
                 <div className="space-y-2">
                   <Label
                     htmlFor="applicant_werea_id"
@@ -380,33 +446,16 @@ export default function AccidentalInformation() {
                   >
                     Applicant Were A
                   </Label>
-                  <Select
-                    value={formData.applicant_werea_id?.toString() || ""}
-                    onValueChange={(value) =>
-                      handleSelectChange("applicant_werea_id", value)
-                    }
-                  >
-                    <SelectTrigger className="bg-gray-50 border-gray-300">
-                      <SelectValue placeholder="Select type">
-                        {getSelectedOptionName(
-                          formData.applicant_werea_id,
-                          metadata?.accident_detail_applicant_were_a
-                        ) || "Select type"}
-                      </SelectValue>
-                    </SelectTrigger>
-                    <SelectContent>
-                      {metadata?.accident_detail_applicant_were_a?.map(
-                        (option) => (
-                          <SelectItem
-                            key={option.id}
-                            value={option.id.toString()}
-                          >
-                            {option.name}
-                          </SelectItem>
-                        )
-                      )}
-                    </SelectContent>
-                  </Select>
+                  <SearchableDropdown
+                    value={formData.applicant_werea_id}
+                    options={metadata?.accident_detail_applicant_were_a}
+                    onSelect={handleDropdownSelect}
+                    placeholder="Select type"
+                    popoverKey="applicant_werea_id"
+                    fieldName="applicant_werea_id"
+                    popoverOpen={popoverOpen}
+                    setPopoverOpen={setPopoverOpen}
+                  />
                 </div>
 
                 {/* Accident Location */}
@@ -488,7 +537,7 @@ export default function AccidentalInformation() {
               </h2>
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                {/* Accident Occur While You Were - ✅ FIXED */}
+                {/* Accident Occur While You Were - Searchable Yes/No */}
                 <div className="space-y-2">
                   <Label
                     htmlFor="accident_occur_while_you_were_id"
@@ -496,40 +545,19 @@ export default function AccidentalInformation() {
                   >
                     Accident Occur While You Were
                   </Label>
-                  <Select
-                    value={
-                      formData.accident_occur_while_you_were_id?.toString() ||
-                      ""
-                    }
-                    onValueChange={(value) =>
-                      handleSelectChange(
-                        "accident_occur_while_you_were_id",
-                        value
-                      )
-                    }
-                  >
-                    <SelectTrigger className="bg-gray-50 border-gray-300">
-                      <SelectValue placeholder="Select option">
-                        {getSelectedOptionName(
-                          formData.accident_occur_while_you_were_id,
-                          metadata?.yes_no_option
-                        ) || "Select option"}
-                      </SelectValue>
-                    </SelectTrigger>
-                    <SelectContent>
-                      {metadata?.yes_no_option?.map((option) => (
-                        <SelectItem
-                          key={option.id}
-                          value={option.id.toString()}
-                        >
-                          {option.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <SearchableDropdown
+                    value={formData.accident_occur_while_you_were_id}
+                    options={metadata?.yes_no_option}
+                    onSelect={handleDropdownSelect}
+                    placeholder="Select option"
+                    popoverKey="accident_occur_while_you_were_id"
+                    fieldName="accident_occur_while_you_were_id"
+                    popoverOpen={popoverOpen}
+                    setPopoverOpen={setPopoverOpen}
+                  />
                 </div>
 
-                {/* Workplace Safety and Insurance Board - ✅ FIXED */}
+                {/* Workplace Safety & Insurance Board - Searchable Yes/No */}
                 <div className="space-y-2">
                   <Label
                     htmlFor="workplace_safety_and_insurance_board_id"
@@ -537,40 +565,19 @@ export default function AccidentalInformation() {
                   >
                     Workplace Safety & Insurance Board
                   </Label>
-                  <Select
-                    value={
-                      formData.workplace_safety_and_insurance_board_id?.toString() ||
-                      ""
-                    }
-                    onValueChange={(value) =>
-                      handleSelectChange(
-                        "workplace_safety_and_insurance_board_id",
-                        value
-                      )
-                    }
-                  >
-                    <SelectTrigger className="bg-gray-50 border-gray-300">
-                      <SelectValue placeholder="Select option">
-                        {getSelectedOptionName(
-                          formData.workplace_safety_and_insurance_board_id,
-                          metadata?.yes_no_option
-                        ) || "Select option"}
-                      </SelectValue>
-                    </SelectTrigger>
-                    <SelectContent>
-                      {metadata?.yes_no_option?.map((option) => (
-                        <SelectItem
-                          key={option.id}
-                          value={option.id.toString()}
-                        >
-                          {option.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <SearchableDropdown
+                    value={formData.workplace_safety_and_insurance_board_id}
+                    options={metadata?.yes_no_option}
+                    onSelect={handleDropdownSelect}
+                    placeholder="Select option"
+                    popoverKey="workplace_safety_and_insurance_board_id"
+                    fieldName="workplace_safety_and_insurance_board_id"
+                    popoverOpen={popoverOpen}
+                    setPopoverOpen={setPopoverOpen}
+                  />
                 </div>
 
-                {/* Reported to Police - ✅ FIXED */}
+                {/* Reported to Police - Searchable Yes/No */}
                 <div className="space-y-2">
                   <Label
                     htmlFor="reported_to_police"
@@ -578,34 +585,19 @@ export default function AccidentalInformation() {
                   >
                     Reported to Police
                   </Label>
-                  <Select
-                    value={formData.reported_to_police?.toString() || ""}
-                    onValueChange={(value) =>
-                      handleSelectChange("reported_to_police", value)
-                    }
-                  >
-                    <SelectTrigger className="bg-gray-50 border-gray-300">
-                      <SelectValue placeholder="Select option">
-                        {getSelectedOptionName(
-                          formData.reported_to_police,
-                          metadata?.yes_no_option
-                        ) || "Select option"}
-                      </SelectValue>
-                    </SelectTrigger>
-                    <SelectContent>
-                      {metadata?.yes_no_option?.map((option) => (
-                        <SelectItem
-                          key={option.id}
-                          value={option.id.toString()}
-                        >
-                          {option.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <SearchableDropdown
+                    value={formData.reported_to_police}
+                    options={metadata?.yes_no_option}
+                    onSelect={handleDropdownSelect}
+                    placeholder="Select option"
+                    popoverKey="reported_to_police"
+                    fieldName="reported_to_police"
+                    popoverOpen={popoverOpen}
+                    setPopoverOpen={setPopoverOpen}
+                  />
                 </div>
 
-                {/* Seatbelted - ✅ FIXED */}
+                {/* Seatbelted - Searchable Yes/No */}
                 <div className="space-y-2">
                   <Label
                     htmlFor="Seatbelted_id"
@@ -613,31 +605,16 @@ export default function AccidentalInformation() {
                   >
                     Seatbelted
                   </Label>
-                  <Select
-                    value={formData.Seatbelted_id?.toString() || ""}
-                    onValueChange={(value) =>
-                      handleSelectChange("Seatbelted_id", value)
-                    }
-                  >
-                    <SelectTrigger className="bg-gray-50 border-gray-300">
-                      <SelectValue placeholder="Select option">
-                        {getSelectedOptionName(
-                          formData.Seatbelted_id,
-                          metadata?.yes_no_option
-                        ) || "Select option"}
-                      </SelectValue>
-                    </SelectTrigger>
-                    <SelectContent>
-                      {metadata?.yes_no_option?.map((option) => (
-                        <SelectItem
-                          key={option.id}
-                          value={option.id.toString()}
-                        >
-                          {option.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <SearchableDropdown
+                    value={formData.Seatbelted_id}
+                    options={metadata?.yes_no_option}
+                    onSelect={handleDropdownSelect}
+                    placeholder="Select option"
+                    popoverKey="Seatbelted_id"
+                    fieldName="Seatbelted_id"
+                    popoverOpen={popoverOpen}
+                    setPopoverOpen={setPopoverOpen}
+                  />
                 </div>
 
                 {/* Seating Arrangement */}
@@ -682,7 +659,7 @@ export default function AccidentalInformation() {
               </h2>
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                {/* Client at Fault - ✅ FIXED */}
+                {/* Client at Fault - Searchable Yes/No */}
                 <div className="space-y-2">
                   <Label
                     htmlFor="client_at_fault_id"
@@ -690,34 +667,19 @@ export default function AccidentalInformation() {
                   >
                     Client at Fault
                   </Label>
-                  <Select
-                    value={formData.client_at_fault_id?.toString() || ""}
-                    onValueChange={(value) =>
-                      handleSelectChange("client_at_fault_id", value)
-                    }
-                  >
-                    <SelectTrigger className="bg-gray-50 border-gray-300">
-                      <SelectValue placeholder="Select option">
-                        {getSelectedOptionName(
-                          formData.client_at_fault_id,
-                          metadata?.yes_no_option
-                        ) || "Select option"}
-                      </SelectValue>
-                    </SelectTrigger>
-                    <SelectContent>
-                      {metadata?.yes_no_option?.map((option) => (
-                        <SelectItem
-                          key={option.id}
-                          value={option.id.toString()}
-                        >
-                          {option.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <SearchableDropdown
+                    value={formData.client_at_fault_id}
+                    options={metadata?.yes_no_option}
+                    onSelect={handleDropdownSelect}
+                    placeholder="Select option"
+                    popoverKey="client_at_fault_id"
+                    fieldName="client_at_fault_id"
+                    popoverOpen={popoverOpen}
+                    setPopoverOpen={setPopoverOpen}
+                  />
                 </div>
 
-                {/* Ticket WLSB - ✅ FIXED */}
+                {/* Ticket WLSB - Searchable Yes/No */}
                 <div className="space-y-2">
                   <Label
                     htmlFor="ticket_wlsb_id"
@@ -725,34 +687,19 @@ export default function AccidentalInformation() {
                   >
                     Ticket WLSB
                   </Label>
-                  <Select
-                    value={formData.ticket_wlsb_id?.toString() || ""}
-                    onValueChange={(value) =>
-                      handleSelectChange("ticket_wlsb_id", value)
-                    }
-                  >
-                    <SelectTrigger className="bg-gray-50 border-gray-300">
-                      <SelectValue placeholder="Select option">
-                        {getSelectedOptionName(
-                          formData.ticket_wlsb_id,
-                          metadata?.yes_no_option
-                        ) || "Select option"}
-                      </SelectValue>
-                    </SelectTrigger>
-                    <SelectContent>
-                      {metadata?.yes_no_option?.map((option) => (
-                        <SelectItem
-                          key={option.id}
-                          value={option.id.toString()}
-                        >
-                          {option.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <SearchableDropdown
+                    value={formData.ticket_wlsb_id}
+                    options={metadata?.yes_no_option}
+                    onSelect={handleDropdownSelect}
+                    placeholder="Select option"
+                    popoverKey="ticket_wlsb_id"
+                    fieldName="ticket_wlsb_id"
+                    popoverOpen={popoverOpen}
+                    setPopoverOpen={setPopoverOpen}
+                  />
                 </div>
 
-                {/* Third Party Charge - ✅ FIXED */}
+                {/* Third Party Charge - Searchable Yes/No */}
                 <div className="space-y-2">
                   <Label
                     htmlFor="tparty_charge_id"
@@ -760,31 +707,16 @@ export default function AccidentalInformation() {
                   >
                     Third Party Charge
                   </Label>
-                  <Select
-                    value={formData.tparty_charge_id?.toString() || ""}
-                    onValueChange={(value) =>
-                      handleSelectChange("tparty_charge_id", value)
-                    }
-                  >
-                    <SelectTrigger className="bg-gray-50 border-gray-300">
-                      <SelectValue placeholder="Select option">
-                        {getSelectedOptionName(
-                          formData.tparty_charge_id,
-                          metadata?.yes_no_option
-                        ) || "Select option"}
-                      </SelectValue>
-                    </SelectTrigger>
-                    <SelectContent>
-                      {metadata?.yes_no_option?.map((option) => (
-                        <SelectItem
-                          key={option.id}
-                          value={option.id.toString()}
-                        >
-                          {option.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <SearchableDropdown
+                    value={formData.tparty_charge_id}
+                    options={metadata?.yes_no_option}
+                    onSelect={handleDropdownSelect}
+                    placeholder="Select option"
+                    popoverKey="tparty_charge_id"
+                    fieldName="tparty_charge_id"
+                    popoverOpen={popoverOpen}
+                    setPopoverOpen={setPopoverOpen}
+                  />
                 </div>
 
                 {/* Property Damage */}
