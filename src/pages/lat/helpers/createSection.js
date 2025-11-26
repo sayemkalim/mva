@@ -1,12 +1,12 @@
 import { apiService } from "@/api/api_service/apiService";
 import { endpoints } from "@/api/endpoints";
 
-export const createSection = async ({ slug, data }) => {
+export const CreateLat = async ({ slug, data }) => {
   try {
     if (!slug) throw new Error("Slug is required for creating Section");
 
     const apiResponse = await apiService({
-      endpoint: `${endpoints.createSection}/save/${slug}`, // slug dynamic
+      endpoint: `${endpoints.createLat}/save/${slug}`,
       method: "POST",
       data,
       headers: {
@@ -22,12 +22,12 @@ export const createSection = async ({ slug, data }) => {
   }
 };
 
-export const updateSection = async (id, data) => {
+export const updateLat = async (id, data) => {
   try {
     if (!id) throw new Error("ID is required for updating Section");
 
     const apiResponse = await apiService({
-      endpoint: `${endpoints.updateSection}/update/${id}`,
+      endpoint: `${endpoints.updateLat}/update/${id}`,
       method: "POST",
       data,
       headers: {

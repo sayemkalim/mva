@@ -9,13 +9,13 @@ import { CustomDialog } from "@/components/custom_dialog";
 import { useNavigate } from "react-router";
 import { toast } from "sonner";
 import { fetchLatList } from "../helpers/fetchLatList";
-import { deleteSectionList } from "../helpers/deleteSectionList";
+import { deleteLat } from "../helpers/deleteLat";
 const safeFormat = (dateStr, formatStr) => {
   const dateObj = dateStr ? new Date(dateStr) : null;
   return dateObj && isValid(dateObj) ? format(dateObj, formatStr) : "-";
 };
 
-const Section33Table = ({ slug, setBlogsLength }) => {
+const LatTable = ({ slug, setBlogsLength }) => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
@@ -24,7 +24,7 @@ const Section33Table = ({ slug, setBlogsLength }) => {
     isLoading,
     error,
   } = useQuery({
-    queryKey: ["sectionList", slug],
+    queryKey: ["latList", slug],
     queryFn: () => fetchLatList(slug),
     enabled: !!slug,
   });
@@ -43,10 +43,10 @@ const Section33Table = ({ slug, setBlogsLength }) => {
   };
 
   const { mutate: deleteSectionMutation, isLoading: isDeleting } = useMutation({
-    mutationFn: (id) => deleteSectionList(id),
+    mutationFn: (id) => deleteLat(id),
     onSuccess: () => {
       toast.success("Section deleted successfully.");
-      queryClient.invalidateQueries(["sectionList", slug]);
+      queryClient.invalidateQueries(["latList", slug]);
       onCloseDialog();
     },
     onError: () => {
@@ -73,7 +73,7 @@ const Section33Table = ({ slug, setBlogsLength }) => {
       toast.error("Invalid section data");
       return;
     }
-    navigate(`/dashboard/section/${section.id}`);
+    navigate(`/dashboard/lat/edit/${section.id}`);
   };
 
   const columns = [
@@ -117,21 +117,7 @@ const Section33Table = ({ slug, setBlogsLength }) => {
       label: "Denied Amount",
       render: (value) => <Typography variant="p">{value || "-"}</Typography>,
     },
-    // {
-    //   key: "response_to_insurance",
-    //   label: "Response to Insurance",
-    //   render: (value) => safeFormat(value, "dd/MM/yyyy"),
-    // },
-    // {
-    //   key: "section33_request_status",
-    //   label: "Section 33 Status",
-    //   render: (value) => <Typography variant="p">{value || "-"}</Typography>,
-    // },
-    // {
-    //   key: "note",
-    //   label: "Note",
-    //   render: (value) => <Typography variant="p">{value || "-"}</Typography>,
-    // },
+
     {
       key: "actions",
       label: "Actions",
@@ -177,4 +163,4 @@ const Section33Table = ({ slug, setBlogsLength }) => {
   );
 };
 
-export default Section33Table;
+export default LatTable;

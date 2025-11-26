@@ -4,7 +4,8 @@ import { useDebounce } from "@uidotdev/usehooks";
 import CustomActionMenu from "@/components/custom_action";
 import NavbarItem from "@/components/navbar/navbar_item";
 import { Navbar2 } from "@/components/navbar2";
-import Section33Table from "./components/Section33Table";
+import Section33Table from "./components/LatTable";
+import LatTable from "./components/LatTable";
 
 const Lat = () => {
   const navigate = useNavigate();
@@ -26,7 +27,7 @@ const Lat = () => {
   };
 
   const onAdd = () => {
-    navigate(`/dashboard/section/add/${slug}`);
+    navigate(`/dashboard/lat/add/${slug}`);
   };
 
   const onRowsPerPageChange = (newRowsPerPage) => {
@@ -50,7 +51,7 @@ const Lat = () => {
   return (
     <div className="flex flex-col">
       <Navbar2 />
-      <NavbarItem title="Sections" breadcrumbs={breadcrumbs} />
+      <NavbarItem title="Lats" breadcrumbs={breadcrumbs} />
 
       <div className="px-4">
         <CustomActionMenu
@@ -63,7 +64,7 @@ const Lat = () => {
           showRowSelection={true}
           rowsPerPage={params.per_page}
         />
-        <Section33Table
+        <LatTable
           slug={slug}
           setBlogsLength={setBlogsLength}
           params={params}

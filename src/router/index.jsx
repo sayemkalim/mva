@@ -27,6 +27,7 @@ import Vehicle from "@/pages/vechile/vechile_editor";
 import Section from "@/pages/section33";
 import SectionEditor from "@/pages/section33/components/section33_editor";
 import Section33 from "@/pages/section33/components/section33_editor";
+import LatEditor from "@/pages/lat/components/lat_editor";
 import Lat from "@/pages/lat";
 
 const Router = () => {
@@ -101,6 +102,9 @@ const Router = () => {
             path="/dashboard/workstation/edit/:slug/lat"
             element={<Lat />}
           />
+          <Route path="/dashboard/lat/add/:slug" element={<LatEditor />} />
+          <Route path="/dashboard/lat/edit/:id" element={<LatEditor />} />
+
           <Route path="/dashboard/contact-us" element={<ContactUs />} />
         </Route>
       </Route>

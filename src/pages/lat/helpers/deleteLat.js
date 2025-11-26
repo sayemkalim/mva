@@ -1,10 +1,10 @@
 import { apiService } from "@/api/api_service/apiService";
 import { endpoints } from "@/api/endpoints";
 
-export const deleteSectiondocument = async (id) => {
+export const deleteLat = async (id) => {
   try {
     const apiResponse = await apiService({
-      endpoint: `${endpoints.deleteSectiondocument}/${id}`,
+      endpoint: `${endpoints.deleteLat}/${id}`,
       method: "DELETE",
     });
 

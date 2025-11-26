@@ -1,13 +1,13 @@
 import { apiService } from "@/api/api_service/apiService";
 import { endpoints } from "@/api/endpoints";
 
-export const fetchSectionById = async (id) => {
+export const fetchLatById = async (id) => {
   try {
     console.log("🔍 Fetching section with ID:", id);
-    console.log("📍 API Endpoint:", `${endpoints.section}/${id}`);
+    console.log("📍 API Endpoint:", `${endpoints.lat}/${id}`);
 
     const apiResponse = await apiService({
-      endpoint: `${endpoints.section}/${id}`,
+      endpoint: `${endpoints.lat}/${id}`,
     });
 
     console.log("✅ API Response received:", apiResponse);

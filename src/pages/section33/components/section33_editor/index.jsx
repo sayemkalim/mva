@@ -26,7 +26,6 @@ import { deleteSectionCommunication } from "../../helpers/deleteSectionCommunica
 import { deleteSectiondocument } from "../../helpers/deleteSectiondocument";
 import { Navbar2 } from "@/components/navbar2";
 
-// SearchableDropdown component
 const SearchableDropdown = ({
   value,
   options,
@@ -257,12 +256,8 @@ export default function Section33() {
       setDocumentsRequested([]);
     }
   }, [section33, isEditMode]);
-
-  // Helper to get label from options by id
   const getLabel = (id, arr) =>
     arr?.find((opt) => String(opt.id) === String(id))?.name || "";
-
-  // Main form dropdown selection handler
   const handleMainSearchSelect = (fieldName, value, popKey) => {
     if (fieldName === "documents_requested_by_the_insurer_id") {
       setMainForm((prev) => ({
