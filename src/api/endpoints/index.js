@@ -59,4 +59,6 @@ export const endpoints = {
   updateLat: "api/v2/file/accident-benefits/lat",
   createAbCounsel: "api/v2/file/accident-benefits/ab-counsel",
   abCounsel: "api/v2/file/accident-benefits/ab-counsel/show",
+  createTpInsurance: "api/v2/file/third-party/insurance",
+  tpInsurance: "api/v2/file/third-party/insurance/show",
 };
