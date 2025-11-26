@@ -1,5 +1,3 @@
-import { updateSection } from "@/pages/section33/helpers/createSection";
-
 export const endpoints = {
   login: "api/login",
   signup: "api/firm/register",
@@ -59,4 +57,6 @@ export const endpoints = {
   lat: "api/v2/file/accident-benefits/lat/show",
   createLat: "api/v2/file/accident-benefits/lat",
   updateLat: "api/v2/file/accident-benefits/lat",
+  createAbCounsel: "api/v2/file/accident-benefits/ab-counsel",
+  abCounsel: "api/v2/file/accident-benefits/ab-counsel/show",
 };

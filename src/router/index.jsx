@@ -29,6 +29,7 @@ import SectionEditor from "@/pages/section33/components/section33_editor";
 import Section33 from "@/pages/section33/components/section33_editor";
 import LatEditor from "@/pages/lat/components/lat_editor";
 import Lat from "@/pages/lat";
+import AbCounselPage from "@/pages/ab_counsel/abCounsel_editor";
 
 const Router = () => {
   return (
@@ -104,7 +105,10 @@ const Router = () => {
           />
           <Route path="/dashboard/lat/add/:slug" element={<LatEditor />} />
           <Route path="/dashboard/lat/edit/:id" element={<LatEditor />} />
-
+          <Route
+            path="/dashboard/workstation/edit/:slug/ab-counsel"
+            element={<AbCounselPage />}
+          />
           <Route path="/dashboard/contact-us" element={<ContactUs />} />
         </Route>
       </Route>
