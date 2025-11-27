@@ -1,4 +1,4 @@
-import { createOwnerInfo } from "@/pages/tp_ownerInfo/helpers/createOwnerInfo";
+import { createTpVechile } from "@/pages/tp_vechile/helpers/createTpVechile";
 
 export const endpoints = {
   login: "api/login",
@@ -74,4 +74,6 @@ export const endpoints = {
   deleteOwnerInfo: "api/v2/file/third-party/owner-information/delete",
   deleteOwnerDirector:
     "api/v2/file/third-party/owner-information/director-delete",
+  createTpVechile: "api/v2/file/third-party/vehicle",
+  tpVechile: "api/v2/file/third-party/vehicle/show",
 };

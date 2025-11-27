@@ -1,29 +1,37 @@
-// helpers/fetchDriverInfoBySlug.js
 import { apiService } from "@/api/api_service/apiService";
 import { endpoints } from "@/api/endpoints";
 
-export const fetchDriverInfoBySlug = async (slug) => {
+export const fetchTpVechileBySlug = async (slug) => {
   try {
+    // console.log("🔍 Fetching vehicle with slug:", slug);
+
     const apiResponse = await apiService({
-      endpoint: `${endpoints.driverInfo}/${slug}`,
+      endpoint: `${endpoints.tpVechile}/${slug}`,
       method: "GET",
       headers: {
         "Content-Type": "application/json",
       },
     });
 
+    // console.log("🔎 apiResponse RAW ===>", apiResponse);
+
     if (!apiResponse) {
       return null;
     }
-
+    if (
+      typeof apiResponse.response === "string" &&
+      apiResponse.response.trim() === ""
+    ) {
+      return null;
+    }
     if (apiResponse.Apistatus === false) {
       return null;
     }
-
     const data =
       apiResponse.data ||
-      apiResponse.driver_information ||
+      apiResponse.vehicle ||
       apiResponse.result ||
+      apiResponse.response ||
       apiResponse;
 
     if (!data || (typeof data === "object" && Object.keys(data).length === 0)) {
@@ -32,7 +40,7 @@ export const fetchDriverInfoBySlug = async (slug) => {
 
     return data;
   } catch (error) {
-    console.error("Error fetching driver info:", error);
+    console.error("Error fetching vehicle info:", error);
     throw error;
   }
 };
