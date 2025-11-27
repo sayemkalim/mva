@@ -1,25 +1,18 @@
 import { apiService } from "@/api/api_service/apiService";
 import { endpoints } from "@/api/endpoints";
 
-export const CreateLat = async ({ slug, data }) => {
-  try {
-    if (!slug) throw new Error("Slug is required for creating Section");
+export const CreateLat = async ({ slug, ...payload }) => {
+  if (!slug) throw new Error("Slug is required for creating LAT");
 
-    const apiResponse = await apiService({
-      endpoint: `${endpoints.createLat}/save/${slug}`,
-      method: "POST",
-      data,
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
+  const apiResponse = await apiService({
+    endpoint: `${endpoints.createLat}/save/${slug}`,
+    method: "POST",
+    data: payload,
+    headers: { "Content-Type": "application/json" },
+  });
 
-    console.log("✅ Create API Response:", apiResponse);
-    return apiResponse;
-  } catch (error) {
-    console.error("❌ Error creating Section:", error);
-    throw error;
-  }
+  console.log("✅ Create LAT API Response:", apiResponse);
+  return apiResponse;
 };
 
 export const updateLat = async (id, data) => {

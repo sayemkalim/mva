@@ -11,6 +11,7 @@ import { toast } from "sonner";
 import { fetchWorkstationList } from "../helpers/fetchWorkstationList";
 import { deleteBlog } from "../helpers/deleteBlog";
 
+// The component expects setBlogsLength from props
 const MatterTable = ({ setBlogsLength }) => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
@@ -51,32 +52,15 @@ const MatterTable = ({ setBlogsLength }) => {
       },
     });
 
-  const onDeleteClick = (id) => {
-    deleteWorkstationMutation(id);
-  };
-
-  const workstations = Array.isArray(apiWorkstationResponse?.response)
-    ? apiWorkstationResponse.response
+  const workstations = Array.isArray(apiWorkstationResponse?.response?.data)
+    ? apiWorkstationResponse.response.data
     : [];
-
-  // console.log("API Response:", apiWorkstationResponse);
-  // console.log("Workstations:", workstations);
-  // console.log("Is Loading:", isLoading);
-  console.log("Error:", error);
 
   useEffect(() => {
     setBlogsLength(workstations?.length || 0);
   }, [workstations, setBlogsLength]);
 
   const onNavigateToEdit = (workstation) => {
-    console.log("Full workstation object:", workstation);
-    console.log("Slug value:", workstation.slug);
-    console.log("Slug type:", typeof workstation.slug);
-    console.log(
-      "Navigate URL:",
-      `/dashboard/workstations/edit/${workstation.slug}`
-    );
-
     if (!workstation?.slug) {
       toast.error("Invalid workstation data");
       return;
@@ -84,6 +68,7 @@ const MatterTable = ({ setBlogsLength }) => {
     navigate(`/dashboard/workstation/edit/${workstation.slug}`);
   };
 
+  // Details navigation
   const onNavigateDetails = (workstation) => {
     if (!workstation?.slug) {
       toast.error("Invalid workstation data");
@@ -91,10 +76,12 @@ const MatterTable = ({ setBlogsLength }) => {
     }
     navigate(`/dashboard/workstation/${workstation.slug}`);
   };
+
   const handleRowClick = (row) => {
     onNavigateToEdit(row);
   };
 
+  // Adjust columns to match API fields
   const columns = [
     {
       key: "file_no",
@@ -102,94 +89,57 @@ const MatterTable = ({ setBlogsLength }) => {
       render: (value, row) => (
         <div className="flex flex-col gap-1">
           <Typography variant="p">{value || "-"}</Typography>
-          <Typography variant="span" className="text-gray-500 text-sm">
-            {row.file_number || "-"}
-          </Typography>
         </div>
       ),
     },
     {
-      key: "firm_name",
-      label: "Firm Name",
-      render: (value, row) => (
-        <div className="w-96">
-          <Typography className="block line-clamp-2 text-wrap" variant="p">
-            {value || "-"}
-          </Typography>
-          <Typography
-            variant="span"
-            className="block line-clamp-2 text-gray-500 text-wrap"
-          >
-            Lawyer: {row.lawyer_name || "-"}
-          </Typography>
-        </div>
+      key: "name",
+      label: "Name",
+      render: (value) => (
+        <Typography className="block line-clamp-2 text-wrap" variant="p">
+          {value || "-"}
+        </Typography>
       ),
     },
     {
-      key: "paralegal_name",
-      label: "Paralegal",
-      render: (value, row) => (
-        <div className="flex flex-col gap-1">
-          <Typography variant="p">{value || "-"}</Typography>
-          {row.assigned_to_paralegal && (
-            <Typography variant="span" className="text-gray-500 text-sm">
-              Assigned: {row.assigned_to_paralegal}
-            </Typography>
-          )}
-        </div>
+      key: "conflict_search",
+      label: "Conflict Search",
+      render: (value) => (
+        <Typography variant="p">
+          {value ? format(new Date(value), "dd/MM/yyyy") : "-"}
+        </Typography>
       ),
-    },
-    {
-      key: "counsel_name",
-      label: "Counsel",
-      render: (value) => <Typography variant="p">{value || "-"}</Typography>,
     },
     {
       key: "intake_date",
       label: "Intake Date",
-      render: (value, row) => (
-        <div className="flex flex-col gap-1">
-          <Typography variant="p">
-            {value ? format(new Date(value), "dd/MM/yyyy") : "-"}
-          </Typography>
-          {row.assigned_date && (
-            <Typography variant="span" className="text-gray-500 text-sm">
-              Assigned: {format(new Date(row.assigned_date), "dd/MM/yyyy")}
-            </Typography>
-          )}
-        </div>
+      render: (value) => (
+        <Typography variant="p">
+          {value ? format(new Date(value), "dd/MM/yyyy") : "-"}
+        </Typography>
       ),
     },
     {
-      key: "created_at",
-      label: "Created",
-      render: (value, row) => (
-        <div className="flex flex-col gap-1">
-          <Typography>
-            {format(new Date(value), "dd/MM/yyyy hh:mm a")}
-          </Typography>
-          {value !== row.updated_at && (
-            <Typography className="text-gray-500 text-sm">
-              Updated -{" "}
-              {formatDistanceToNow(new Date(row.updated_at), {
-                addSuffix: true,
-              })}
-            </Typography>
-          )}
-        </div>
+      key: "dob",
+      label: "DOB",
+      render: (value) => (
+        <Typography variant="p">
+          {value ? format(new Date(value), "dd/MM/yyyy") : "-"}
+        </Typography>
       ),
     },
+    {
+      key: "status",
+      label: "Status",
+      render: (value) => <Typography variant="p">{value || "-"}</Typography>,
+    },
+    // Uncomment and use if using an action menu
     // {
     //   key: "actions",
     //   label: "Actions",
     //   render: (value, row) => (
     //     <ActionMenu
     //       options={[
-    //         // {
-    //         //   label: "View Details",
-    //         //   icon: Eye,
-    //         //   action: () => onNavigateDetails(row),
-    //         // },
     //         {
     //           label: "Edit",
     //           icon: Pencil,
@@ -221,7 +171,7 @@ const MatterTable = ({ setBlogsLength }) => {
         onClose={onCloseDialog}
         title={selectedWorkstation?.file_no}
         modalType="Delete"
-        onDelete={onDeleteClick}
+        // onDelete={onDeleteClick}
         id={selectedWorkstation?.id}
         isLoading={isDeleting}
       />

@@ -184,80 +184,81 @@ export default function Section33() {
 
   useEffect(() => {
     if (section33 && isEditMode) {
-      const requestedDocs = section33.requested_documents || [];
-      const firstDoc = requestedDocs[0] || {};
+      const docs = section33.requested_documents || [];
 
-      setMainForm({
-        id: firstDoc.id ?? "",
-        request_id: section33.request_id ?? "",
-        s33_req_received: section33.s33_req_received ?? "",
-        documents_requested_by_the_insurer_id: firstDoc.requested_id ?? "",
-        from_date: firstDoc.from_date ?? "",
-        to_date: firstDoc.to_date ?? "",
-        deadline: section33.deadline ?? "",
-        response_to_insurance: section33.response_to_insurance ?? "",
-        s33_req_status_id: section33.s33_req_status_id ?? "",
-        ambulance_cnr: firstDoc.ambulance_cnr ?? "",
-        medical_clinic_name: firstDoc.medical_clinic_name ?? "",
-        phone: firstDoc.phone ?? "",
-        fax: firstDoc.fax ?? "",
-        email: firstDoc.email ?? "",
-        request_status_id: firstDoc.request_status_id ?? "",
-        communications: firstDoc.communications?.length
-          ? firstDoc.communications.map((c) => ({
+      if (docs.length > 0) {
+        const firstDoc = docs[0];
+
+        setMainForm({
+          id: section33.id ?? "",
+          request_id: section33.request_id ?? "",
+          s33_req_received: section33.s33_req_received ?? "",
+          documents_requested_by_the_insurer_id: firstDoc.requested_id ?? "",
+          from_date: firstDoc.from_date ?? "",
+          to_date: firstDoc.to_date ?? "",
+          ambulance_cnr: firstDoc.ambulance_cnr ?? "",
+          medical_clinic_name: firstDoc.medical_clinic_name ?? "",
+          phone: firstDoc.phone ?? "",
+          fax: firstDoc.fax ?? "",
+          email: firstDoc.email ?? "",
+          request_status_id: firstDoc.request_status_id ?? "",
+          deadline: section33.deadline ?? "",
+          response_to_insurance: section33.response_to_insurance ?? "",
+          s33_req_status_id: section33.s33_req_status_id ?? "",
+          expanded: !!firstDoc.requested_id,
+          communications: (firstDoc.communications || []).map((c) => ({
+            ...emptyComm,
+            ...c,
+          })) || [{ ...emptyComm }],
+        });
+
+        setDocumentsRequested(
+          docs.slice(1).map((doc) => ({
+            ...emptyDocReq,
+            documents_requested_by_the_insurer_id: doc.requested_id ?? "",
+            from_date: doc.from_date ?? "",
+            to_date: doc.to_date ?? "",
+            ambulance_cnr: doc.ambulance_cnr ?? "",
+            medical_clinic_name: doc.medical_clinic_name ?? "",
+            phone: doc.phone ?? "",
+            fax: doc.fax ?? "",
+            email: doc.email ?? "",
+            request_status_id: doc.request_status_id ?? "",
+            expanded: !!doc.requested_id,
+            communications: (doc.communications || []).map((c) => ({
               ...emptyComm,
               ...c,
-            }))
-          : [{ ...emptyComm }],
-        expanded: !!firstDoc.requested_id,
-      });
-
-      setDocumentsRequested(
-        requestedDocs.slice(1).map((doc) => ({
-          ...emptyDocReq,
-          id: doc.id,
-          documents_requested_by_the_insurer_id: doc.requested_id ?? "",
-          from_date: doc.from_date ?? "",
-          to_date: doc.to_date ?? "",
-          ambulance_cnr: doc.ambulance_cnr ?? "",
-          medical_clinic_name: doc.medical_clinic_name ?? "",
-          phone: doc.phone ?? "",
-          fax: doc.fax ?? "",
-          email: doc.email ?? "",
-          request_status_id: doc.request_status_id ?? "",
-          communications: doc.communications?.length
-            ? doc.communications.map((c) => ({ ...emptyComm, ...c }))
-            : [{ ...emptyComm }],
-          expanded: !!doc.requested_id,
-        }))
-      );
-
-      toast.success("Data loaded successfully!");
-    } else if (!isEditMode) {
-      setMainForm({
-        id: "",
-        request_id: "",
-        s33_req_received: "",
-        documents_requested_by_the_insurer_id: "",
-        from_date: "",
-        to_date: "",
-        deadline: "",
-        response_to_insurance: "",
-        s33_req_status_id: "",
-        ambulance_cnr: "",
-        medical_clinic_name: "",
-        phone: "",
-        fax: "",
-        email: "",
-        request_status_id: "",
-        communications: [{ ...emptyComm }],
-        expanded: false,
-      });
-      setDocumentsRequested([]);
+            })) || [{ ...emptyComm }],
+          }))
+        );
+      } else {
+        setMainForm({
+          id: "",
+          request_id: section33.request_id ?? "",
+          s33_req_received: section33.s33_req_received ?? "",
+          documents_requested_by_the_insurer_id: "",
+          from_date: "",
+          to_date: "",
+          ambulance_cnr: "",
+          medical_clinic_name: "",
+          phone: "",
+          fax: "",
+          email: "",
+          request_status_id: "",
+          deadline: section33.deadline ?? "",
+          response_to_insurance: section33.response_to_insurance ?? "",
+          s33_req_status_id: section33.s33_req_status_id ?? "",
+          expanded: false,
+          communications: [{ ...emptyComm }],
+        });
+        setDocumentsRequested([]);
+      }
     }
   }, [section33, isEditMode]);
+
   const getLabel = (id, arr) =>
     arr?.find((opt) => String(opt.id) === String(id))?.name || "";
+
   const handleMainSearchSelect = (fieldName, value, popKey) => {
     if (fieldName === "documents_requested_by_the_insurer_id") {
       setMainForm((prev) => ({
@@ -282,10 +283,8 @@ export default function Section33() {
   const removeMainComm = (commIdx) => {
     const comm = mainForm.communications[commIdx];
     if (comm.id) {
-      // If it has an ID, delete from server
       handleDeleteCommunication(comm.id);
     } else {
-      // If no ID, just remove from state
       setMainForm((prev) => ({
         ...prev,
         communications: prev.communications.filter((_, i) => i !== commIdx),
@@ -332,10 +331,8 @@ export default function Section33() {
   const removeDocReq = (idx) => {
     const doc = documentsRequested[idx];
     if (doc.id) {
-      // If it has an ID, delete from server
       handleDeleteDocument(doc.id);
     } else {
-      // If no ID, just remove from state
       setDocumentsRequested((prev) => prev.filter((_, i) => i !== idx));
     }
   };
@@ -356,10 +353,8 @@ export default function Section33() {
   const removeComm = (docIdx, commIdx) => {
     const comm = documentsRequested[docIdx].communications[commIdx];
     if (comm.id) {
-      // If it has an ID, delete from server
       handleDeleteCommunication(comm.id);
     } else {
-      // If no ID, just remove from state
       setDocumentsRequested((prev) =>
         prev.map((doc, di) =>
           di === docIdx
@@ -407,38 +402,95 @@ export default function Section33() {
       isEdit
         ? updateSection(idOrSlug, data)
         : createSection({ slug: idOrSlug, data }),
-    onSuccess: () => {
-      toast.success(
-        isEditMode ? "Updated successfully!" : "Created successfully!"
-      );
-      queryClient.invalidateQueries(["section33", id]);
+    onSuccess: (data) => {
+      const resp = data?.response || data; // For safety, prefer response key
+
+      console.log("API Success Response:", resp);
+
+      if (resp.Apistatus === true) {
+        toast.success(
+          resp.message ||
+            (isEditMode
+              ? "Record updated successfully!"
+              : "Record created successfully!")
+        );
+        queryClient.invalidateQueries(["section33", id]);
+        navigate(-1);
+      } else {
+        toast.error(resp.message || "Operation failed. Please try again.");
+      }
     },
-    onError: (e) => toast.error(e.message || "Failed to save"),
+
+    onError: (error) => {
+      // Validation error object: {"field_name": ["error1", "error2"]}
+      if (
+        error?.response?.data?.message &&
+        typeof error.response.data.message === "object"
+      ) {
+        const errorMessages = Object.values(error.response.data.message)
+          .flat()
+          .join("\n");
+        toast.error(errorMessages);
+      } else {
+        const errMsg =
+          error?.message || "Something went wrong. Please try again.";
+        toast.error(errMsg);
+      }
+    },
   });
 
   const handleSubmit = (e) => {
     e.preventDefault();
     const payload = {
-      ...mainForm,
-      documents_requested: documentsRequested.map((doc) => ({
-        ...doc,
-        documents_requested_by_the_insurer_id:
-          doc.documents_requested_by_the_insurer_id &&
-          Number(doc.documents_requested_by_the_insurer_id) > 0
-            ? Number(doc.documents_requested_by_the_insurer_id)
-            : null,
-        request_status_id:
-          doc.request_status_id && Number(doc.request_status_id) > 0
-            ? Number(doc.request_status_id)
-            : null,
-      })),
+      id: mainForm.id || null,
+      request_id: mainForm.request_id,
+      s33_req_received: mainForm.s33_req_received,
       documents_requested_by_the_insurer_id:
-        mainForm.documents_requested_by_the_insurer_id > 0
-          ? mainForm.documents_requested_by_the_insurer_id
-          : null,
-      s33_req_status_id:
-        mainForm.s33_req_status_id > 0 ? mainForm.s33_req_status_id : null,
+        mainForm.documents_requested_by_the_insurer_id,
+      from_date: mainForm.from_date,
+      to_date: mainForm.to_date,
+      deadline: mainForm.deadline,
+      response_to_insurance: mainForm.response_to_insurance,
+      s33_req_status_id: mainForm.s33_req_status_id,
+      ambulance_cnr: mainForm.ambulance_cnr,
+      medical_clinic_name: mainForm.medical_clinic_name,
+      phone: mainForm.phone,
+      fax: mainForm.fax,
+      email: mainForm.email,
+      request_status_id: mainForm.request_status_id,
+      communications: mainForm.communications, // top level communication
+
+      // Always include main document in documents_requested
+      documents_requested: [
+        // Main document as requested_id
+        {
+          requested_id: mainForm.documents_requested_by_the_insurer_id,
+          from_date: mainForm.from_date,
+          to_date: mainForm.to_date,
+          ambulance_cnr: mainForm.ambulance_cnr,
+          medical_clinic_name: mainForm.medical_clinic_name,
+          phone: mainForm.phone,
+          fax: mainForm.fax,
+          email: mainForm.email,
+          request_status_id: mainForm.request_status_id,
+          communications: mainForm.communications,
+        },
+        // Any additional documents
+        ...documentsRequested.map((doc) => ({
+          requested_id: doc.documents_requested_by_the_insurer_id,
+          from_date: doc.from_date,
+          to_date: doc.to_date,
+          ambulance_cnr: doc.ambulance_cnr,
+          medical_clinic_name: doc.medical_clinic_name,
+          phone: doc.phone,
+          fax: doc.fax,
+          email: doc.email,
+          request_status_id: doc.request_status_id,
+          communications: doc.communications,
+        })),
+      ],
     };
+
     if (isEditMode) {
       mutation.mutate({ isEdit: true, idOrSlug: id, data: payload });
     } else {
@@ -463,7 +515,7 @@ export default function Section33() {
     deleteCommMutation.mutate(commId);
   };
 
-  // NEW: Main document delete logic
+  // Main document delete logic
   const handleDeleteMainDocument = () => {
     if (mainForm.id) {
       handleDeleteDocument(mainForm.id);
@@ -515,7 +567,7 @@ export default function Section33() {
         className="container mx-auto px-6 py-8 max-w-7xl"
       >
         <div className="bg-white rounded-lg shadow-sm border p-8">
-          {/* First document main fields */}
+          {/* Main document fields */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-2">
             <div className="space-y-2">
               <Label>Request</Label>
@@ -585,7 +637,7 @@ export default function Section33() {
               />
             </div>
           </div>
-          {/* Expanded first document additional fields */}
+          {/* Expanded main document fields */}
           {mainForm.expanded && (
             <>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-4">
@@ -669,7 +721,6 @@ export default function Section33() {
                   />
                 </div>
               </div>
-              {/* First document communications */}
               <div className="mt-6">
                 <div className="flex justify-between items-center mb-2">
                   <span className="font-semibold">Communications</span>
@@ -729,17 +780,22 @@ export default function Section33() {
                     </div>
                     <div className="space-y-2">
                       <Label>Documents Received</Label>
-                      <Input
+                      <SearchableDropdown
                         value={c.documents_received_id}
-                        onChange={(e) =>
-                          handleMainCommChange(
+                        options={meta.yes_no_option}
+                        onSelect={(fieldName, value, popKey) =>
+                          handleMainCommSearchSelect(
                             commIdx,
-                            "documents_received_id",
-                            e.target.value
+                            fieldName,
+                            value,
+                            popKey
                           )
                         }
-                        className="h-9 bg-gray-50 border-gray-300"
-                        placeholder="Doc ID"
+                        placeholder="Select received document"
+                        popoverKey={`main_comm_doc_received_${commIdx}`}
+                        fieldName="documents_received_id"
+                        popoverOpen={popoverOpen}
+                        setPopoverOpen={setPopoverOpen}
                       />
                     </div>
                     <div className="space-y-2">
@@ -988,18 +1044,23 @@ export default function Section33() {
                           </div>
                           <div className="space-y-2">
                             <Label>Documents Received</Label>
-                            <Input
+                            <SearchableDropdown
                               value={c.documents_received_id}
-                              onChange={(e) =>
-                                handleCommChange(
+                              options={meta.yes_no_option}
+                              onSelect={(fieldName, value, popKey) =>
+                                handleCommSearchSelect(
                                   idx,
                                   commIdx,
-                                  "documents_received_id",
-                                  e.target.value
+                                  fieldName,
+                                  value,
+                                  popKey
                                 )
                               }
-                              className="h-9 bg-gray-50 border-gray-300"
-                              placeholder="Doc ID"
+                              placeholder="Select received document"
+                              popoverKey={`doc_comm_doc_received_${idx}_${commIdx}`}
+                              fieldName="documents_received_id"
+                              popoverOpen={popoverOpen}
+                              setPopoverOpen={setPopoverOpen}
                             />
                           </div>
                           <div className="space-y-2">
@@ -1059,7 +1120,7 @@ export default function Section33() {
               <Label>S33 REQ Status</Label>
               <SearchableDropdown
                 value={mainForm.s33_req_status_id}
-                options={meta.insurance_status}
+                options={meta.insurance_section_request}
                 onSelect={handleMainSearchSelect}
                 placeholder="Select status"
                 popoverKey="main_s33_req_status"

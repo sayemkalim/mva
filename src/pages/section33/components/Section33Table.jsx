@@ -92,21 +92,21 @@ const Section33Table = ({ slug, setBlogsLength }) => {
       label: "Letter Received",
       render: (value) => safeFormat(value, "dd/MM/yyyy"),
     },
-    {
-      key: "documents_requested_by_insurer",
-      label: "Docs Requested",
-      render: (value) => <Typography variant="p">{value || "-"}</Typography>,
-    },
-    {
-      key: "from_date",
-      label: "From Date",
-      render: (value) => safeFormat(value, "dd/MM/yyyy"),
-    },
-    {
-      key: "to_date",
-      label: "To Date",
-      render: (value) => safeFormat(value, "dd/MM/yyyy"),
-    },
+    // {
+    //   key: "documents_requested_by_insurer",
+    //   label: "Docs Requested",
+    //   render: (value) => <Typography variant="p">{value || "-"}</Typography>,
+    // },
+    // {
+    //   key: "from_date",
+    //   label: "From Date",
+    //   render: (value) => safeFormat(value, "dd/MM/yyyy"),
+    // },
+    // {
+    //   key: "to_date",
+    //   label: "To Date",
+    //   render: (value) => safeFormat(value, "dd/MM/yyyy"),
+    // },
     {
       key: "request_date",
       label: "Request Date",
@@ -132,16 +132,16 @@ const Section33Table = ({ slug, setBlogsLength }) => {
       label: "Deadline",
       render: (value) => safeFormat(value, "dd/MM/yyyy"),
     },
-    // {
-    //   key: "response_to_insurance",
-    //   label: "Response to Insurance",
-    //   render: (value) => safeFormat(value, "dd/MM/yyyy"),
-    // },
-    // {
-    //   key: "section33_request_status",
-    //   label: "Section 33 Status",
-    //   render: (value) => <Typography variant="p">{value || "-"}</Typography>,
-    // },
+    {
+      key: "response_to_insurance",
+      label: "Response to Insurance",
+      render: (value) => safeFormat(value, "dd/MM/yyyy"),
+    },
+    {
+      key: "section33_request_status",
+      label: "Section 33 Status",
+      render: (value) => <Typography variant="p">{value || "-"}</Typography>,
+    },
     // {
     //   key: "note",
     //   label: "Note",

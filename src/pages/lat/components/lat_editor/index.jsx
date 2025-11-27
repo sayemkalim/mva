@@ -17,7 +17,7 @@ import {
   CommandGroup,
   CommandItem,
 } from "@/components/ui/command";
-import { Loader2, ChevronsUpDown, Check } from "lucide-react";
+import { Loader2, ChevronsUpDown, Check, ChevronRight } from "lucide-react";
 import { toast } from "sonner";
 import { fetchLatById } from "../../helpers/fetchLatById";
 import { getABMeta } from "../../helpers/fetchABMeta";
@@ -40,6 +40,7 @@ const SearchableDropdown = ({
   const selectedOption = options?.find(
     (opt) => String(opt.id) === String(value)
   );
+
   return (
     <div className="space-y-2">
       <Label className="text-gray-700 font-medium">{label}</Label>
@@ -165,7 +166,7 @@ export default function LatEditor() {
   });
 
   useEffect(() => {
-    if (latData) {
+    if (latData && Object.keys(meta).length > 0) {
       setForm({
         typeofplanid: latData.type_of_plan_id || "",
         planstatusid: latData.plan_status_id || "",
@@ -204,103 +205,7 @@ export default function LatEditor() {
         notes: latData.notes || "",
       });
     }
-  }, [latData]);
-
-  const mutation = useMutation({
-    mutationFn: (data) => {
-      if (id) {
-        return updateLat(id, data);
-      } else {
-        return CreateLat(data);
-      }
-    },
-    onSuccess: () => {
-      toast.success(
-        id ? "LAT data updated successfully" : "LAT data saved successfully"
-      );
-    },
-    onError: (err) => {
-      toast.error(
-        err.message ||
-          (id ? "Failed to update LAT data" : "Failed to save LAT data")
-      );
-    },
-  });
-
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setForm((prev) => ({ ...prev, [name]: value }));
-  };
-
-  const handleDropdownSelect = (field, val, popoverKey) => {
-    setForm((prev) => ({ ...prev, [field]: String(val) }));
-    setPopoverOpen((p) => ({ ...p, [popoverKey]: false }));
-  };
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-
-    const payload = {
-      type_of_plan_id: form.typeofplanid,
-      plan_status_id: form.planstatusid,
-      partially_approved: form.partiallyapproved,
-      total_amount: form.totalamount,
-      approved_amount: form.approvedamount,
-      neb_start_from: form.nebstartfrom,
-      neb_stopped_on: form.nebstoppedon,
-      date_of_denial: form.dateofdenial,
-      denied_amount: form.deniedamount,
-      tap_submitted_date: form.tapsubmitteddate,
-      tap_submitted_by: form.tapsubmittedby,
-      deadline_1st: form.deadline1st,
-      deadline_2nd: form.deadline2nd,
-      final_deadline: form.finaldeadline,
-      lat_letter_drafted: form.latletterdrafted,
-      date_of_lat_submission: form.dateoflatsubmission,
-      case_conference_id: form.caseconferenceid,
-      date_conference: form.dateconference,
-      document_exchange_deadline: form.documentexchangedeadline,
-      brief_submitted_tolat_id: form.briefsubmittedtolatid,
-      communication_submission_date_1st: form.communicationsubmissiondate1st,
-      mode_of_communication_1st_id: form.modeofcommunication1stid,
-      brief_submitted_by_vsr_law_id: form.briefsubmittedbyvsrlawid,
-      document_submission_date: form.documentsubmissiondate,
-      mode_of_communication_2nd_id: form.modeofcommunication2ndid,
-      brief_received_from_opposing_counsel:
-        form.briefreceivedfromopposingcounsel,
-      communication_received_date: form.communicationreceiveddate,
-      mode_of_communication_3rd_id: form.modeofcommunication3rdid,
-      matter_resolved_at_case_confrence_id:
-        form.matterresolvedatcaseconfrenceid,
-      lat_hearing_date: form.lathearingdate,
-      lat_decision_id: form.latdecision,
-      notes: form.notes,
-    };
-
-    mutation.mutate(payload);
-  };
-
-  if (loadingMeta || loadingData)
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-        <span className="ml-2 text-lg">Loading...</span>
-      </div>
-    );
-
-  if (errorMeta)
-    return (
-      <div className="text-red-500">
-        Error loading metadata: {metaError?.message || "Unknown error"}
-      </div>
-    );
-
-  if (errorData)
-    return (
-      <div className="text-red-500">
-        Error loading LAT data: {errorData.message || "Unknown error"}
-      </div>
-    );
+  }, [latData, meta]);
 
   const planStatusName =
     meta.insurance_plan_status?.find(
@@ -509,7 +414,7 @@ export default function LatEditor() {
       type: "dropdown",
       key: "matterresolvedatcaseconfrenceid",
       label: "Matter Resolved at Case Conference",
-      options: meta.insuranceplanstatus || [],
+      options: meta.yes_no_option || [],
       popoverKey: "matterresolvedatcaseconfrenceid",
       placeholder: "Select option",
     },
@@ -523,7 +428,7 @@ export default function LatEditor() {
       type: "dropdown",
       key: "latdecision",
       label: "LAT Decision",
-      options: meta.insurancelatdecision || [],
+      options: meta.insurance_plan_status || [],
       popoverKey: "latdecision",
       placeholder: "Select decision",
     },
@@ -534,6 +439,111 @@ export default function LatEditor() {
       placeholder: "Add any notes...",
     },
   ];
+
+  const mutation = useMutation({
+    mutationFn: (data) => {
+      console.log("Mutation Payload:", data);
+      if (id) {
+        return updateLat(id, data);
+      } else {
+        if (!slug) {
+          return Promise.reject(new Error("Slug is required for creating LAT"));
+        }
+        return CreateLat({ slug, ...data });
+      }
+    },
+    onSuccess: () => {
+      toast.success(
+        id ? "LAT data updated successfully" : "LAT data saved successfully"
+      );
+    },
+    onError: (err) => {
+      console.error("Mutation Error:", err);
+      toast.error(
+        err.message ||
+          (id ? "Failed to update LAT data" : "Failed to save LAT data")
+      );
+    },
+  });
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setForm((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleDropdownSelect = (field, val, popoverKey) => {
+    setForm((prev) => ({ ...prev, [field]: String(val) }));
+    setPopoverOpen((p) => ({ ...p, [popoverKey]: false }));
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+
+    const payload = {
+      type_of_plan_id: form.typeofplanid,
+      plan_status_id: form.planstatusid,
+      partially_approved: form.partiallyapproved,
+      total_amount: form.totalamount,
+      approved_amount: form.approvedamount,
+      neb_start_from: form.nebstartfrom,
+      neb_stopped_on: form.nebstoppedon,
+      date_of_denial: form.dateofdenial,
+      denied_amount: form.deniedamount,
+      tap_submitted_date: form.tapsubmitteddate,
+      tap_submitted_by: form.tapsubmittedby,
+      deadline_1st: form.deadline1st,
+      deadline_2nd: form.deadline2nd,
+      final_deadline: form.finaldeadline,
+      lat_letter_drafted: form.latletterdrafted,
+      date_of_lat_submission: form.dateoflatsubmission,
+      case_conference_id: form.caseconferenceid,
+      date_conference: form.dateconference,
+      document_exchange_deadline: form.documentexchangedeadline,
+      brief_submitted_tolat_id: form.briefsubmittedtolatid,
+      communication_submission_date_1st: form.communicationsubmissiondate1st,
+      mode_of_communication_1st_id: form.modeofcommunication1stid,
+      brief_submitted_by_vsr_law_id: form.briefsubmittedbyvsrlawid,
+      document_submission_date: form.documentsubmissiondate,
+      mode_of_communication_2nd_id: form.modeofcommunication2ndid,
+      brief_received_from_opposing_counsel:
+        form.briefreceivedfromopposingcounsel,
+      communication_received_date: form.communicationreceiveddate,
+      mode_of_communication_3rd_id: form.modeofcommunication3rdid,
+      matter_resolved_at_case_confrence_id:
+        form.matterresolvedatcaseconfrenceid,
+      lat_hearing_date: form.lathearingdate,
+      lat_decision_id: form.latdecision,
+      notes: form.notes,
+    };
+
+    console.log("Submitted Payload:", payload);
+    mutation.mutate(payload);
+  };
+
+  if (loadingMeta || loadingData) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        <span className="ml-2 text-lg">Loading...</span>
+      </div>
+    );
+  }
+
+  if (errorMeta) {
+    return (
+      <div className="text-red-500">
+        Error loading metadata: {metaError?.message || "Unknown error"}
+      </div>
+    );
+  }
+
+  if (errorData) {
+    return (
+      <div className="text-red-500">
+        Error loading LAT data: {errorData.message || "Unknown error"}
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -564,13 +574,15 @@ export default function LatEditor() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
           {basicFields.map((field) => {
             const fieldValue = form[field.key];
+            const fieldOptions = field.options || [];
+
             if (field.type === "dropdown") {
               return (
                 <SearchableDropdown
                   key={field.key}
                   label={field.label}
                   value={fieldValue}
-                  options={field.options}
+                  options={fieldOptions}
                   onSelect={handleDropdownSelect}
                   placeholder={field.placeholder}
                   fieldName={field.key}
@@ -601,13 +613,15 @@ export default function LatEditor() {
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mt-6">
             {extraFields.map((field) => {
               const fieldValue = form[field.key];
+              const fieldOptions = field.options || [];
+
               if (field.type === "dropdown") {
                 return (
                   <SearchableDropdown
                     key={field.key}
                     label={field.label}
                     value={fieldValue}
-                    options={field.options}
+                    options={fieldOptions}
                     onSelect={handleDropdownSelect}
                     placeholder={field.placeholder}
                     fieldName={field.key}
