@@ -1,3 +1,5 @@
+import { createOwnerInfo } from "@/pages/tp_ownerInfo/helpers/createOwnerInfo";
+
 export const endpoints = {
   login: "api/login",
   signup: "api/firm/register",
@@ -67,4 +69,9 @@ export const endpoints = {
   deleteTpAdjuster: "api/v2/file/third-party/adjuster/delete",
   driverInfo: "api/v2/file/third-party/driver-information/show",
   createDriverInfo: "api/v2/file/third-party/driver-information",
+  createOwnerInfo: "api/v2/file/third-party/owner-information",
+  ownerInfo: "api/v2/file/third-party/owner-information/show",
+  deleteOwnerInfo: "api/v2/file/third-party/owner-information/delete",
+  deleteOwnerDirector:
+    "api/v2/file/third-party/owner-information/director-delete",
 };

@@ -33,6 +33,7 @@ import AbCounselPage from "@/pages/ab_counsel/abCounsel_editor";
 import TPInsurerForm from "@/pages/tp_insurance/tp_insurance_editor";
 import TPAdjusterForm from "@/pages/tp_adjuster/tp_adjuster_editor";
 import TpDriverInfoForm from "@/pages/tp_driverinfo/tp_driverinfo_editor";
+import OwnerInfoForm from "@/pages/tp_ownerInfo/tp_ownerInfo_editor";
 
 const Router = () => {
   return (
@@ -123,6 +124,10 @@ const Router = () => {
           <Route
             path="/dashboard/workstation/edit/:slug/tp-driverInfo"
             element={<TpDriverInfoForm />}
+          />
+          <Route
+            path="/dashboard/workstation/edit/:slug/tp-ownerInfo"
+            element={<OwnerInfoForm />}
           />
           <Route path="/dashboard/contact-us" element={<ContactUs />} />
         </Route>

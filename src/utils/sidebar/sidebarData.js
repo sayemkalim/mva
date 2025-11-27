@@ -172,8 +172,13 @@ export const getEditModeData = (slug) => ({
           icon: User,
         },
         {
-          title: "Driver Info",
+          title: "Driver Information",
           url: `/dashboard/workstation/edit/${slug}/tp-driverInfo`,
+          icon: User,
+        },
+        {
+          title: "Owner Information",
+          url: `/dashboard/workstation/edit/${slug}/tp-ownerInfo`,
           icon: User,
         },
       ],
