@@ -61,4 +61,10 @@ export const endpoints = {
   abCounsel: "api/v2/file/accident-benefits/ab-counsel/show",
   createTpInsurance: "api/v2/file/third-party/insurance",
   tpInsurance: "api/v2/file/third-party/insurance/show",
+  deleteTpInsurance: "api/v2/file/third-party/insurance/delete",
+  createTpAdjuster: "api/v2/file/third-party/adjuster",
+  tpAdjuster: "api/v2/file/third-party/adjuster/show",
+  deleteTpAdjuster: "api/v2/file/third-party/adjuster/delete",
+  driverInfo: "api/v2/file/third-party/driver-information/show",
+  createDriverInfo: "api/v2/file/third-party/driver-information",
 };

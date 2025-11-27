@@ -30,6 +30,9 @@ import Section33 from "@/pages/section33/components/section33_editor";
 import LatEditor from "@/pages/lat/components/lat_editor";
 import Lat from "@/pages/lat";
 import AbCounselPage from "@/pages/ab_counsel/abCounsel_editor";
+import TPInsurerForm from "@/pages/tp_insurance/tp_insurance_editor";
+import TPAdjusterForm from "@/pages/tp_adjuster/tp_adjuster_editor";
+import TpDriverInfoForm from "@/pages/tp_driverinfo/tp_driverinfo_editor";
 
 const Router = () => {
   return (
@@ -108,6 +111,18 @@ const Router = () => {
           <Route
             path="/dashboard/workstation/edit/:slug/ab-counsel"
             element={<AbCounselPage />}
+          />
+          <Route
+            path="/dashboard/workstation/edit/:slug/tp-insurance"
+            element={<TPInsurerForm />}
+          />
+          <Route
+            path="/dashboard/workstation/edit/:slug/tp-adjuster"
+            element={<TPAdjusterForm />}
+          />
+          <Route
+            path="/dashboard/workstation/edit/:slug/tp-driverInfo"
+            element={<TpDriverInfoForm />}
           />
           <Route path="/dashboard/contact-us" element={<ContactUs />} />
         </Route>

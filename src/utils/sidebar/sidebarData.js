@@ -156,6 +156,28 @@ export const getEditModeData = (slug) => ({
         },
       ],
     },
+    {
+      title: "Third Party",
+      url: ``,
+      icon: LifeBuoy,
+      items: [
+        {
+          title: "Insurance",
+          url: `/dashboard/workstation/edit/${slug}/tp-insurance`,
+          icon: User,
+        },
+        {
+          title: "Adjuster",
+          url: `/dashboard/workstation/edit/${slug}/tp-adjuster`,
+          icon: User,
+        },
+        {
+          title: "Driver Info",
+          url: `/dashboard/workstation/edit/${slug}/tp-driverInfo`,
+          icon: User,
+        },
+      ],
+    },
   ],
   projects: [],
 });
