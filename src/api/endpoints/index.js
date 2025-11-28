@@ -1,3 +1,4 @@
+import { createStatement } from "@/pages/statement/helpers/createStatement";
 import { createTpVechile } from "@/pages/tp_vechile/helpers/createTpVechile";
 
 export const endpoints = {
@@ -76,4 +77,19 @@ export const endpoints = {
     "api/v2/file/third-party/owner-information/director-delete",
   createTpVechile: "api/v2/file/third-party/vehicle",
   tpVechile: "api/v2/file/third-party/vehicle/show",
+  section258List: "api/v2/file/third-party/section-258/list",
+  createSection258: "api/v2/file/third-party/section-258",
+  section258: "api/v2/file/third-party/section-258/show",
+  updateSection258: "api/v2/file/third-party/section-258",
+  deleteSection258Communication:
+    "api/v2/file/third-party/section-258/delete-communication",
+  deleteSection258document:
+    "api/v2/file/third-party/section-258/delete-document",
+  deleteSection258List: "api/v2/file/third-party/section-258/delete",
+  createTpCounsel: "api/v2/file/third-party/tp-counsel",
+  tpCounsel: "api/v2/file/third-party/tp-counsel/show",
+  soc: "api/v2/file/soc/show",
+  createSoc: "api/v2/file/soc",
+  createStatement: "api/v2/file/soc/statamnet-of-defence",
+  statement: "api/v2/file/soc/statamnet-of-defence/show",
 };

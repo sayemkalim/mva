@@ -19,12 +19,12 @@ import {
 } from "@/components/ui/command";
 import { Loader2, Plus, Trash2, ChevronsUpDown, Check } from "lucide-react";
 import { toast } from "sonner";
-import { fetchSectionById } from "../../helpers/fetchSectionById";
 import { getABMeta } from "../../helpers/fetchABMeta";
 import { createSection, updateSection } from "../../helpers/createSection";
 import { deleteSectionCommunication } from "../../helpers/deleteSectionCommunication";
 import { deleteSectiondocument } from "../../helpers/deleteSectiondocument";
 import { Navbar2 } from "@/components/navbar2";
+import { fetchSectionById } from "../../helpers/fetchSectionById";
 
 const SearchableDropdown = ({
   value,
@@ -89,7 +89,7 @@ const SearchableDropdown = ({
   );
 };
 
-// Include id so backend can distinguish existing vs new communications
+// IMPORTANT: include id so backend can tell existing vs new records
 const emptyComm = {
   id: null,
   date: "",
@@ -98,7 +98,6 @@ const emptyComm = {
   reminder: "",
 };
 
-// Include id so backend can distinguish existing vs new documents
 const emptyDocReq = {
   id: null,
   documents_requested_by_the_insurer_id: "",
@@ -114,7 +113,7 @@ const emptyDocReq = {
   expanded: false,
 };
 
-export default function Section33() {
+export default function Section258Form() {
   const { id, slug } = useParams();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
@@ -122,23 +121,21 @@ export default function Section33() {
   const [popoverOpen, setPopoverOpen] = useState({});
   const isEditMode = Boolean(id);
 
-  // Fetch meta info for dropdown options
   const {
     data: metaResp,
     isLoading: loadingMeta,
     isError: metaError,
     error: metaErrObj,
   } = useQuery({
-    queryKey: ["section33Meta"],
+    queryKey: ["section258Meta"],
     queryFn: getABMeta,
     staleTime: 5 * 60 * 1000,
     retry: 2,
   });
   const meta = metaResp?.response || {};
 
-  // Fetch existing section33 data for editing
-  const { data: section33, isLoading: loadingSection33 } = useQuery({
-    queryKey: ["section33", id],
+  const { data: section258, isLoading: loadingSection258 } = useQuery({
+    queryKey: ["section258", id],
     queryFn: () => fetchSectionById(id),
     enabled: isEditMode,
     staleTime: 5 * 60 * 1000,
@@ -150,7 +147,7 @@ export default function Section33() {
     mutationFn: (commId) => deleteSectionCommunication(commId),
     onSuccess: () => {
       toast.success("Communication deleted successfully!");
-      queryClient.invalidateQueries(["section33", id]);
+      queryClient.invalidateQueries(["section258", id]);
     },
     onError: (e) => toast.error(e.message || "Failed to delete communication"),
   });
@@ -159,14 +156,13 @@ export default function Section33() {
     mutationFn: (docId) => deleteSectiondocument(docId),
     onSuccess: () => {
       toast.success("Document deleted successfully!");
-      queryClient.invalidateQueries(["section33", id]);
+      queryClient.invalidateQueries(["section258", id]);
     },
     onError: (e) => toast.error(e.message || "Failed to delete document"),
   });
 
-  // Main form state (includes first document fields)
   const [mainForm, setMainForm] = useState({
-    // Section 33 record id
+    // this id is for the main Section258 record
     id: "",
     request_id: "",
     s33_req_received: "",
@@ -182,24 +178,25 @@ export default function Section33() {
     fax: "",
     email: "",
     request_status_id: "",
-    // id of the first requested_documents record
+    // NEW: id of the main requested_document record
     main_doc_id: null,
     communications: [{ ...emptyComm }],
     expanded: false,
   });
+
   const [documentsRequested, setDocumentsRequested] = useState([]);
 
   useEffect(() => {
-    if (section33 && isEditMode) {
-      const docs = section33.requested_documents || [];
+    if (section258 && isEditMode) {
+      const docs = section258.requested_documents || [];
 
       if (docs.length > 0) {
         const firstDoc = docs[0];
 
         setMainForm({
-          id: section33.id ?? "",
-          request_id: section33.request_id ?? "",
-          s33_req_received: section33.s33_req_received ?? "",
+          id: section258.id ?? "",
+          request_id: section258.request_id ?? "",
+          s33_req_received: section258.s33_req_received ?? "",
           documents_requested_by_the_insurer_id: firstDoc.requested_id ?? "",
           from_date: firstDoc.from_date ?? "",
           to_date: firstDoc.to_date ?? "",
@@ -209,21 +206,23 @@ export default function Section33() {
           fax: firstDoc.fax ?? "",
           email: firstDoc.email ?? "",
           request_status_id: firstDoc.request_status_id ?? "",
-          deadline: section33.deadline ?? "",
-          response_to_insurance: section33.response_to_insurance ?? "",
-          s33_req_status_id: section33.s33_req_status_id ?? "",
+          deadline: section258.deadline ?? "",
+          response_to_insurance: section258.response_to_insurance ?? "",
+          s33_req_status_id: section258.s33_req_status_id ?? "",
           expanded: !!firstDoc.requested_id,
+          // keep id of main document
           main_doc_id: firstDoc.id ?? null,
+          // keep ids of communications as well
           communications: (firstDoc.communications || []).map((c) => ({
             ...emptyComm,
-            ...c, // keeps c.id from backend
+            ...c,
           })) || [{ ...emptyComm }],
         });
 
         setDocumentsRequested(
           docs.slice(1).map((doc) => ({
             ...emptyDocReq,
-            id: doc.id ?? null, // keep each doc's id
+            id: doc.id ?? null, // keep id of each extra document
             documents_requested_by_the_insurer_id: doc.requested_id ?? "",
             from_date: doc.from_date ?? "",
             to_date: doc.to_date ?? "",
@@ -236,15 +235,15 @@ export default function Section33() {
             expanded: !!doc.requested_id,
             communications: (doc.communications || []).map((c) => ({
               ...emptyComm,
-              ...c, // keeps c.id from backend
+              ...c,
             })) || [{ ...emptyComm }],
           }))
         );
       } else {
         setMainForm({
-          id: section33.id ?? "",
-          request_id: section33.request_id ?? "",
-          s33_req_received: section33.s33_req_received ?? "",
+          id: section258.id ?? "",
+          request_id: section258.request_id ?? "",
+          s33_req_received: section258.s33_req_received ?? "",
           documents_requested_by_the_insurer_id: "",
           from_date: "",
           to_date: "",
@@ -254,9 +253,9 @@ export default function Section33() {
           fax: "",
           email: "",
           request_status_id: "",
-          deadline: section33.deadline ?? "",
-          response_to_insurance: section33.response_to_insurance ?? "",
-          s33_req_status_id: section33.s33_req_status_id ?? "",
+          deadline: section258.deadline ?? "",
+          response_to_insurance: section258.response_to_insurance ?? "",
+          s33_req_status_id: section258.s33_req_status_id ?? "",
           expanded: false,
           main_doc_id: null,
           communications: [{ ...emptyComm }],
@@ -264,7 +263,7 @@ export default function Section33() {
         setDocumentsRequested([]);
       }
     }
-  }, [section33, isEditMode]);
+  }, [section258, isEditMode]);
 
   const getLabel = (id, arr) =>
     arr?.find((opt) => String(opt.id) === String(id))?.name || "";
@@ -330,7 +329,7 @@ export default function Section33() {
           : item
       )
     );
-    if (popoverKey) {
+    if (popKey) {
       setPopoverOpen((p) => ({ ...p, [popKey]: false }));
     }
   };
@@ -413,7 +412,7 @@ export default function Section33() {
         ? updateSection(idOrSlug, data)
         : createSection({ slug: idOrSlug, data }),
     onSuccess: (data) => {
-      const resp = data?.response || data; // For safety, prefer response key
+      const resp = data?.response || data;
 
       console.log("API Success Response:", resp);
 
@@ -424,7 +423,7 @@ export default function Section33() {
               ? "Record updated successfully!"
               : "Record created successfully!")
         );
-        queryClient.invalidateQueries(["section33", id]);
+        queryClient.invalidateQueries(["section258", id]);
         navigate(-1);
       } else {
         toast.error(resp.message || "Operation failed. Please try again.");
@@ -451,7 +450,7 @@ export default function Section33() {
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    // Map main communications with ids
+    // map communications so each has id included
     const mainCommsPayload = (mainForm.communications || []).map((c) => ({
       id: c.id ?? null,
       date: c.date,
@@ -460,10 +459,10 @@ export default function Section33() {
       reminder: c.reminder,
     }));
 
-    // Build documents_requested payload with ids
     const docsPayload = [
       {
-        id: mainForm.main_doc_id ?? null, // id of the first document
+        // MAIN document for this section
+        id: mainForm.main_doc_id ?? null, // <-- important
         requested_id: mainForm.documents_requested_by_the_insurer_id,
         from_date: mainForm.from_date,
         to_date: mainForm.to_date,
@@ -475,8 +474,9 @@ export default function Section33() {
         request_status_id: mainForm.request_status_id,
         communications: mainCommsPayload,
       },
+      // additional documents
       ...documentsRequested.map((doc) => ({
-        id: doc.id ?? null, // id of additional document
+        id: doc.id ?? null, // <-- important, backend reads this
         requested_id: doc.documents_requested_by_the_insurer_id,
         from_date: doc.from_date,
         to_date: doc.to_date,
@@ -497,7 +497,7 @@ export default function Section33() {
     ];
 
     const payload = {
-      id: mainForm.id || null, // section33 id
+      id: mainForm.id || null, // main Section258 id
       request_id: mainForm.request_id,
       s33_req_received: mainForm.s33_req_received,
       documents_requested_by_the_insurer_id:
@@ -513,7 +513,7 @@ export default function Section33() {
       fax: mainForm.fax,
       email: mainForm.email,
       request_status_id: mainForm.request_status_id,
-      communications: mainCommsPayload, // top level communication
+      communications: mainCommsPayload,
       documents_requested: docsPayload,
     };
 
@@ -543,18 +543,20 @@ export default function Section33() {
 
   // Main document delete logic
   const handleDeleteMainDocument = () => {
-    // delete first requested_document by its own id
+    // here we should delete the main document record, not the section id
     if (mainForm.main_doc_id) {
       handleDeleteDocument(mainForm.main_doc_id);
     }
-    setMainForm((prev) => ({
-      ...prev,
+    setMainForm({
+      id: mainForm.id, // keep section id
+      request_id: "",
+      s33_req_received: "",
       documents_requested_by_the_insurer_id: "",
       from_date: "",
       to_date: "",
-      deadline: prev.deadline,
-      response_to_insurance: prev.response_to_insurance,
-      s33_req_status_id: prev.s33_req_status_id,
+      deadline: "",
+      response_to_insurance: "",
+      s33_req_status_id: "",
       ambulance_cnr: "",
       medical_clinic_name: "",
       phone: "",
@@ -564,10 +566,10 @@ export default function Section33() {
       main_doc_id: null,
       communications: [{ ...emptyComm }],
       expanded: false,
-    }));
+    });
   };
 
-  if (loadingMeta || (isEditMode && loadingSection33)) {
+  if (loadingMeta || (isEditMode && loadingSection258)) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
@@ -609,7 +611,7 @@ export default function Section33() {
               />
             </div>
             <div className="space-y-2">
-              <Label>S33 REQ Received</Label>
+              <Label>S258 REQ Received</Label>
               <Input
                 type="date"
                 name="s33_req_received"
@@ -1143,7 +1145,7 @@ export default function Section33() {
               />
             </div>
             <div className="space-y-2">
-              <Label>S33 REQ Status</Label>
+              <Label>S258 REQ Status</Label>
               <SearchableDropdown
                 value={mainForm.s33_req_status_id}
                 options={meta.insurance_section_request}
@@ -1174,9 +1176,9 @@ export default function Section33() {
                   {isEditMode ? "Updating..." : "Saving..."}
                 </>
               ) : isEditMode ? (
-                "Update Section 33"
+                "Update Section 258"
               ) : (
-                "Save Section 33"
+                "Save Section 258"
               )}
             </Button>
           </div>

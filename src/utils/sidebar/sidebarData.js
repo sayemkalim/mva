@@ -20,6 +20,9 @@ import {
   Ambulance,
   AmbulanceIcon,
   LifeBuoy,
+  HeartHandshake,
+  ActivityIcon,
+  Radar,
 } from "lucide-react";
 import { getItem } from "../local_storage";
 
@@ -159,7 +162,7 @@ export const getEditModeData = (slug) => ({
     {
       title: "Third Party",
       url: ``,
-      icon: LifeBuoy,
+      icon: HeartHandshake,
       items: [
         {
           title: "Insurance",
@@ -184,6 +187,33 @@ export const getEditModeData = (slug) => ({
         {
           title: "Vehicle Information",
           url: `/dashboard/workstation/edit/${slug}/tp-vehicleInfo`,
+          icon: User,
+        },
+        {
+          title: "Section 258",
+          url: `/dashboard/workstation/edit/${slug}/section-258-list`,
+          icon: User,
+        },
+        {
+          title: "TP Counsel",
+          url: `/dashboard/workstation/edit/${slug}/tp-counsel`,
+          icon: User,
+        },
+      ],
+    },
+    {
+      title: "SOC",
+      url: ``,
+      icon: Radar,
+      items: [
+        {
+          title: "SOC",
+          url: `/dashboard/workstation/edit/${slug}/soc`,
+          icon: User,
+        },
+        {
+          title: "Statement of Defence",
+          url: `/dashboard/workstation/edit/${slug}/sod`,
           icon: User,
         },
       ],

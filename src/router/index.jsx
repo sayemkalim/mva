@@ -35,6 +35,11 @@ import TPAdjusterForm from "@/pages/tp_adjuster/tp_adjuster_editor";
 import TpDriverInfoForm from "@/pages/tp_driverinfo/tp_driverinfo_editor";
 import OwnerInfoForm from "@/pages/tp_ownerInfo/tp_ownerInfo_editor";
 import VehicleInfoForm from "@/pages/tp_vechile/tpvechile_editor";
+import Section28 from "@/pages/section258";
+import Section258Form from "@/pages/section258/components/section28_editor";
+import TpCounselForm from "@/pages/tp_counsel/tpCounsel_editor";
+import SocForm from "@/pages/soc/soc_editor";
+import StatementOfDefencePage from "@/pages/statement/statement_editor";
 
 const Router = () => {
   return (
@@ -133,6 +138,30 @@ const Router = () => {
           <Route
             path="/dashboard/workstation/edit/:slug/tp-vehicleInfo"
             element={<VehicleInfoForm />}
+          />
+          <Route
+            path="/dashboard/workstation/edit/:slug/section-258-list"
+            element={<Section28 />}
+          />
+          <Route
+            path="/dashboard/section258/add/:slug"
+            element={<Section258Form />}
+          />
+          <Route
+            path="/dashboard/section258/:id"
+            element={<Section258Form />}
+          />
+          <Route
+            path="/dashboard/workstation/edit/:slug/tp-counsel"
+            element={<TpCounselForm />}
+          />
+          <Route
+            path="/dashboard/workstation/edit/:slug/soc"
+            element={<SocForm />}
+          />
+          <Route
+            path="/dashboard/workstation/edit/:slug/sod"
+            element={<StatementOfDefencePage />}
           />
           <Route path="/dashboard/contact-us" element={<ContactUs />} />
         </Route>
