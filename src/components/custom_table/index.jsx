@@ -51,7 +51,7 @@ function CustomTable({
       header: () => <Typography>{col.label}</Typography>,
       cell: (info) =>
         col.render ? (
-          col.render(info.getValue(), info.row.original)
+          col.render(info.getValue(), info.row.original, info.row.index)
         ) : (
           <Typography>{info.getValue()}</Typography>
         ),

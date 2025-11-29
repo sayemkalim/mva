@@ -249,6 +249,18 @@ export const getEditModeData = (slug) => ({
       icon: Syringe,
       items: [],
     },
+    {
+      title: "Documents",
+      url: ``,
+      icon: Syringe,
+      items: [
+        {
+          title: "Conflict Search",
+          url: `/dashboard/workstation/edit/${slug}/conflict`,
+          icon: User,
+        },
+      ],
+    },
   ],
   projects: [],
 });

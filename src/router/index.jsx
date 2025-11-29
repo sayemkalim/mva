@@ -44,6 +44,8 @@ import ScheduledPage from "@/pages/scheduled/scheduled_editor";
 import AodPage from "@/pages/aod/aod_editor";
 import UndertakingPage from "@/pages/undertaking/undertaking_editor";
 import MedicalCentrePage from "@/pages/medical_centre/medical_editor";
+import Conflict from "@/pages/conflict";
+import ConflictSearchPage from "@/pages/conflict/components/conflictt_editor";
 
 const Router = () => {
   return (
@@ -182,6 +184,14 @@ const Router = () => {
           <Route
             path="/dashboard/workstation/edit/:slug/medical-centre"
             element={<MedicalCentrePage />}
+          />
+          <Route
+            path="/dashboard/workstation/edit/:slug/conflict"
+            element={<Conflict />}
+          />
+          <Route
+            path="/dashboard/conflict/add/:slug"
+            element={<ConflictSearchPage />}
           />
           <Route path="/dashboard/contact-us" element={<ContactUs />} />
         </Route>

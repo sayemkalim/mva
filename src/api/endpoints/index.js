@@ -95,4 +95,8 @@ export const endpoints = {
   aod: "api/v2/file/discovery/aod/show",
   createUndertaking: "api/v2/file/discovery/undertaking",
   undertaking: "api/v2/file/discovery/undertaking/show",
+  conflictList: "api/v2/file/document/list/conflict-search",
+  createConflict: "api/v2/file/document/save/conflict-search",
+  deleteConflict: "api/v2/file/document/delete",
+  updateConflict: "api/v2/file/document",
 };
