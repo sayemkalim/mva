@@ -40,6 +40,10 @@ import Section258Form from "@/pages/section258/components/section28_editor";
 import TpCounselForm from "@/pages/tp_counsel/tpCounsel_editor";
 import SocForm from "@/pages/soc/soc_editor";
 import StatementOfDefencePage from "@/pages/statement/statement_editor";
+import ScheduledPage from "@/pages/scheduled/scheduled_editor";
+import AodPage from "@/pages/aod/aod_editor";
+import UndertakingPage from "@/pages/undertaking/undertaking_editor";
+import MedicalCentrePage from "@/pages/medical_centre/medical_editor";
 
 const Router = () => {
   return (
@@ -162,6 +166,22 @@ const Router = () => {
           <Route
             path="/dashboard/workstation/edit/:slug/sod"
             element={<StatementOfDefencePage />}
+          />
+          <Route
+            path="/dashboard/workstation/edit/:slug/scheduled"
+            element={<ScheduledPage />}
+          />
+          <Route
+            path="/dashboard/workstation/edit/:slug/aod"
+            element={<AodPage />}
+          />
+          <Route
+            path="/dashboard/workstation/edit/:slug/undertaking"
+            element={<UndertakingPage />}
+          />
+          <Route
+            path="/dashboard/workstation/edit/:slug/medical-centre"
+            element={<MedicalCentrePage />}
           />
           <Route path="/dashboard/contact-us" element={<ContactUs />} />
         </Route>

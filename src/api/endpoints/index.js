@@ -1,6 +1,3 @@
-import { createStatement } from "@/pages/statement/helpers/createStatement";
-import { createTpVechile } from "@/pages/tp_vechile/helpers/createTpVechile";
-
 export const endpoints = {
   login: "api/login",
   signup: "api/firm/register",
@@ -92,4 +89,10 @@ export const endpoints = {
   createSoc: "api/v2/file/soc",
   createStatement: "api/v2/file/soc/statamnet-of-defence",
   statement: "api/v2/file/soc/statamnet-of-defence/show",
+  createScheduled: "api/v2/file/discovery/scheduled",
+  scheduled: "api/v2/file/discovery/scheduled/show",
+  createAod: "api/v2/file/discovery/aod",
+  aod: "api/v2/file/discovery/aod/show",
+  createUndertaking: "api/v2/file/discovery/undertaking",
+  undertaking: "api/v2/file/discovery/undertaking/show",
 };

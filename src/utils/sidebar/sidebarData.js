@@ -23,6 +23,9 @@ import {
   HeartHandshake,
   ActivityIcon,
   Radar,
+  Stethoscope,
+  HeartPulse,
+  Syringe,
 } from "lucide-react";
 import { getItem } from "../local_storage";
 
@@ -217,6 +220,34 @@ export const getEditModeData = (slug) => ({
           icon: User,
         },
       ],
+    },
+    {
+      title: "Discovery",
+      url: ``,
+      icon: Radar,
+      items: [
+        {
+          title: "Scheduled",
+          url: `/dashboard/workstation/edit/${slug}/scheduled`,
+          icon: User,
+        },
+        {
+          title: "AOD",
+          url: `/dashboard/workstation/edit/${slug}/aod`,
+          icon: User,
+        },
+        {
+          title: "Undertaking",
+          url: `/dashboard/workstation/edit/${slug}/undertaking`,
+          icon: User,
+        },
+      ],
+    },
+    {
+      title: "Medical Centre",
+      url: `/dashboard/workstation/edit/${slug}/medical-centre`,
+      icon: Syringe,
+      items: [],
     },
   ],
   projects: [],
