@@ -99,4 +99,12 @@ export const endpoints = {
   createConflict: "api/v2/file/document/save/conflict-search",
   deleteConflict: "api/v2/file/document/delete",
   updateConflict: "api/v2/file/document",
+  createClient: "api/v2/file/document/save/client-documents",
+  clientList: "api/v2/file/document/list/client-documents",
+  updateClient: "api/v2/file/document",
+  deleteClient: "api/v2/file/document/delete",
+  createInsuranceDoc: "api/v2/file/document/save/insurance-ownership",
+  insuranceDocList: "api/v2/file/document/list/insurance-ownership",
+  deleteInsuranceDoc: "api/v2/file/document/delete",
+  updateInsuranceDoc: "api/v2/file/document",
 };

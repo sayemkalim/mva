@@ -12,7 +12,7 @@ const NavbarItem = ({ title, isBack }) => {
   return (
     <div className="flex md:flex-row justify-between md:items-center p-4">
       <div className="flex flex-row mb-4 md:mb-0 gap-6">
-        <SidebarTrigger className="-ml-1" />
+        {/* <SidebarTrigger className="-ml-1" /> */}
         <div className="flex flex-col gap-1">
           <h1 className="text-xl md:text-xl font-semibold">{title}</h1>
           <NavbarBreadcrumb title={title} isBack={isBack} />

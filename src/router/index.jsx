@@ -46,6 +46,10 @@ import UndertakingPage from "@/pages/undertaking/undertaking_editor";
 import MedicalCentrePage from "@/pages/medical_centre/medical_editor";
 import Conflict from "@/pages/conflict";
 import ConflictSearchPage from "@/pages/conflict/components/conflictt_editor";
+import Client from "@/pages/client";
+import ClientDocumentPage from "@/pages/client/components/client_editor";
+import InsuranceOwner from "@/pages/insurance_ownership";
+import InsuranceDocPage from "@/pages/insurance_ownership/components/insurancedoc_editor";
 
 const Router = () => {
   return (
@@ -192,6 +196,23 @@ const Router = () => {
           <Route
             path="/dashboard/conflict/add/:slug"
             element={<ConflictSearchPage />}
+          />
+
+          <Route
+            path="/dashboard/workstation/edit/:slug/client-documents"
+            element={<Client />}
+          />
+          <Route
+            path="/dashboard/client/add/:slug"
+            element={<ClientDocumentPage />}
+          />
+          <Route
+            path="/dashboard/workstation/edit/:slug/insurance-ownership"
+            element={<InsuranceOwner />}
+          />
+          <Route
+            path="/dashboard/insurance-ownership/add/:slug"
+            element={<InsuranceDocPage />}
           />
           <Route path="/dashboard/contact-us" element={<ContactUs />} />
         </Route>

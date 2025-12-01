@@ -26,6 +26,9 @@ import {
   Stethoscope,
   HeartPulse,
   Syringe,
+  FileUp,
+  FilePlus,
+  ScanSearch,
 } from "lucide-react";
 import { getItem } from "../local_storage";
 
@@ -224,7 +227,7 @@ export const getEditModeData = (slug) => ({
     {
       title: "Discovery",
       url: ``,
-      icon: Radar,
+      icon: ScanSearch,
       items: [
         {
           title: "Scheduled",
@@ -252,11 +255,36 @@ export const getEditModeData = (slug) => ({
     {
       title: "Documents",
       url: ``,
-      icon: Syringe,
+      icon: FilePlus,
       items: [
         {
           title: "Conflict Search",
           url: `/dashboard/workstation/edit/${slug}/conflict`,
+          icon: User,
+        },
+        {
+          title: "Client Documents",
+          url: `/dashboard/workstation/edit/${slug}/client-documents`,
+          icon: User,
+        },
+        {
+          title: "Insurance Ownership",
+          url: `/dashboard/workstation/edit/${slug}/insurance-ownership`,
+          icon: User,
+        },
+        {
+          title: "Police Report",
+          url: `/dashboard/workstation/edit/${slug}/police-report`,
+          icon: User,
+        },
+        {
+          title: "Medical Report",
+          url: `/dashboard/workstation/edit/${slug}/medical-report`,
+          icon: User,
+        },
+        {
+          title: "Accounting",
+          url: `/dashboard/workstation/edit/${slug}/accounting`,
           icon: User,
         },
       ],
