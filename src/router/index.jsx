@@ -50,6 +50,12 @@ import Client from "@/pages/client";
 import ClientDocumentPage from "@/pages/client/components/client_editor";
 import InsuranceOwner from "@/pages/insurance_ownership";
 import InsuranceDocPage from "@/pages/insurance_ownership/components/insurancedoc_editor";
+import PoliceReport from "@/pages/police";
+import PoliceReportPage from "@/pages/police/components/insurancedoc_editor";
+import Accounting from "@/pages/accounting";
+import AccountingPage from "@/pages/accounting/components/accounting_editor";
+import MedicalReport from "@/pages/medical";
+import MedicalPage from "@/pages/medical/components/medical_editor";
 
 const Router = () => {
   return (
@@ -214,7 +220,30 @@ const Router = () => {
             path="/dashboard/insurance-ownership/add/:slug"
             element={<InsuranceDocPage />}
           />
-          <Route path="/dashboard/contact-us" element={<ContactUs />} />
+          <Route
+            path="/dashboard/workstation/edit/:slug/police-report"
+            element={<PoliceReport />}
+          />
+          <Route
+            path="/dashboard/police-report/add/:slug"
+            element={<PoliceReportPage />}
+          />
+          <Route
+            path="/dashboard/workstation/edit/:slug/accounting"
+            element={<Accounting />}
+          />
+          <Route
+            path="/dashboard/accounting/add/:slug"
+            element={<AccountingPage />}
+          />
+          <Route
+            path="/dashboard/workstation/edit/:slug/medical-report"
+            element={<MedicalReport />}
+          />
+          <Route
+            path="/dashboard/medical-report/add/:slug"
+            element={<MedicalPage />}
+          />
         </Route>
       </Route>
       <Route path="*" element={<ErrorPage />} />
