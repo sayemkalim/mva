@@ -1,3 +1,4 @@
+// utils/sidebar/sidebarData.js
 import {
   ContactIcon,
   FileText,
@@ -35,6 +36,22 @@ import { getItem } from "../local_storage";
 const userName = getItem("userName") || "Admin";
 const userEmail = getItem("userEmail") || "admin@admin.com";
 
+export const EDIT_MODE_PATHS = [
+  "/dashboard/workstation/edit/",
+  "/dashboard/section/",
+  "/dashboard/lat/add/",
+  "/dashboard/lat/edit/",
+  "/dashboard/section258/add/",
+  "/dashboard/section258/",
+  "/dashboard/conflict/add/",
+  "/dashboard/client/add",
+  "/dashboard/medical-centre/add/",
+  "/dashboard/insurance-ownership/add/",
+  "/dashboard/police-report/add/",
+  "/dashboard/accounting/add/",
+  "/dashboard/medical-report/add/",
+];
+
 export const data = {
   user: {
     name: userName,
@@ -60,7 +77,6 @@ export const data = {
   projects: [],
 };
 
-// Function to generate edit mode data with dynamic slug
 export const getEditModeData = (slug) => ({
   user: {
     name: userName,

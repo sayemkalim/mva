@@ -1,6 +1,6 @@
 import CryptoJS from "crypto-js";
 
-const SECRET_KEY = "your-secret-key"; // Use a strong secret key
+const SECRET_KEY = "your-secret-key";
 
 export function encrypt(text) {
   return CryptoJS.AES.encrypt(text, SECRET_KEY).toString();

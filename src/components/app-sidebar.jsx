@@ -9,7 +9,11 @@ import {
   SidebarRail,
 } from "@/components/ui/sidebar";
 import { Input } from "./ui/input";
-import { data, getEditModeData } from "@/utils/sidebar/sidebarData";
+import {
+  data,
+  getEditModeData,
+  EDIT_MODE_PATHS,
+} from "@/utils/sidebar/sidebarData";
 import { filterItemsByRole } from "@/utils/sidebar/filterItemsByRole";
 import { useEffect, useState, useMemo } from "react";
 import { getItem } from "@/utils/local_storage";
@@ -17,20 +21,17 @@ import { useLocation, useParams } from "react-router-dom";
 
 export function AppSidebar({ ...props }) {
   const location = useLocation();
-  const { slug } = useParams();
+  const { slug, id } = useParams();
   const [role, setRole] = useState(null);
   const [activeSection, setActiveSection] = useState("Initial");
 
-  // useEffect(() => {
-  //   const storedRole = getItem("userRole");
-  //   if (storedRole === "super_admin" || storedRole === "admin") {
-  //     setRole(storedRole);
-  //   }
-  // }, []);
+  const isEditMode = useMemo(() => {
+    return EDIT_MODE_PATHS.some((path) => location.pathname.includes(path));
+  }, [location.pathname]);
+  const routeParam = slug || id;
 
-  const isEditPage = location.pathname.includes("/dashboard/workstation/edit/");
   useEffect(() => {
-    if (isEditPage) {
+    if (isEditMode) {
       const hash = location.hash;
       if (hash === "#work-experience") {
         setActiveSection("Identification");
@@ -42,10 +43,11 @@ export function AppSidebar({ ...props }) {
         setActiveSection("Initial");
       }
     }
-  }, [location.hash, isEditPage]);
+  }, [location.hash, isEditMode]);
+
   const sidebarData = useMemo(() => {
-    if (isEditPage && slug) {
-      const editData = getEditModeData(slug);
+    if (isEditMode && routeParam) {
+      const editData = getEditModeData(routeParam);
       const modifiedEditData = {
         ...editData,
         navMain: editData.navMain.map((item) => ({
@@ -60,9 +62,11 @@ export function AppSidebar({ ...props }) {
       return modifiedEditData;
     }
     return data;
-  }, [isEditPage, activeSection, slug]);
+  }, [isEditMode, activeSection, routeParam]);
+
   const userInfo = sidebarData.user;
   const filteredNavMain = filterItemsByRole(sidebarData.navMain, role);
+
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>

@@ -203,7 +203,6 @@ const Router = () => {
             path="/dashboard/conflict/add/:slug"
             element={<ConflictSearchPage />}
           />
-
           <Route
             path="/dashboard/workstation/edit/:slug/client-documents"
             element={<Client />}
