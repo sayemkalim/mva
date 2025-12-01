@@ -1,4 +1,3 @@
-// utils/sidebar/sidebarData.js
 import {
   ContactIcon,
   FileText,
