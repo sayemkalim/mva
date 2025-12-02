@@ -43,6 +43,7 @@ export const EDIT_MODE_PATHS = [
   "/dashboard/section258/add/",
   "/dashboard/section258/",
   "/dashboard/conflict/add/",
+  "/dashboard/conflict-search/edit/",
   "/dashboard/client/add",
   "/dashboard/medical-centre/add/",
   "/dashboard/insurance-ownership/add/",
@@ -300,6 +301,18 @@ export const getEditModeData = (slug) => ({
         {
           title: "Accounting",
           url: `/dashboard/workstation/edit/${slug}/accounting`,
+          icon: User,
+        },
+      ],
+    },
+    {
+      title: "Correspondence",
+      url: ``,
+      icon: FilePlus,
+      items: [
+        {
+          title: "Client",
+          url: `/dashboard/workstation/edit/${slug}/client-correspondence`,
           icon: User,
         },
       ],

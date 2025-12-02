@@ -56,6 +56,8 @@ import Accounting from "@/pages/accounting";
 import AccountingPage from "@/pages/accounting/components/accounting_editor";
 import MedicalReport from "@/pages/medical";
 import MedicalPage from "@/pages/medical/components/medical_editor";
+import ClientCorrespondence from "@/pages/client_correspondence";
+import ClientCorrespondencePage from "@/pages/client_correspondence/components/client_editor";
 
 const Router = () => {
   return (
@@ -200,6 +202,10 @@ const Router = () => {
             element={<Conflict />}
           />
           <Route
+            path="/dashboard/conflict-search/edit/:id"
+            element={<ConflictSearchPage />}
+          />
+          <Route
             path="/dashboard/conflict/add/:slug"
             element={<ConflictSearchPage />}
           />
@@ -242,6 +248,18 @@ const Router = () => {
           <Route
             path="/dashboard/medical-report/add/:slug"
             element={<MedicalPage />}
+          />
+          <Route
+            path="/dashboard/workstation/edit/:slug/client-correspondence"
+            element={<ClientCorrespondence />}
+          />
+          <Route
+            path="/dashboard/client-correspondence/add/:slug"
+            element={<ClientCorrespondencePage />}
+          />
+          <Route
+            path="/dashboard/client-correspondence/edit/:id"
+            element={<ClientCorrespondencePage />}
           />
         </Route>
       </Route>

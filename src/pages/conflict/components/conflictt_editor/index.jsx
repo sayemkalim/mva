@@ -1,18 +1,11 @@
 import { useState, useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";
-import { useQuery, useMutation } from "@tanstack/react-query";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import {
-  Loader2,
-  ChevronRight,
-  Upload,
-  X,
-  FileText,
-  Image as ImageIcon,
-} from "lucide-react";
+import { Loader2, ChevronRight, Upload, X, FileText } from "lucide-react";
 import { toast } from "sonner";
 
 import { Navbar2 } from "@/components/navbar2";
@@ -23,20 +16,28 @@ import { fetchLatById } from "../../helpers/fetchLatById";
 export default function ConflictSearchPage() {
   const { slug, id } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
+  const queryClient = useQueryClient();
 
-  const { data: conflictData, isLoading: loadingConflict } = useQuery({
+  // Get data from navigation state (instant access)
+  const stateData = location.state?.conflictData;
+
+  // Fetch data from API (for direct URL access or refresh)
+  const { data: apiConflictData, isLoading: loadingConflict } = useQuery({
     queryKey: ["conflictSearchData", id],
     queryFn: () => fetchLatById(id),
-    enabled: !!id,
+    enabled: !!id && !stateData, // Only fetch if no state data available
     retry: 1,
   });
+
+  // Use state data if available, otherwise use API data
+  const conflictData = stateData || apiConflictData;
 
   const uploadMutation = useMutation({
     mutationFn: uploadAttachment,
     onSuccess: (data) => {
       console.log("✅ Full API Response:", data);
 
-      // Extract attachment ID from response.attachment.id
       const attachmentId =
         data?.response?.attachment?.id ||
         data?.attachment?.id ||
@@ -62,7 +63,6 @@ export default function ConflictSearchPage() {
     onError: (error) => {
       toast.error("Failed to upload file. Please try again.");
       console.error("❌ Upload error:", error);
-      // Remove preview on error
       setFile(null);
       setFileName("");
       setFilePreview(null);
@@ -89,7 +89,12 @@ export default function ConflictSearchPage() {
           ? "Conflict Search updated successfully!"
           : "Conflict Search saved successfully!"
       );
-      navigate(`/dashboard/workstation/edit/${slug}`);
+      queryClient.invalidateQueries([
+        "conflictlist",
+        slug || location.state?.slug,
+      ]);
+
+      // navigate(`/dashboard/workstation/edit/${slug || location.state?.slug}`);
     },
     onError: (err) => {
       console.error("Mutation Error:", err);
@@ -113,20 +118,29 @@ export default function ConflictSearchPage() {
   const [fileName, setFileName] = useState("");
   const [filePreview, setFilePreview] = useState(null);
   const [fileType, setFileType] = useState(null);
-
   useEffect(() => {
     if (conflictData) {
+      console.log("Loading conflict data:", conflictData);
+
       setFormData({
         name: conflictData.name || "",
-        attachment_id: conflictData.attachment_id || null,
+        attachment_id:
+          conflictData.attachment_id || conflictData.attachment?.id || null,
         date: conflictData.date ? conflictData.date.split("T")[0] : "",
         memo: conflictData.memo || "",
       });
+      const attachment = conflictData.attachment;
+      if (attachment?.path) {
+        const imageUrl = attachment.path.startsWith("http")
+          ? attachment.path
+          : `${
+              import.meta.env.VITE_API_URL || "https://mva-backend.vsrlaw.ca/"
+            }${attachment.path}`;
 
-      if (conflictData.file_url) {
-        setFilePreview(conflictData.file_url);
-        setFileName(conflictData.file_name || "Uploaded file");
-        const extension = conflictData.file_name
+        setFilePreview(imageUrl);
+        setFileName(attachment.original_name || "Uploaded file");
+
+        const extension = attachment.original_name
           ?.split(".")
           .pop()
           ?.toLowerCase();
@@ -153,6 +167,7 @@ export default function ConflictSearchPage() {
       setFile(selectedFile);
       setFileName(selectedFile.name);
       setFilePreview(previewUrl);
+
       try {
         await uploadMutation.mutateAsync({ file: selectedFile });
       } catch (error) {
@@ -191,6 +206,7 @@ export default function ConflictSearchPage() {
       date: formData.date,
       memo: formData.memo,
     };
+
     console.log("🚀 Submitted Payload:", payload);
     console.log("📌 Attachment ID in payload:", payload.attachment_id);
 
@@ -201,7 +217,7 @@ export default function ConflictSearchPage() {
     return ["jpg", "jpeg", "png", "gif", "webp"].includes(type?.toLowerCase());
   };
 
-  if (loadingConflict) {
+  if (loadingConflict && !stateData) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
@@ -348,7 +364,6 @@ export default function ConflictSearchPage() {
                     </button>
 
                     {isImageFile(fileType) ? (
-                      // Image Preview
                       <div className="flex flex-col items-center gap-3">
                         <div className="relative group">
                           <img
@@ -374,7 +389,6 @@ export default function ConflictSearchPage() {
                         </div>
                       </div>
                     ) : (
-                      // Document Preview
                       <div className="flex flex-col items-center justify-center gap-3">
                         <div className="relative">
                           <div className="w-28 h-28 bg-gradient-to-br from-green-100 to-green-200 rounded-xl border-2 border-green-500 shadow-md flex items-center justify-center">

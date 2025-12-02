@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { format, isValid } from "date-fns";
+import { format, formatDistanceToNow, isValid } from "date-fns";
 import ActionMenu from "@/components/action_menu";
 import { Pencil, Trash2 } from "lucide-react";
 import CustomTable from "@/components/custom_table";
@@ -8,15 +8,15 @@ import { useEffect, useState } from "react";
 import { CustomDialog } from "@/components/custom_dialog";
 import { useNavigate } from "react-router";
 import { toast } from "sonner";
-import { fetchConflictList } from "../helpers/fetchConflictList";
-import { deleteConflict } from "../helpers/deleteConflict";
+import { fetchClientCorrespondanceList } from "../helpers/fetchClientList";
+import { deleteClientCorrespondence } from "../helpers/deleteClient";
 
 const safeFormat = (dateStr, formatStr) => {
   const dateObj = dateStr ? new Date(dateStr) : null;
   return dateObj && isValid(dateObj) ? format(dateObj, formatStr) : "-";
 };
 
-const ConflictTable = ({ slug, setBlogsLength }) => {
+const ClientTable = ({ slug, setBlogsLength }) => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
@@ -25,8 +25,8 @@ const ConflictTable = ({ slug, setBlogsLength }) => {
     isLoading,
     error,
   } = useQuery({
-    queryKey: ["conflictlist", slug],
-    queryFn: () => fetchConflictList(slug),
+    queryKey: ["clientcorrespondencelist", slug],
+    queryFn: () => fetchClientCorrespondanceList(slug),
     enabled: !!slug,
   });
 
@@ -44,14 +44,14 @@ const ConflictTable = ({ slug, setBlogsLength }) => {
   };
 
   const { mutate: deleteSectionMutation, isLoading: isDeleting } = useMutation({
-    mutationFn: (id) => deleteConflict(id),
+    mutationFn: (id) => deleteClientCorrespondence(id),
     onSuccess: () => {
-      toast.success("Section deleted successfully.");
-      queryClient.invalidateQueries(["conflictlist", slug]);
+      toast.success("Client deleted successfully.");
+      queryClient.invalidateQueries(["clientcorrespondencelist", slug]);
       onCloseDialog();
     },
     onError: () => {
-      toast.error("Failed to delete section.");
+      toast.error("Failed to delete Client.");
     },
   });
 
@@ -74,50 +74,18 @@ const ConflictTable = ({ slug, setBlogsLength }) => {
       toast.error("Invalid section data");
       return;
     }
-    
-    navigate(`/dashboard/conflict-search/edit/${section.id}`, {
-      state: {
-        conflictData: section,
-        slug: slug
-      }
-    });
+    navigate(`/dashboard/client-correspondence/edit/${section.id}`);
   };
 
   const columns = [
     {
-      key: "name",
-      label: "Name",
+      key: "type",
+      label: "Type",
       render: (value) => <Typography variant="p">{value || "-"}</Typography>,
     },
     {
-      key: "attachment",
-      label: "Image",
-      render: (value, row) => {
-        if (!value?.path) return <Typography variant="p">-</Typography>;
-
-        const imageUrl = value.path.startsWith("http")
-          ? value.path
-          : `${
-              import.meta.env.VITE_API_URL || "https://mva-backend.vsrlaw.ca/"
-            }/${value.path}`;
-
-        return (
-          <img
-            src={imageUrl}
-            alt={value.original_name || "attachment"}
-            className="h-12 w-24 object-cover rounded border"
-            onError={(e) => {
-              e.target.onerror = null;
-              e.target.src =
-                "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIGZpbGw9IiNFNUU3RUIiLz48cGF0aCBkPSJNMTUgMTVMMjUgMjVNMjUgMTVMMTUgMjUiIHN0cm9rZT0iIzlDQTNBRiIgc3Ryb2tlLXdpZHRoPSIyIi8+PC9zdmc+";
-            }}
-          />
-        );
-      },
-    },
-    {
-      key: "memo",
-      label: "Memo",
+      key: "description",
+      label: "Description",
       render: (value) => (
         <Typography variant="p" className="max-w-xs truncate">
           {value || "-"}
@@ -130,6 +98,60 @@ const ConflictTable = ({ slug, setBlogsLength }) => {
       render: (value) => (
         <Typography variant="p">{safeFormat(value, "dd/MM/yyyy")}</Typography>
       ),
+    },
+    {
+      key: "action_performed_by",
+      label: "Performed By",
+      render: (value) => <Typography variant="p">{value || "-"}</Typography>,
+    },
+    {
+      key: "time",
+      label: "Time (min)",
+      render: (value) => (
+        <Typography variant="p">{value ? `${value} min` : "-"}</Typography>
+      ),
+    },
+    {
+      key: "rate",
+      label: "Rate",
+      render: (value) => (
+        <Typography variant="p">
+          {value ? `$${parseFloat(value).toFixed(2)}` : "-"}
+        </Typography>
+      ),
+    },
+    {
+      key: "value",
+      label: "Value",
+      render: (value) => (
+        <Typography variant="p" className="font-semibold">
+          {value ? `$${parseFloat(value).toFixed(2)}` : "-"}
+        </Typography>
+      ),
+    },
+    {
+      key: "status",
+      label: "Status",
+      render: (value) => {
+        const statusColors = {
+          Billable:
+            "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300",
+          "Non-Billable":
+            "bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-300",
+          Pending:
+            "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300",
+        };
+
+        return (
+          <span
+            className={`px-2 py-1 rounded-full text-xs font-medium ${
+              statusColors[value] || "bg-gray-100 text-gray-800"
+            }`}
+          >
+            {value || "-"}
+          </span>
+        );
+      },
     },
     {
       key: "actions",
@@ -176,4 +198,4 @@ const ConflictTable = ({ slug, setBlogsLength }) => {
   );
 };
 
-export default ConflictTable;
+export default ClientTable;

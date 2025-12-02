@@ -1,3 +1,5 @@
+import ClientCorrespondence from "@/pages/client_correspondence";
+
 export const endpoints = {
   login: "api/login",
   signup: "api/firm/register",
@@ -119,4 +121,8 @@ export const endpoints = {
   updateAccounting: "api/v2/file/document",
   accountinglist: "api/v2/file/document/list/accounting",
   deleteAccounting: "api/v2/file/document/delete",
+  createClientCorrespondence: "api/v2/file/correspondence/save/client",
+  clientCorrespondenceList: "api/v2/file/correspondence/list/client",
+  updateClientCorrespondence: "api/v2/file/correspondence",
+  deleteClientCorrespondence: "api/v2/file/correspondence/delete",
 };
