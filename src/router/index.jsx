@@ -281,6 +281,14 @@ const Router = () => {
             path="/dashboard/workstation/edit/:slug/vsr-insurance-examination"
             element={<VsrInsExam />}
           />
+          <Route
+            path="/dashboard/vsr-insurance-examination/add/:slug"
+            element={<VSRAssessmentPage />}
+          />
+          <Route
+            path="/dashboard/insurance-examnation/edit/:id"
+            element={<VSRAssessmentPage />}
+          />
         </Route>
       </Route>
       <Route path="*" element={<ErrorPage />} />

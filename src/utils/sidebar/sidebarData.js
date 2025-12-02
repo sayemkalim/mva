@@ -54,6 +54,8 @@ export const EDIT_MODE_PATHS = [
   "/dashboard/client-correspondence/edit/",
   "/dashboard/insurance-examination/add/",
   "/dashboard/insurance-examnation/edit/",
+  " /dashboard/vsr-insurance-examination/add/",
+  "/dashboard/vsr-insurance-examination/edit/",
 ];
 
 export const data = {
@@ -332,6 +334,18 @@ export const getEditModeData = (slug) => ({
       url: `/dashboard/workstation/edit/${slug}/vsr-insurance-examination`,
       icon: FilePlus,
       items: [],
+    },
+    {
+      title: "Tracking",
+      url: ``,
+      icon: FilePlus,
+      items: [
+        {
+          title: "OCF's Production",
+          url: `/dashboard/workstation/edit/${slug}/ocf-production`,
+          icon: User,
+        },
+      ],
     },
   ],
   projects: [],
