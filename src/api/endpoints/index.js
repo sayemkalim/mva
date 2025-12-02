@@ -1,4 +1,4 @@
-import ClientCorrespondence from "@/pages/client_correspondence";
+import { de } from "date-fns/locale";
 
 export const endpoints = {
   login: "api/login",
@@ -125,4 +125,14 @@ export const endpoints = {
   clientCorrespondenceList: "api/v2/file/correspondence/list/client",
   updateClientCorrespondence: "api/v2/file/correspondence",
   deleteClientCorrespondence: "api/v2/file/correspondence/delete",
+  createInsuranceExamination: "api/v2/file/insurance-examination",
+  updateInsuranceExamnation: "api/v2/file/insurance-examination",
+  insuranceExamination: "api/v2/file/insurance-examination/show",
+  deleteInsuranceExamination: "api/v2/file/insurance-examination/delete",
+  insuranceExaminationList: "api/v2/file/insurance-examination/list",
+  createVsrInsuranceExamination: "api/v2/file/vsr-examination",
+  updateVsrInsuranceExamnation: "api/v2/file/vsr-examination",
+  vsrInsuranceExamination: "api/v2/file/vsr-examination/show",
+  deleteVsrInsuranceExamination: "api/v2/file/vsr-examination/delete",
+  vsrInsuranceExaminationList: "api/v2/file/vsr-examination/list",
 };

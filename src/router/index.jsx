@@ -58,6 +58,10 @@ import MedicalReport from "@/pages/medical";
 import MedicalPage from "@/pages/medical/components/medical_editor";
 import ClientCorrespondence from "@/pages/client_correspondence";
 import ClientCorrespondencePage from "@/pages/client_correspondence/components/client_editor";
+import InsuranceExaminationPage from "@/pages/insurance-examination/components/insurance-examination-editor";
+import InsExam from "@/pages/insurance-examination";
+import VsrInsExam from "@/pages/vsr-insurance-examination";
+import VSRAssessmentPage from "@/pages/vsr-insurance-examination/components/insurance-examination-editor";
 
 const Router = () => {
   return (
@@ -260,6 +264,30 @@ const Router = () => {
           <Route
             path="/dashboard/client-correspondence/edit/:id"
             element={<ClientCorrespondencePage />}
+          />
+          <Route
+            path="/dashboard/workstation/edit/:slug/insurance-examination"
+            element={<InsExam />}
+          />
+          <Route
+            path="/dashboard/insurance-examination/add/:slug"
+            element={<InsuranceExaminationPage />}
+          />
+          <Route
+            path="/dashboard/insurance-examnation/edit/:id"
+            element={<InsuranceExaminationPage />}
+          />
+          <Route
+            path="/dashboard/workstation/edit/:slug/vsr-insurance-examination"
+            element={<VsrInsExam />}
+          />
+          <Route
+            path="/dashboard/vsr-insurance-examination/add/:slug"
+            element={<VSRAssessmentPage />}
+          />
+          <Route
+            path="/dashboard/insurance-examnation/edit/:id"
+            element={<VSRAssessmentPage />}
           />
         </Route>
       </Route>
