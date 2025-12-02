@@ -50,11 +50,11 @@ const ClientCorrespondence = () => {
   return (
     <div className="flex flex-col">
       <Navbar2 />
-      <NavbarItem title="Client Documents" breadcrumbs={breadcrumbs} />
+      <NavbarItem title="Client Correspondence" breadcrumbs={breadcrumbs} />
 
       <div className="px-4">
         <CustomActionMenu
-          title="Client Documents"
+          title="Client Correspondence"
           total={blogsLength}
           onAdd={onAdd}
           searchText={searchText}
