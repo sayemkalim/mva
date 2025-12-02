@@ -50,6 +50,8 @@ export const EDIT_MODE_PATHS = [
   "/dashboard/police-report/add/",
   "/dashboard/accounting/add/",
   "/dashboard/medical-report/add/",
+  "/dashboard/client-correspondence/add/",
+  "/dashboard/client-correspondence/edit/",
 ];
 
 export const data = {
