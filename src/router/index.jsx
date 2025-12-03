@@ -62,6 +62,15 @@ import InsuranceExaminationPage from "@/pages/insurance-examination/components/i
 import InsExam from "@/pages/insurance-examination";
 import VsrInsExam from "@/pages/vsr-insurance-examination";
 import VSRAssessmentPage from "@/pages/vsr-insurance-examination/components/insurance-examination-editor";
+import OcfPage from "@/pages/ocf/ocf_editor";
+import Ocf1Page from "@/pages/ocf1/ocf_editor";
+import Ocf2Page from "@/pages/ocf2/ocf_editor";
+import Ocf3Page from "@/pages/ocf3/ocf_editor";
+import Ocf5Page from "@/pages/ocf4/ocf_editor";
+import Ocf6Page from "@/pages/ocf6/ocf_editor";
+import Ocf10Page from "@/pages/ocf10/ocf_editor";
+import OhipPage from "@/pages/OHIP/ohif_editor";
+import PoliceRecordPage from "@/pages/police_report/police_editor";
 
 const Router = () => {
   return (
@@ -288,6 +297,42 @@ const Router = () => {
           <Route
             path="/dashboard/insurance-examnation/edit/:id"
             element={<VSRAssessmentPage />}
+          />
+          <Route
+            path="/dashboard/workstation/edit/:slug/ocf-production"
+            element={<OcfPage />}
+          />
+          <Route
+            path="/dashboard/workstation/edit/:slug/ocf1"
+            element={<Ocf1Page />}
+          />
+          <Route
+            path="/dashboard/workstation/edit/:slug/ocf2"
+            element={<Ocf2Page />}
+          />
+          <Route
+            path="/dashboard/workstation/edit/:slug/ocf3"
+            element={<Ocf3Page />}
+          />
+          <Route
+            path="/dashboard/workstation/edit/:slug/ocf5"
+            element={<Ocf5Page />}
+          />
+          <Route
+            path="/dashboard/workstation/edit/:slug/ocf6"
+            element={<Ocf6Page />}
+          />
+          <Route
+            path="/dashboard/workstation/edit/:slug/ocf10"
+            element={<Ocf10Page />}
+          />
+          <Route
+            path="/dashboard/workstation/edit/:slug/ohip-decorded-summary"
+            element={<OhipPage />}
+          />
+          <Route
+            path="/dashboard/workstation/edit/:slug/police-report-summary"
+            element={<PoliceRecordPage />}
           />
         </Route>
       </Route>

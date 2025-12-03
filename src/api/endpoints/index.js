@@ -1,5 +1,3 @@
-import { de } from "date-fns/locale";
-
 export const endpoints = {
   login: "api/login",
   signup: "api/firm/register",
@@ -135,4 +133,24 @@ export const endpoints = {
   vsrInsuranceExamination: "api/v2/file/vsr-examination/show",
   deleteVsrInsuranceExamination: "api/v2/file/vsr-examination/delete",
   vsrInsuranceExaminationList: "api/v2/file/vsr-examination/list",
+  createOcf: "api/v2/file/tracking/production/ocf-productions",
+  ocf: "api/v2/file/tracking/production/ocf-productions/show",
+  createOcf1: "api/v2/file/tracking/production/ocf-1",
+  ocf1: "api/v2/file/tracking/production/ocf-1/show",
+  createOcf2: "api/v2/file/tracking/production/ocf-2",
+  ocf2: "api/v2/file/tracking/production/ocf-2/show",
+  createOcf3: "api/v2/file/tracking/production/ocf-3",
+  ocf3: "api/v2/file/tracking/production/ocf-3/show",
+  createOcf5: "api/v2/file/tracking/production/ocf-5",
+  ocf5: "api/v2/file/tracking/production/ocf-5/show",
+  createOcf6: "api/v2/file/tracking/production/ocf-6",
+  ocf6: "api/v2/file/tracking/production/ocf-6/show",
+  createOcf10: "api/v2/file/tracking/production/ocf-10",
+  ocf10: "api/v2/file/tracking/production/ocf-10/show",
+  createOhif: "api/v2/file/tracking/production/ohip-decorded-summary",
+  ohif: "api/v2/file/tracking/production/ohip-decorded-summary/show",
+  deleteOhif: "api/v2/file/tracking/production/ohip-decorded-summary/delete",
+  createPoliceReport: "api/v2/file/tracking/production/police-report",
+  policeReport: "api/v2/file/tracking/production/police-report/show",
+  deletePoliceReport: "api/v2/file/tracking/production/police-report/delete/",
 };

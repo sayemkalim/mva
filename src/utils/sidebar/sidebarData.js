@@ -345,6 +345,46 @@ export const getEditModeData = (slug) => ({
           url: `/dashboard/workstation/edit/${slug}/ocf-production`,
           icon: User,
         },
+        {
+          title: "OCF 1",
+          url: `/dashboard/workstation/edit/${slug}/ocf1`,
+          icon: User,
+        },
+        {
+          title: "OCF 2",
+          url: `/dashboard/workstation/edit/${slug}/ocf2`,
+          icon: User,
+        },
+        {
+          title: "OCF 3",
+          url: `/dashboard/workstation/edit/${slug}/ocf3`,
+          icon: User,
+        },
+        {
+          title: "OCF 5",
+          url: `/dashboard/workstation/edit/${slug}/ocf5`,
+          icon: User,
+        },
+        {
+          title: "OCF 6",
+          url: `/dashboard/workstation/edit/${slug}/ocf6`,
+          icon: User,
+        },
+        {
+          title: "OCF 10",
+          url: `/dashboard/workstation/edit/${slug}/ocf10`,
+          icon: User,
+        },
+        {
+          title: "OHIP Decorded Summary",
+          url: `/dashboard/workstation/edit/${slug}/ohip-decorded-summary`,
+          icon: User,
+        },
+        {
+          title: "Police Report",
+          url: `/dashboard/workstation/edit/${slug}/police-report-summary`,
+          icon: User,
+        },
       ],
     },
   ],
