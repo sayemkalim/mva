@@ -71,6 +71,17 @@ import Ocf6Page from "@/pages/ocf6/ocf_editor";
 import Ocf10Page from "@/pages/ocf10/ocf_editor";
 import OhipPage from "@/pages/OHIP/ohif_editor";
 import PoliceRecordPage from "@/pages/police_report/police_editor";
+import HospitalReportPage from "@/pages/hospital_report/hospital_editor";
+import AmbulanceReportPage from "@/pages/ambulance_report/ambulance_editor";
+import FamilyDoctorPage from "@/pages/familydoctor/familydoctor_editor";
+import PharmacyPage from "@/pages/pharmacy/pharmacy_editor";
+import PhysiotherapyPage from "@/pages/physiotherapy/physiotherapy_editor";
+import WalkPage from "@/pages/walkin/walk_editor";
+import StatutoryPage from "@/pages/statutory/statutory_editor";
+import TaxPage from "@/pages/tax/tax_editor";
+import BankPage from "@/pages/bank/bank_editor";
+import SuePage from "@/pages/sue/sue_editor";
+import NonEngagementPage from "@/pages/non_engagement/nonEngagement_editor";
 
 const Router = () => {
   return (
@@ -333,6 +344,50 @@ const Router = () => {
           <Route
             path="/dashboard/workstation/edit/:slug/police-report-summary"
             element={<PoliceRecordPage />}
+          />
+          <Route
+            path="/dashboard/workstation/edit/:slug/hospital-report"
+            element={<HospitalReportPage />}
+          />
+          <Route
+            path="/dashboard/workstation/edit/:slug/ambulance-report"
+            element={<AmbulanceReportPage />}
+          />
+          <Route
+            path="/dashboard/workstation/edit/:slug/family-doctor"
+            element={<FamilyDoctorPage />}
+          />
+          <Route
+            path="/dashboard/workstation/edit/:slug/pharmacy-prescription-summary"
+            element={<PharmacyPage />}
+          />
+          <Route
+            path="/dashboard/workstation/edit/:slug/physiotherapy-cnr"
+            element={<PhysiotherapyPage />}
+          />
+          <Route
+            path="/dashboard/workstation/edit/:slug/walk-in-cnr"
+            element={<WalkPage />}
+          />
+          <Route
+            path="/dashboard/workstation/edit/:slug/statutory-declaration"
+            element={<StatutoryPage />}
+          />
+          <Route
+            path="/dashboard/workstation/edit/:slug/tax-return"
+            element={<TaxPage />}
+          />
+          <Route
+            path="/dashboard/workstation/edit/:slug/bank-statement"
+            element={<BankPage />}
+          />
+          <Route
+            path="/dashboard/workstation/edit/:slug/sue"
+            element={<SuePage />}
+          />
+          <Route
+            path="/dashboard/workstation/edit/:slug/non-engagement"
+            element={<NonEngagementPage />}
           />
         </Route>
       </Route>

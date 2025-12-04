@@ -152,5 +152,42 @@ export const endpoints = {
   deleteOhif: "api/v2/file/tracking/production/ohip-decorded-summary/delete",
   createPoliceReport: "api/v2/file/tracking/production/police-report",
   policeReport: "api/v2/file/tracking/production/police-report/show",
-  deletePoliceReport: "api/v2/file/tracking/production/police-report/delete/",
+  deletePoliceReport: "api/v2/file/tracking/production/police-report/delete",
+  createHospitalReport: "api/v2/file/tracking/production/hospital-report",
+  hospitalReport: "api/v2/file/tracking/production/hospital-report/show",
+  deleteHospitalReport:
+    "api/v2/file/tracking/production/hospital-report/delete",
+  createAmbulanceReport: "api/v2/file/tracking/production/ambulance-report",
+  ambulanceReport: "api/v2/file/tracking/production/ambulance-report/show",
+  deleteAmbulanceReport:
+    "api/v2/file/tracking/production/ambulance-report/delete",
+  createFamilyDoctor: "api/v2/file/tracking/production/family-doctor-cnr",
+  familyDoctor: "api/v2/file/tracking/production/family-doctor-cnr/show",
+  deleteFamilyDoctor:
+    "api/v2/file/tracking/production/family-doctor-cnr/delete",
+  createPharmacy:
+    "api/v2/file/tracking/production/pharmacy-prescription-summary",
+  pharmacy:
+    "api/v2/file/tracking/production/pharmacy-prescription-summary/show",
+  deletePharmacy:
+    "api/v2/file/tracking/production/pharmacy-prescription-summary/delete",
+  createPhysiotherapy: "api/v2/file/tracking/production/physiotherapy-cnr",
+  physiotherapy: "api/v2/file/tracking/production/physiotherapy-cnr/show",
+  deletePhysiotherapy:
+    "api/v2/file/tracking/production/physiotherapy-cnr/delete",
+  createWalk: "api/v2/file/tracking/production/walk-in-clinic-cnr",
+  walk: "api/v2/file/tracking/production/walk-in-clinic-cnr/show",
+  deleteWalk: "api/v2/file/tracking/production/walk-in-clinic-cnr/delete",
+  createStatutory: "api/v2/file/tracking/statutory-declaration",
+  statutory: "api/v2/file/tracking/statutory-declaration/show",
+  createTax: "api/v2/file/tracking/tax-returns",
+  tax: "api/v2/file/tracking/tax-returns/show",
+  createBank: "api/v2/file/tracking/bank-statements",
+  bank: "/api/v2/file/tracking/bank-statements/show",
+  createSue: "api/v2/file/tracking/sue-to-driver-owner",
+  sue: "api/v2/file/tracking/sue-to-driver-owner/show",
+  deleteSue: "api/v2/file/tracking/sue-to-driver-owner/delete",
+  createNonEngagement: "api/v2/file/tracking/non-engagement",
+  deleteNonEngagement: "api/v2/file/tracking/sue-to-driver-owner/delete",
+  nonEngagement: "api/v2/file/tracking/non-engagement/show",
 };

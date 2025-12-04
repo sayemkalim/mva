@@ -29,6 +29,11 @@ import {
   FileUp,
   FilePlus,
   ScanSearch,
+  Receipt,
+  LocateFixed,
+  MessageSquare,
+  BadgeCheck,
+  BookCheck,
 } from "lucide-react";
 import { getItem } from "../local_storage";
 
@@ -314,7 +319,7 @@ export const getEditModeData = (slug) => ({
     {
       title: "Correspondence",
       url: ``,
-      icon: FilePlus,
+      icon: MessageSquare,
       items: [
         {
           title: "Client",
@@ -326,19 +331,19 @@ export const getEditModeData = (slug) => ({
     {
       title: "Insurance Examination",
       url: `/dashboard/workstation/edit/${slug}/insurance-examination`,
-      icon: FilePlus,
+      icon: BadgeCheck,
       items: [],
     },
     {
       title: "VSR Insurance Examination",
       url: `/dashboard/workstation/edit/${slug}/vsr-insurance-examination`,
-      icon: FilePlus,
+      icon: BookCheck,
       items: [],
     },
     {
       title: "Tracking",
       url: ``,
-      icon: FilePlus,
+      icon: LocateFixed,
       items: [
         {
           title: "OCF's Production",
@@ -383,6 +388,61 @@ export const getEditModeData = (slug) => ({
         {
           title: "Police Report",
           url: `/dashboard/workstation/edit/${slug}/police-report-summary`,
+          icon: User,
+        },
+        {
+          title: "Hospital Report",
+          url: `/dashboard/workstation/edit/${slug}/hospital-report`,
+          icon: User,
+        },
+        {
+          title: "Ambulance Report",
+          url: `/dashboard/workstation/edit/${slug}/ambulance-report`,
+          icon: User,
+        },
+        {
+          title: "Family Doctor CNR",
+          url: `/dashboard/workstation/edit/${slug}/family-doctor`,
+          icon: User,
+        },
+        {
+          title: "Pharmacy Prescription Summary",
+          url: `/dashboard/workstation/edit/${slug}/pharmacy-prescription-summary`,
+          icon: User,
+        },
+        {
+          title: "Physiotherapy CNR",
+          url: `/dashboard/workstation/edit/${slug}/physiotherapy-cnr`,
+          icon: User,
+        },
+        {
+          title: "Walk in CNR",
+          url: `/dashboard/workstation/edit/${slug}/walk-in-cnr`,
+          icon: User,
+        },
+        {
+          title: "Statutory Declaration",
+          url: `/dashboard/workstation/edit/${slug}/statutory-declaration`,
+          icon: User,
+        },
+        {
+          title: "Tax Return",
+          url: `/dashboard/workstation/edit/${slug}/tax-return`,
+          icon: User,
+        },
+        {
+          title: "Bank Statement",
+          url: `/dashboard/workstation/edit/${slug}/bank-statement`,
+          icon: User,
+        },
+        {
+          title: "Sue To Driver Owner",
+          url: `/dashboard/workstation/edit/${slug}/sue`,
+          icon: User,
+        },
+        {
+          title: "Non Engagement",
+          url: `/dashboard/workstation/edit/${slug}/non-engagement`,
           icon: User,
         },
       ],
