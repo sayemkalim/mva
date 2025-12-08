@@ -203,4 +203,6 @@ export const endpoints = {
   searchContact: "api/v2/task/search",
   deleteReminder: "api/v2/task/deleteReminder",
   deleteAttachment: "api/v2/task/deleteAttachment",
+  postComment: "api/v2/task/comment",
+  comment: "api/v2/task/comment/list",
 };

@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { format } from "date-fns";
-import { Eye, Pencil, Trash2 } from "lucide-react";
+import { Eye, MessageSquare, Pencil, Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import { toast } from "sonner";
@@ -243,6 +243,24 @@ const TaskTable = ({ setTasksLength }) => {
       label: "Created At",
       render: (value) => <Typography variant="p">{value || "-"}</Typography>,
     },
+
+    {
+      key: "comments",
+      label: "Comments",
+      render: (value, row) => (
+        <button
+          type="button"
+          onClick={(e) => {
+            e.stopPropagation();
+            navigate(`/dashboard/tasks/comments/${row.id}`);
+          }}
+          className="p-1 text-gray-500"
+        >
+          <MessageSquare className="w-4 h-4" />
+        </button>
+      ),
+    },
+
     {
       key: "actions",
       label: "Actions",

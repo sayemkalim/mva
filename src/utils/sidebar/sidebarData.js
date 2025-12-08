@@ -34,6 +34,7 @@ import {
   MessageSquare,
   BadgeCheck,
   BookCheck,
+  ClipboardList,
 } from "lucide-react";
 import { getItem } from "../local_storage";
 
@@ -91,6 +92,13 @@ export const data = {
     {
       title: "Task",
       url: "/dashboard/task",
+      icon: ClipboardList,
+      isActive: false,
+      items: [],
+    },
+    {
+      title: "Event",
+      url: "/dashboard/event",
       icon: CheckSquare,
       isActive: false,
       items: [],

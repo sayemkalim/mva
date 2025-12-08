@@ -57,6 +57,26 @@ export const updateTask = async (id, data) => {
     throw error;
   }
 };
+export const postComment = async (id, data) => {
+  try {
+    if (!id) throw new Error("ID is required for updating Section");
+
+    const apiResponse = await apiService({
+      endpoint: `${endpoints.postComment}/store/${id}`,
+      method: "POST",
+      data,
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    console.log("✅ Post API Response:", apiResponse);
+    return apiResponse;
+  } catch (error) {
+    console.error("❌ Error updating comment:", error);
+    throw error;
+  }
+};
 export const updateStatus = async (id, data) => {
   try {
     if (!id) throw new Error("ID is required for updating Section");

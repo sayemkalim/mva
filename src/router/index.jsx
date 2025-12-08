@@ -89,6 +89,7 @@ import HardCostPage from "@/pages/cost/components/hard_editor";
 import TimeCardPage from "@/pages/cost/components/timeline_editor";
 import TaskPage from "@/pages/task/components/task_editor";
 import Task from "@/pages/task";
+import CommentPage from "@/pages/task/components/comment_editor";
 
 const Router = () => {
   return (
@@ -424,6 +425,10 @@ const Router = () => {
           <Route path="/dashboard/task/add/:slug" element={<TaskPage />} />
           <Route path="/dashboard/task/add" element={<TaskPage />} />
           <Route path="/dashboard/tasks/edit/:id" element={<TaskPage />} />
+          <Route
+            path="/dashboard/tasks/comments/:id"
+            element={<CommentPage />}
+          />
         </Route>
       </Route>
       <Route path="*" element={<ErrorPage />} />
