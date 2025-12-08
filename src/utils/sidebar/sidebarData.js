@@ -64,6 +64,7 @@ export const EDIT_MODE_PATHS = [
   "/dashboard/cost-hard/add/",
   "/dashboard/cost-soft/add/",
   "/dashboard/cost-timecard/add/",
+  "dashboard/task/add/",
 ];
 
 export const data = {
@@ -83,6 +84,13 @@ export const data = {
     {
       title: "WorkStation",
       url: "/dashboard/workstation",
+      icon: CheckSquare,
+      isActive: false,
+      items: [],
+    },
+    {
+      title: "Task",
+      url: "/dashboard/task",
       icon: CheckSquare,
       isActive: false,
       items: [],
@@ -466,6 +474,12 @@ export const getEditModeData = (slug) => ({
           icon: User,
         },
       ],
+    },
+    {
+      title: "Task",
+      url: `/dashboard/workstation/edit/${slug}/task`,
+      icon: Receipt,
+      items: [],
     },
   ],
   projects: [],

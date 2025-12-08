@@ -11,31 +11,21 @@ export const fetchMatterBySlug = async (slug) => {
       endpoint: `${endpoints.matter}/${slug}`,
     });
 
-    // Debug: Log complete response structure
-    console.log("✅ API Response received:", apiResponse);
-    console.log("📦 Response type:", typeof apiResponse);
-    console.log("🔑 Response keys:", Object.keys(apiResponse || {}));
-
-    // Check if apiResponse exists
     if (!apiResponse) {
       console.error("❌ apiResponse is null/undefined");
       throw new Error("No response received from server");
     }
-
-    // Option 1: Check if response has direct data property
     if (apiResponse.data) {
       console.log("✅ Found apiResponse.data:", apiResponse.data);
 
-      // Validate data structure
       if (!apiResponse.data.id) {
         console.error("❌ Missing 'id' in response data:", apiResponse.data);
         throw new Error("Invalid response: missing matter ID");
       }
 
-      return apiResponse.data; // Return just the data object
+      return apiResponse.data;
     }
 
-    // Option 2: Check if response has nested response property
     if (apiResponse.response) {
       console.log("✅ Found apiResponse.response:", apiResponse.response);
 

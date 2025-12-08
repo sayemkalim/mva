@@ -4,7 +4,7 @@ import { endpoints } from "@/api/endpoints";
 export const createMatter = async (matterData) => {
   try {
     const apiResponse = await apiService({
-      endpoint: `${endpoints.createMatter}`, // ya jo bhi tumhara endpoint hai
+      endpoint: `${endpoints.createMatter}`,
       method: "POST",
       data: matterData,
       headers: {

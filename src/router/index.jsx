@@ -87,6 +87,8 @@ import Cost from "@/pages/cost";
 import SoftCostPage from "@/pages/cost/components/soft_editor";
 import HardCostPage from "@/pages/cost/components/hard_editor";
 import TimeCardPage from "@/pages/cost/components/timeline_editor";
+import TaskPage from "@/pages/task/components/task_editor";
+import Task from "@/pages/task";
 
 const Router = () => {
   return (
@@ -414,6 +416,14 @@ const Router = () => {
             path="/dashboard/cost-timecard/add/:slug"
             element={<TimeCardPage />}
           />
+          <Route
+            path="/dashboard/workstation/edit/:slug/task"
+            element={<Task />}
+          />
+          <Route path="/dashboard/task" element={<Task />} />
+          <Route path="/dashboard/task/add/:slug" element={<TaskPage />} />
+          <Route path="/dashboard/task/add" element={<TaskPage />} />
+          <Route path="/dashboard/tasks/edit/:id" element={<TaskPage />} />
         </Route>
       </Route>
       <Route path="*" element={<ErrorPage />} />

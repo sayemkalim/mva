@@ -1,135 +1,247 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { format, isValid } from "date-fns";
-import ActionMenu from "@/components/action_menu";
-import { Pencil, Trash2 } from "lucide-react";
-import CustomTable from "@/components/custom_table";
-import Typography from "@/components/typography";
+import { format } from "date-fns";
+import { Eye, Pencil, Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
-import { CustomDialog } from "@/components/custom_dialog";
 import { useNavigate } from "react-router";
 import { toast } from "sonner";
-import { fetchConflictList } from "../helpers/fetchConflictList";
-import { deleteConflict } from "../helpers/deleteConflict";
 
-const safeFormat = (dateStr, formatStr) => {
-  const dateObj = dateStr ? new Date(dateStr) : null;
-  return dateObj && isValid(dateObj) ? format(dateObj, formatStr) : "-";
-};
+import CustomTable from "@/components/custom_table";
+import Typography from "@/components/typography";
+import ActionMenu from "@/components/action_menu";
+import { CustomDialog } from "@/components/custom_dialog";
+import { Badge } from "@/components/ui/badge";
 
-const TaskTable = ({ slug, setBlogsLength }) => {
+import { fetchTaskList } from "../helpers/fetchTaskList";
+import { deleteTask } from "../helpers/deleteTask";
+import { getABMeta } from "../helpers/fetchABMeta";
+import { updateStatus } from "../helpers/createTask";
+
+const TaskTable = ({ setTasksLength }) => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-
   const {
-    data: apiSectionResponse,
+    data: apiTaskResponse,
     isLoading,
     error,
   } = useQuery({
-    queryKey: ["conflictlist", slug],
-    queryFn: () => fetchConflictList(slug),
-    enabled: !!slug,
+    queryKey: ["taskList"],
+    queryFn: fetchTaskList,
+  });
+  const { data: metaData, isLoading: isMetaLoading } = useQuery({
+    queryKey: ["taskMeta"],
+    queryFn: getABMeta,
   });
 
+  const tasks = Array.isArray(apiTaskResponse?.response?.tasks)
+    ? apiTaskResponse.response.tasks
+    : [];
+
+  const taskStatuses = Array.isArray(metaData?.response?.taks_status)
+    ? metaData.response.taks_status
+    : [];
+
   const [openDelete, setOpenDelete] = useState(false);
-  const [selectedSection, setSelectedSection] = useState(null);
+  const [selectedTask, setSelectedTask] = useState(null);
+
+  useEffect(() => {
+    setTasksLength?.(tasks.length || 0);
+  }, [tasks, setTasksLength]);
 
   const onOpenDialog = (row) => {
+    if (!row?.id) return;
+    setSelectedTask(row);
     setOpenDelete(true);
-    setSelectedSection(row);
   };
 
   const onCloseDialog = () => {
     setOpenDelete(false);
-    setSelectedSection(null);
+    setSelectedTask(null);
   };
 
-  const { mutate: deleteSectionMutation, isLoading: isDeleting } = useMutation({
-    mutationFn: (id) => deleteConflict(id),
+  const { mutate: deleteTaskMutation, isLoading: isDeleting } = useMutation({
+    mutationFn: (id) => deleteTask(id),
     onSuccess: () => {
-      toast.success("Section deleted successfully.");
-      queryClient.invalidateQueries(["conflictlist", slug]);
+      toast.success("Task deleted successfully.");
+      queryClient.invalidateQueries(["taskList"]);
       onCloseDialog();
     },
-    onError: () => {
-      toast.error("Failed to delete section.");
+    onError: (error) => {
+      console.error(error);
+      toast.error("Failed to delete task.");
     },
   });
 
-  const onDelete = () => {
-    if (selectedSection?.id) {
-      deleteSectionMutation(selectedSection.id);
-    }
+  const { mutate: updateStatusMutation } = useMutation({
+    mutationFn: ({ id, status_id }) => updateStatus(id, { status_id }),
+    onSuccess: () => {
+      toast.success("Status updated successfully.");
+      queryClient.invalidateQueries(["taskList"]);
+    },
+    onError: (error) => {
+      console.error(error);
+      toast.error("Failed to update status.");
+    },
+  });
+
+  const handleStatusChange = (taskId, newStatusId) => {
+    updateStatusMutation({ id: taskId, status_id: newStatusId });
   };
 
-  const sections = Array.isArray(apiSectionResponse?.response?.data)
-    ? apiSectionResponse.response.data
-    : [];
-
-  useEffect(() => {
-    setBlogsLength(sections.length);
-  }, [sections, setBlogsLength]);
-
-  const onNavigateToEdit = (section) => {
-    if (!section?.id) {
-      toast.error("Invalid section data");
+  const onNavigateToEdit = (task) => {
+    if (!task?.id) {
+      toast.error("Invalid task data");
       return;
     }
+    navigate(`/dashboard/tasks/edit/${task.id}`);
+  };
 
-    navigate(`/dashboard/conflict-search/edit/${section.id}`, {
-      state: {
-        conflictData: section,
-        slug: slug,
-      },
-    });
+  const onNavigateDetails = (task) => {
+    if (!task?.slug) {
+      toast.error("Invalid task data");
+      return;
+    }
+    navigate(`/dashboard/tasks/${task.id}`);
+  };
+
+  const handleRowClick = (row) => {
+    onNavigateDetails(row);
   };
 
   const columns = [
     {
-      key: "name",
-      label: "Name",
+      key: "file_no",
+      label: "File No",
       render: (value) => <Typography variant="p">{value || "-"}</Typography>,
     },
     {
-      key: "attachment",
-      label: "Image",
-      render: (value, row) => {
-        if (!value?.path) return <Typography variant="p">-</Typography>;
-
-        const imageUrl = value.path.startsWith("http")
-          ? value.path
-          : `${
-              import.meta.env.VITE_API_URL || "https://mva-backend.vsrlaw.ca/"
-            }/${value.path}`;
-
-        return (
-          <img
-            src={imageUrl}
-            alt={value.original_name || "attachment"}
-            className="h-12 w-24 object-cover rounded border"
-            onError={(e) => {
-              e.target.onerror = null;
-              e.target.src =
-                "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIGZpbGw9IiNFNUU3RUIiLz48cGF0aCBkPSJNMTUgMTVMMjUgMjVNMjUgMTVMMTUgMjUiIHN0cm9rZT0iIzlDQTNBRiIgc3Ryb2tlLXdpZHRoPSIyIi8+PC9zdmc+";
-            }}
-          />
-        );
-      },
-    },
-    {
-      key: "memo",
-      label: "Memo",
+      key: "applicantInformations_name",
+      label: "Applicant Name",
       render: (value) => (
-        <Typography variant="p" className="max-w-xs truncate">
+        <Typography className="block line-clamp-2 text-wrap" variant="p">
           {value || "-"}
         </Typography>
       ),
     },
     {
-      key: "date",
-      label: "Date",
+      key: "firm_name",
+      label: "Firm",
+      render: (value) => <Typography variant="p">{value || "-"}</Typography>,
+    },
+    {
+      key: "priority",
+      label: "Priority",
+      render: (value) => {
+        const getVariant = (priority) => {
+          switch (priority) {
+            case "High":
+              return "destructive";
+            case "Medium":
+              return "default";
+            case "Low":
+              return "secondary";
+            default:
+              return "outline";
+          }
+        };
+
+        return <Badge variant={getVariant(value)}>{value || "-"}</Badge>;
+      },
+    },
+    {
+      key: "status_id",
+      label: "Status",
+      render: (value, row) => {
+        if (isMetaLoading) {
+          return <Typography variant="p">Loading...</Typography>;
+        }
+
+        return (
+          <select
+            value={value || ""}
+            onChange={(e) => {
+              e.stopPropagation();
+              handleStatusChange(row.id, Number(e.target.value));
+            }}
+            onClick={(e) => e.stopPropagation()}
+            className="px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white min-w-[150px]"
+          >
+            <option value="">Select Status</option>
+            {taskStatuses.map((status) => (
+              <option key={status.id} value={status.id}>
+                {status.name}
+              </option>
+            ))}
+          </select>
+        );
+      },
+    },
+    {
+      key: "due_status",
+      label: "Due Status",
+      render: (value) => <Typography variant="p">{value || "-"}</Typography>,
+    },
+    {
+      key: "due_date",
+      label: "Due Date",
       render: (value) => (
-        <Typography variant="p">{safeFormat(value, "dd/MM/yyyy")}</Typography>
+        <Typography variant="p">
+          {value ? format(new Date(value), "dd/MM/yyyy") : "-"}
+        </Typography>
       ),
+    },
+    {
+      key: "assignees",
+      label: "Assignees",
+      render: (value) => (
+        <div className="flex -space-x-2">
+          {Array.isArray(value) && value.length > 0 ? (
+            value.slice(0, 3).map((assignee, index) => (
+              <div
+                key={index}
+                className="h-8 w-8 rounded-full border-2 border-white overflow-hidden"
+                title={assignee?.name}
+              >
+                <img
+                  src={assignee?.profile}
+                  alt={assignee?.name}
+                  className="h-full w-full object-cover"
+                />
+              </div>
+            ))
+          ) : (
+            <Typography variant="p">-</Typography>
+          )}
+        </div>
+      ),
+    },
+    {
+      key: "assigned_by",
+      label: "Assigned By",
+      render: (value) => {
+        if (!value) {
+          return <Typography variant="p">-</Typography>;
+        }
+
+        return (
+          <div className="flex items-center gap-2">
+            <div className="h-8 w-8 rounded-full border-2 border-gray-200 overflow-hidden flex-shrink-0">
+              <img
+                src={value?.profile}
+                alt={value?.name}
+                className="h-full w-full object-cover"
+              />
+            </div>
+            <Typography variant="p" className="text-sm">
+              {/* {value?.name} */}
+            </Typography>
+          </div>
+        );
+      },
+    },
+    {
+      key: "created_at",
+      label: "Created At",
+      render: (value) => <Typography variant="p">{value || "-"}</Typography>,
     },
     {
       key: "actions",
@@ -158,19 +270,19 @@ const TaskTable = ({ slug, setBlogsLength }) => {
     <>
       <CustomTable
         columns={columns}
-        data={sections}
+        data={tasks}
         isLoading={isLoading}
         error={error}
-        onRowClick={onNavigateToEdit}
+        // onRowClick={handleRowClick}
       />
       <CustomDialog
         onOpen={openDelete}
         onClose={onCloseDialog}
-        title={selectedSection?.slug}
+        title={selectedTask?.file_no}
         modalType="Delete"
-        onDelete={onDelete}
-        id={selectedSection?.id}
+        id={selectedTask?.id}
         isLoading={isDeleting}
+        onDelete={() => deleteTaskMutation(selectedTask?.id)}
       />
     </>
   );

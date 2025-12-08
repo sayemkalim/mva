@@ -4,7 +4,7 @@ import { endpoints } from "@/api/endpoints";
 export const getABMeta = async () => {
   try {
     const apiResponse = await apiService({
-      endpoint: `${endpoints.metaAccidentBenefits}`,
+      endpoint: `${endpoints.taskMeta}`,
       method: "GET",
       headers: {
         "Content-Type": "application/json",

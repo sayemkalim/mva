@@ -15,7 +15,7 @@ const Task = () => {
     per_page: 50,
     search: "",
   };
-  const [blogsLength, setBlogsLength] = useState(0);
+  const [blogsLength, setBlogsLength] = useState("");
   const [searchText, setSearchText] = useState("");
   const [params, setParams] = useState(paramInitialState);
 
@@ -24,9 +24,12 @@ const Task = () => {
   const handleSearch = (e) => {
     setSearchText(e.target.value);
   };
-
   const onAdd = () => {
-    navigate(`/dashboard/task/add/${slug}`);
+    if (slug) {
+      navigate(`/dashboard/task/add/${slug}`);
+    } else {
+      navigate(`/dashboard/task/add`);
+    }
   };
 
   const onRowsPerPageChange = (newRowsPerPage) => {

@@ -56,6 +56,18 @@ const MatterTable = ({ setBlogsLength }) => {
     ? apiWorkstationResponse.response.data
     : [];
 
+  // Save id and name to localStorage whenever workstations data changes
+  useEffect(() => {
+    if (workstations.length > 0) {
+      const workstationData = workstations.map((workstation) => ({
+        id: workstation.id,
+        name: workstation.name,
+        slug: workstation.slug,
+      }));
+      localStorage.setItem("workstationData", JSON.stringify(workstationData));
+    }
+  }, [workstations]);
+
   useEffect(() => {
     setBlogsLength(workstations?.length || 0);
   }, [workstations, setBlogsLength]);
