@@ -61,6 +61,9 @@ export const EDIT_MODE_PATHS = [
   "/dashboard/insurance-examnation/edit/",
   " /dashboard/vsr-insurance-examination/add/",
   "/dashboard/vsr-insurance-examination/edit/",
+  "/dashboard/cost-hard/add/",
+  "/dashboard/cost-soft/add/",
+  "/dashboard/cost-timecard/add/",
 ];
 
 export const data = {
@@ -443,6 +446,23 @@ export const getEditModeData = (slug) => ({
         {
           title: "Non Engagement",
           url: `/dashboard/workstation/edit/${slug}/non-engagement`,
+          icon: User,
+        },
+      ],
+    },
+    {
+      title: "Accounting",
+      url: ``,
+      icon: Receipt,
+      items: [
+        {
+          title: "Client Memo Settlement",
+          url: `/dashboard/workstation/edit/${slug}/client-memo-settlement`,
+          icon: User,
+        },
+        {
+          title: "Cost",
+          url: `/dashboard/workstation/edit/${slug}/cost`,
           icon: User,
         },
       ],

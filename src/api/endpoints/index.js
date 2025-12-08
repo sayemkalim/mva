@@ -190,4 +190,9 @@ export const endpoints = {
   createNonEngagement: "api/v2/file/tracking/non-engagement",
   deleteNonEngagement: "api/v2/file/tracking/sue-to-driver-owner/delete",
   nonEngagement: "api/v2/file/tracking/non-engagement/show",
+  CreateClientSettlement: "api/v2/file/client-memo-settlement",
+  clientSettlement: "api/v2/file/client-memo-settlement/show",
+  createCost: "api/v2/file/accounting/expence",
+  createTask: " api/v2/file/task",
+  updateTask: " api/v2/file/task",
 };
