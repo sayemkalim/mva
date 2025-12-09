@@ -205,4 +205,5 @@ export const endpoints = {
   deleteAttachment: "api/v2/task/deleteAttachment",
   postComment: "api/v2/task/comment",
   comment: "api/v2/task/comment/list",
+  filterTasks: "api/v2/task/filter",
 };

@@ -28,6 +28,7 @@ export function AppSidebar({ ...props }) {
   const isEditMode = useMemo(() => {
     return EDIT_MODE_PATHS.some((path) => location.pathname.includes(path));
   }, [location.pathname]);
+
   const routeParam = slug || id;
 
   useEffect(() => {
