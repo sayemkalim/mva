@@ -64,28 +64,37 @@ export const fetchCommentById = async (id) => {
       endpoint: `${endpoints.comment}/${id}`,
     });
 
+    console.log("📦 Full API Response:", apiResponse);
+
     if (!apiResponse) {
       throw new Error("No response received from server");
     }
-    if (apiResponse.task && typeof apiResponse.task === "object") {
-      return apiResponse.task;
-    }
+
+    // ✅ CORRECT PATH: apiResponse.response.data
     if (
-      apiResponse.response &&
-      apiResponse.response.task &&
-      typeof apiResponse.response.task === "object"
+      apiResponse.response?.data &&
+      Array.isArray(apiResponse.response.data)
     ) {
-      return apiResponse.response.task;
+      console.log("✅ Found comments array:", apiResponse.response.data);
+      return apiResponse.response.data;
     }
 
-    if (apiResponse.data && typeof apiResponse.data === "object") {
-      console.log("Found apiResponse.data:", apiResponse.data);
+    // Fallback: Check if data is at root level
+    if (Array.isArray(apiResponse.data)) {
+      console.log("✅ Found comments at root data:", apiResponse.data);
       return apiResponse.data;
     }
 
+    // Fallback: Check for comments property
+    if (Array.isArray(apiResponse.response?.comments)) {
+      console.log("✅ Found comments array:", apiResponse.response.comments);
+      return apiResponse.response.comments;
+    }
+
+    console.error("❌ Unexpected response structure:", apiResponse);
     throw new Error("Invalid response structure from server");
   } catch (error) {
-    console.error("🔥 Error fetching task:", error);
+    console.error("🔥 Error fetching comments:", error);
     console.error("Error details:", {
       message: error.message,
       response: error.response,
@@ -97,14 +106,14 @@ export const fetchCommentById = async (id) => {
       const status = error.response.status;
       switch (status) {
         case 404:
-          throw new Error("Task not found");
+          throw new Error("Comments not found");
         case 401:
         case 403:
           throw new Error("Unauthorized access");
         case 500:
           throw new Error("Server error occurred");
         default:
-          throw new Error(`Failed to fetch task (Status: ${status})`);
+          throw new Error(`Failed to fetch comments (Status: ${status})`);
       }
     }
 

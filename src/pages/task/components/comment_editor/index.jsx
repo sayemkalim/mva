@@ -10,10 +10,13 @@ import {
   Paperclip,
   Image as ImageIcon,
   Download,
-  User,
+  FileText,
+  Smile,
+  MoreVertical,
+  Reply,
 } from "lucide-react";
 import { toast } from "sonner";
-import { format } from "date-fns";
+import { format, isToday, isYesterday, formatDistanceToNow } from "date-fns";
 
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -21,28 +24,38 @@ import Typography from "@/components/typography";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { fetchCommentById } from "../../helpers/fetchTaskById";
 import { uploadAttachment } from "../../helpers/uploadAttachment";
 import { deleteAttachment } from "../../helpers/deleteTask";
 import { postComment } from "../../helpers/createTask";
 
 const CommentPage = () => {
-  const { id } = useParams(); // task ID from URL
+  const { id } = useParams();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const fileInputRef = useRef(null);
   const scrollRef = useRef(null);
+  const textareaRef = useRef(null);
 
   const [comment, setComment] = useState("");
   const [uploadedFiles, setUploadedFiles] = useState([]);
   const [uploadingFiles, setUploadingFiles] = useState([]);
   const [previewImage, setPreviewImage] = useState(null);
+  const [replyingTo, setReplyingTo] = useState(null);
 
   // Fetch comments
   const {
@@ -55,18 +68,27 @@ const CommentPage = () => {
     enabled: !!id,
   });
 
-  const comments = Array.isArray(commentsData?.data)
-    ? commentsData.data
-    : commentsData
-    ? [commentsData]
-    : [];
+  const comments = commentsData || [];
 
   // Auto-scroll to bottom when new comments arrive
   useEffect(() => {
     if (scrollRef.current) {
-      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+      const scrollElement = scrollRef.current.querySelector(
+        "[data-radix-scroll-area-viewport]"
+      );
+      if (scrollElement) {
+        scrollElement.scrollTop = scrollElement.scrollHeight;
+      }
     }
   }, [comments]);
+
+  // Auto-resize textarea
+  useEffect(() => {
+    if (textareaRef.current) {
+      textareaRef.current.style.height = "auto";
+      textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
+    }
+  }, [comment]);
 
   // Upload mutation
   const { mutate: uploadMutation } = useMutation({
@@ -78,8 +100,6 @@ const CommentPage = () => {
       ]);
     },
     onSuccess: (response, { file }) => {
-      console.log("✅ Upload Success Response:", response);
-
       const attachmentId = response?.response?.attachment?.id;
       const fileName = response?.response?.attachment?.file_name || file.name;
       const filePath = response?.response?.attachment?.file_path;
@@ -94,47 +114,43 @@ const CommentPage = () => {
             type: file.type,
           },
         ]);
-        toast.success(`${fileName} uploaded`);
+        toast.success(`${fileName} अपलोड हो गया`);
       }
 
       setUploadingFiles((prev) => prev.filter((f) => f.name !== file.name));
     },
     onError: (error, { file }) => {
-      console.error("❌ Upload error:", error);
-      toast.error(`Failed to upload ${file.name}`);
+      console.error("Upload error:", error);
+      toast.error(`${file.name} अपलोड नहीं हो सका`);
       setUploadingFiles((prev) => prev.filter((f) => f.name !== file.name));
     },
   });
 
-  // Delete attachment mutation
   const { mutate: deleteAttachmentMutation } = useMutation({
     mutationFn: (attachmentId) => deleteAttachment(attachmentId),
     onSuccess: () => {
       toast.success("Attachment removed");
     },
     onError: (error) => {
-      console.error("❌ Delete error:", error);
+      console.error("Delete error:", error);
       toast.error("Failed to remove attachment");
     },
   });
 
-  // Post comment mutation
-  const { mutate: postCommentMutation, isLoading: isPosting } = useMutation({
+  const { mutate: postCommentMutation, isPending: isPosting } = useMutation({
     mutationFn: (data) => postComment(id, data),
     onSuccess: (response) => {
-      console.log("✅ Comment posted:", response);
-      toast.success("Comment posted successfully");
-
+      toast.success("कमेंट पोस्ट हो गया ✓");
       setComment("");
       setUploadedFiles([]);
-
+      setReplyingTo(null); // NEW: Clear reply state
       queryClient.invalidateQueries(["taskComments", id]);
       queryClient.invalidateQueries(["taskList"]);
     },
     onError: (error) => {
-      console.error("❌ Comment error:", error);
+      console.error("Comment error:", error);
       const errorMessage =
-        error.response?.data?.message || "Failed to post comment";
+        error.response?.data?.message || "कमेंट पोस्ट नहीं हो सका";
       toast.error(errorMessage);
     },
   });
@@ -159,26 +175,42 @@ const CommentPage = () => {
     );
   };
 
+  // NEW: Reply handler
+  const handleReplyClick = (commentItem) => {
+    setReplyingTo({
+      id: commentItem.id,
+      userName: `${commentItem.user?.first_name || ""} ${
+        commentItem.user?.last_name || ""
+      }`.trim(),
+      comment: commentItem.comment?.substring(0, 50) || "Attachment",
+    });
+    textareaRef.current?.focus();
+  };
+
+  // NEW: Find parent comment for display
+  const findCommentById = (commentId) => {
+    return comments.find((c) => c.id === commentId);
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
 
     if (!comment.trim() && uploadedFiles.length === 0) {
-      toast.error("Please add a comment or attachment");
+      toast.error("कृपया कोई कमेंट या फ़ाइल जोड़ें");
       return;
     }
 
     if (uploadingFiles.length > 0) {
-      toast.error("Please wait for all files to finish uploading");
+      toast.error("कृपया सभी फ़ाइलों के अपलोड होने तक प्रतीक्षा करें");
       return;
     }
 
     const payload = {
       comment: comment.trim() || null,
       attachment_ids: uploadedFiles.map((file) => file.id),
-      parent_id: null,
+      parent_id: replyingTo?.id || null, // NEW: Send parent_id
     };
 
-    console.log("📤 Submitting Comment Payload:", payload);
     postCommentMutation(payload);
   };
 
@@ -194,196 +226,317 @@ const CommentPage = () => {
     return `${firstName?.[0] || ""}${lastName?.[0] || ""}`.toUpperCase() || "U";
   };
 
+  const formatTime = (date) => {
+    const commentDate = new Date(date);
+    if (isToday(commentDate)) {
+      return format(commentDate, "hh:mm a");
+    } else if (isYesterday(commentDate)) {
+      return `Yesterday ${format(commentDate, "hh:mm a")}`;
+    } else {
+      return format(commentDate, "MMM dd, hh:mm a");
+    }
+  };
+
   return (
-    <div className="flex flex-col h-screen bg-gradient-to-b from-gray-50 to-gray-100">
-      {/* Header */}
-      <header className="bg-white border-b shadow-sm">
-        <div className="max-w-5xl mx-auto px-4 py-4 flex items-center gap-4">
+    <div className="flex flex-col h-screen bg-gradient-to-b from-slate-50 to-white dark:from-slate-950 dark:to-slate-900">
+      {/* Modern Header with Glass Effect */}
+      <header className="flex-shrink-0 bg-white/70 dark:bg-slate-900/70 backdrop-blur-xl border-b border-slate-200/60 dark:border-slate-800/60 sticky top-0 z-10 shadow-sm">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 py-4 flex items-center gap-3">
           <Button
             variant="ghost"
             size="icon"
             onClick={() => navigate(-1)}
-            className="rounded-full hover:bg-gray-100"
+            className="rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 transition-all"
           >
             <ArrowLeft className="h-5 w-5" />
           </Button>
-          <div className="flex-1">
-            <Typography variant="h3" className="text-lg font-semibold">
+          <div className="flex-1 min-w-0">
+            <Typography
+              variant="h3"
+              className="text-lg font-bold text-slate-900 dark:text-slate-100"
+            >
               Comments
             </Typography>
-            <Typography variant="muted" className="text-xs">
-              Task #{id}
+            <Typography variant="muted" className="text-xs text-slate-500">
+              Task {id} • {comments.length}{" "}
+              {comments.length === 1 ? "comment" : "comments"}
             </Typography>
           </div>
         </div>
       </header>
 
-      {/* Comments Area */}
-      <ScrollArea ref={scrollRef} className="flex-1 px-4 py-6">
-        <div className="max-w-5xl mx-auto space-y-4">
+      {/* Comments Area with Better Spacing */}
+      <ScrollArea ref={scrollRef} className="flex-1 overflow-hidden">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 py-6 space-y-4 pb-6">
           {isLoadingComments ? (
-            <div className="flex items-center justify-center py-12">
-              <Loader2 className="h-8 w-8 animate-spin text-gray-400" />
+            <div className="flex flex-col items-center justify-center py-20">
+              <div className="relative">
+                <div className="h-16 w-16 rounded-full border-4 border-slate-200 dark:border-slate-800"></div>
+                <div className="absolute top-0 h-16 w-16 rounded-full border-4 border-t-blue-500 dark:border-t-blue-400 animate-spin"></div>
+              </div>
+              <Typography variant="muted" className="mt-4 text-sm">
+                Loading comments...
+              </Typography>
             </div>
           ) : commentsError ? (
-            <div className="text-center py-12">
-              <Typography variant="muted">Failed to load comments</Typography>
+            <div className="text-center py-20">
+              <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-red-50 dark:bg-red-950/20 mb-4">
+                <X className="h-10 w-10 text-red-500" />
+              </div>
+              <Typography variant="h4" className="text-lg font-semibold mb-2">
+                Failed to load comments
+              </Typography>
+              <Button
+                variant="outline"
+                onClick={() =>
+                  queryClient.invalidateQueries(["taskComments", id])
+                }
+                className="mt-4"
+              >
+                Retry
+              </Button>
             </div>
           ) : comments.length === 0 ? (
-            <div className="text-center py-12">
-              <Typography variant="muted">
-                No comments yet. Be the first to comment!
+            <div className="text-center py-20">
+              <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-gradient-to-br from-blue-50 to-purple-50 dark:from-blue-950/20 dark:to-purple-950/20 mb-4">
+                <Send className="h-10 w-10 text-blue-600 dark:text-blue-400" />
+              </div>
+              <Typography variant="h4" className="text-lg font-semibold mb-2">
+                No comments yet
+              </Typography>
+              <Typography variant="muted" className="text-sm">
+                Be the first to start the conversation!
               </Typography>
             </div>
           ) : (
-            comments.map((commentItem) => (
-              <Card
-                key={commentItem.id}
-                className="p-4 bg-white shadow-sm hover:shadow-md transition-shadow"
-              >
-                {/* User Info */}
-                <div className="flex items-start gap-3 mb-3">
-                  <Avatar className="h-10 w-10 border-2 border-gray-200">
-                    <AvatarImage src={commentItem.user?.profile_picture} />
-                    <AvatarFallback className="bg-gradient-to-br from-blue-500 to-purple-600 text-white">
-                      {getInitials(
-                        commentItem.user?.first_name,
-                        commentItem.user?.last_name
+            comments.map((commentItem, index) => {
+              const parentComment = commentItem.parent_id
+                ? findCommentById(commentItem.parent_id)
+                : null;
+
+              return (
+                <div
+                  key={commentItem.id}
+                  className="group animate-in fade-in slide-in-from-bottom-2"
+                  style={{ animationDelay: `${index * 30}ms` }}
+                >
+                  <div className="flex gap-3">
+                    {/* Avatar Column */}
+                    <Avatar className="h-10 w-10 ring-2 ring-white dark:ring-slate-900 shadow-md flex-shrink-0">
+                      <AvatarImage
+                        src={commentItem.user?.profile_picture}
+                        alt={`${commentItem.user?.first_name} ${commentItem.user?.last_name}`}
+                      />
+                      <AvatarFallback className="bg-gradient-to-br from-blue-500 to-purple-600 text-white text-sm font-semibold">
+                        {getInitials(
+                          commentItem.user?.first_name,
+                          commentItem.user?.last_name
+                        )}
+                      </AvatarFallback>
+                    </Avatar>
+
+                    {/* Content Column */}
+                    <div className="flex-1 min-w-0">
+                      {/* Header */}
+                      <div className="flex items-center gap-2 mb-1">
+                        <Typography className="font-semibold text-sm text-slate-900 dark:text-slate-100">
+                          {commentItem.user?.first_name}{" "}
+                          {commentItem.user?.last_name}
+                        </Typography>
+                        {commentItem.user?.role && (
+                          <Badge
+                            variant="secondary"
+                            className="text-xs px-2 py-0 h-5 rounded-md"
+                          >
+                            {commentItem.user.role}
+                          </Badge>
+                        )}
+                        <Typography variant="muted" className="text-xs">
+                          • {formatTime(commentItem.created_at)}
+                        </Typography>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity ml-auto"
+                            >
+                              <MoreVertical className="h-4 w-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem
+                              onClick={() => handleReplyClick(commentItem)}
+                            >
+                              <Reply className="h-4 w-4 mr-2" />
+                              Reply
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </div>
+
+                      {parentComment && (
+                        <div
+                          className="flex items-start gap-2 mb-2 pb-2 border-l-4 border-blue-500 pl-3 bg-blue-50/50 dark:bg-blue-950/10 rounded-r-lg py-1.5 cursor-pointer hover:bg-blue-50 dark:hover:bg-blue-950/20 transition-colors"
+                          onClick={() => {
+                            // Optional: Scroll to parent comment
+                            document
+                              .getElementById(`comment-${parentComment.id}`)
+                              ?.scrollIntoView({ behavior: "smooth" });
+                          }}
+                        >
+                          <Reply className="h-3.5 w-3.5 text-blue-600 dark:text-blue-400 mt-0.5 flex-shrink-0" />
+                          <div className="flex-1 min-w-0">
+                            <Typography className="text-xs font-semibold text-blue-700 dark:text-blue-300">
+                              {parentComment.user?.first_name}{" "}
+                              {parentComment.user?.last_name}
+                            </Typography>
+                            <Typography className="text-xs text-slate-600 dark:text-slate-400 line-clamp-1">
+                              {parentComment.comment || "Attachment"}
+                            </Typography>
+                          </div>
+                        </div>
                       )}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2">
-                      <Typography variant="p" className="font-semibold text-sm">
-                        {commentItem.user?.first_name}{" "}
-                        {commentItem.user?.last_name}
-                      </Typography>
-                      <Typography variant="muted" className="text-xs">
-                        {commentItem.created_at
-                          ? format(
-                              new Date(commentItem.created_at),
-                              "MMM dd, yyyy 'at' hh:mm a"
-                            )
-                          : ""}
-                      </Typography>
+
+                      {/* Comment Bubble */}
+                      {commentItem.comment && (
+                        <div
+                          id={`comment-${commentItem.id}`}
+                          className="bg-slate-100 dark:bg-slate-800/50 rounded-2xl rounded-tl-sm px-4 py-2.5 mb-2 hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors"
+                        >
+                          <Typography className="text-sm text-slate-800 dark:text-slate-200 leading-relaxed whitespace-pre-wrap">
+                            {commentItem.comment}
+                          </Typography>
+                        </div>
+                      )}
+
+                      {/* Attachments */}
+                      {commentItem.attachments &&
+                        commentItem.attachments.length > 0 && (
+                          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 mt-2">
+                            {commentItem.attachments.map((attachment) => (
+                              <div key={attachment.id}>
+                                {isImage(attachment.mime_type) ? (
+                                  <div
+                                    className="relative group/img cursor-pointer rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700 hover:border-blue-400 hover:scale-[1.02] transition-all duration-200 shadow-sm hover:shadow-lg"
+                                    onClick={() => setPreviewImage(attachment)}
+                                  >
+                                    <img
+                                      src={attachment.path}
+                                      alt={attachment.original_name}
+                                      className="w-full h-32 object-cover"
+                                    />
+                                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent opacity-0 group-hover/img:opacity-100 transition-opacity flex items-center justify-center">
+                                      <ImageIcon className="h-8 w-8 text-white drop-shadow-lg" />
+                                    </div>
+                                  </div>
+                                ) : (
+                                  <a
+                                    href={attachment.path}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="flex items-center gap-2.5 p-3 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 hover:border-blue-400 hover:shadow-md transition-all group/file"
+                                  >
+                                    <div className="flex-shrink-0 w-10 h-10 rounded-lg bg-blue-50 dark:bg-blue-950/20 flex items-center justify-center">
+                                      <FileText className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+                                    </div>
+                                    <div className="flex-1 min-w-0">
+                                      <Typography className="text-xs font-medium truncate text-slate-700 dark:text-slate-300">
+                                        {attachment.original_name}.
+                                        {attachment.extension}
+                                      </Typography>
+                                      <Typography
+                                        variant="muted"
+                                        className="text-xs"
+                                      >
+                                        {(attachment.size / 1024).toFixed(1)} KB
+                                      </Typography>
+                                    </div>
+                                    <Download className="h-4 w-4 text-slate-400 group-hover/file:text-blue-600 transition-colors" />
+                                  </a>
+                                )}
+                              </div>
+                            ))}
+                          </div>
+                        )}
                     </div>
-                    <Typography variant="muted" className="text-xs">
-                      {commentItem.user?.role}
-                    </Typography>
                   </div>
                 </div>
-
-                {/* Comment Text */}
-                {commentItem.comment && (
-                  <div className="mb-3 pl-[52px]">
-                    <Typography
-                      variant="p"
-                      className="text-sm text-gray-700 whitespace-pre-wrap"
-                    >
-                      {commentItem.comment}
-                    </Typography>
-                  </div>
-                )}
-
-                {/* Attachments */}
-                {commentItem.attachments &&
-                  commentItem.attachments.length > 0 && (
-                    <div className="pl-[52px] space-y-2">
-                      <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
-                        {commentItem.attachments.map((attachment) => (
-                          <div key={attachment.id}>
-                            {isImage(attachment.mime_type) ? (
-                              <div
-                                className="relative group cursor-pointer rounded-lg overflow-hidden border border-gray-200 hover:border-blue-400 transition-colors"
-                                onClick={() => setPreviewImage(attachment)}
-                              >
-                                <img
-                                  src={attachment.path}
-                                  alt={attachment.original_name}
-                                  className="w-full h-32 object-cover"
-                                />
-                                <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-opacity flex items-center justify-center">
-                                  <ImageIcon className="h-6 w-6 text-white opacity-0 group-hover:opacity-100 transition-opacity" />
-                                </div>
-                              </div>
-                            ) : (
-                              <a
-                                href={attachment.path}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="flex items-center gap-2 p-3 bg-gray-50 rounded-lg border border-gray-200 hover:border-blue-400 hover:bg-blue-50 transition-colors"
-                              >
-                                <Paperclip className="h-4 w-4 text-gray-500" />
-                                <div className="flex-1 min-w-0">
-                                  <Typography
-                                    variant="muted"
-                                    className="text-xs truncate"
-                                  >
-                                    {attachment.original_name}.
-                                    {attachment.extension}
-                                  </Typography>
-                                  <Typography
-                                    variant="muted"
-                                    className="text-xs text-gray-400"
-                                  >
-                                    {(attachment.size / 1024).toFixed(1)} KB
-                                  </Typography>
-                                </div>
-                                <Download className="h-4 w-4 text-gray-400" />
-                              </a>
-                            )}
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-              </Card>
-            ))
+              );
+            })
           )}
         </div>
       </ScrollArea>
 
-      {/* Input Area */}
-      <div className="bg-white border-t shadow-lg">
-        <div className="max-w-5xl mx-auto px-4 py-4">
+      {/* Modern Input Area */}
+      <div className="flex-shrink-0 bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl border-t border-slate-200/60 dark:border-slate-800/60 shadow-2xl sticky bottom-0 z-20">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 py-4">
           <form onSubmit={handleSubmit} className="space-y-3">
-            {/* Uploading Files Indicator */}
+            {/* Upload Progress */}
             {uploadingFiles.length > 0 && (
               <div className="flex flex-wrap gap-2">
                 {uploadingFiles.map((file, index) => (
                   <div
                     key={index}
-                    className="flex items-center gap-2 bg-blue-50 rounded-full px-3 py-1 text-sm border border-blue-200"
+                    className="flex items-center gap-2 bg-blue-50 dark:bg-blue-950/20 rounded-lg px-3 py-2 text-sm border border-blue-200 dark:border-blue-800"
                   >
-                    <Loader2 className="h-3 w-3 animate-spin text-blue-600" />
-                    <span className="text-blue-700">{file.name}</span>
+                    <Loader2 className="h-4 w-4 animate-spin text-blue-600 dark:text-blue-400" />
+                    <span className="text-blue-700 dark:text-blue-300 font-medium truncate max-w-[150px]">
+                      {file.name}
+                    </span>
                   </div>
                 ))}
               </div>
             )}
 
-            {/* Preview Uploaded Files */}
+            {/* Uploaded Files */}
             {uploadedFiles.length > 0 && (
               <div className="flex flex-wrap gap-2">
                 {uploadedFiles.map((file) => (
                   <div
                     key={file.id}
-                    className="flex items-center gap-2 bg-gray-100 rounded-full px-3 py-1 text-sm"
+                    className="flex items-center gap-2 bg-slate-100 dark:bg-slate-800 rounded-lg px-3 py-2 text-sm border border-slate-200 dark:border-slate-700 group"
                   >
-                    <Paperclip className="h-3 w-3 text-gray-500" />
-                    <span className="text-gray-700 max-w-[150px] truncate">
+                    <Paperclip className="h-4 w-4 text-slate-600 dark:text-slate-400" />
+                    <span className="text-slate-700 dark:text-slate-300 font-medium truncate max-w-[150px]">
                       {file.name}
                     </span>
                     <button
                       type="button"
                       onClick={() => handleRemoveFile(file)}
                       disabled={isPosting}
-                      className="text-red-500 hover:text-red-700"
+                      className="text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/20 rounded-full p-1 transition-all"
                     >
-                      <X className="h-3 w-3" />
+                      <X className="h-3.5 w-3.5" />
                     </button>
                   </div>
                 ))}
+              </div>
+            )}
+
+            {/* NEW: Reply Preview (WhatsApp style) */}
+            {replyingTo && (
+              <div className="flex items-center justify-between gap-3 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-950/20 dark:to-purple-950/20 border-l-4 border-blue-500 px-4 py-3 rounded-r-lg animate-in slide-in-from-top-2 shadow-sm">
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 mb-1">
+                    <Reply className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                    <Typography className="text-xs font-bold text-blue-700 dark:text-blue-300">
+                      {replyingTo.userName}
+                    </Typography>
+                  </div>
+                  <Typography className="text-xs text-slate-600 dark:text-slate-400 truncate">
+                    {replyingTo.comment}
+                  </Typography>
+                </div>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => setReplyingTo(null)}
+                  className="h-8 w-8 rounded-full hover:bg-blue-100 dark:hover:bg-blue-900/30 flex-shrink-0"
+                >
+                  <X className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                </Button>
               </div>
             )}
 
@@ -404,36 +557,39 @@ const CommentPage = () => {
                 size="icon"
                 onClick={() => fileInputRef.current?.click()}
                 disabled={isUploading || isPosting}
-                className="rounded-full flex-shrink-0"
+                className="rounded-xl h-11 w-11 border-2 hover:border-blue-400 hover:bg-blue-50 dark:hover:bg-blue-950/20 transition-all flex-shrink-0"
               >
-                <Upload className="h-4 w-4" />
+                <Upload className="h-5 w-5" />
               </Button>
 
-              <Textarea
-                value={comment}
-                onChange={(e) => setComment(e.target.value)}
-                placeholder="Type your comment..."
-                rows={1}
-                className="resize-none flex-1 min-h-[44px] max-h-[120px]"
-                disabled={isPosting}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" && !e.shiftKey && canSubmit) {
-                    e.preventDefault();
-                    handleSubmit(e);
-                  }
-                }}
-              />
+              <div className="flex-1 relative bg-slate-100 dark:bg-slate-800/50 rounded-2xl border-2 border-transparent focus-within:border-blue-400 focus-within:bg-white dark:focus-within:bg-slate-800 transition-all">
+                <Textarea
+                  ref={textareaRef}
+                  value={comment}
+                  onChange={(e) => setComment(e.target.value)}
+                  placeholder="Type your comment... (Shift + Enter for new line)"
+                  rows={1}
+                  className="resize-none border-0 bg-transparent min-h-[44px] max-h-[120px] px-4 py-3 text-sm focus-visible:ring-0 focus-visible:ring-offset-0"
+                  disabled={isPosting}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" && !e.shiftKey && canSubmit) {
+                      e.preventDefault();
+                      handleSubmit(e);
+                    }
+                  }}
+                />
+              </div>
 
               <Button
                 type="submit"
                 disabled={!canSubmit}
-                className="rounded-full flex-shrink-0 bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700"
+                className="rounded-xl h-11 w-11 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 shadow-lg hover:shadow-xl hover:scale-105 transition-all disabled:opacity-50 flex-shrink-0"
                 size="icon"
               >
                 {isPosting ? (
-                  <Loader2 className="h-4 w-4 animate-spin" />
+                  <Loader2 className="h-5 w-5 animate-spin" />
                 ) : (
-                  <Send className="h-4 w-4" />
+                  <Send className="h-5 w-5" />
                 )}
               </Button>
             </div>
@@ -443,13 +599,13 @@ const CommentPage = () => {
 
       {/* Image Preview Dialog */}
       <Dialog open={!!previewImage} onOpenChange={() => setPreviewImage(null)}>
-        <DialogContent className="max-w-4xl">
-          <DialogHeader>
-            <DialogTitle>
+        <DialogContent className="max-w-4xl max-h-[90vh] p-0 overflow-hidden">
+          <DialogHeader className="p-6 pb-0">
+            <DialogTitle className="text-lg truncate pr-8">
               {previewImage?.original_name}.{previewImage?.extension}
             </DialogTitle>
           </DialogHeader>
-          <div className="relative">
+          <div className="relative p-6 pt-4">
             <img
               src={previewImage?.path}
               alt={previewImage?.original_name}
@@ -459,9 +615,9 @@ const CommentPage = () => {
               href={previewImage?.path}
               target="_blank"
               rel="noopener noreferrer"
-              className="absolute top-2 right-2"
+              className="absolute top-6 right-6"
             >
-              <Button variant="secondary" size="sm" className="gap-2">
+              <Button size="sm" className="gap-2 shadow-lg">
                 <Download className="h-4 w-4" />
                 Download
               </Button>
