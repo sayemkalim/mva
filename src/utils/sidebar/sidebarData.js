@@ -45,8 +45,124 @@ import {
 } from "lucide-react";
 import { getItem } from "../local_storage";
 
+const BASE_URL = "https://mva-backend.vsrlaw.ca";
 const userName = getItem("userName") || "Admin";
 const userEmail = getItem("userEmail") || "admin@admin.com";
+
+// Helper function to check if URL is an API endpoint
+export const isApiUrl = (url) => {
+  return url && url.startsWith("/api");
+};
+
+// Helper function to handle file downloads with improved error handling
+export const handleFileDownload = async (url, fileName = "document") => {
+  try {
+    const fullUrl = url.startsWith("/api") ? `${BASE_URL}${url}` : url;
+
+    // Get token from localStorage if you have authentication
+    const token = getItem("token");
+
+    const headers = {};
+    if (token) {
+      headers.Authorization = `Bearer ${token}`;
+    }
+
+    console.log("Downloading file...", fileName);
+
+    const response = await fetch(fullUrl, {
+      method: "GET",
+      headers: headers,
+    });
+
+    if (!response.ok) {
+      // Handle specific error codes
+      if (response.status === 404) {
+        throw new Error(
+          "File not found. The document may not have been generated yet."
+        );
+      } else if (response.status === 401) {
+        throw new Error("Unauthorized. Please log in again.");
+      } else if (response.status === 403) {
+        throw new Error(
+          "Access denied. You don't have permission to download this file."
+        );
+      } else if (response.status === 500) {
+        throw new Error("Server error. Please try again later.");
+      } else {
+        throw new Error(`Download failed with status: ${response.status}`);
+      }
+    }
+
+    const blob = await response.blob();
+
+    // Check if blob is valid
+    if (!blob || blob.size === 0) {
+      throw new Error("Downloaded file is empty.");
+    }
+
+    const downloadUrl = window.URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = downloadUrl;
+
+    // Extract filename from Content-Disposition header or use provided name
+    const contentDisposition = response.headers.get("Content-Disposition");
+    let downloadFileName = fileName;
+
+    if (contentDisposition) {
+      const fileNameMatch = contentDisposition.match(
+        /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/
+      );
+      if (fileNameMatch && fileNameMatch[1]) {
+        downloadFileName = fileNameMatch[1].replace(/['"]/g, "");
+      }
+    }
+
+    // Add file extension if not present (based on Content-Type)
+    if (!downloadFileName.includes(".")) {
+      const contentType = response.headers.get("Content-Type");
+      if (contentType) {
+        if (contentType.includes("pdf")) {
+          downloadFileName += ".pdf";
+        } else if (
+          contentType.includes("word") ||
+          contentType.includes("document")
+        ) {
+          downloadFileName += ".docx";
+        } else if (
+          contentType.includes("excel") ||
+          contentType.includes("spreadsheet")
+        ) {
+          downloadFileName += ".xlsx";
+        } else {
+          downloadFileName += ".pdf";
+        }
+      } else {
+        downloadFileName += ".pdf";
+      }
+    }
+
+    link.setAttribute("download", downloadFileName);
+    document.body.appendChild(link);
+    link.click();
+
+    // Cleanup
+    document.body.removeChild(link);
+    window.URL.revokeObjectURL(downloadUrl);
+
+    console.log("File downloaded successfully:", downloadFileName);
+
+    return true;
+  } catch (error) {
+    console.error("Error downloading file:", error);
+
+    // User-friendly error messages
+    const errorMessage =
+      error.message || "Failed to download file. Please try again.";
+    alert(errorMessage);
+
+    return false;
+  }
+};
 
 export const EDIT_MODE_PATHS = [
   "/dashboard/workstation/edit/",
@@ -67,7 +183,7 @@ export const EDIT_MODE_PATHS = [
   "/dashboard/client-correspondence/edit/",
   "/dashboard/insurance-examination/add/",
   "/dashboard/insurance-examnation/edit/",
-  " /dashboard/vsr-insurance-examination/add/",
+  "/dashboard/vsr-insurance-examination/add/",
   "/dashboard/vsr-insurance-examination/edit/",
   "/dashboard/cost-hard/add/",
   "/dashboard/cost-soft/add/",

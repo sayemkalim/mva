@@ -629,7 +629,7 @@ const TaskTable = ({ setTasksLength }) => {
                     <Button
                       variant="outline"
                       className={cn(
-                        "h-9 w-full justify-start text-left font-normal bg-gray-50",
+                        "h- w-full justify-start text-left font-normal bg-gray-50",
                         !filters.to_date && "text-muted-foreground"
                       )}
                     >

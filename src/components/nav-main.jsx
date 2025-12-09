@@ -1,5 +1,6 @@
-import { ChevronRight, Circle } from "lucide-react";
+import { ChevronRight, Loader2 } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
+import { useState } from "react";
 import {
   Collapsible,
   CollapsibleContent,
@@ -15,15 +16,39 @@ import {
   SidebarMenuSubButton,
   SidebarMenuSubItem,
 } from "@/components/ui/sidebar";
+import { handleFileDownload, isApiUrl } from "@/utils/sidebar/sidebarData";
+
+// Recursive component for nested menu items
 function RecursiveMenuItems({ items, depth = 1 }) {
   const navigate = useNavigate();
   const location = useLocation();
+  const [loadingId, setLoadingId] = useState(null);
+
+  // Handle click for both navigation and download
+  const handleItemClick = async (e, url, title, itemId) => {
+    if (!url) return;
+
+    e.preventDefault();
+    e.stopPropagation();
+
+    if (isApiUrl(url)) {
+      // It's an API endpoint - download the file
+      setLoadingId(itemId);
+      await handleFileDownload(url, title);
+      setLoadingId(null);
+    } else {
+      // Regular navigation
+      navigate(url);
+    }
+  };
 
   return (
     <>
-      {items.map((subItem) => {
+      {items.map((subItem, index) => {
+        const itemId = `${subItem.title}-${index}-${depth}`;
         const hasChildren = subItem.items && subItem.items.length > 0;
         const isActive = location.pathname === subItem.url;
+        const isLoading = loadingId === itemId;
         const hasActiveDescendant = subItem.items?.some(
           (child) => location.pathname === child.url
         );
@@ -31,7 +56,7 @@ function RecursiveMenuItems({ items, depth = 1 }) {
         if (hasChildren) {
           return (
             <Collapsible
-              key={subItem.title}
+              key={itemId}
               asChild
               defaultOpen={hasActiveDescendant}
               className="group/collapsible"
@@ -58,20 +83,25 @@ function RecursiveMenuItems({ items, depth = 1 }) {
             </Collapsible>
           );
         }
+
         return (
-          <SidebarMenuSubItem key={subItem.title}>
+          <SidebarMenuSubItem key={itemId}>
             <SidebarMenuSubButton
               asChild
               isActive={isActive}
               className="text-xs"
+              disabled={isLoading}
             >
               <a
-                onClick={(e) => {
-                  e.preventDefault();
-                  navigate(subItem.url);
-                }}
+                href={subItem.url || "#"}
+                onClick={(e) =>
+                  handleItemClick(e, subItem.url, subItem.title, itemId)
+                }
                 className="cursor-pointer flex items-center gap-2 pl-2"
               >
+                {isLoading ? (
+                  <Loader2 className="h-3 w-3 animate-spin" />
+                ) : null}
                 <span className="truncate">{subItem.title}</span>
               </a>
             </SidebarMenuSubButton>
@@ -85,6 +115,26 @@ function RecursiveMenuItems({ items, depth = 1 }) {
 export function NavMain({ items, showHeader = false, header }) {
   const navigate = useNavigate();
   const location = useLocation();
+  const [loadingId, setLoadingId] = useState(null);
+
+  // Handle click for top-level items
+  const handleItemClick = async (e, url, title, itemId) => {
+    if (!url) return;
+
+    e.preventDefault();
+
+    if (isApiUrl(url)) {
+      // It's an API endpoint - download the file
+      setLoadingId(itemId);
+      await handleFileDownload(url, title);
+      setLoadingId(null);
+    } else {
+      // Regular navigation
+      navigate(url);
+    }
+  };
+
+  // Check if any child is active
   const hasActiveChild = (items) => {
     if (!items || items.length === 0) return false;
     return items.some((item) => {
@@ -98,15 +148,17 @@ export function NavMain({ items, showHeader = false, header }) {
     <SidebarGroup>
       {showHeader && <SidebarGroupLabel>{header}</SidebarGroupLabel>}
       <SidebarMenu>
-        {items.map((item) => {
+        {items.map((item, index) => {
+          const itemId = `${item.title}-${index}`;
           const hasChildren = item.items && item.items.length > 0;
           const isActive = location.pathname === item.url;
+          const isLoading = loadingId === itemId;
           const hasActiveDescendant = hasActiveChild(item.items);
 
           if (hasChildren) {
             return (
               <Collapsible
-                key={item.title}
+                key={itemId}
                 asChild
                 defaultOpen={hasActiveDescendant || item.isActive}
                 className="group/collapsible"
@@ -130,14 +182,21 @@ export function NavMain({ items, showHeader = false, header }) {
           }
 
           return (
-            <SidebarMenuItem key={item.title}>
+            <SidebarMenuItem key={itemId}>
               <SidebarMenuButton
                 tooltip={item.title}
-                onClick={() => navigate(item.url)}
+                onClick={(e) =>
+                  handleItemClick(e, item.url, item.title, itemId)
+                }
                 isActive={isActive}
-                className="text-sm"
+                className="text-sm cursor-pointer"
+                disabled={isLoading}
               >
-                {item.icon && <item.icon className="h-4 w-4 shrink-0" />}
+                {isLoading ? (
+                  <Loader2 className="h-4 w-4 animate-spin shrink-0" />
+                ) : (
+                  item.icon && <item.icon className="h-4 w-4 shrink-0" />
+                )}
                 <span className="truncate">{item.title}</span>
               </SidebarMenuButton>
             </SidebarMenuItem>

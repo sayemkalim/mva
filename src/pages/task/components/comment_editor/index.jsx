@@ -114,14 +114,14 @@ const CommentPage = () => {
             type: file.type,
           },
         ]);
-        toast.success(`${fileName} अपलोड हो गया`);
+        toast.success(`${fileName} Successfully uploaded ✓`);
       }
 
       setUploadingFiles((prev) => prev.filter((f) => f.name !== file.name));
     },
     onError: (error, { file }) => {
       console.error("Upload error:", error);
-      toast.error(`${file.name} अपलोड नहीं हो सका`);
+      toast.error(`${file.name} Upload failed ❌`);
       setUploadingFiles((prev) => prev.filter((f) => f.name !== file.name));
     },
   });
@@ -140,7 +140,7 @@ const CommentPage = () => {
   const { mutate: postCommentMutation, isPending: isPosting } = useMutation({
     mutationFn: (data) => postComment(id, data),
     onSuccess: (response) => {
-      toast.success("कमेंट पोस्ट हो गया ✓");
+      toast.success("Comment posted ✓");
       setComment("");
       setUploadedFiles([]);
       setReplyingTo(null);
@@ -150,7 +150,7 @@ const CommentPage = () => {
     onError: (error) => {
       console.error("Comment error:", error);
       const errorMessage =
-        error.response?.data?.message || "कमेंट पोस्ट नहीं हो सका";
+        error.response?.data?.message || "Failed to post comment";
       toast.error(errorMessage);
     },
   });
@@ -194,12 +194,12 @@ const CommentPage = () => {
     e.preventDefault();
 
     if (!comment.trim() && uploadedFiles.length === 0) {
-      toast.error("कृपया कोई कमेंट या फ़ाइल जोड़ें");
+      toast.error("Please enter a comment or attach a file");
       return;
     }
 
     if (uploadingFiles.length > 0) {
-      toast.error("कृपया सभी फ़ाइलों के अपलोड होने तक प्रतीक्षा करें");
+      toast.error("Please wait for all files to finish uploading");
       return;
     }
 
