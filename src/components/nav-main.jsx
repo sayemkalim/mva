@@ -15,81 +15,134 @@ import {
   SidebarMenuSubButton,
   SidebarMenuSubItem,
 } from "@/components/ui/sidebar";
+function RecursiveMenuItems({ items, depth = 1 }) {
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  return (
+    <>
+      {items.map((subItem) => {
+        const hasChildren = subItem.items && subItem.items.length > 0;
+        const isActive = location.pathname === subItem.url;
+        const hasActiveDescendant = subItem.items?.some(
+          (child) => location.pathname === child.url
+        );
+
+        if (hasChildren) {
+          return (
+            <Collapsible
+              key={subItem.title}
+              asChild
+              defaultOpen={hasActiveDescendant}
+              className="group/collapsible"
+            >
+              <SidebarMenuSubItem>
+                <CollapsibleTrigger asChild>
+                  <SidebarMenuSubButton className="text-xs">
+                    {subItem.icon && (
+                      <subItem.icon className="h-3.5 w-3.5 shrink-0" />
+                    )}
+                    <span className="truncate">{subItem.title}</span>
+                    <ChevronRight className="ml-auto h-3.5 w-3.5 shrink-0 transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
+                  </SidebarMenuSubButton>
+                </CollapsibleTrigger>
+                <CollapsibleContent>
+                  <SidebarMenuSub className="ml-0 pl-4 border-l-2 border-sidebar-border">
+                    <RecursiveMenuItems
+                      items={subItem.items}
+                      depth={depth + 1}
+                    />
+                  </SidebarMenuSub>
+                </CollapsibleContent>
+              </SidebarMenuSubItem>
+            </Collapsible>
+          );
+        }
+        return (
+          <SidebarMenuSubItem key={subItem.title}>
+            <SidebarMenuSubButton
+              asChild
+              isActive={isActive}
+              className="text-xs"
+            >
+              <a
+                onClick={(e) => {
+                  e.preventDefault();
+                  navigate(subItem.url);
+                }}
+                className="cursor-pointer flex items-center gap-2 pl-2"
+              >
+                <span className="truncate">{subItem.title}</span>
+              </a>
+            </SidebarMenuSubButton>
+          </SidebarMenuSubItem>
+        );
+      })}
+    </>
+  );
+}
 
 export function NavMain({ items, showHeader = false, header }) {
   const navigate = useNavigate();
   const location = useLocation();
+  const hasActiveChild = (items) => {
+    if (!items || items.length === 0) return false;
+    return items.some((item) => {
+      if (item.url === location.pathname) return true;
+      if (item.items) return hasActiveChild(item.items);
+      return false;
+    });
+  };
 
   return (
     <SidebarGroup>
       {showHeader && <SidebarGroupLabel>{header}</SidebarGroupLabel>}
       <SidebarMenu>
-        {items.map((item) =>
-          item.items?.length > 0 ? (
-            <Collapsible
-              key={item.title}
-              asChild
-              defaultOpen={item.items.some(
-                (subItem) => subItem.url === location.pathname
-              )}
-              className="group/collapsible"
-            >
-              <SidebarMenuItem>
-                <CollapsibleTrigger asChild>
-                  <SidebarMenuButton
-                    tooltip={item.title}
-                    className={
-                      item.items.some(
-                        (subItem) => subItem.url === location.pathname
-                      )
-                        ? "bg-[#7f24fd]/10 text-[#7f24fd] dark:bg-[#7f24fd]/10 dark:text-[#7f24fd]"
-                        : ""
-                    }
-                  >
-                    {item.icon && <item.icon />}
-                    <span>{item.title}</span>
-                    <ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
-                  </SidebarMenuButton>
-                </CollapsibleTrigger>
-                <CollapsibleContent>
-                  <SidebarMenuSub>
-                    {item.items.map((subItem) => (
-                      <SidebarMenuSubItem key={subItem.title}>
-                        <SidebarMenuSubButton asChild>
-                          <a
-                            onClick={() => navigate(subItem.url)}
-                            className={
-                              location.pathname === subItem.url
-                                ? "bg-[#7f24fd]/10 text-[#7f24fd] dark:bg-[#7f24fd]/10 dark:text-[#7f24fd]"
-                                : ""
-                            }
-                          >
-                            <span>{subItem.title}</span>
-                          </a>
-                        </SidebarMenuSubButton>
-                      </SidebarMenuSubItem>
-                    ))}
-                  </SidebarMenuSub>
-                </CollapsibleContent>
-              </SidebarMenuItem>
-            </Collapsible>
-          ) : (
+        {items.map((item) => {
+          const hasChildren = item.items && item.items.length > 0;
+          const isActive = location.pathname === item.url;
+          const hasActiveDescendant = hasActiveChild(item.items);
+
+          if (hasChildren) {
+            return (
+              <Collapsible
+                key={item.title}
+                asChild
+                defaultOpen={hasActiveDescendant || item.isActive}
+                className="group/collapsible"
+              >
+                <SidebarMenuItem>
+                  <CollapsibleTrigger asChild>
+                    <SidebarMenuButton tooltip={item.title} className="text-sm">
+                      {item.icon && <item.icon className="h-4 w-4 shrink-0" />}
+                      <span className="truncate">{item.title}</span>
+                      <ChevronRight className="ml-auto h-4 w-4 shrink-0 transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
+                    </SidebarMenuButton>
+                  </CollapsibleTrigger>
+                  <CollapsibleContent>
+                    <SidebarMenuSub className="ml-0 pl-6 border-l-2 border-sidebar-border mr-2">
+                      <RecursiveMenuItems items={item.items} depth={1} />
+                    </SidebarMenuSub>
+                  </CollapsibleContent>
+                </SidebarMenuItem>
+              </Collapsible>
+            );
+          }
+
+          return (
             <SidebarMenuItem key={item.title}>
               <SidebarMenuButton
                 tooltip={item.title}
                 onClick={() => navigate(item.url)}
-                className={
-                  location.pathname === item.url
-                    ? "bg-[#7f24fd]/10 text-[#7f24fd] dark:bg-[#7f24fd]/10 dark:text-[#7f24fd]"
-                    : ""
-                }
+                isActive={isActive}
+                className="text-sm"
               >
-                {item.icon ? <item.icon /> : <Circle className="w-4 h-4" />}
-                <span>{item.title}</span>
+                {item.icon && <item.icon className="h-4 w-4 shrink-0" />}
+                <span className="truncate">{item.title}</span>
               </SidebarMenuButton>
             </SidebarMenuItem>
-          )
-        )}
+          );
+        })}
       </SidebarMenu>
     </SidebarGroup>
   );

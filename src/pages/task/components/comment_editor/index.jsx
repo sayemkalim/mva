@@ -143,7 +143,7 @@ const CommentPage = () => {
       toast.success("कमेंट पोस्ट हो गया ✓");
       setComment("");
       setUploadedFiles([]);
-      setReplyingTo(null); // NEW: Clear reply state
+      setReplyingTo(null);
       queryClient.invalidateQueries(["taskComments", id]);
       queryClient.invalidateQueries(["taskList"]);
     },
@@ -175,7 +175,6 @@ const CommentPage = () => {
     );
   };
 
-  // NEW: Reply handler
   const handleReplyClick = (commentItem) => {
     setReplyingTo({
       id: commentItem.id,
@@ -187,7 +186,6 @@ const CommentPage = () => {
     textareaRef.current?.focus();
   };
 
-  // NEW: Find parent comment for display
   const findCommentById = (commentId) => {
     return comments.find((c) => c.id === commentId);
   };
@@ -208,9 +206,10 @@ const CommentPage = () => {
     const payload = {
       comment: comment.trim() || null,
       attachment_ids: uploadedFiles.map((file) => file.id),
-      parent_id: replyingTo?.id || null, // NEW: Send parent_id
+      parent_id: replyingTo?.id || null,
     };
 
+    console.log("Sending payload:", payload); // Debug log
     postCommentMutation(payload);
   };
 
@@ -359,7 +358,7 @@ const CommentPage = () => {
                             <Button
                               variant="ghost"
                               size="icon"
-                              className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity ml-auto"
+                              className="h-6 w-6 ml-auto opacity-100"
                             >
                               <MoreVertical className="h-4 w-4" />
                             </Button>
@@ -375,11 +374,11 @@ const CommentPage = () => {
                         </DropdownMenu>
                       </div>
 
+                      {/* Reply Indicator */}
                       {parentComment && (
                         <div
                           className="flex items-start gap-2 mb-2 pb-2 border-l-4 border-blue-500 pl-3 bg-blue-50/50 dark:bg-blue-950/10 rounded-r-lg py-1.5 cursor-pointer hover:bg-blue-50 dark:hover:bg-blue-950/20 transition-colors"
                           onClick={() => {
-                            // Optional: Scroll to parent comment
                             document
                               .getElementById(`comment-${parentComment.id}`)
                               ?.scrollIntoView({ behavior: "smooth" });
@@ -514,14 +513,14 @@ const CommentPage = () => {
               </div>
             )}
 
-            {/* NEW: Reply Preview (WhatsApp style) */}
+            {/* Reply Preview */}
             {replyingTo && (
               <div className="flex items-center justify-between gap-3 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-950/20 dark:to-purple-950/20 border-l-4 border-blue-500 px-4 py-3 rounded-r-lg animate-in slide-in-from-top-2 shadow-sm">
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-1">
                     <Reply className="h-4 w-4 text-blue-600 dark:text-blue-400" />
                     <Typography className="text-xs font-bold text-blue-700 dark:text-blue-300">
-                      {replyingTo.userName}
+                      Replying to {replyingTo.userName}
                     </Typography>
                   </div>
                   <Typography className="text-xs text-slate-600 dark:text-slate-400 truncate">

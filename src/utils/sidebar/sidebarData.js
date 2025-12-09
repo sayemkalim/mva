@@ -35,6 +35,13 @@ import {
   BadgeCheck,
   BookCheck,
   ClipboardList,
+  Download,
+  FolderOpen,
+  FileOutput,
+  Shield,
+  Hospital,
+  Pill,
+  Building2,
 } from "lucide-react";
 import { getItem } from "../local_storage";
 
@@ -190,7 +197,7 @@ export const getEditModeData = (slug) => ({
           icon: User,
         },
         {
-          title: "Vechile",
+          title: "Vehicle",
           url: `/dashboard/workstation/edit/${slug}/vechile`,
           icon: User,
         },
@@ -299,6 +306,317 @@ export const getEditModeData = (slug) => ({
       items: [],
     },
     {
+      title: "Production",
+      url: ``,
+      icon: FolderOpen,
+      items: [
+        {
+          title: "Appendix A",
+          url: `/api/v2/file/production/appendixA/${slug}`,
+          icon: FileText,
+        },
+        {
+          title: "Appendix B",
+          url: `/api/v2/file/production/appendix-b/${slug}`,
+          icon: FileText,
+        },
+        {
+          title: "SOC",
+          url: `/api/v2/file/production/soc-draft/view/${slug}`,
+          icon: FileCheck,
+        },
+        {
+          title: "Pre-screen",
+          url: "",
+          icon: ClipboardList,
+          items: [
+            {
+              title: "Psychological Pre-screen",
+              url: `/api/v2/file/production/psychological/psychological/${slug}`,
+              icon: HeartPulse,
+            },
+          ],
+        },
+        {
+          title: "Intake",
+          url: "",
+          icon: FileUp,
+          items: [
+            {
+              title: "MVA Intake Form",
+              url: `/api/v2/file/production/report/mva-client-fillable/${slug}`,
+              icon: FileText,
+            },
+          ],
+        },
+        {
+          title: "OCF",
+          url: "",
+          icon: FilePlus,
+          items: [
+            {
+              title: "OCF-1",
+              url: `/api/v2/file/production/form-ocf-1/${slug}`,
+              icon: FileText,
+            },
+            {
+              title: "OCF-2",
+              url: `/api/v2/file/production/form-ocf-2/${slug}`,
+              icon: FileText,
+            },
+            {
+              title: "OCF-5",
+              url: `/api/v2/file/production/form-ocf-5/${slug}`,
+              icon: FileText,
+            },
+            {
+              title: "OCF-6",
+              url: `/api/v2/file/production/form-ocf-6/${slug}`,
+              icon: FileText,
+            },
+            {
+              title: "OCF-10",
+              url: `/api/v2/file/production/form-ocf-10/${slug}`,
+              icon: FileText,
+            },
+          ],
+        },
+        {
+          title: "AB Adjuster",
+          url: "",
+          icon: Shield,
+          items: [
+            {
+              title: "Authorization",
+              url: "",
+              icon: BadgeCheck,
+              items: [
+                {
+                  title: "Authorization",
+                  url: `/api/v2/file/production/generate-word-document/AuthorizationtoInsuranceABAdjuster/${slug}`,
+                  icon: FileText,
+                },
+                {
+                  title: "Consent, Dir & Authz",
+                  url: `/api/v2/file/production/generate-word-document/ConsentDirectionAuthorizationtoInsuranceABAdjuster/${slug}`,
+                  icon: FileText,
+                },
+                {
+                  title: "Direction & Authorization",
+                  url: `/api/v2/file/production/generate-word-document/DirectionAuthorizationtoInsuranceABAdjuster/${slug}`,
+                  icon: FileText,
+                },
+                {
+                  title: "Notice of Change of Address",
+                  url: `/api/v2/file/production/generate-word-document/NoticeofChangeofAddresstoInsuranceABAdjuster/${slug}`,
+                  icon: FileText,
+                },
+              ],
+            },
+            {
+              title: "Letters to AB",
+              url: "",
+              icon: MessageSquare,
+              items: [
+                {
+                  title: "Representation Documents",
+                  url: `/api/v2/file/production/generate-word-document/LettertoInsuranceenclosingOCF1representationDocuments/${slug}`,
+                  icon: FileText,
+                },
+                {
+                  title: "Encl. OCF-3",
+                  url: `/api/v2/file/production/generate-word-document/LettertoInsuranceenclosingOCF3/${slug}`,
+                  icon: FileText,
+                },
+                {
+                  title: "Encl. OCF-6",
+                  url: `/api/v2/file/production/generate-word-document/LettertoInsuranceenclosingOCF6/${slug}`,
+                  icon: FileText,
+                },
+                {
+                  title: "Encl. OCF-10",
+                  url: `/api/v2/file/production/generate-word-document/LettertoInsuranceenclosingOCF10/${slug}`,
+                  icon: FileText,
+                },
+                {
+                  title: "Encl. Statutory Declaration",
+                  url: `/api/v2/file/production/generate-word-document/LettertoInsuranceenclosingStatutoryDeclaration/${slug}`,
+                  icon: FileText,
+                },
+                {
+                  title: "Encl. CNR - Family Physician",
+                  url: `/api/v2/file/production/generate-word-document/LettertoInsuranceenclosingCNRFamilyPhysician/${slug}`,
+                  icon: FileText,
+                },
+                {
+                  title: "Encl. CNR - Walk-in-Clinic",
+                  url: `/api/v2/file/production/generate-word-document/LettertoInsuranceenclosingCNRWalkinClinic/${slug}`,
+                  icon: FileText,
+                },
+                {
+                  title: "Encl. CNR - Physiotherapy",
+                  url: `/api/v2/file/production/generate-word-document/LettertoInsuranceenclosingCNRPhysio/${slug}`,
+                  icon: FileText,
+                },
+                {
+                  title: "Encl. CNR - Pharmacy",
+                  url: `/api/v2/file/production/generate-word-document/LettertoInsuranceenclosingPrescriptionSummaryPharmacy/${slug}`,
+                  icon: FileText,
+                },
+                {
+                  title: "Encl. OHIP Decoded Summary",
+                  url: `/api/v2/file/production/generate-word-document/LettertoInsuranceenclosingOHIPSummary/${slug}`,
+                  icon: FileText,
+                },
+                {
+                  title: "Information Provided Soon",
+                  url: `/api/v2/file/production/generate-word-document/LettertoInsuranceInformationprovidingsoon/${slug}`,
+                  icon: FileText,
+                },
+                {
+                  title: "Client Return Back to Work",
+                  url: `/api/v2/file/production/generate-word-document/LettertoInsuranceinformclientreturnbacktowork/${slug}`,
+                  icon: FileText,
+                },
+                {
+                  title: "Request AB File",
+                  url: `/api/v2/file/production/generate-word-document/LettertoInsurancerequestingABfile/${slug}`,
+                  icon: FileText,
+                },
+                {
+                  title: "Full and Final Release",
+                  url: `/api/v2/file/production/generate-word-document/LettertoInsurancerequestingFullandFinalRelease/${slug}`,
+                  icon: FileText,
+                },
+                {
+                  title: "Outstanding Payment",
+                  url: `/api/v2/file/production/generate-word-document/LettertoInsurancerequestingOustandingPayment/${slug}`,
+                  icon: FileText,
+                },
+              ],
+            },
+          ],
+        },
+        {
+          title: "Client",
+          url: "",
+          icon: User,
+          items: [
+            {
+              title: "Issue Non Engagement",
+              url: `/api/v2/file/production/generate-word-document/NonEngagementletterfinal/${slug}`,
+              icon: FileText,
+            },
+          ],
+        },
+        {
+          title: "Letters to Sue",
+          url: "",
+          icon: MessageSquare,
+          items: [
+            {
+              title: "Third Party - Driver",
+              url: `/api/v2/file/production/generate-word-document/LettertoSueotherPartyDriver/${slug}`,
+              icon: FileText,
+            },
+            {
+              title: "Third Party - Owner",
+              url: `/api/v2/file/production/generate-word-document/LettertoSueotherPartyOwner/${slug}`,
+              icon: FileText,
+            },
+          ],
+        },
+        {
+          title: "Medical Documents",
+          url: "",
+          icon: Stethoscope,
+          items: [
+            {
+              title: "Hospital",
+              url: "",
+              icon: Hospital,
+              items: [
+                {
+                  title: "Req for Medical Records",
+                  url: `/api/v2/file/production/generate-word-document/hospital/${slug}`,
+                  icon: FileText,
+                },
+                {
+                  title: "Encl. Payment",
+                  url: `/api/v2/file/production/generate-word-document/LettertoHospitalenclosingpayment/${slug}`,
+                  icon: FileText,
+                },
+              ],
+            },
+            {
+              title: "Ambulance",
+              url: "",
+              icon: Ambulance,
+              items: [
+                {
+                  title: "Req for CNR",
+                  url: `/api/v2/file/production/generate-word-document/LettertoAmbulancerequestingCNR/${slug}`,
+                  icon: FileText,
+                },
+              ],
+            },
+            {
+              title: "Physiotherapy",
+              url: "",
+              icon: ActivityIcon,
+              items: [
+                {
+                  title: "Req for CNR",
+                  url: `/api/v2/file/production/generate-word-document/LettertoPhysioRequestforCNR/${slug}`,
+                  icon: FileText,
+                },
+                {
+                  title: "Encl. Payment",
+                  url: `/api/v2/file/production/generate-word-document/LettertoPhysioenclosingpayment/${slug}`,
+                  icon: FileText,
+                },
+              ],
+            },
+            {
+              title: "Pharmacy",
+              url: "",
+              icon: Pill,
+              items: [
+                {
+                  title: "Req for CNR",
+                  url: `/api/v2/file/production/generate-word-document/LettertoPharmacyrequestingPrescriptionSummary/${slug}`,
+                  icon: FileText,
+                },
+                {
+                  title: "Encl. Payment",
+                  url: `/api/v2/file/production/generate-word-document/LettertoPharmacyenclosingpayment/${slug}`,
+                  icon: FileText,
+                },
+              ],
+            },
+          ],
+        },
+        {
+          title: "Tort Adjuster",
+          url: "",
+          icon: Shield,
+          items: [],
+        },
+        {
+          title: "Police",
+          url: "",
+          icon: ShieldAlert,
+          items: [
+            {
+              title: "Settlement Memorandum",
+              url: `/api/v2/file/production/generate-word-document/LettertoPeelRegionalPolicerequestingPoliceReportdatedJanuary/${slug}`,
+              icon: FileText,
+            },
+          ],
+        },
+      ],
+    },
+    {
       title: "Documents",
       url: ``,
       icon: FilePlus,
@@ -400,7 +718,7 @@ export const getEditModeData = (slug) => ({
           icon: User,
         },
         {
-          title: "OHIP Decorded Summary",
+          title: "OHIP Decoded Summary",
           url: `/dashboard/workstation/edit/${slug}/ohip-decorded-summary`,
           icon: User,
         },
@@ -455,7 +773,7 @@ export const getEditModeData = (slug) => ({
           icon: User,
         },
         {
-          title: "Sue To Driver Owner",
+          title: "Sue to Driver Owner",
           url: `/dashboard/workstation/edit/${slug}/sue`,
           icon: User,
         },
@@ -486,7 +804,7 @@ export const getEditModeData = (slug) => ({
     {
       title: "Task",
       url: `/dashboard/workstation/edit/${slug}/task`,
-      icon: Receipt,
+      icon: ClipboardList,
       items: [],
     },
   ],

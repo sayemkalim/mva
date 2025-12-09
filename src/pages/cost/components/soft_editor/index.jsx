@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
@@ -180,6 +180,20 @@ export default function SoftCostPage() {
     taxable: false,
   });
 
+  // Calculate value using useMemo
+  const calculatedValue = useMemo(() => {
+    const quantity = Number(formData.quantity) || 0;
+    const rate = Number(formData.rate) || 0;
+    const baseValue = quantity * rate;
+
+    // If taxable, add 13% tax
+    if (formData.taxable) {
+      return baseValue * 1.13;
+    }
+
+    return baseValue;
+  }, [formData.quantity, formData.rate, formData.taxable]);
+
   useEffect(() => {
     if (softCostData && Object.keys(softCostData).length > 0) {
       setFormData({
@@ -217,6 +231,7 @@ export default function SoftCostPage() {
       quantity: formData.quantity ? Number(formData.quantity) : 0,
       rate: formData.rate ? Number(formData.rate) : 0,
       taxable: formData.taxable ? 1 : 0,
+      value: calculatedValue, // Include calculated value
     };
 
     console.log("📤 Submitting payload:", payload);
@@ -380,7 +395,7 @@ export default function SoftCostPage() {
             </div>
 
             {/* Row 3 */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               <div className="space-y-2">
                 <Label className="text-gray-700 font-medium">Quantity</Label>
                 <Input
@@ -404,6 +419,16 @@ export default function SoftCostPage() {
                   onChange={(e) => handleFieldChange("rate", e.target.value)}
                   placeholder="0.00"
                   className="h-11"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label className="text-gray-700 font-medium">Value</Label>
+                <Input
+                  type="text"
+                  value={calculatedValue.toFixed(2)}
+                  readOnly
+                  className="h-11 bg-gray-50 font-semibold"
                 />
               </div>
 
