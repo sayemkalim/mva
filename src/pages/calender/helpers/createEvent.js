@@ -24,7 +24,7 @@ export const updateEvent = async (id, data) => {
 
     const apiResponse = await apiService({
       endpoint: `${endpoints.updateEvent}/${id}`,
-      method: "POST",
+      method: "PUT",
       data,
       headers: {
         "Content-Type": "application/json",

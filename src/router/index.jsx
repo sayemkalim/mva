@@ -430,7 +430,7 @@ const Router = () => {
             path="/dashboard/tasks/comments/:id"
             element={<CommentPage />}
           />
-          <Route path="calender" element={<Calender />} />
+          <Route path="/dashboard/event" element={<Calender />} />
         </Route>
       </Route>
       <Route path="*" element={<ErrorPage />} />

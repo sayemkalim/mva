@@ -378,7 +378,7 @@ const EventFormDialog = ({ open, onClose, event, slotInfo, onDelete }) => {
                       value={formData.category_id}
                       onValueChange={(value) => handleChange("category_id", value)}
                     >
-                      <SelectTrigger>
+                      <SelectTrigger className="w-full">
                         <SelectValue placeholder="Select category" />
                       </SelectTrigger>
                       <SelectContent>
@@ -397,7 +397,7 @@ const EventFormDialog = ({ open, onClose, event, slotInfo, onDelete }) => {
                       value={formData.status_id}
                       onValueChange={(value) => handleChange("status_id", value)}
                     >
-                      <SelectTrigger>
+                      <SelectTrigger className="w-full">
                         <SelectValue placeholder="Select status" />
                       </SelectTrigger>
                       <SelectContent>
@@ -416,7 +416,7 @@ const EventFormDialog = ({ open, onClose, event, slotInfo, onDelete }) => {
                       value={formData.priority_id}
                       onValueChange={(value) => handleChange("priority_id", value)}
                     >
-                      <SelectTrigger>
+                      <SelectTrigger className="w-full">
                         <SelectValue placeholder="Select priority" />
                       </SelectTrigger>
                       <SelectContent>
@@ -435,7 +435,7 @@ const EventFormDialog = ({ open, onClose, event, slotInfo, onDelete }) => {
                       value={formData.repeat_id}
                       onValueChange={(value) => handleChange("repeat_id", value)}
                     >
-                      <SelectTrigger>
+                      <SelectTrigger className="w-full">
                         <SelectValue placeholder="Select repeat" />
                       </SelectTrigger>
                       <SelectContent>
