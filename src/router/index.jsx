@@ -90,6 +90,8 @@ import TimeCardPage from "@/pages/cost/components/timeline_editor";
 import TaskPage from "@/pages/task/components/task_editor";
 import Task from "@/pages/task";
 import CommentPage from "@/pages/task/components/comment_editor";
+import OcfProd from "@/pages/ocf-prod";
+import OCFProdPage from "@/pages/ocf-prod/components/ocf-prod_editor";
 
 const Router = () => {
   return (
@@ -428,6 +430,18 @@ const Router = () => {
           <Route
             path="/dashboard/tasks/comments/:id"
             element={<CommentPage />}
+          />
+          <Route
+            path="/dashboard/workstation/edit/:slug/ocf1-production"
+            element={<OcfProd />}
+          />
+          <Route
+            path="/dashboard/ocf1-prod/add/:slug"
+            element={<OCFProdPage />}
+          />
+          <Route
+            path="/dashboard/ocf1-prod/edit/:id"
+            element={<OCFProdPage />}
           />
         </Route>
       </Route>

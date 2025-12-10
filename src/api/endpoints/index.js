@@ -206,4 +206,10 @@ export const endpoints = {
   postComment: "api/v2/task/comment",
   comment: "api/v2/task/comment/list",
   filterTasks: "api/v2/task/filter",
+  ocfProdList: "api/v2/file/production/ocf-1/list",
+  createOcfProd: "api/v2/file/production/ocf-1",
+  updateOcfProd: "api/v2/file/production/ocf-1",
+  ocfProd: "api/v2/file/production/ocf-1/show",
+  deleteOcfProdList: "api/v2/file/production/ocf-1/delete",
+  ocfProdPrint: "api/v2/file/production/ocf-1/print",
 };
