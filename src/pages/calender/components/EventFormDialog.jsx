@@ -31,6 +31,7 @@ import { fetchEventMeta } from "../helpers/fetchEventMeta";
 import { fetchEventById } from "../helpers/fetchEventById";
 import { uploadAttachment } from "@/pages/task/helpers/uploadAttachment";
 import { deleteAttachment } from "@/pages/task/helpers/deleteTask";
+import ContactSearch from "./ContactSearch";
 
 // Attachment Uploader Component
 const AttachmentUploader = ({ files, onFilesChange, onUpload, onDelete }) => {
@@ -322,6 +323,7 @@ const EventFormDialog = ({ open, onClose, event, slotInfo, onDelete }) => {
   const [participants, setParticipants] = useState([]);
   const [uploadedFiles, setUploadedFiles] = useState([]);
   const [attachmentIds, setAttachmentIds] = useState([]);
+  const [selectedContactName, setSelectedContactName] = useState("");
   
   // Reminder dialog state
   const [reminderDialogOpen, setReminderDialogOpen] = useState(false);
@@ -361,6 +363,8 @@ const EventFormDialog = ({ open, onClose, event, slotInfo, onDelete }) => {
         initial_id: eventDetails.initial_id ? String(eventDetails.initial_id) : "",
         slug: eventDetails.slug || "",
       });
+      // Set selected contact name if available
+      setSelectedContactName(eventDetails.contact_name || "");
       setReminders(
         (eventDetails.reminders || []).map((r) => ({
           type_id: String(r.type_id),
@@ -413,6 +417,7 @@ const EventFormDialog = ({ open, onClose, event, slotInfo, onDelete }) => {
         initial_id: "",
         slug: "",
       });
+      setSelectedContactName("");
       setReminders([]);
       setParticipants([]);
       setUploadedFiles([]);
@@ -544,6 +549,15 @@ const EventFormDialog = ({ open, onClose, event, slotInfo, onDelete }) => {
 
   const handleChange = (field, value) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
+  };
+
+  const handleContactSelect = (contact) => {
+    setFormData((prev) => ({
+      ...prev,
+      initial_id: contact.id ? String(contact.id) : "",
+      slug: contact.slug || "",
+    }));
+    setSelectedContactName(contact.contact_name || "");
   };
 
   const openReminderDialog = () => {
@@ -851,26 +865,14 @@ const EventFormDialog = ({ open, onClose, event, slotInfo, onDelete }) => {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="initial_id">Initial ID</Label>
-                    <Input
-                      id="initial_id"
-                      type="number"
-                      value={formData.initial_id}
-                      onChange={(e) => handleChange("initial_id", e.target.value)}
-                      placeholder="Enter initial ID"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="slug">Slug</Label>
-                    <Input
-                      id="slug"
-                      value={formData.slug}
-                      onChange={(e) => handleChange("slug", e.target.value)}
-                      placeholder="Enter slug"
-                    />
-                  </div>
+                <div className="space-y-2">
+                  <ContactSearch
+                    onSelect={handleContactSelect}
+                    initialId={formData.initial_id}
+                    initialSlug={formData.slug}
+                    initialContactName={selectedContactName}
+                    label="Select Contact"
+                  />
                 </div>
               </div>
 
