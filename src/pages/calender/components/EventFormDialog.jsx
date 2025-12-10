@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { toast } from "sonner";
-import { Trash2, Plus, X } from "lucide-react";
+import { Trash2, Plus } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -76,6 +76,24 @@ const EventFormDialog = ({ open, onClose, event, slotInfo, onDelete }) => {
 
   const [reminders, setReminders] = useState([]);
   const [participants, setParticipants] = useState([]);
+  
+  // Reminder dialog state
+  const [reminderDialogOpen, setReminderDialogOpen] = useState(false);
+  const [newReminder, setNewReminder] = useState({
+    type_id: "",
+    timing_id: "",
+    value: 15,
+    relative_id: "",
+  });
+
+  // Participant dialog state
+  const [participantDialogOpen, setParticipantDialogOpen] = useState(false);
+  const [newParticipant, setNewParticipant] = useState({
+    user_id: "",
+    role_id: "",
+    status_id: "",
+    comment: "",
+  });
 
   useEffect(() => {
     if (isEditing && eventDetails) {
@@ -166,16 +184,27 @@ const EventFormDialog = ({ open, onClose, event, slotInfo, onDelete }) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
-  const addReminder = () => {
-    setReminders((prev) => [
-      ...prev,
-      {
-        type_id: reminderTypes.length > 0 ? String(reminderTypes[0].id) : "",
-        timing_id: reminderTimings.length > 0 ? String(reminderTimings[0].id) : "",
-        value: 15,
-        relative_id: reminderRelatives.length > 0 ? String(reminderRelatives[0].id) : "",
-      },
-    ]);
+  const openReminderDialog = () => {
+    setNewReminder({
+      type_id: reminderTypes.length > 0 ? String(reminderTypes[0].id) : "",
+      timing_id: reminderTimings.length > 0 ? String(reminderTimings[0].id) : "",
+      value: 15,
+      relative_id: reminderRelatives.length > 0 ? String(reminderRelatives[0].id) : "",
+    });
+    setReminderDialogOpen(true);
+  };
+
+  const handleNewReminderChange = (field, value) => {
+    setNewReminder((prev) => ({ ...prev, [field]: value }));
+  };
+
+  const confirmAddReminder = () => {
+    if (!newReminder.type_id || !newReminder.timing_id || !newReminder.relative_id) {
+      toast.error("Please fill in all reminder fields.");
+      return;
+    }
+    setReminders((prev) => [...prev, { ...newReminder }]);
+    setReminderDialogOpen(false);
   };
 
   const updateReminder = (index, field, value) => {
@@ -190,16 +219,27 @@ const EventFormDialog = ({ open, onClose, event, slotInfo, onDelete }) => {
     setReminders((prev) => prev.filter((_, i) => i !== index));
   };
 
-  const addParticipant = () => {
-    setParticipants((prev) => [
-      ...prev,
-      {
-        user_id: participantEmails.length > 0 ? String(participantEmails[0].id) : "",
-        role_id: participantRoles.length > 0 ? String(participantRoles[0].id) : "",
-        status_id: participantStatuses.length > 0 ? String(participantStatuses[0].id) : "",
-        comment: "",
-      },
-    ]);
+  const openParticipantDialog = () => {
+    setNewParticipant({
+      user_id: participantEmails.length > 0 ? String(participantEmails[0].id) : "",
+      role_id: participantRoles.length > 0 ? String(participantRoles[0].id) : "",
+      status_id: participantStatuses.length > 0 ? String(participantStatuses[0].id) : "",
+      comment: "",
+    });
+    setParticipantDialogOpen(true);
+  };
+
+  const handleNewParticipantChange = (field, value) => {
+    setNewParticipant((prev) => ({ ...prev, [field]: value }));
+  };
+
+  const confirmAddParticipant = () => {
+    if (!newParticipant.user_id) {
+      toast.error("Please select a user.");
+      return;
+    }
+    setParticipants((prev) => [...prev, { ...newParticipant }]);
+    setParticipantDialogOpen(false);
   };
 
   const updateParticipant = (index, field, value) => {
@@ -479,7 +519,7 @@ const EventFormDialog = ({ open, onClose, event, slotInfo, onDelete }) => {
                     type="button"
                     variant="outline"
                     size="sm"
-                    onClick={addReminder}
+                    onClick={openReminderDialog}
                     className="flex items-center gap-1"
                   >
                     <Plus className="w-3 h-3" />
@@ -501,7 +541,7 @@ const EventFormDialog = ({ open, onClose, event, slotInfo, onDelete }) => {
                             updateReminder(index, "type_id", value)
                           }
                         >
-                          <SelectTrigger className="h-9">
+                          <SelectTrigger className="h-9 w-full">
                             <SelectValue />
                           </SelectTrigger>
                           <SelectContent>
@@ -518,7 +558,7 @@ const EventFormDialog = ({ open, onClose, event, slotInfo, onDelete }) => {
                         <Label className="text-xs">Value</Label>
                         <Input
                           type="number"
-                          className="h-9"
+                          className="h-9 w-full"
                           value={reminder.value}
                           onChange={(e) =>
                             updateReminder(index, "value", e.target.value)
@@ -534,7 +574,7 @@ const EventFormDialog = ({ open, onClose, event, slotInfo, onDelete }) => {
                             updateReminder(index, "timing_id", value)
                           }
                         >
-                          <SelectTrigger className="h-9">
+                          <SelectTrigger className="h-9 w-full">
                             <SelectValue />
                           </SelectTrigger>
                           <SelectContent>
@@ -556,7 +596,7 @@ const EventFormDialog = ({ open, onClose, event, slotInfo, onDelete }) => {
                               updateReminder(index, "relative_id", value)
                             }
                           >
-                            <SelectTrigger className="h-9">
+                            <SelectTrigger className="h-9 w-full">
                               <SelectValue />
                             </SelectTrigger>
                             <SelectContent>
@@ -572,10 +612,10 @@ const EventFormDialog = ({ open, onClose, event, slotInfo, onDelete }) => {
                           type="button"
                           variant="ghost"
                           size="icon"
-                          className="h-9 w-9 shrink-0 text-red-500 hover:text-red-700 hover:bg-red-50"
+                          className="h-9 w-9 shrink-0 text-red-500 hover:text-red-700 hover:bg-red-50 cursor-pointer"
                           onClick={() => removeReminder(index)}
                         >
-                          <X className="w-4 h-4" />
+                          <Trash2 className="w-4 h-4" />
                         </Button>
                       </div>
                     </div>
@@ -598,7 +638,7 @@ const EventFormDialog = ({ open, onClose, event, slotInfo, onDelete }) => {
                     type="button"
                     variant="outline"
                     size="sm"
-                    onClick={addParticipant}
+                    onClick={openParticipantDialog}
                     className="flex items-center gap-1"
                   >
                     <Plus className="w-3 h-3" />
@@ -620,7 +660,7 @@ const EventFormDialog = ({ open, onClose, event, slotInfo, onDelete }) => {
                             updateParticipant(index, "user_id", value)
                           }
                         >
-                          <SelectTrigger className="h-9">
+                          <SelectTrigger className="h-9 w-full">
                             <SelectValue placeholder="Select" />
                           </SelectTrigger>
                           <SelectContent>
@@ -641,7 +681,7 @@ const EventFormDialog = ({ open, onClose, event, slotInfo, onDelete }) => {
                             updateParticipant(index, "role_id", value)
                           }
                         >
-                          <SelectTrigger className="h-9">
+                          <SelectTrigger className="h-9 w-full">
                             <SelectValue />
                           </SelectTrigger>
                           <SelectContent>
@@ -664,7 +704,7 @@ const EventFormDialog = ({ open, onClose, event, slotInfo, onDelete }) => {
                             updateParticipant(index, "status_id", value)
                           }
                         >
-                          <SelectTrigger className="h-9">
+                          <SelectTrigger className="h-9 w-full">
                             <SelectValue />
                           </SelectTrigger>
                           <SelectContent>
@@ -681,7 +721,7 @@ const EventFormDialog = ({ open, onClose, event, slotInfo, onDelete }) => {
                         <div className="flex-1 space-y-1">
                           <Label className="text-xs">Comment</Label>
                           <Input
-                            className="h-9"
+                            className="h-9 w-full"
                             value={participant.comment}
                             onChange={(e) =>
                               updateParticipant(index, "comment", e.target.value)
@@ -696,7 +736,7 @@ const EventFormDialog = ({ open, onClose, event, slotInfo, onDelete }) => {
                           className="h-9 w-9 shrink-0 text-red-500 hover:text-red-700 hover:bg-red-50"
                           onClick={() => removeParticipant(index)}
                         >
-                          <X className="w-4 h-4" />
+                          <Trash2 className="w-4 h-4" />
                         </Button>
                       </div>
                     </div>
@@ -744,6 +784,191 @@ const EventFormDialog = ({ open, onClose, event, slotInfo, onDelete }) => {
           </div>
         )}
       </DialogContent>
+
+      {/* Add Reminder Dialog */}
+      <Dialog open={reminderDialogOpen} onOpenChange={setReminderDialogOpen}>
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader>
+            <DialogTitle>Add Reminder</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label>Type *</Label>
+                <Select
+                  value={newReminder.type_id}
+                  onValueChange={(value) => handleNewReminderChange("type_id", value)}
+                >
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Select type" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {reminderTypes.map((type) => (
+                      <SelectItem key={type.id} value={String(type.id)}>
+                        {type.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label>Value *</Label>
+                <Input
+                  type="number"
+                  value={newReminder.value}
+                  onChange={(e) => handleNewReminderChange("value", e.target.value)}
+                  placeholder="Enter value (e.g., 15)"
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label>Timing *</Label>
+                <Select
+                  value={newReminder.timing_id}
+                  onValueChange={(value) => handleNewReminderChange("timing_id", value)}
+                >
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Select timing" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {reminderTimings.map((timing) => (
+                      <SelectItem key={timing.id} value={String(timing.id)}>
+                        {timing.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label>Relative To *</Label>
+                <Select
+                  value={newReminder.relative_id}
+                  onValueChange={(value) => handleNewReminderChange("relative_id", value)}
+                >
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Select relative" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {reminderRelatives.map((rel) => (
+                      <SelectItem key={rel.id} value={String(rel.id)}>
+                        {rel.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setReminderDialogOpen(false)}
+            >
+              Cancel
+            </Button>
+            <Button type="button" onClick={confirmAddReminder}>
+              Add Reminder
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Add Participant Dialog */}
+      <Dialog open={participantDialogOpen} onOpenChange={setParticipantDialogOpen}>
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader>
+            <DialogTitle>Add Participant</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label>Email *</Label>
+                <Select
+                  value={newParticipant.user_id}
+                  onValueChange={(value) => handleNewParticipantChange("user_id", value)}
+                >
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Select user email" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {participantEmails.map((user) => (
+                      <SelectItem key={user.id} value={String(user.id)}>
+                        {user.email}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label>Role *</Label>
+                <Select
+                  value={newParticipant.role_id}
+                  onValueChange={(value) => handleNewParticipantChange("role_id", value)}
+                >
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Select role" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {participantRoles.map((role) => (
+                      <SelectItem key={role.id} value={String(role.id)}>
+                        {role.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label>Status *</Label>
+                <Select
+                  value={newParticipant.status_id}
+                  onValueChange={(value) => handleNewParticipantChange("status_id", value)}
+                >
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Select status" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {participantStatuses.map((status) => (
+                      <SelectItem key={status.id} value={String(status.id)}>
+                        {status.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label>Comment</Label>
+                <Input
+                  value={newParticipant.comment}
+                  onChange={(e) => handleNewParticipantChange("comment", e.target.value)}
+                  placeholder="Add a comment (optional)"
+                />
+              </div>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setParticipantDialogOpen(false)}
+            >
+              Cancel
+            </Button>
+            <Button type="button" onClick={confirmAddParticipant}>
+              Add Participant
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </Dialog>
   );
 };
