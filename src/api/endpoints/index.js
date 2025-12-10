@@ -205,6 +205,13 @@ export const endpoints = {
   deleteAttachment: "api/v2/task/deleteAttachment",
   postComment: "api/v2/task/comment",
   comment: "api/v2/task/comment/list",
+  // Calendar/Event endpoints
+  eventMeta: "api/v2/event/meta",
+  eventList: "api/v2/event/list",
+  eventShow: "api/v2/event/show",
+  createEvent: "api/v2/event/store",
+  updateEvent: "api/v2/event/update",
+  deleteEvent: "api/v2/event/delete",
   filterTasks: "api/v2/task/filter",
   ocfProdList: "api/v2/file/production/ocf-1/list",
   createOcfProd: "api/v2/file/production/ocf-1",

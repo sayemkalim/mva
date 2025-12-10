@@ -92,6 +92,7 @@ import Task from "@/pages/task";
 import CommentPage from "@/pages/task/components/comment_editor";
 import OcfProd from "@/pages/ocf-prod";
 import OCFProdPage from "@/pages/ocf-prod/components/ocf-prod_editor";
+import Calender from "@/pages/calender";
 
 const Router = () => {
   return (
@@ -443,6 +444,7 @@ const Router = () => {
             path="/dashboard/ocf1-prod/edit/:id"
             element={<OCFProdPage />}
           />
+          <Route path="/dashboard/event" element={<Calender />} />
         </Route>
       </Route>
       <Route path="*" element={<ErrorPage />} />

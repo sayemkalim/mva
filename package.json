@@ -38,6 +38,7 @@
     "jwt-decode": "^4.0.0",
     "lucide-react": "^0.479.0",
     "react": "^19.0.0",
+    "react-big-calendar": "^1.19.4",
     "react-datepicker": "^8.4.0",
     "react-day-picker": "^9.11.2",
     "react-dom": "^19.0.0",
