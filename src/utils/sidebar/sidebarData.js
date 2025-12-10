@@ -473,7 +473,7 @@ export const getEditModeData = (slug) => ({
           items: [
             {
               title: "OCF-1",
-              url: `/api/v2/file/production/form-ocf-1/${slug}`,
+              url: `/dashboard/workstation/edit/${slug}/ocf1-production`,
               icon: FileText,
             },
             {

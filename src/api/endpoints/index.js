@@ -213,4 +213,10 @@ export const endpoints = {
   updateEvent: "api/v2/event/update",
   deleteEvent: "api/v2/event/delete",
   filterTasks: "api/v2/task/filter",
+  ocfProdList: "api/v2/file/production/ocf-1/list",
+  createOcfProd: "api/v2/file/production/ocf-1",
+  updateOcfProd: "api/v2/file/production/ocf-1",
+  ocfProd: "api/v2/file/production/ocf-1/show",
+  deleteOcfProdList: "api/v2/file/production/ocf-1/delete",
+  ocfProdPrint: "api/v2/file/production/ocf-1/print",
 };
