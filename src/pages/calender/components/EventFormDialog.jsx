@@ -1,8 +1,9 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { toast } from "sonner";
-import { Trash2, Plus } from "lucide-react";
+import { Trash2, Plus, Upload, X, FileIcon, Check, Loader2 } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -28,6 +29,249 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { createEvent, updateEvent } from "../helpers/createEvent";
 import { fetchEventMeta } from "../helpers/fetchEventMeta";
 import { fetchEventById } from "../helpers/fetchEventById";
+import { uploadAttachment } from "@/pages/task/helpers/uploadAttachment";
+import { deleteAttachment } from "@/pages/task/helpers/deleteTask";
+
+// Attachment Uploader Component
+const AttachmentUploader = ({ files, onFilesChange, onUpload, onDelete }) => {
+  const [isDragging, setIsDragging] = useState(false);
+  const [previewUrls, setPreviewUrls] = useState({});
+  const fileInputRef = useRef(null);
+
+  useEffect(() => {
+    const newPreviewUrls = {};
+    files.forEach((file) => {
+      if (file.fileObject) {
+        const fileType = file.fileObject.type;
+        if (fileType.startsWith("image/")) {
+          const url = URL.createObjectURL(file.fileObject);
+          newPreviewUrls[file.tempId] = url;
+        }
+      }
+    });
+    setPreviewUrls(newPreviewUrls);
+    return () => {
+      Object.values(newPreviewUrls).forEach((url) => URL.revokeObjectURL(url));
+    };
+  }, [files]);
+
+  const handleDragEnter = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+  };
+
+  const handleDragOver = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+  };
+
+  const handleDrop = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+    const droppedFiles = Array.from(e.dataTransfer.files);
+    handleFiles(droppedFiles);
+  };
+
+  const handleBoxClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleFileInputChange = (e) => {
+    const selectedFiles = Array.from(e.target.files);
+    handleFiles(selectedFiles);
+    e.target.value = "";
+  };
+
+  const handleFiles = (fileList) => {
+    const newFiles = fileList.map((file) => ({
+      tempId: `temp_${Date.now()}_${Math.random()}`,
+      name: file.name,
+      size: file.size,
+      type: file.type,
+      fileObject: file,
+      uploaded: false,
+      uploading: true,
+    }));
+
+    onFilesChange([...files, ...newFiles]);
+
+    newFiles.forEach((fileData) => {
+      onUpload(fileData);
+    });
+  };
+
+  const handleRemoveFile = (e, fileToRemove) => {
+    e.stopPropagation();
+    if (fileToRemove.uploaded && fileToRemove.id) {
+      onDelete(fileToRemove.id, fileToRemove.tempId);
+    } else {
+      onFilesChange(files.filter((file) => file.tempId !== fileToRemove.tempId));
+    }
+    if (previewUrls[fileToRemove.tempId]) {
+      URL.revokeObjectURL(previewUrls[fileToRemove.tempId]);
+    }
+  };
+
+  const isImageFile = (fileType) => {
+    return fileType && fileType.startsWith("image/");
+  };
+
+  const formatFileSize = (bytes) => {
+    if (bytes === 0) return "0 Bytes";
+    const k = 1024;
+    const sizes = ["Bytes", "KB", "MB", "GB"];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return Math.round((bytes / Math.pow(k, i)) * 100) / 100 + " " + sizes[i];
+  };
+
+  const isAnyFileUploading = files.some(
+    (file) => file.uploading && !file.uploaded
+  );
+
+  return (
+    <div className="space-y-4">
+      <div className="flex items-center justify-between border-b pb-2">
+        <h3 className="font-semibold text-sm text-gray-700">Attachments</h3>
+        <div className="text-sm text-muted-foreground">
+          {files.length} file{files.length !== 1 ? "s" : ""}
+        </div>
+      </div>
+      <input
+        ref={fileInputRef}
+        type="file"
+        multiple
+        onChange={handleFileInputChange}
+        className="hidden"
+        accept="*/*"
+      />
+      <div
+        onDragEnter={handleDragEnter}
+        onDragOver={handleDragOver}
+        onDragLeave={handleDragLeave}
+        onDrop={handleDrop}
+        className={cn(
+          "relative border-2 border-dashed rounded-lg p-4 transition-all",
+          isDragging && "border-primary bg-primary/10 scale-[1.02]",
+          "border-gray-300"
+        )}
+      >
+        {files.length === 0 ? (
+          <div
+            onClick={handleBoxClick}
+            className="flex flex-col items-center justify-center space-y-2 py-6 cursor-pointer hover:bg-primary/5 rounded-lg transition-colors"
+          >
+            <div className="rounded-full bg-primary/10 p-3">
+              <Upload className="h-6 w-6 text-primary" />
+            </div>
+            <div className="text-center">
+              <p className="text-sm font-medium text-gray-900">
+                Click to upload or drag and drop
+              </p>
+              <p className="text-xs text-muted-foreground mt-1">
+                All file types supported
+              </p>
+            </div>
+          </div>
+        ) : (
+          <div className="space-y-3">
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+              {files.map((file) => (
+                <div
+                  key={file.tempId}
+                  className="relative bg-white border rounded-lg overflow-hidden hover:shadow-md transition-shadow group"
+                >
+                  <button
+                    type="button"
+                    onClick={(e) => handleRemoveFile(e, file)}
+                    className="absolute top-1 right-1 z-10 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-600"
+                  >
+                    <X className="h-3 w-3" />
+                  </button>
+                  <div className="aspect-video bg-gray-100 flex items-center justify-center relative">
+                    {isImageFile(file.type) && previewUrls[file.tempId] ? (
+                      <img
+                        src={previewUrls[file.tempId]}
+                        alt={file.name}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <FileIcon className="h-8 w-8 text-gray-400" />
+                    )}
+
+                    {file.uploading && !file.uploaded && (
+                      <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
+                        <Loader2 className="h-5 w-5 animate-spin text-white" />
+                      </div>
+                    )}
+
+                    {file.uploaded && (
+                      <div className="absolute top-1 left-1 bg-green-500 text-white rounded-full p-0.5">
+                        <Check className="h-2.5 w-2.5" />
+                      </div>
+                    )}
+                    {file.deleting && (
+                      <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
+                        <Loader2 className="h-5 w-5 animate-spin text-white" />
+                      </div>
+                    )}
+                  </div>
+                  <div className="p-2 space-y-0.5">
+                    <p
+                      className="text-xs font-medium truncate"
+                      title={file.name}
+                    >
+                      {file.name}
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      {formatFileSize(file.size)}
+                    </p>
+                    {file.uploading && !file.uploaded && (
+                      <p className="text-xs text-blue-600">Uploading...</p>
+                    )}
+                    {file.uploaded && file.id && (
+                      <p className="text-xs text-green-600">✓ Uploaded</p>
+                    )}
+                    {file.deleting && (
+                      <p className="text-xs text-red-600">Deleting...</p>
+                    )}
+                    {file.uploadFailed && (
+                      <p className="text-xs text-red-600">Upload failed</p>
+                    )}
+                  </div>
+                </div>
+              ))}
+              <div
+                onClick={handleBoxClick}
+                className="relative bg-gradient-to-br from-primary/5 to-primary/10 border-2 border-dashed border-primary/30 rounded-lg overflow-hidden hover:shadow-md hover:border-primary transition-all cursor-pointer group"
+              >
+                <div className="aspect-video flex flex-col items-center justify-center gap-1 p-3">
+                  <div className="rounded-full bg-primary/10 p-2 group-hover:bg-primary/20 transition-colors">
+                    <Plus className="h-4 w-4 text-primary" />
+                  </div>
+                  <p className="text-xs font-medium text-primary">Add More</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+        {isAnyFileUploading && (
+          <div className="absolute bottom-2 right-2 bg-blue-500 text-white px-2 py-1 rounded-full flex items-center gap-1 text-xs pointer-events-none">
+            <Loader2 className="h-3 w-3 animate-spin" />
+            <span>Uploading...</span>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
 
 const EventFormDialog = ({ open, onClose, event, slotInfo, onDelete }) => {
   const queryClient = useQueryClient();
@@ -76,6 +320,8 @@ const EventFormDialog = ({ open, onClose, event, slotInfo, onDelete }) => {
 
   const [reminders, setReminders] = useState([]);
   const [participants, setParticipants] = useState([]);
+  const [uploadedFiles, setUploadedFiles] = useState([]);
+  const [attachmentIds, setAttachmentIds] = useState([]);
   
   // Reminder dialog state
   const [reminderDialogOpen, setReminderDialogOpen] = useState(false);
@@ -131,6 +377,23 @@ const EventFormDialog = ({ open, onClose, event, slotInfo, onDelete }) => {
           comment: p.comment || "",
         }))
       );
+      // Load existing attachments
+      if (Array.isArray(eventDetails.attachments)) {
+        const existingFiles = eventDetails.attachments.map((att) => ({
+          tempId: `existing_${att.id}`,
+          id: att.id,
+          name: att.original_name || "File",
+          size: att.size || 0,
+          type: att.mime_type || "",
+          uploaded: true,
+          uploading: false,
+        }));
+        setUploadedFiles(existingFiles);
+        setAttachmentIds(eventDetails.attachments.map((att) => att.id));
+      } else {
+        setUploadedFiles([]);
+        setAttachmentIds([]);
+      }
     } else if (!isEditing && slotInfo) {
       const startDate = slotInfo.start;
       const endDate = slotInfo.end || slotInfo.start;
@@ -152,6 +415,8 @@ const EventFormDialog = ({ open, onClose, event, slotInfo, onDelete }) => {
       });
       setReminders([]);
       setParticipants([]);
+      setUploadedFiles([]);
+      setAttachmentIds([]);
     }
   }, [eventDetails, slotInfo, isEditing, categories, statuses, priorities, repeats]);
 
@@ -179,6 +444,103 @@ const EventFormDialog = ({ open, onClose, event, slotInfo, onDelete }) => {
       toast.error("Failed to update event.");
     },
   });
+
+  const uploadMutation = useMutation({
+    mutationFn: uploadAttachment,
+    onSuccess: (response, variables) => {
+      const attachmentId = response?.response?.attachment?.id;
+      const fileName =
+        response?.response?.attachment?.original_name || "Uploaded File";
+      const fileExtension = response?.response?.attachment?.extension;
+      const fullFileName = fileExtension
+        ? `${fileName}.${fileExtension}`
+        : fileName;
+
+      if (attachmentId) {
+        setUploadedFiles((prev) =>
+          prev.map((file) =>
+            file.tempId === variables.tempId
+              ? {
+                  ...file,
+                  id: attachmentId,
+                  name: fullFileName,
+                  uploaded: true,
+                  uploading: false,
+                }
+              : file
+          )
+        );
+
+        setAttachmentIds((prev) => [...prev, attachmentId]);
+        toast.success(`File uploaded: ${fullFileName}`);
+      } else {
+        setUploadedFiles((prev) =>
+          prev.map((file) =>
+            file.tempId === variables.tempId
+              ? { ...file, uploading: false, uploadFailed: true }
+              : file
+          )
+        );
+      }
+    },
+    onError: (error, variables) => {
+      setUploadedFiles((prev) =>
+        prev.map((file) =>
+          file.tempId === variables.tempId
+            ? { ...file, uploading: false, uploadFailed: true }
+            : file
+        )
+      );
+      toast.error("Failed to upload file");
+    },
+  });
+
+  const deleteAttachmentMutation = useMutation({
+    mutationFn: deleteAttachment,
+    onMutate: async (attachmentId) => {
+      setUploadedFiles((prev) =>
+        prev.map((file) =>
+          file.id === attachmentId ? { ...file, deleting: true } : file
+        )
+      );
+    },
+    onSuccess: (response, attachmentId) => {
+      setUploadedFiles((prev) =>
+        prev.filter((file) => file.id !== attachmentId)
+      );
+      setAttachmentIds((prev) => prev.filter((id) => id !== attachmentId));
+      toast.success("Attachment deleted successfully");
+    },
+    onError: (error, attachmentId) => {
+      setUploadedFiles((prev) =>
+        prev.map((file) =>
+          file.id === attachmentId ? { ...file, deleting: false } : file
+        )
+      );
+      toast.error("Failed to delete attachment");
+    },
+  });
+
+  const handleFilesChange = (newFiles) => {
+    setUploadedFiles(newFiles);
+  };
+
+  const handleFileUpload = (fileData) => {
+    uploadMutation.mutate({
+      file: fileData.fileObject,
+      tempId: fileData.tempId,
+    });
+  };
+
+  const handleFileDelete = (attachmentId, tempId) => {
+    if (attachmentId) {
+      deleteAttachmentMutation.mutate(attachmentId);
+    } else {
+      setUploadedFiles((prev) =>
+        prev.filter((file) => file.tempId !== tempId)
+      );
+    }
+  };
 
   const handleChange = (field, value) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
@@ -296,7 +658,7 @@ const EventFormDialog = ({ open, onClose, event, slotInfo, onDelete }) => {
           status_id: parseInt(p.status_id),
           comment: p.comment || "",
         })),
-      attachment_ids: [],
+      attachment_ids: attachmentIds,
     };
 
     if (isEditing) {
@@ -749,6 +1111,14 @@ const EventFormDialog = ({ open, onClose, event, slotInfo, onDelete }) => {
                   </p>
                 )}
               </div>
+
+              {/* Attachments Section */}
+              <AttachmentUploader
+                files={uploadedFiles}
+                onFilesChange={handleFilesChange}
+                onUpload={handleFileUpload}
+                onDelete={handleFileDelete}
+              />
 
               <DialogFooter className="flex justify-between pt-4 border-t gap-2">
                 <div>
