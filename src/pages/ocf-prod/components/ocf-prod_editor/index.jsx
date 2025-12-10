@@ -29,10 +29,10 @@ export default function OCFProdPage() {
   const apiData = ocfRecord?.data;
   console.log("🔍 ocfResp:", ocfResp);
   const saveMutation = useMutation({
-    mutationFn: ({ isEdit, idOrSlug, payload }) =>
+    mutationFn: ({ isEdit, idOrSlug, data }) =>
       isEdit
-        ? updateOcfProd(idOrSlug, payload)
-        : createOcfProd({ slug: idOrSlug, payload }),
+        ? updateOcfProd(idOrSlug, data)
+        : createOcfProd({ slug: idOrSlug, data }),
     onSuccess: (res) => {
       const r = res?.data || res?.response || res;
       toast.success(r?.message || "Form saved");
@@ -383,20 +383,31 @@ export default function OCFProdPage() {
       return { ...prev, [arrayName]: copy };
     });
   };
-
+  // 2) handleSubmit
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    const payload = {
-      name: ocfRecord?.name || "ocf-1",
-      slug: ocfRecord?.slug || slug,
-      data: formData,
-    };
+    // Sirf formData ko data bana ke bhejo
+    const data = formData;
+
+    console.log("📤 Sending Data to API:", JSON.stringify(data, null, 2));
+    console.log(
+      "🔗 API Function:",
+      isEditMode ? "updateOcfProd" : "createOcfProd"
+    );
 
     if (isEditMode) {
-      saveMutation.mutate({ isEdit: true, idOrSlug: recordId || id, payload });
+      saveMutation.mutate({
+        isEdit: true,
+        idOrSlug: recordId || id,
+        data,
+      });
     } else {
-      saveMutation.mutate({ isEdit: false, idOrSlug: slug, payload });
+      saveMutation.mutate({
+        isEdit: false,
+        idOrSlug: slug, // URL se slug
+        data,
+      });
     }
   };
 

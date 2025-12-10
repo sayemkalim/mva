@@ -478,22 +478,22 @@ export const getEditModeData = (slug) => ({
             },
             {
               title: "OCF-2",
-              url: `/api/v2/file/production/form-ocf-2/${slug}`,
+              url: `/dashboard/workstation/edit/${slug}/ocf2-production`,
               icon: FileText,
             },
             {
               title: "OCF-5",
-              url: `/api/v2/file/production/form-ocf-5/${slug}`,
+              url: `/dashboard/workstation/edit/${slug}/ocf5-production`,
               icon: FileText,
             },
             {
               title: "OCF-6",
-              url: `/api/v2/file/production/form-ocf-6/${slug}`,
+              url: `/dashboard/workstation/edit/${slug}/ocf6-production`,
               icon: FileText,
             },
             {
               title: "OCF-10",
-              url: `/api/v2/file/production/form-ocf-10/${slug}`,
+              url: `/dashboard/workstation/edit/${slug}/ocf10-production`,
               icon: FileText,
             },
           ],
