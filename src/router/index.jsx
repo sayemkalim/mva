@@ -93,6 +93,14 @@ import CommentPage from "@/pages/task/components/comment_editor";
 import OcfProd from "@/pages/ocf-prod";
 import OCFProdPage from "@/pages/ocf-prod/components/ocf-prod_editor";
 import Calender from "@/pages/calender";
+import OcfProd2 from "@/pages/ocf-prod2";
+import OCFProd2Page from "@/pages/ocf-prod2/components/ocf-prod2_editor";
+import OcfProd3 from "@/pages/ocf-prod3";
+import OCFProd5Page from "@/pages/ocf-prod3/components/ocf-prod3_editor";
+import OcfProd6 from "@/pages/ocf-prod6";
+import OCFProd6Page from "@/pages/ocf-prod6/components/ocf-prod6_editor";
+import OcfProd10 from "@/pages/ocf-prod10";
+import OCFProd10Page from "@/pages/ocf-prod10/components/ocf-prod10_editor";
 
 const Router = () => {
   return (
@@ -443,6 +451,54 @@ const Router = () => {
           <Route
             path="/dashboard/ocf1-prod/edit/:id"
             element={<OCFProdPage />}
+          />
+          <Route
+            path="/dashboard/workstation/edit/:slug/ocf2-production"
+            element={<OcfProd2 />}
+          />
+          <Route
+            path="/dashboard/ocf2-prod/add/:slug"
+            element={<OCFProd2Page />}
+          />
+          <Route
+            path="/dashboard/ocf2-prod/edit/:id"
+            element={<OCFProd2Page />}
+          />
+          <Route
+            path="/dashboard/workstation/edit/:slug/ocf5-production"
+            element={<OcfProd3 />}
+          />
+          <Route
+            path="/dashboard/ocf5-prod/add/:slug"
+            element={<OCFProd5Page />}
+          />
+          <Route
+            path="/dashboard/ocf5-prod/edit/:id"
+            element={<OCFProd5Page />}
+          />
+          <Route
+            path="/dashboard/workstation/edit/:slug/ocf6-production"
+            element={<OcfProd6 />}
+          />
+          <Route
+            path="/dashboard/ocf6-prod/add/:slug"
+            element={<OCFProd6Page />}
+          />
+          <Route
+            path="/dashboard/ocf6-prod/edit/:id"
+            element={<OCFProd6Page />}
+          />
+          <Route
+            path="/dashboard/workstation/edit/:slug/ocf10-production"
+            element={<OcfProd10 />}
+          />
+          <Route
+            path="/dashboard/ocf10-prod/add/:slug"
+            element={<OCFProd10Page />}
+          />
+          <Route
+            path="/dashboard/ocf10-prod/edit/:id"
+            element={<OCFProd10Page />}
           />
           <Route path="/dashboard/event" element={<Calender />} />
         </Route>
