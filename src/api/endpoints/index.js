@@ -212,4 +212,5 @@ export const endpoints = {
   createEvent: "api/v2/event/store",
   updateEvent: "api/v2/event/update",
   deleteEvent: "api/v2/event/delete",
+  filterTasks: "api/v2/task/filter",
 };

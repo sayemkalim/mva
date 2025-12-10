@@ -1,15 +1,19 @@
 import { apiService } from "@/api/api_service/apiService";
 import { endpoints } from "@/api/endpoints";
-// helpers/fetchTaskList.js
-export const fetchTaskList = async () => {
+
+export const fetchTaskList = async (queryString = "") => {
   try {
+    const endpoint = queryString
+      ? `${endpoints.filterTasks}?${queryString}`
+      : `${endpoints.taskList}`;
+
     const apiResponse = await apiService({
-      endpoint: `${endpoints.taskList}`,
+      endpoint: endpoint,
       method: "GET",
     });
 
-    console.log("Full API response:", apiResponse); // <-- yeh check kar
-    return apiResponse; // <-- yeh return ho raha hai ya nahi
+    console.log("Full API response:", apiResponse);
+    return apiResponse;
   } catch (error) {
     console.error("Error fetching task list:", error);
     throw error;
