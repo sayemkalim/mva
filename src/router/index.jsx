@@ -90,6 +90,7 @@ import TimeCardPage from "@/pages/cost/components/timeline_editor";
 import TaskPage from "@/pages/task/components/task_editor";
 import Task from "@/pages/task";
 import CommentPage from "@/pages/task/components/comment_editor";
+import Calender from "@/pages/calender";
 
 const Router = () => {
   return (
@@ -429,6 +430,7 @@ const Router = () => {
             path="/dashboard/tasks/comments/:id"
             element={<CommentPage />}
           />
+          <Route path="/dashboard/event" element={<Calender />} />
         </Route>
       </Route>
       <Route path="*" element={<ErrorPage />} />
