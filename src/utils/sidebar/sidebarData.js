@@ -46,6 +46,7 @@ import {
   CalendarIcon,
   Mail,
   FileChartColumn,
+  LogOutIcon,
 } from "lucide-react";
 import { getItem } from "../local_storage";
 
@@ -180,6 +181,16 @@ export const EDIT_MODE_PATHS = [
   "/dashboard/soc-prod/edit/",
   "/dashboard/ocf10-prod/add/",
   "/dashboard/ocf10-prod/edit/",
+  "/dashboard/ocf6-prod/add/",
+  "/dashboard/ocf6-prod/edit/",
+  "/dashboard/ocf5-prod/add/",
+  "/dashboard/ocf5-prod/edit/",
+  "/dashboard/ocf2-prod/add/",
+  "/dashboard/ocf2-prod/edit/",
+  "/dashboard/ocf1-prod/add/",
+  "/dashboard/ocf1-prod/edit/",
+  "/dashboard/soc-prod/add/",
+  "dashboard/soc-prod/edit/",
 ];
 
 export const data = {
@@ -235,6 +246,12 @@ export const getEditModeData = (slug) => ({
     avatar: "/user.jpg",
   },
   navMain: [
+    {
+      title: "EXIT FILE",
+      url: `/dashboard`,
+      icon: FileOutput,
+      items: [],
+    },
     {
       title: "Initial Info",
       url: `/dashboard/workstation/edit/${slug}`,
