@@ -261,4 +261,9 @@ export const endpoints = {
   psychological: "api/v2/file/production/psychological/show",
   deletePsychologicalList: "api/v2/file/production/psychological/delete",
   psychologicalPrint: "api/v2/file/production/psychological/print",
+  inbox: "api/v2/email/folder/inbox",
+  sent: "api/v2/email/folder/sent",
+  email: "api/v2/email",
+  draft: "api/v2/email/folder/draft",
+  createEmail: "api/v2/email/send",
 };

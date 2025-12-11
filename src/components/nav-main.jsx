@@ -116,25 +116,19 @@ export function NavMain({ items, showHeader = false, header }) {
   const navigate = useNavigate();
   const location = useLocation();
   const [loadingId, setLoadingId] = useState(null);
-
-  // Handle click for top-level items
   const handleItemClick = async (e, url, title, itemId) => {
     if (!url) return;
 
     e.preventDefault();
 
     if (isApiUrl(url)) {
-      // It's an API endpoint - download the file
       setLoadingId(itemId);
       await handleFileDownload(url, title);
       setLoadingId(null);
     } else {
-      // Regular navigation
       navigate(url);
     }
   };
-
-  // Check if any child is active
   const hasActiveChild = (items) => {
     if (!items || items.length === 0) return false;
     return items.some((item) => {
