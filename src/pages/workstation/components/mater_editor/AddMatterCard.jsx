@@ -754,7 +754,7 @@ const AddMatterCard = ({
                   <SearchableDropdown
                     value={formData.interviewed_by_id}
                     onSelect={handleDropdownChange}
-                    options={metadata.counsel_interviewer}
+                    options={metadata.counsel_Interviewer}
                     placeholder="Select interviewer"
                     popoverKey="interviewed_by"
                     fieldName="interviewed_by_id"
@@ -1146,7 +1146,7 @@ const AddMatterCard = ({
                   <SearchableDropdown
                     value={formData.assigned_to_legal_counsel_id}
                     onSelect={handleDropdownChange}
-                    options={metadata.counsel_interviewer}
+                    options={metadata.counsel_Interviewer}
                     placeholder="Select counsel"
                     popoverKey="assigned_to_legal_counsel"
                     fieldName="assigned_to_legal_counsel_id"
