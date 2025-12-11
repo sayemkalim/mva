@@ -50,18 +50,12 @@ import { getItem } from "../local_storage";
 const BASE_URL = "https://mva-backend.vsrlaw.ca";
 const userName = getItem("userName") || "Admin";
 const userEmail = getItem("userEmail") || "admin@admin.com";
-
-// Helper function to check if URL is an API endpoint
 export const isApiUrl = (url) => {
   return url && url.startsWith("/api");
 };
-
-// Helper function to handle file downloads with improved error handling
 export const handleFileDownload = async (url, fileName = "document") => {
   try {
     const fullUrl = url.startsWith("/api") ? `${BASE_URL}${url}` : url;
-
-    // Get token from localStorage if you have authentication
     const token = getItem("token");
 
     const headers = {};
@@ -77,7 +71,6 @@ export const handleFileDownload = async (url, fileName = "document") => {
     });
 
     if (!response.ok) {
-      // Handle specific error codes
       if (response.status === 404) {
         throw new Error(
           "File not found. The document may not have been generated yet."
@@ -96,17 +89,12 @@ export const handleFileDownload = async (url, fileName = "document") => {
     }
 
     const blob = await response.blob();
-
-    // Check if blob is valid
     if (!blob || blob.size === 0) {
       throw new Error("Downloaded file is empty.");
     }
-
     const downloadUrl = window.URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.href = downloadUrl;
-
-    // Extract filename from Content-Disposition header or use provided name
     const contentDisposition = response.headers.get("Content-Disposition");
     let downloadFileName = fileName;
 
@@ -118,8 +106,6 @@ export const handleFileDownload = async (url, fileName = "document") => {
         downloadFileName = fileNameMatch[1].replace(/['"]/g, "");
       }
     }
-
-    // Add file extension if not present (based on Content-Type)
     if (!downloadFileName.includes(".")) {
       const contentType = response.headers.get("Content-Type");
       if (contentType) {
@@ -146,18 +132,11 @@ export const handleFileDownload = async (url, fileName = "document") => {
     link.setAttribute("download", downloadFileName);
     document.body.appendChild(link);
     link.click();
-
-    // Cleanup
     document.body.removeChild(link);
     window.URL.revokeObjectURL(downloadUrl);
-
-    console.log("File downloaded successfully:", downloadFileName);
-
     return true;
   } catch (error) {
     console.error("Error downloading file:", error);
-
-    // User-friendly error messages
     const errorMessage =
       error.message || "Failed to download file. Please try again.";
     alert(errorMessage);
@@ -191,6 +170,14 @@ export const EDIT_MODE_PATHS = [
   "/dashboard/cost-soft/add/",
   "/dashboard/cost-timecard/add/",
   "dashboard/task/add/",
+  " /dashboard/psychological/edit/",
+  "/dashboard/psychological/add/",
+  "/dashboard/mva-production/add/",
+  "/dashboard/mva-production/edit/",
+  "/dashboard/soc-prod/add/",
+  "/dashboard/soc-prod/edit/",
+  "/dashboard/ocf10-prod/add/",
+  "/dashboard/ocf10-prod/edit/",
 ];
 
 export const data = {
@@ -440,7 +427,7 @@ export const getEditModeData = (slug) => ({
         },
         {
           title: "SOC",
-          url: `/api/v2/file/production/soc-draft/view/${slug}`,
+          url: `/dashboard/workstation/edit/${slug}/soc-production`,
           icon: FileCheck,
         },
         {
@@ -450,7 +437,7 @@ export const getEditModeData = (slug) => ({
           items: [
             {
               title: "Psychological Pre-screen",
-              url: `/api/v2/file/production/psychological/psychological/${slug}`,
+              url: `/dashboard/workstation/edit/${slug}/psychological`,
               icon: HeartPulse,
             },
           ],
@@ -462,7 +449,7 @@ export const getEditModeData = (slug) => ({
           items: [
             {
               title: "MVA Intake Form",
-              url: `/api/v2/file/production/report/mva-client-fillable/${slug}`,
+              url: `/dashboard/workstation/edit/${slug}/mva-production`,
               icon: FileText,
             },
           ],
