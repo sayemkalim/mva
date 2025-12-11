@@ -101,6 +101,7 @@ import OcfProd6 from "@/pages/ocf-prod6";
 import OCFProd6Page from "@/pages/ocf-prod6/components/ocf-prod6_editor";
 import OcfProd10 from "@/pages/ocf-prod10";
 import OCFProd10Page from "@/pages/ocf-prod10/components/ocf-prod10_editor";
+import InternalCalendar from "@/pages/internal_calendar";
 
 const Router = () => {
   return (
@@ -501,6 +502,10 @@ const Router = () => {
             element={<OCFProd10Page />}
           />
           <Route path="/dashboard/event" element={<Calender />} />
+          <Route
+            path="/dashboard/workstation/edit/:slug/event"
+            element={<InternalCalendar />}
+          />
         </Route>
       </Route>
       <Route path="*" element={<ErrorPage />} />

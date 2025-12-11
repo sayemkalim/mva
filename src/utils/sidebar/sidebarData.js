@@ -43,6 +43,7 @@ import {
   Hospital,
   Pill,
   Building2,
+  CalendarIcon,
 } from "lucide-react";
 import { getItem } from "../local_storage";
 
@@ -922,6 +923,12 @@ export const getEditModeData = (slug) => ({
       title: "Task",
       url: `/dashboard/workstation/edit/${slug}/task`,
       icon: ClipboardList,
+      items: [],
+    },
+    {
+      title: "Event",
+      url: `/dashboard/workstation/edit/${slug}/event`,
+      icon: CalendarIcon,
       items: [],
     },
   ],
