@@ -44,6 +44,8 @@ import {
   Pill,
   Building2,
   CalendarIcon,
+  Mail,
+  FileChartColumn,
 } from "lucide-react";
 import { getItem } from "../local_storage";
 
@@ -212,6 +214,13 @@ export const data = {
       title: "Event",
       url: "/dashboard/event",
       icon: CheckSquare,
+      isActive: false,
+      items: [],
+    },
+    {
+      title: "Reports",
+      url: "/dashboard/report",
+      icon: FileChartColumn,
       isActive: false,
       items: [],
     },
@@ -917,6 +926,28 @@ export const getEditModeData = (slug) => ({
       url: `/dashboard/workstation/edit/${slug}/event`,
       icon: CalendarIcon,
       items: [],
+    },
+    {
+      title: "Email",
+      url: ``,
+      icon: Mail,
+      items: [
+        {
+          title: "Inbox",
+          url: `/dashboard/workstation/edit/${slug}/inbox`,
+          icon: User,
+        },
+        {
+          title: "Sent",
+          url: `/dashboard/workstation/edit/${slug}/sent`,
+          icon: User,
+        },
+        {
+          title: "Draft",
+          url: `/dashboard/workstation/edit/${slug}/draft`,
+          icon: User,
+        },
+      ],
     },
   ],
   projects: [],
