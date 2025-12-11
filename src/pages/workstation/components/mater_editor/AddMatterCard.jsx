@@ -207,7 +207,7 @@ const AddMatterCard = ({
       queryClient.invalidateQueries(["matters"]);
       if (isEditMode)
         queryClient.invalidateQueries(["matter", initialData.slug]);
-      navigate("/dashboard/workstation");
+      // navigate("/dashboard/workstation");
     },
     onError: (error) => {
       toast.error(
