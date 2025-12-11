@@ -101,6 +101,12 @@ import OcfProd6 from "@/pages/ocf-prod6";
 import OCFProd6Page from "@/pages/ocf-prod6/components/ocf-prod6_editor";
 import OcfProd10 from "@/pages/ocf-prod10";
 import OCFProd10Page from "@/pages/ocf-prod10/components/ocf-prod10_editor";
+import SocProd from "@/pages/soc-prod";
+import SocProdPage from "@/pages/soc-prod/components/soc-prod_editor";
+import MvaProd from "@/pages/mva-prod";
+import MvaPage from "@/pages/mva-prod/components/mva-prod_editor";
+import PsychologicalPage from "@/pages/psychological/components/psychological_editor";
+import Psychological from "@/pages/psychological";
 
 const Router = () => {
   return (
@@ -499,6 +505,42 @@ const Router = () => {
           <Route
             path="/dashboard/ocf10-prod/edit/:id"
             element={<OCFProd10Page />}
+          />
+          <Route
+            path="/dashboard/workstation/edit/:slug/soc-production"
+            element={<SocProd />}
+          />
+          <Route
+            path="/dashboard/soc-prod/add/:slug"
+            element={<SocProdPage />}
+          />
+          <Route
+            path="/dashboard/soc-prod/edit/:id"
+            element={<SocProdPage />}
+          />
+          <Route
+            path="/dashboard/workstation/edit/:slug/mva-production"
+            element={<MvaProd />}
+          />
+          <Route
+            path="/dashboard/mva-production/add/:slug"
+            element={<MvaPage />}
+          />
+          <Route
+            path="/dashboard/mva-production/edit/:id"
+            element={<MvaPage />}
+          />
+          <Route
+            path="/dashboard/workstation/edit/:slug/psychological"
+            element={<Psychological />}
+          />
+          <Route
+            path="/dashboard/psychological/add/:slug"
+            element={<PsychologicalPage />}
+          />
+          <Route
+            path="/dashboard/psychological/edit/:id"
+            element={<PsychologicalPage />}
           />
           <Route path="/dashboard/event" element={<Calender />} />
         </Route>
