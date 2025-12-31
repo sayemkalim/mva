@@ -1,16 +1,16 @@
 import { apiService } from "@/api/api_service/apiService";
 import { endpoints } from "@/api/endpoints";
 
-export const trashEmail = async (emailId) => {
+export const deletePsychologicalList = async (id) => {
   try {
     const apiResponse = await apiService({
-      endpoint: `${endpoints.trashEmail}/${emailId}`,
-      method: "POST",
+      endpoint: `${endpoints.deletePsychologicalList}/${id}`,
+      method: "DELETE",
     });
+
     return apiResponse;
   } catch (error) {
-    console.error("Error trashing email:", error);
+    console.error(error);
     throw error;
   }
 };
-

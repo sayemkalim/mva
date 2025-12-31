@@ -1,12 +1,14 @@
-import { useQuery } from "@tanstack/react-query";
-import { fetchInbox, fetchSent, fetchDraft, fetchTrash } from "../helpers";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { fetchInbox, fetchSent, fetchDraft, fetchTrash, trashEmail } from "../helpers";
 import { formatDistanceToNow, isValid } from "date-fns";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Checkbox } from "@/components/ui/checkbox";
+
 import { Button } from "@/components/ui/button";
-import { Mail, Star, Paperclip, RefreshCw, MoreVertical, Archive, Trash2 } from "lucide-react";
+import { Mail, Paperclip, RefreshCw, MoreVertical, Trash2 } from "lucide-react";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
+import { toast } from "sonner";
 
 const formatRelativeTime = (dateStr) => {
   if (!dateStr) return "-";
@@ -14,8 +16,31 @@ const formatRelativeTime = (dateStr) => {
   return isValid(dateObj) ? formatDistanceToNow(dateObj, { addSuffix: true }) : "-";
 };
 
+const parseAddress = (address) => {
+  if (!address) return "";
+  try {
+    if (typeof address === "string" && (address.startsWith("[") || address.startsWith("{"))) {
+      const parsed = JSON.parse(address);
+      if (Array.isArray(parsed)) return parsed[0] || "";
+      if (typeof parsed === "object") return parsed.email || parsed.address || "";
+    }
+  } catch (e) {
+  }
+  return address;
+};
+
+const getInitials = (name) => {
+  const cleanName = parseAddress(name);
+  if (!cleanName) return "?";
+  const parts = cleanName.trim().split(/\s+/);
+  if (parts.length === 1) {
+    return parts[0].substring(0, 2).toUpperCase();
+  }
+  return (parts[0].charAt(0) + parts[parts.length - 1].charAt(0)).toUpperCase();
+};
+
 const EmailList = ({ folder, accountId, onEmailSelect, onRefresh }) => {
-  const [selectedEmails, setSelectedEmails] = useState([]);
+  const queryClient = useQueryClient();
 
   const getFetchFunction = () => {
     switch (folder) {
@@ -37,37 +62,38 @@ const EmailList = ({ folder, accountId, onEmailSelect, onRefresh }) => {
     queryFn: () => getFetchFunction()(1),
     enabled: !!accountId && !!folder,
   });
-
-  // Handle API response structure: { ApiStatus: true, folder: "inbox", emails: [...] }
   const emails = Array.isArray(data?.response?.emails)
     ? data.response.emails
     : Array.isArray(data?.response?.data)
-    ? data.response.data
-    : Array.isArray(data?.response)
-    ? data.response
-    : Array.isArray(data?.emails)
-    ? data.emails
-    : Array.isArray(data?.data)
-    ? data.data
-    : [];
+      ? data.response.data
+      : Array.isArray(data?.response)
+        ? data.response
+        : Array.isArray(data?.emails)
+          ? data.emails
+          : Array.isArray(data?.data)
+            ? data.data
+            : [];
 
   const handleEmailClick = (email) => {
     onEmailSelect(email);
   };
 
-  const handleSelectEmail = (emailId, checked) => {
-    if (checked) {
-      setSelectedEmails([...selectedEmails, emailId]);
-    } else {
-      setSelectedEmails(selectedEmails.filter((id) => id !== emailId));
-    }
-  };
+  const deleteMutation = useMutation({
+    mutationFn: (emailId) => trashEmail(emailId),
+    onSuccess: () => {
+      queryClient.invalidateQueries(["emails", folder, accountId]);
+      toast.success("Email moved to trash");
+    },
+    onError: (error) => {
+      console.error("Error deleting email:", error);
+      toast.error("Failed to delete email");
+    },
+  });
 
-  const handleSelectAll = (checked) => {
-    if (checked) {
-      setSelectedEmails(emails.map((email) => email.id));
-    } else {
-      setSelectedEmails([]);
+  const handleDeleteEmail = (e, emailId) => {
+    e.stopPropagation();
+    if (window.confirm("Are you sure you want to move this email to trash?")) {
+      deleteMutation.mutate(emailId);
     }
   };
 
@@ -116,40 +142,17 @@ const EmailList = ({ folder, accountId, onEmailSelect, onRefresh }) => {
     <div className="flex-1 flex flex-col overflow-hidden bg-background">
       {/* Toolbar */}
       <div className="sticky top-0 z-10 bg-card border-b border-border px-4 py-2 flex items-center gap-2">
-        <Checkbox
-          checked={selectedEmails.length === emails.length && emails.length > 0}
-          onCheckedChange={handleSelectAll}
-        />
-        {selectedEmails.length > 0 ? (
-          <>
-            <Button variant="ghost" size="icon" className="size-8">
-              <Archive className="size-4" />
-            </Button>
-            <Button variant="ghost" size="icon" className="size-8">
-              <Trash2 className="size-4" />
-            </Button>
-            <Button variant="ghost" size="icon" className="size-8">
-              <MoreVertical className="size-4" />
-            </Button>
-            <span className="text-sm text-muted-foreground ml-2">
-              {selectedEmails.length} selected
-            </span>
-          </>
-        ) : (
-          <>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="size-8"
-              onClick={handleRefresh}
-            >
-              <RefreshCw className="size-4" />
-            </Button>
-            <Button variant="ghost" size="icon" className="size-8">
-              <MoreVertical className="size-4" />
-            </Button>
-          </>
-        )}
+        <Button
+          variant="ghost"
+          size="icon"
+          className="size-8"
+          onClick={handleRefresh}
+        >
+          <RefreshCw className="size-4" />
+        </Button>
+        <Button variant="ghost" size="icon" className="size-8">
+          <MoreVertical className="size-4" />
+        </Button>
         <div className="ml-auto text-sm text-muted-foreground">
           {data?.response?.pagination
             ? `${data.response.pagination.from}-${data.response.pagination.to} of ${data.response.pagination.total}`
@@ -161,7 +164,6 @@ const EmailList = ({ folder, accountId, onEmailSelect, onRefresh }) => {
       <div className="flex-1 overflow-y-auto">
         <div className="divide-y divide-border">
           {emails.map((email) => {
-            const isSelected = selectedEmails.includes(email.id);
             const isUnread = folder === "inbox" && !email.read;
             return (
               <div
@@ -171,36 +173,19 @@ const EmailList = ({ folder, accountId, onEmailSelect, onRefresh }) => {
                   "flex items-start gap-3 px-4 py-3 cursor-pointer transition-colors group",
                   isUnread
                     ? "bg-primary/5 hover:bg-primary/10"
-                    : "hover:bg-accent/50",
-                  isSelected && "bg-primary/10"
+                    : "hover:bg-accent/50"
                 )}
               >
-                <div
-                  onClick={(e) => e.stopPropagation()}
-                  className="mt-1"
-                >
-                  <Checkbox
-                    checked={isSelected}
-                    onCheckedChange={(checked) =>
-                      handleSelectEmail(email.id, checked)
-                    }
-                  />
-                </div>
-
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    // Toggle star
-                  }}
-                  className="mt-1 opacity-0 group-hover:opacity-100 transition-opacity"
-                >
-                  <Star className={cn(
-                    "size-5",
-                    email.important || email.starred
-                      ? "text-yellow-500 fill-yellow-500"
-                      : "text-muted-foreground"
-                  )} />
-                </button>
+                {/* Avatar */}
+                <Avatar className="size-10 shrink-0">
+                  <AvatarFallback className="bg-primary/10 text-primary text-sm font-medium">
+                    {getInitials(
+                      folder === "sent"
+                        ? email.to || email.recipient
+                        : email.from || email.sender
+                    )}
+                  </AvatarFallback>
+                </Avatar>
 
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center justify-between gap-2 mb-1">
@@ -211,9 +196,11 @@ const EmailList = ({ folder, accountId, onEmailSelect, onRefresh }) => {
                           isUnread ? "font-semibold" : "font-normal"
                         )}
                       >
-                        {folder === "sent"
-                          ? email.to || email.recipient || "No recipient"
-                          : email.from || email.sender || "Unknown sender"}
+                        {parseAddress(
+                          folder === "sent"
+                            ? email.to || email.recipient || "No recipient"
+                            : email.from || email.sender || "Unknown sender"
+                        )}
                       </span>
                     </div>
                     <span className="text-xs text-muted-foreground shrink-0">
@@ -250,6 +237,17 @@ const EmailList = ({ folder, accountId, onEmailSelect, onRefresh }) => {
                     ) : null;
                   })()}
                 </div>
+
+                {/* Delete Button */}
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="size-8 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity"
+                  onClick={(e) => handleDeleteEmail(e, email.id)}
+                  disabled={deleteMutation.isPending}
+                >
+                  <Trash2 className="size-4 text-muted-foreground hover:text-destructive" />
+                </Button>
               </div>
             );
           })}
