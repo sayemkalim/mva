@@ -37,7 +37,6 @@ const EmailHeader = ({
           </div>
         </div>
 
-        {/* Center: Search Bar */}
         <div className="flex-1 max-w-2xl mx-8">
           <form onSubmit={handleSearch} className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-5 text-muted-foreground" />
@@ -51,10 +50,8 @@ const EmailHeader = ({
           </form>
         </div>
 
-        {/* Right: Actions & Account */}
         <div className="flex items-center gap-2 min-w-[200px] justify-end">
-          
-          {/* Account Dropdown */}
+
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button
@@ -67,7 +64,6 @@ const EmailHeader = ({
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-64">
-              {/* Current Account */}
               <div className="px-2 py-1.5 border-b border-border">
                 <div className="flex items-center gap-2">
                   <div className="size-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-semibold">
@@ -87,7 +83,6 @@ const EmailHeader = ({
                 </div>
               </div>
 
-              {/* Switch Account */}
               {Array.isArray(accounts) && accounts.length > 1 && (
                 <>
                   <div className="px-2 py-1.5">
@@ -120,13 +115,11 @@ const EmailHeader = ({
                 </>
               )}
 
-              {/* Manage Accounts */}
               <DropdownMenuItem onClick={() => setIsAccountManagementOpen(true)}>
                 <Settings className="size-4 mr-2" />
                 Manage Accounts
               </DropdownMenuItem>
 
-              {/* Add Account */}
               <DropdownMenuItem onClick={() => setIsAccountManagementOpen(true)}>
                 <User className="size-4 mr-2" />
                 Add Account
@@ -136,7 +129,6 @@ const EmailHeader = ({
         </div>
       </header>
 
-      {/* Account Management Dialog */}
       <AccountManagement
         open={isAccountManagementOpen}
         onClose={() => setIsAccountManagementOpen(false)}

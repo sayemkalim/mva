@@ -55,14 +55,6 @@ const EmailSidebar = ({
           );
         })}
       </div>
-
-      {/* Labels Section (Optional - can be added later) */}
-      <div className="p-2 border-t border-border">
-        <div className="px-3 py-2 text-xs font-semibold text-muted-foreground uppercase tracking-wide">
-          Labels
-        </div>
-        {/* Labels can be added here later */}
-      </div>
     </div>
   );
 };

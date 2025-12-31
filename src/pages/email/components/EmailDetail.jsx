@@ -5,22 +5,21 @@ import { Button } from "@/components/ui/button";
 import {
   ArrowLeft,
   Trash2,
-  Archive,
   Reply,
-  ReplyAll,
-  Forward,
-  MoreVertical,
   Paperclip,
 } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { useState } from "react";
 
 const safeFormat = (dateStr, formatStr) => {
   if (!dateStr) return "-";
@@ -38,6 +37,8 @@ const EmailDetail = ({ email, onBack, onDelete, onMove }) => {
     enabled: !!emailId,
     initialData: email,
   });
+
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
 
   const emailDetail = emailData?.response?.data || emailData || email;
 
@@ -76,10 +77,9 @@ const EmailDetail = ({ email, onBack, onDelete, onMove }) => {
     },
   });
 
-  const handleDelete = () => {
-    if (confirm("Are you sure you want to delete this email?")) {
-      deleteMutation.mutate(emailDetail.id);
-    }
+  const confirmDelete = () => {
+    deleteMutation.mutate(emailDetail.id);
+    setIsDeleteDialogOpen(false);
   };
 
   const handleTrash = () => {
@@ -118,27 +118,6 @@ const EmailDetail = ({ email, onBack, onDelete, onMove }) => {
             >
               <Trash2 className="size-4" />
             </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => handleMove("archive")}
-              disabled={moveMutation.isPending}
-            >
-              <Archive className="size-4" />
-            </Button>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon">
-                  <MoreVertical className="size-4" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={handleDelete}>
-                  <Trash2 className="size-4 mr-2" />
-                  Delete Permanently
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
           </div>
         </div>
 
@@ -178,23 +157,13 @@ const EmailDetail = ({ email, onBack, onDelete, onMove }) => {
         </div>
       </div>
 
-      {/* Actions */}
       <div className="border-b border-border bg-card px-4 py-2 flex items-center gap-2">
         <Button variant="ghost" size="sm">
           <Reply className="size-4 mr-2" />
           Reply
         </Button>
-        <Button variant="ghost" size="sm">
-          <ReplyAll className="size-4 mr-2" />
-          Reply All
-        </Button>
-        <Button variant="ghost" size="sm">
-          <Forward className="size-4 mr-2" />
-          Forward
-        </Button>
       </div>
 
-      {/* Attachments */}
       {emailDetail.attachments && emailDetail.attachments.length > 0 && (
         <div className="border-b border-border bg-card px-4 py-2">
           <div className="flex items-center gap-2 text-sm">
@@ -226,6 +195,32 @@ const EmailDetail = ({ email, onBack, onDelete, onMove }) => {
           }}
         />
       </div>
+      <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Delete Permanently</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to delete {emailDetail?.subject ? `"${emailDetail.subject}"` : "this email"} permanently? This action cannot be undone.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="mt-4">
+            <Button
+              variant="outline"
+              onClick={() => setIsDeleteDialogOpen(false)}
+              disabled={deleteMutation.isPending}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={confirmDelete}
+              disabled={deleteMutation.isPending}
+            >
+              {deleteMutation.isPending ? "Deleting..." : "Delete Permanently"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

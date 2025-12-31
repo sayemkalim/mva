@@ -9,6 +9,14 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
 import { toast } from "sonner";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 const formatRelativeTime = (dateStr) => {
   if (!dateStr) return "-";
@@ -41,6 +49,7 @@ const getInitials = (name) => {
 
 const EmailList = ({ folder, accountId, onEmailSelect, onRefresh }) => {
   const queryClient = useQueryClient();
+  const [emailToDelete, setEmailToDelete] = useState(null);
 
   const getFetchFunction = () => {
     switch (folder) {
@@ -90,10 +99,15 @@ const EmailList = ({ folder, accountId, onEmailSelect, onRefresh }) => {
     },
   });
 
-  const handleDeleteEmail = (e, emailId) => {
+  const handleDeleteEmail = (e, email) => {
     e.stopPropagation();
-    if (window.confirm("Are you sure you want to move this email to trash?")) {
-      deleteMutation.mutate(emailId);
+    setEmailToDelete(email);
+  };
+
+  const confirmDelete = () => {
+    if (emailToDelete) {
+      deleteMutation.mutate(emailToDelete.id);
+      setEmailToDelete(null);
     }
   };
 
@@ -149,9 +163,6 @@ const EmailList = ({ folder, accountId, onEmailSelect, onRefresh }) => {
           onClick={handleRefresh}
         >
           <RefreshCw className="size-4" />
-        </Button>
-        <Button variant="ghost" size="icon" className="size-8">
-          <MoreVertical className="size-4" />
         </Button>
         <div className="ml-auto text-sm text-muted-foreground">
           {data?.response?.pagination
@@ -243,7 +254,7 @@ const EmailList = ({ folder, accountId, onEmailSelect, onRefresh }) => {
                   variant="ghost"
                   size="icon"
                   className="size-8 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity"
-                  onClick={(e) => handleDeleteEmail(e, email.id)}
+                  onClick={(e) => handleDeleteEmail(e, email)}
                   disabled={deleteMutation.isPending}
                 >
                   <Trash2 className="size-4 text-muted-foreground hover:text-destructive" />
@@ -253,6 +264,33 @@ const EmailList = ({ folder, accountId, onEmailSelect, onRefresh }) => {
           })}
         </div>
       </div>
+
+      <Dialog open={!!emailToDelete} onOpenChange={(open) => !open && setEmailToDelete(null)}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Move to Trash</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to move {emailToDelete?.subject ? `"${emailToDelete.subject}"` : "this email"} to trash? This action can be undone from the trash folder.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="mt-4">
+            <Button
+              variant="outline"
+              onClick={() => setEmailToDelete(null)}
+              disabled={deleteMutation.isPending}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={confirmDelete}
+              disabled={deleteMutation.isPending}
+            >
+              {deleteMutation.isPending ? "Moving..." : "Move to Trash"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

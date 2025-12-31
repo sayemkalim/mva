@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -11,6 +11,7 @@ import { cn } from "@/lib/utils";
 
 const ComposeEmail = ({ open, onClose, defaultAccount, onSuccess }) => {
   const queryClient = useQueryClient();
+  const fileInputRef = useRef(null);
   const [isMinimized, setIsMinimized] = useState(false);
   const [isMaximized, setIsMaximized] = useState(false);
   const [formData, setFormData] = useState({
@@ -59,20 +60,24 @@ const ComposeEmail = ({ open, onClose, defaultAccount, onSuccess }) => {
       toast.error("Please enter a recipient");
       return;
     }
-    // Include from field from defaultAccount
-    sendMutation.mutate({ 
-      ...formData, 
+    sendMutation.mutate({
+      ...formData,
       from: defaultAccount?.email,
-      draft: isDraft 
+      draft: isDraft
     });
   };
 
   const handleFileChange = (e) => {
     const files = Array.from(e.target.files);
-    setFormData((prev) => ({
-      ...prev,
-      attachments: [...prev.attachments, ...files],
-    }));
+    if (files.length > 0) {
+      setFormData((prev) => ({
+        ...prev,
+        attachments: [...prev.attachments, ...files],
+      }));
+    }
+    if (e.target) {
+      e.target.value = "";
+    }
   };
 
   const removeAttachment = (index) => {
@@ -80,6 +85,14 @@ const ComposeEmail = ({ open, onClose, defaultAccount, onSuccess }) => {
       ...prev,
       attachments: prev.attachments.filter((_, i) => i !== index),
     }));
+  };
+
+  const formatFileSize = (bytes) => {
+    if (bytes === 0) return "0 Bytes";
+    const k = 1024;
+    const sizes = ["Bytes", "KB", "MB", "GB"];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i];
   };
 
   if (!open) return null;
@@ -229,7 +242,12 @@ const ComposeEmail = ({ open, onClose, defaultAccount, onSuccess }) => {
                     key={index}
                     className="flex items-center gap-1 px-2 py-1 bg-muted rounded text-sm"
                   >
-                    <span className="truncate max-w-[150px]">{file.name}</span>
+                    <div className="flex flex-col">
+                      <span className="truncate max-w-[150px] font-medium">{file.name}</span>
+                      <span className="text-[10px] text-muted-foreground">
+                        {formatFileSize(file.size)}
+                      </span>
+                    </div>
                     <Button
                       type="button"
                       variant="ghost"
@@ -258,7 +276,6 @@ const ComposeEmail = ({ open, onClose, defaultAccount, onSuccess }) => {
             </div>
           </div>
 
-          {/* Footer */}
           <div className="flex items-center justify-between border-t border-border px-4 py-2 bg-muted/30">
             <div className="flex items-center gap-2">
               <Button
@@ -269,26 +286,21 @@ const ComposeEmail = ({ open, onClose, defaultAccount, onSuccess }) => {
                 <Send className="size-4" />
                 {isDraft ? "Save Draft" : "Send"}
               </Button>
-              <label className="cursor-pointer">
-                <input
-                  type="file"
-                  multiple
-                  onChange={handleFileChange}
-                  className="hidden"
-                />
-                <Button type="button" variant="ghost" size="icon">
-                  <Paperclip className="size-4" />
-                </Button>
-              </label>
-              <label className="flex items-center gap-2 cursor-pointer text-sm text-muted-foreground hover:text-foreground">
-                <input
-                  type="checkbox"
-                  checked={isDraft}
-                  onChange={(e) => setIsDraft(e.target.checked)}
-                  className="size-4"
-                />
-                <span>Save as draft</span>
-              </label>
+              <input
+                type="file"
+                multiple
+                ref={fileInputRef}
+                onChange={handleFileChange}
+                className="hidden"
+              />
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                onClick={() => fileInputRef.current?.click()}
+              >
+                <Paperclip className="size-4" />
+              </Button>
             </div>
           </div>
         </form>

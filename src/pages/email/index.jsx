@@ -26,16 +26,16 @@ const Email = () => {
   });
 
   const accounts = useMemo(() => {
-    const accountsArray = 
-      accountsData?.response?.accounts || 
-      accountsData?.accounts || 
-      accountsData?.response?.data || 
-      accountsData?.response || 
-      accountsData?.data || 
+    const accountsArray =
+      accountsData?.response?.accounts ||
+      accountsData?.accounts ||
+      accountsData?.response?.data ||
+      accountsData?.response ||
+      accountsData?.data ||
       accountsData;
     return Array.isArray(accountsArray) ? accountsArray : [];
   }, [accountsData]);
-  
+
   const defaultAccount = useMemo(() => {
     return (
       defaultAccountData?.response?.data ||
@@ -74,7 +74,6 @@ const Email = () => {
       />
 
       <div className="flex flex-1 overflow-hidden">
-        {/* Left Sidebar */}
         <EmailSidebar
           folders={folders}
           selectedFolder={selectedFolder}
@@ -85,9 +84,7 @@ const Email = () => {
           onCompose={() => setIsComposeOpen(true)}
         />
 
-        {/* Main Content Area */}
         <div className="flex-1 flex flex-col overflow-hidden bg-background">
-          {/* Email List and Detail View */}
           <div className="flex flex-1 overflow-hidden">
             {selectedEmail ? (
               <EmailDetail
@@ -118,7 +115,6 @@ const Email = () => {
         </div>
       </div>
 
-      {/* Floating Compose Window */}
       {isComposeOpen && (
         <ComposeEmail
           open={isComposeOpen}
