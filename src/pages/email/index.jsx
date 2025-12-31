@@ -119,6 +119,7 @@ const Email = () => {
         <ComposeEmail
           open={isComposeOpen}
           onClose={() => setIsComposeOpen(false)}
+          accounts={accounts}
           defaultAccount={selectedAccount}
           onSuccess={() => {
             queryClient.invalidateQueries(["emails", "sent"]);

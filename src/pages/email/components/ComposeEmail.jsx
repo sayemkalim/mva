@@ -1,16 +1,23 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useMemo, useEffect } from "react";
+import JoditEditor from "jodit-react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { X, Paperclip, Send, Minimize2, Maximize2 } from "lucide-react";
 import { createEmail } from "../helpers";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
-const ComposeEmail = ({ open, onClose, defaultAccount, onSuccess }) => {
+const ComposeEmail = ({ open, onClose, accounts = [], defaultAccount, onSuccess }) => {
   const queryClient = useQueryClient();
   const fileInputRef = useRef(null);
   const [isMinimized, setIsMinimized] = useState(false);
@@ -22,12 +29,44 @@ const ComposeEmail = ({ open, onClose, defaultAccount, onSuccess }) => {
     subject: "",
     body: "",
     attachments: [],
+    from: defaultAccount?.email || "",
   });
+
+  useEffect(() => {
+    if (!formData.from && defaultAccount?.email) {
+      setFormData(prev => ({ ...prev, from: defaultAccount.email }));
+    }
+  }, [defaultAccount, formData.from]);
+
   const [toInput, setToInput] = useState("");
   const [ccInput, setCcInput] = useState("");
   const [bccInput, setBccInput] = useState("");
   const [isDraft, setIsDraft] = useState(false);
   const [showCcBcc, setShowCcBcc] = useState(false);
+
+  const editor = useRef(null);
+
+  const config = useMemo(
+    () => ({
+      readonly: false,
+      placeholder: "Compose email...",
+      toolbarAdaptive: false,
+      buttons: [
+        "bold", "italic", "underline", "strikethrough", "|",
+        "ul", "ol", "indent", "outdent", "|",
+        "font", "fontsize", "brush", "paragraph", "|",
+      ],
+      spellcheck: true,
+      language: "en",
+      askBeforePasteHTML: false,
+      askBeforePasteFromWord: false,
+      defaultActionOnPaste: "insert_clear_html",
+      height: isMaximized ? "calc(90vh - 350px)" : 300,
+      width: "100%",
+      padding: "10px",
+    }),
+    [isMaximized]
+  );
 
   const sendMutation = useMutation({
     mutationFn: (data) => createEmail(data),
@@ -50,6 +89,7 @@ const ComposeEmail = ({ open, onClose, defaultAccount, onSuccess }) => {
       subject: "",
       body: "",
       attachments: [],
+      from: defaultAccount?.email || "",
     });
     setToInput("");
     setCcInput("");
@@ -93,7 +133,6 @@ const ComposeEmail = ({ open, onClose, defaultAccount, onSuccess }) => {
       to: updatedTo,
       cc: updatedCc,
       bcc: updatedBcc,
-      from: defaultAccount?.email,
       draft: isDraft
     });
   };
@@ -218,11 +257,25 @@ const ComposeEmail = ({ open, onClose, defaultAccount, onSuccess }) => {
         <form onSubmit={handleSubmit} className="flex flex-col flex-1 min-h-0">
           <div className="flex-1 overflow-y-auto p-4 space-y-3">
             {/* From */}
-            <div>
-              <div className="flex items-center gap-2 text-sm">
-                <span className="text-muted-foreground min-w-[60px]">From</span>
-                <span className="text-foreground">{defaultAccount?.email || ""}</span>
-              </div>
+            <div className="flex items-center gap-2 border-b border-border py-1">
+              <span className="text-muted-foreground min-w-[60px] text-sm">From</span>
+              <Select
+                value={formData.from}
+                onValueChange={(value) =>
+                  setFormData((prev) => ({ ...prev, from: value }))
+                }
+              >
+                <SelectTrigger className="border-0 focus:ring-0 h-8 p-0 text-sm w-full shadow-none bg-transparent">
+                  <SelectValue placeholder="Select account" />
+                </SelectTrigger>
+                <SelectContent>
+                  {accounts.map((account) => (
+                    <SelectItem key={account.id} value={account.email}>
+                      {account.name ? `${account.name} <${account.email}>` : account.email}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
 
             {/* To */}
@@ -344,47 +397,47 @@ const ComposeEmail = ({ open, onClose, defaultAccount, onSuccess }) => {
               </div>
             </div>
 
-            {/* Attachments */}
-            {formData.attachments.length > 0 && (
-              <div className="flex flex-wrap gap-2 ml-[68px]">
-                {formData.attachments.map((file, index) => (
-                  <div
-                    key={index}
-                    className="flex items-center gap-1 px-2 py-1 bg-muted rounded text-sm"
-                  >
-                    <div className="flex flex-col">
-                      <span className="truncate max-w-[150px] font-medium">{file.name}</span>
-                      <span className="text-[10px] text-muted-foreground">
-                        {formatFileSize(file.size)}
-                      </span>
-                    </div>
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="icon"
-                      className="size-4"
-                      onClick={() => removeAttachment(index)}
-                    >
-                      <X className="size-3" />
-                    </Button>
-                  </div>
-                ))}
-              </div>
-            )}
-
             {/* Body */}
-            <div className="flex-1 min-h-[200px]">
-              <Textarea
-                id="body"
+            <div className="flex-1 min-h-[300px] jodit-editor-container">
+              <JoditEditor
+                ref={editor}
                 value={formData.body}
-                onChange={(e) =>
-                  setFormData((prev) => ({ ...prev, body: e.target.value }))
+                config={config}
+                tabIndex={1}
+                onChange={(newContent) =>
+                  setFormData((prev) => ({ ...prev, body: newContent }))
                 }
-                placeholder="Compose email"
-                className="min-h-[200px] resize-none border-0 focus-visible:ring-0"
               />
             </div>
           </div>
+
+          {/* Attachments */}
+          {formData.attachments.length > 0 && (
+            <div className="flex flex-wrap gap-2 ml-[68px]">
+              {formData.attachments.map((file, index) => (
+                <div
+                  key={index}
+                  className="flex items-center gap-1 px-2 py-1 bg-muted rounded text-sm"
+                >
+                  <div className="flex flex-col">
+                    <span className="truncate max-w-[150px] font-medium">{file.name}</span>
+                    <span className="text-[10px] text-muted-foreground">
+                      {formatFileSize(file.size)}
+                    </span>
+                  </div>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    className="size-4"
+                    onClick={() => removeAttachment(index)}
+                  >
+                    <X className="size-3" />
+                  </Button>
+                </div>
+              ))}
+            </div>
+          )}
 
           <div className="flex items-center justify-between border-t border-border px-4 py-2 bg-muted/30">
             <div className="flex items-center gap-2">
