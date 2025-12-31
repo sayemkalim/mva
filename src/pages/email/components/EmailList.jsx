@@ -26,11 +26,21 @@ const formatRelativeTime = (dateStr) => {
 
 const parseAddress = (address) => {
   if (!address) return "";
+  if (Array.isArray(address)) {
+    const first = address[0];
+    if (typeof first === "string") return first;
+    if (typeof first === "object") return first.email || first.address || first.name || "";
+    return "";
+  }
   try {
     if (typeof address === "string" && (address.startsWith("[") || address.startsWith("{"))) {
       const parsed = JSON.parse(address);
-      if (Array.isArray(parsed)) return parsed[0] || "";
-      if (typeof parsed === "object") return parsed.email || parsed.address || "";
+      if (Array.isArray(parsed)) {
+        const first = parsed[0];
+        if (typeof first === "string") return first;
+        if (typeof first === "object") return first.email || first.address || first.name || "";
+      }
+      if (typeof parsed === "object") return parsed.email || parsed.address || parsed.name || "";
     }
   } catch (e) {
   }

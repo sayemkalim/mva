@@ -76,7 +76,6 @@ const EmailDetail = ({ email, onBack, onDelete, onMove }) => {
       toast.error("Failed to move email");
     },
   });
-
   const confirmDelete = () => {
     deleteMutation.mutate(emailDetail.id);
     setIsDeleteDialogOpen(false);
@@ -132,7 +131,7 @@ const EmailDetail = ({ email, onBack, onDelete, onMove }) => {
             </div>
             <div>
               <span className="font-medium">To: </span>
-              {emailDetail.to || emailDetail.recipient || "-"}
+              {emailDetail.to.startsWith("[") ? JSON.parse(emailDetail.to).join(", ") : emailDetail.to}
             </div>
             <div>
               <span className="font-medium">Date: </span>

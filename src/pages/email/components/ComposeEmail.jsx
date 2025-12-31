@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Badge } from "@/components/ui/badge";
 import { X, Paperclip, Send, Minimize2, Maximize2 } from "lucide-react";
 import { createEmail } from "../helpers";
 import { toast } from "sonner";
@@ -15,13 +16,16 @@ const ComposeEmail = ({ open, onClose, defaultAccount, onSuccess }) => {
   const [isMinimized, setIsMinimized] = useState(false);
   const [isMaximized, setIsMaximized] = useState(false);
   const [formData, setFormData] = useState({
-    to: "",
-    cc: "",
-    bcc: "",
+    to: [],
+    cc: [],
+    bcc: [],
     subject: "",
     body: "",
     attachments: [],
   });
+  const [toInput, setToInput] = useState("");
+  const [ccInput, setCcInput] = useState("");
+  const [bccInput, setBccInput] = useState("");
   const [isDraft, setIsDraft] = useState(false);
   const [showCcBcc, setShowCcBcc] = useState(false);
 
@@ -40,13 +44,16 @@ const ComposeEmail = ({ open, onClose, defaultAccount, onSuccess }) => {
 
   const handleClose = () => {
     setFormData({
-      to: "",
-      cc: "",
-      bcc: "",
+      to: [],
+      cc: [],
+      bcc: [],
       subject: "",
       body: "",
       attachments: [],
     });
+    setToInput("");
+    setCcInput("");
+    setBccInput("");
     setIsDraft(false);
     setShowCcBcc(false);
     setIsMinimized(false);
@@ -56,15 +63,82 @@ const ComposeEmail = ({ open, onClose, defaultAccount, onSuccess }) => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!formData.to && !isDraft) {
+
+    // Add pending inputs
+    const updatedTo = [...formData.to];
+    if (toInput.trim() && /^\S+@\S+\.\S+$/.test(toInput.trim())) {
+      if (!updatedTo.includes(toInput.trim())) updatedTo.push(toInput.trim());
+      setToInput("");
+    }
+
+    const updatedCc = [...formData.cc];
+    if (ccInput.trim() && /^\S+@\S+\.\S+$/.test(ccInput.trim())) {
+      if (!updatedCc.includes(ccInput.trim())) updatedCc.push(ccInput.trim());
+      setCcInput("");
+    }
+
+    const updatedBcc = [...formData.bcc];
+    if (bccInput.trim() && /^\S+@\S+\.\S+$/.test(bccInput.trim())) {
+      if (!updatedBcc.includes(bccInput.trim())) updatedBcc.push(bccInput.trim());
+      setBccInput("");
+    }
+
+    if (updatedTo.length === 0 && !isDraft) {
       toast.error("Please enter a recipient");
       return;
     }
+
     sendMutation.mutate({
       ...formData,
+      to: updatedTo,
+      cc: updatedCc,
+      bcc: updatedBcc,
       from: defaultAccount?.email,
       draft: isDraft
     });
+  };
+
+  const handleInputKeyDown = (e, field, inputValue, setInputValue) => {
+    if (e.key === "Enter" || e.key === ",") {
+      e.preventDefault();
+      const email = inputValue.trim().replace(/,/g, "");
+      if (email && /^\S+@\S+\.\S+$/.test(email)) {
+        if (!formData[field].includes(email)) {
+          setFormData((prev) => ({
+            ...prev,
+            [field]: [...prev[field], email],
+          }));
+        }
+        setInputValue("");
+      } else if (email) {
+        toast.error("Invalid email address");
+      }
+    } else if (e.key === "Backspace" && !inputValue && formData[field].length > 0) {
+      setFormData((prev) => ({
+        ...prev,
+        [field]: prev[field].slice(0, -1),
+      }));
+    }
+  };
+
+  const removeEmail = (field, emailToRemove) => {
+    setFormData((prev) => ({
+      ...prev,
+      [field]: prev[field].filter((email) => email !== emailToRemove),
+    }));
+  };
+
+  const handlePaste = (e, field) => {
+    e.preventDefault();
+    const paste = e.clipboardData.getData("text");
+    const emails = paste.split(/[,\s]+/).map(email => email.trim()).filter(email => email && /^\S+@\S+\.\S+$/.test(email));
+
+    if (emails.length > 0) {
+      setFormData((prev) => ({
+        ...prev,
+        [field]: [...new Set([...prev[field], ...emails])],
+      }));
+    }
   };
 
   const handleFileChange = (e) => {
@@ -152,20 +226,32 @@ const ComposeEmail = ({ open, onClose, defaultAccount, onSuccess }) => {
             </div>
 
             {/* To */}
-            <div>
-              <div className="flex items-center gap-2">
-                <Label htmlFor="to" className="text-muted-foreground min-w-[60px] text-sm">
-                  To
-                </Label>
-                <Input
+            <div className="flex flex-wrap items-center gap-2 border-b border-border min-h-[40px] py-1">
+              <Label htmlFor="to" className="text-muted-foreground min-w-[60px] text-sm">
+                To
+              </Label>
+              <div className="flex flex-wrap gap-1 flex-1">
+                {formData.to.map((email) => (
+                  <Badge key={email} variant="secondary" className="gap-1 pr-1 py-0.5">
+                    {email}
+                    <button
+                      type="button"
+                      onClick={() => removeEmail("to", email)}
+                      className="hover:bg-muted rounded-full p-0.5"
+                    >
+                      <X className="size-3" />
+                    </button>
+                  </Badge>
+                ))}
+                <input
                   id="to"
-                  value={formData.to}
-                  onChange={(e) =>
-                    setFormData((prev) => ({ ...prev, to: e.target.value }))
-                  }
-                  placeholder="Recipients"
-                  className="border-0 border-b border-border rounded-none focus-visible:ring-0 focus-visible:border-primary"
-                  required={!isDraft}
+                  value={toInput}
+                  onChange={(e) => setToInput(e.target.value)}
+                  onKeyDown={(e) => handleInputKeyDown(e, "to", toInput, setToInput)}
+                  onPaste={(e) => handlePaste(e, "to")}
+                  placeholder={formData.to.length === 0 ? "Recipients" : ""}
+                  className="flex-1 bg-transparent border-none focus:outline-none text-sm min-w-[120px]"
+                  required={!isDraft && formData.to.length === 0}
                 />
               </div>
             </div>
@@ -173,35 +259,59 @@ const ComposeEmail = ({ open, onClose, defaultAccount, onSuccess }) => {
             {/* CC/BCC Toggle */}
             {showCcBcc ? (
               <>
-                <div>
-                  <div className="flex items-center gap-2">
-                    <Label htmlFor="cc" className="text-muted-foreground min-w-[60px] text-sm">
-                      Cc
-                    </Label>
-                    <Input
+                <div className="flex flex-wrap items-center gap-2 border-b border-border min-h-[40px] py-1">
+                  <Label htmlFor="cc" className="text-muted-foreground min-w-[60px] text-sm">
+                    Cc
+                  </Label>
+                  <div className="flex flex-wrap gap-1 flex-1">
+                    {formData.cc.map((email) => (
+                      <Badge key={email} variant="secondary" className="gap-1 pr-1 py-0.5">
+                        {email}
+                        <button
+                          type="button"
+                          onClick={() => removeEmail("cc", email)}
+                          className="hover:bg-muted rounded-full p-0.5"
+                        >
+                          <X className="size-3" />
+                        </button>
+                      </Badge>
+                    ))}
+                    <input
                       id="cc"
-                      value={formData.cc}
-                      onChange={(e) =>
-                        setFormData((prev) => ({ ...prev, cc: e.target.value }))
-                      }
-                      placeholder="Cc"
-                      className="border-0 border-b border-border rounded-none focus-visible:ring-0 focus-visible:border-primary"
+                      value={ccInput}
+                      onChange={(e) => setCcInput(e.target.value)}
+                      onKeyDown={(e) => handleInputKeyDown(e, "cc", ccInput, setCcInput)}
+                      onPaste={(e) => handlePaste(e, "cc")}
+                      placeholder={formData.cc.length === 0 ? "Cc" : ""}
+                      className="flex-1 bg-transparent border-none focus:outline-none text-sm min-w-[120px]"
                     />
                   </div>
                 </div>
-                <div>
-                  <div className="flex items-center gap-2">
-                    <Label htmlFor="bcc" className="text-muted-foreground min-w-[60px] text-sm">
-                      Bcc
-                    </Label>
-                    <Input
+                <div className="flex flex-wrap items-center gap-2 border-b border-border min-h-[40px] py-1">
+                  <Label htmlFor="bcc" className="text-muted-foreground min-w-[60px] text-sm">
+                    Bcc
+                  </Label>
+                  <div className="flex flex-wrap gap-1 flex-1">
+                    {formData.bcc.map((email) => (
+                      <Badge key={email} variant="secondary" className="gap-1 pr-1 py-0.5">
+                        {email}
+                        <button
+                          type="button"
+                          onClick={() => removeEmail("bcc", email)}
+                          className="hover:bg-muted rounded-full p-0.5"
+                        >
+                          <X className="size-3" />
+                        </button>
+                      </Badge>
+                    ))}
+                    <input
                       id="bcc"
-                      value={formData.bcc}
-                      onChange={(e) =>
-                        setFormData((prev) => ({ ...prev, bcc: e.target.value }))
-                      }
-                      placeholder="Bcc"
-                      className="border-0 border-b border-border rounded-none focus-visible:ring-0 focus-visible:border-primary"
+                      value={bccInput}
+                      onChange={(e) => setBccInput(e.target.value)}
+                      onKeyDown={(e) => handleInputKeyDown(e, "bcc", bccInput, setBccInput)}
+                      onPaste={(e) => handlePaste(e, "bcc")}
+                      placeholder={formData.bcc.length === 0 ? "Bcc" : ""}
+                      className="flex-1 bg-transparent border-none focus:outline-none text-sm min-w-[120px]"
                     />
                   </div>
                 </div>
