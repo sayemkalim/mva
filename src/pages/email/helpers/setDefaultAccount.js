@@ -1,16 +1,15 @@
 import { apiService } from "@/api/api_service/apiService";
 import { endpoints } from "@/api/endpoints";
 
-export const deletePsychologicalList = async (id) => {
+export const setDefaultAccount = async (accountId) => {
   try {
     const apiResponse = await apiService({
-      endpoint: `${endpoints.deletePsychologicalList}/${id}`,
-      method: "DELETE",
+      endpoint: `${endpoints.defaultAccount}?account_id=${accountId}`,
+      method: "GET",
     });
-
     return apiResponse;
   } catch (error) {
-    console.error(error);
+    console.error("Error setting default account:", error);
     throw error;
   }
 };

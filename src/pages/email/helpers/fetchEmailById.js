@@ -7,7 +7,7 @@ export const fetchEmailById = async (id) => {
     console.log("📍 API Endpoint:", `${endpoints.email}/${id}`);
 
     const apiResponse = await apiService({
-      endpoint: `${endpoints.psychological}/${id}`,
+      endpoint: `${endpoints.email}/${id}`,
     });
 
     console.log("✅ API Response received:", apiResponse);

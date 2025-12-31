@@ -1,16 +1,16 @@
 import { apiService } from "@/api/api_service/apiService";
 import { endpoints } from "@/api/endpoints";
 
-export const fetchSent = async (page = 1) => {
+export const unlinkAccount = async (accountId) => {
   try {
     const apiResponse = await apiService({
-      endpoint: `${endpoints.sent}?page=${page}`,
+      endpoint: `${endpoints.unlinkAccount}/${accountId}`,
+      method: "DELETE",
     });
-
-    console.log("Sent API response:", apiResponse);
     return apiResponse;
   } catch (error) {
-    console.error("Error fetching Sent:", error);
+    console.error("Error unlinking account:", error);
     throw error;
   }
 };
+
