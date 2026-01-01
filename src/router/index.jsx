@@ -108,10 +108,8 @@ import MvaProd from "@/pages/mva-prod";
 import MvaPage from "@/pages/mva-prod/components/mva-prod_editor";
 import PsychologicalPage from "@/pages/psychological/components/psychological_editor";
 import Psychological from "@/pages/psychological";
-import Inbox from "@/pages/email/inbox_editor";
-import Sent from "@/pages/email/sent_editor";
 import ReportPage from "@/pages/report";
-import Draft from "@/pages/email/draft_editor";
+import Email from "@/pages/email";
 
 const Router = () => {
   return (
@@ -548,21 +546,10 @@ const Router = () => {
             element={<PsychologicalPage />}
           />
           <Route path="/dashboard/event" element={<Calender />} />
+          <Route path="/dashboard/email" element={<Email />} />
           <Route
             path="/dashboard/workstation/edit/:slug/event"
             element={<InternalCalendar />}
-          />
-          <Route
-            path="/dashboard/workstation/edit/:slug/inbox"
-            element={<Inbox />}
-          />
-          <Route
-            path="/dashboard/workstation/edit/:slug/sent"
-            element={<Sent />}
-          />
-          <Route
-            path="/dashboard/workstation/edit/:slug/draft"
-            element={<Draft />}
           />
           <Route path="/dashboard/report" element={<ReportPage />} />
         </Route>

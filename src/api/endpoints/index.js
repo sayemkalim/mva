@@ -266,4 +266,13 @@ export const endpoints = {
   email: "api/v2/email",
   draft: "api/v2/email/folder/draft",
   createEmail: "api/v2/email/send",
+  accounts: "api/v2/email/accounts",
+  defaultAccount: "api/v2/email/default",
+  deleteEmail: "api/v2/email/delete",
+  moveEmail: "api/v2/email/move",
+  trashEmail: "api/v2/email/trash",
+  trashList: "api/v2/email/folder/trash",
+  threadView: "api/v2/email/thread",
+  unlinkAccount: "api/v2/email/accounts",
+  showEmail: "api/v2/email/show",
 };
