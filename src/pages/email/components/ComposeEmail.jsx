@@ -170,8 +170,6 @@ const ComposeEmail = ({ open, onClose, accounts = [], defaultAccount, onSuccess,
   };
 
   const confirmSend = () => {
-    // Re-calculate updated lists to be safe or just use formData if they were already added via handleInputKeyDown
-    // To be safe, we should ensure the inputs are processed
     const updatedTo = [...formData.to];
     const updatedCc = [...formData.cc];
     const updatedBcc = [...formData.bcc];
@@ -266,7 +264,7 @@ const ComposeEmail = ({ open, onClose, accounts = [], defaultAccount, onSuccess,
           variant === "floating"
             ? "fixed bottom-0 right-4 z-50 bg-card border border-border rounded-t-lg shadow-2xl transition-all duration-200"
             : "relative bg-card border border-border rounded-lg m-4 shadow-sm",
-          variant === "floating" && (isMinimized ? "h-14" : isMaximized ? "h-[90vh] w-[90vw] max-w-4xl" : "h-[600px] w-[600px]")
+          variant === "floating" && (isMinimized ? "h-14" : isMaximized ? "h-[95vh] w-[95vw] max-w-4xl" : "h-[700px] w-[700px]")
         )}
       >
         {/* Header */}

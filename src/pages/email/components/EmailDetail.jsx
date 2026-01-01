@@ -70,11 +70,12 @@ const EmailDetail = ({ email, onBack, onDelete, onMove, onReply, accounts, defau
     const fromEmail = emailDetail.from || emailDetail.sender;
     const toEmails = parseEmails(emailDetail.to);
     const ccEmails = parseEmails(emailDetail.cc);
+    const bccEmails = parseEmails(emailDetail.bcc);
 
     setReplyInitialData({
-      to: [fromEmail],
-      cc: [...new Set([...toEmails.filter(e => e !== fromEmail), ...ccEmails])],
-      bcc: parseEmails(emailDetail.bcc),
+      to: emailDetail.folder === "sent" ? parseEmails(emailDetail.to) : [fromEmail],
+      cc: ccEmails,
+      bcc: bccEmails,
       subject: emailDetail.subject?.trim().toLowerCase().startsWith("re:") ? emailDetail.subject : `Re: ${emailDetail.subject}`,
       body: ``,
     });
