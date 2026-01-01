@@ -235,6 +235,83 @@ export const data = {
       isActive: false,
       items: [],
     },
+    {
+      title: "Generate Reports",
+      url: ``,
+      icon: Download,
+      items: [
+        {
+          title: "Applicant Information",
+          url: `/dashboard/export-applicant-information`,
+          icon: User,
+        },
+        {
+          title: "File Assigned info",
+          url: `/dashboard/export-file-assigned-info`,
+          icon: User,
+        },
+        {
+          title: "List of Files",
+          url: `/dashboard/export-list-of-files`,
+          icon: User,
+        },
+        {
+          title: "Applicant Contact Information",
+          url: `/dashboard/export-applicant-contact-information`,
+          icon: User,
+        },
+        {
+          title: "Applicant Accident Detail",
+          url: `/dashboard/export-applicant-accident-detail`,
+          icon: User,
+        },
+        {
+          title: "MVA Cases by Medical Centre",
+          url: `/dashboard/export-mva-cases-by-medical-centre`,
+          icon: User,
+        },
+        {
+          title: "Vehicle Ownership Information",
+          url: `/dashboard/export-vehicle-ownership-information`,
+          icon: User,
+        },
+        {
+          title: "LAT Files",
+          url: `/dashboard/export-lat-files`,
+          icon: User,
+        },
+        {
+          title: "S33 Request",
+          url: `/dashboard/export-s33-request`,
+          icon: User,
+        },
+        {
+          title: "S258 Request",
+          url: `/dashboard/export-s258-request`,
+          icon: User,
+        },
+        {
+          title: "Opposing Counsel",
+          url: `/dashboard/export-opposing-counsel`,
+          icon: User,
+        },
+        {
+          title: "Adjusters on Files",
+          url: `/dashboard/export-adjusters-on-files`,
+          icon: User,
+        },
+        {
+          title: "List of Police Stations",
+          url: `/dashboard/export-list-of-police-stations`,
+          icon: User,
+        },
+        {
+          title: "VSR Examination",
+          url: `/dashboard/export-vsr-examination`,
+          icon: User,
+        },
+      ],
+    },
   ],
   projects: [],
 };

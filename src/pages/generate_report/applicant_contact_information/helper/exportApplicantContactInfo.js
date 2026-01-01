@@ -1,18 +1,20 @@
 import { apiService } from "@/api/api_service/apiService";
 import { endpoints } from "@/api/endpoints";
 
-export const getABMeta = async () => {
+export const exportApplicantContactInfo = async (filters) => {
   try {
     const apiResponse = await apiService({
-      endpoint: `${endpoints.taskMeta}`,
-      method: "GET",
+      endpoint: endpoints.applicantContactInfo,
+      method: "POST",
+      data: filters,
       headers: {
         "Content-Type": "application/json",
       },
     });
+
     return apiResponse;
   } catch (error) {
-    console.error("Error fetching Employment meta:", error);
+    console.error("Error exporting applicant contact information:", error);
     throw error;
   }
 };
