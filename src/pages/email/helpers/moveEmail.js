@@ -1,14 +1,13 @@
 import { apiService } from "@/api/api_service/apiService";
 import { endpoints } from "@/api/endpoints";
 
-export const moveEmail = async (emailId, folder) => {
+export const moveEmail = async (data) => {
   try {
     const apiResponse = await apiService({
-      endpoint: endpoints.moveEmail,
+      endpoint: `${endpoints.moveEmail}/${data.emailId}`,
       method: "POST",
       data: {
-        email_id: emailId,
-        folder: folder,
+        file_no: data.fileNo,
       },
     });
     return apiResponse;

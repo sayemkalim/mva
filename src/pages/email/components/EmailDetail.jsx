@@ -7,6 +7,7 @@ import {
   Trash2,
   Reply,
   Paperclip,
+  Move,
 } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
@@ -19,7 +20,10 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { useState } from "react";
+import ComposeEmail from "./ComposeEmail";
 
 const safeFormat = (dateStr, formatStr) => {
   if (!dateStr) return "-";
@@ -27,7 +31,7 @@ const safeFormat = (dateStr, formatStr) => {
   return isValid(dateObj) ? format(dateObj, formatStr) : "-";
 };
 
-const EmailDetail = ({ email, onBack, onDelete, onMove }) => {
+const EmailDetail = ({ email, onBack, onDelete, onMove, onReply, accounts, defaultAccount }) => {
   const queryClient = useQueryClient();
   const emailId = email?.id;
 
@@ -38,9 +42,44 @@ const EmailDetail = ({ email, onBack, onDelete, onMove }) => {
     initialData: email,
   });
 
+  const [isTrashDialogOpen, setIsTrashDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [isMoveDialogOpen, setIsMoveDialogOpen] = useState(false);
+  const [fileNo, setFileNo] = useState("");
+  const [isReplying, setIsReplying] = useState(false);
+  const [replyInitialData, setReplyInitialData] = useState(null);
 
   const emailDetail = emailData?.response?.data || emailData || email;
+
+  const handleReply = () => {
+    if (!emailDetail) return;
+
+    const parseEmails = (str) => {
+      if (!str) return [];
+      try {
+        if (typeof str === "string" && str.startsWith("[")) {
+          return JSON.parse(str);
+        }
+        if (Array.isArray(str)) return str;
+        return str.split(",").map(e => e.trim()).filter(Boolean);
+      } catch (e) {
+        return [str];
+      }
+    };
+
+    const fromEmail = emailDetail.from || emailDetail.sender;
+    const toEmails = parseEmails(emailDetail.to);
+    const ccEmails = parseEmails(emailDetail.cc);
+
+    setReplyInitialData({
+      to: [fromEmail],
+      cc: [...new Set([...toEmails.filter(e => e !== fromEmail), ...ccEmails])],
+      bcc: parseEmails(emailDetail.bcc),
+      subject: emailDetail.subject?.trim().toLowerCase().startsWith("re:") ? emailDetail.subject : `Re: ${emailDetail.subject}`,
+      body: ``,
+    });
+    setIsReplying(true);
+  };
 
   const deleteMutation = useMutation({
     mutationFn: deleteEmail,
@@ -66,7 +105,7 @@ const EmailDetail = ({ email, onBack, onDelete, onMove }) => {
   });
 
   const moveMutation = useMutation({
-    mutationFn: ({ emailId, folder }) => moveEmail(emailId, folder),
+    mutationFn: (data) => moveEmail(data),
     onSuccess: () => {
       toast.success("Email moved successfully");
       queryClient.invalidateQueries(["emails"]);
@@ -82,11 +121,31 @@ const EmailDetail = ({ email, onBack, onDelete, onMove }) => {
   };
 
   const handleTrash = () => {
-    trashMutation.mutate(emailDetail.id);
+    setIsTrashDialogOpen(true);
   };
 
-  const handleMove = (folder) => {
-    moveMutation.mutate({ emailId: emailDetail.id, folder });
+  const confirmTrash = () => {
+    trashMutation.mutate(emailDetail.id);
+    setIsTrashDialogOpen(false);
+  };
+
+  const handleMove = () => {
+    setIsMoveDialogOpen(true);
+  };
+
+  const confirmMove = () => {
+    if (!fileNo.trim()) {
+      toast.error("Please enter a File Number");
+      return;
+    }
+    const parsedFileNo = isNaN(Number(fileNo)) ? fileNo : Number(fileNo);
+    const emailId = emailDetail.id;
+    moveMutation.mutate({
+      fileNo: parsedFileNo,
+      emailId: emailId,
+    });
+    setIsMoveDialogOpen(false);
+    setFileNo("");
   };
 
   if (isLoading && !emailDetail) {
@@ -113,9 +172,17 @@ const EmailDetail = ({ email, onBack, onDelete, onMove }) => {
               variant="ghost"
               size="icon"
               onClick={handleTrash}
-              disabled={trashMutation.isPending}
+              disabled={trashMutation.isPending || deleteMutation.isPending}
             >
               <Trash2 className="size-4" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={handleMove}
+              disabled={trashMutation.isPending || deleteMutation.isPending || moveMutation.isPending}
+            >
+              <Move className="size-4" />
             </Button>
           </div>
         </div>
@@ -157,7 +224,7 @@ const EmailDetail = ({ email, onBack, onDelete, onMove }) => {
       </div>
 
       <div className="border-b border-border bg-card px-4 py-2 flex items-center gap-2">
-        <Button variant="ghost" size="sm">
+        <Button variant="ghost" size="sm" onClick={handleReply}>
           <Reply className="size-4 mr-2" />
           Reply
         </Button>
@@ -186,14 +253,71 @@ const EmailDetail = ({ email, onBack, onDelete, onMove }) => {
       )}
 
       {/* Body */}
-      <div className="flex-1 overflow-y-auto p-6">
+      <div className="flex-1 overflow-y-auto p-6 flex flex-col">
         <div
-          className="prose prose-sm max-w-none dark:prose-invert"
+          className="prose prose-sm max-w-none dark:prose-invert flex-1"
           dangerouslySetInnerHTML={{
             __html: emailDetail.body || emailDetail.content || emailDetail.text || "<p>No content</p>",
           }}
         />
+
+        {isReplying && (
+          <div className="mt-8 border-t border-border pt-4">
+            <div className="flex items-center gap-2 mb-4 text-sm text-muted-foreground px-4">
+              <Reply className="size-4" />
+              <span>Replying to {emailDetail.from || emailDetail.sender}</span>
+            </div>
+            <ComposeEmail
+              variant="inline"
+              open={isReplying}
+              onClose={() => setIsReplying(false)}
+              initialData={replyInitialData}
+              accounts={accounts}
+              defaultAccount={defaultAccount}
+              onSuccess={() => {
+                setIsReplying(false);
+                queryClient.invalidateQueries(["emails"]);
+              }}
+            />
+          </div>
+        )}
       </div>
+
+      <div className="px-6 py-4 border-t border-border bg-card">
+        {!isReplying && (
+          <Button variant="outline" className="gap-2" onClick={handleReply}>
+            <Reply className="size-4" />
+            Reply
+          </Button>
+        )}
+      </div>
+      <Dialog open={isTrashDialogOpen} onOpenChange={setIsTrashDialogOpen}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Move to Trash</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to move {emailDetail?.subject ? `"${emailDetail.subject}"` : "this email"} to trash? This action can be undone from the trash folder.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="mt-4">
+            <Button
+              variant="outline"
+              onClick={() => setIsTrashDialogOpen(false)}
+              disabled={trashMutation.isPending}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={confirmTrash}
+              disabled={trashMutation.isPending}
+            >
+              {trashMutation.isPending ? "Moving..." : "Move to Trash"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
       <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
@@ -216,6 +340,45 @@ const EmailDetail = ({ email, onBack, onDelete, onMove }) => {
               disabled={deleteMutation.isPending}
             >
               {deleteMutation.isPending ? "Deleting..." : "Delete Permanently"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+      <Dialog open={isMoveDialogOpen} onOpenChange={setIsMoveDialogOpen}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Move Email</DialogTitle>
+            <DialogDescription>
+              Enter the File Number where you want to move this email.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <div className="grid gap-2">
+              <Label htmlFor="file_no">File Number</Label>
+              <Input
+                id="file_no"
+                placeholder="Enter file number..."
+                value={fileNo}
+                onChange={(e) => setFileNo(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") confirmMove();
+                }}
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setIsMoveDialogOpen(false)}
+              disabled={moveMutation.isPending}
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={confirmMove}
+              disabled={moveMutation.isPending}
+            >
+              {moveMutation.isPending ? "Moving..." : "Move"}
             </Button>
           </DialogFooter>
         </DialogContent>

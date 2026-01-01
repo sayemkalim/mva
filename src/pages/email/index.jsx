@@ -13,6 +13,7 @@ const Email = () => {
   const [selectedFolder, setSelectedFolder] = useState("inbox");
   const [selectedEmail, setSelectedEmail] = useState(null);
   const [isComposeOpen, setIsComposeOpen] = useState(false);
+  const [composeInitialData, setComposeInitialData] = useState(null);
   const [selectedAccount, setSelectedAccount] = useState(null);
 
   const { data: accountsData } = useQuery({
@@ -81,7 +82,10 @@ const Email = () => {
             setSelectedFolder(folder);
             setSelectedEmail(null);
           }}
-          onCompose={() => setIsComposeOpen(true)}
+          onCompose={() => {
+            setComposeInitialData(null);
+            setIsComposeOpen(true);
+          }}
         />
 
         <div className="flex-1 flex flex-col overflow-hidden bg-background">
@@ -100,6 +104,12 @@ const Email = () => {
                     setSelectedEmail(null);
                   }
                 }}
+                onReply={(data) => {
+                  setComposeInitialData(data);
+                  setIsComposeOpen(true);
+                }}
+                accounts={accounts}
+                defaultAccount={selectedAccount}
               />
             ) : (
               <EmailList
@@ -118,9 +128,13 @@ const Email = () => {
       {isComposeOpen && (
         <ComposeEmail
           open={isComposeOpen}
-          onClose={() => setIsComposeOpen(false)}
+          onClose={() => {
+            setIsComposeOpen(false);
+            setComposeInitialData(null);
+          }}
           accounts={accounts}
           defaultAccount={selectedAccount}
+          initialData={composeInitialData}
           onSuccess={() => {
             queryClient.invalidateQueries(["emails", "sent"]);
             queryClient.invalidateQueries(["emails", "draft"]);
