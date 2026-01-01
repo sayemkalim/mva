@@ -138,9 +138,6 @@ const EmailHeader = ({
           queryClient.invalidateQueries(["emailAccounts"]);
           queryClient.invalidateQueries(["defaultAccount"]);
         }}
-        onDefaultChanged={() => {
-          queryClient.invalidateQueries(["defaultAccount"]);
-        }}
         onAccountDeleted={() => {
           queryClient.invalidateQueries(["emailAccounts"]);
           queryClient.invalidateQueries(["defaultAccount"]);

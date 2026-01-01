@@ -273,6 +273,6 @@ export const endpoints = {
   trashEmail: "api/v2/email/trash",
   trashList: "api/v2/email/folder/trash",
   threadView: "api/v2/email/thread",
-  unlinkAccount: "api/v2/email/unlink",
+  unlinkAccount: "api/v2/email/accounts",
   showEmail: "api/v2/email/show",
 };

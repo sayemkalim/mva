@@ -11,6 +11,6 @@ export { moveEmail } from "./moveEmail";
 export { trashEmail } from "./trashEmail";
 export { fetchThreadView } from "./fetchThreadView";
 export { unlinkAccount } from "./unlinkAccount";
-export { setDefaultAccount } from "./setDefaultAccount";
+
 export { createEmail } from "./createEmail";
 

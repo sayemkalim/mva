@@ -24,10 +24,9 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { CheckCircle2, Trash2, Plus, X, ChevronDown, ChevronUp } from "lucide-react";
+import { Trash2, Plus, X, ChevronDown, ChevronUp } from "lucide-react";
 import {
   createAccount,
-  setDefaultAccount,
   unlinkAccount,
 } from "../helpers";
 import { toast } from "sonner";
@@ -39,7 +38,6 @@ const AccountManagement = ({
   accounts: accountsProp,
   defaultAccount,
   onAccountAdded,
-  onDefaultChanged,
   onAccountDeleted,
 }) => {
   const accounts = Array.isArray(accountsProp) ? accountsProp : [];
@@ -83,17 +81,6 @@ const AccountManagement = ({
     },
   });
 
-  const setDefaultMutation = useMutation({
-    mutationFn: setDefaultAccount,
-    onSuccess: () => {
-      toast.success("Default account updated");
-      queryClient.invalidateQueries(["defaultAccount"]);
-      onDefaultChanged?.();
-    },
-    onError: () => {
-      toast.error("Failed to set default account");
-    },
-  });
 
   const unlinkMutation = useMutation({
     mutationFn: unlinkAccount,
@@ -136,9 +123,6 @@ const AccountManagement = ({
     createMutation.mutate(payload);
   };
 
-  const handleSetDefault = (accountId) => {
-    setDefaultMutation.mutate(accountId);
-  };
 
   const handleDeleteClick = (account) => {
     setAccountToDelete(account);
@@ -408,14 +392,13 @@ const AccountManagement = ({
                     <TableHead>Email</TableHead>
                     <TableHead>IMAP Host</TableHead>
                     <TableHead>SMTP Host</TableHead>
-                    <TableHead>Status</TableHead>
                     <TableHead className="text-right">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {accounts.length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={5} className="text-center py-8">
+                      <TableCell colSpan={4} className="text-center py-8">
                         No accounts added yet
                       </TableCell>
                     </TableRow>
@@ -431,23 +414,7 @@ const AccountManagement = ({
                         <TableCell className="text-sm text-muted-foreground">
                           {account.smtp_host || "-"}
                         </TableCell>
-                        <TableCell>
-                          {defaultAccount?.id === account.id ? (
-                            <div className="flex items-center gap-2 text-primary">
-                              <CheckCircle2 className="size-4" />
-                              <span className="text-sm">Default</span>
-                            </div>
-                          ) : (
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => handleSetDefault(account.id)}
-                              disabled={setDefaultMutation.isPending}
-                            >
-                              Set as Default
-                            </Button>
-                          )}
-                        </TableCell>
+
                         <TableCell className="text-right">
                           <Button
                             variant="ghost"
