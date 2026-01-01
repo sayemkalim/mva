@@ -229,6 +229,13 @@ export const data = {
       items: [],
     },
     {
+      title: "Emails",
+      url: "/dashboard/email",
+      icon: Mail,
+      isActive: false,
+      items: [],
+    },
+    {
       title: "Reports",
       url: "/dashboard/report",
       icon: FileChartColumn,

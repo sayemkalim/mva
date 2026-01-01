@@ -151,7 +151,66 @@
   * {
     @apply border-border outline-ring/50;
   }
+
   body {
     @apply bg-background text-foreground;
   }
+}
+
+.jodit-container {
+  border: 1px solid var(--border) !important;
+  border-radius: var(--radius) !important;
+  background: var(--card) !important;
+}
+
+.jodit-toolbar {
+  background: var(--muted) !important;
+  border-bottom: 1px solid var(--border) !important;
+}
+
+.jodit-toolbar__box {
+  background: var(--muted) !important;
+}
+
+.jodit-wysiwyg {
+  background: var(--card) !important;
+  color: var(--foreground) !important;
+  padding: 1rem !important;
+}
+
+.jodit-status-bar {
+  background: var(--muted) !important;
+  border-top: 1px solid var(--border) !important;
+  color: var(--muted-foreground) !important;
+}
+
+.jodit-toolbar-button__button {
+  color: var(--foreground) !important;
+}
+
+.jodit-toolbar-button__icon {
+  fill: var(--foreground) !important;
+}
+
+.jodit-toolbar-button:hover {
+  background: var(--accent) !important;
+}
+
+.jodit-placeholder {
+  color: var(--muted-foreground) !important;
+  padding: 1rem !important;
+}
+
+.dark .jodit-toolbar-button__icon {
+  filter: invert(0) !important;
+  /* Jodit icons are sometimes weird */
+}
+
+.jodit-ui-group__list {
+  background: var(--popover) !important;
+  border: 1px solid var(--border) !important;
+}
+
+.jodit-ui-button {
+  color: var(--foreground) !important;
 }

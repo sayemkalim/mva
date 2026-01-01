@@ -286,4 +286,13 @@ export const endpoints = {
   policeStationsExport: "api/v2/export/export-list-of-police-stations",
   vsrMeta: "api/v2/export/vsr",
   vsrExport: "api/v2/export/export-vsr",
+  accounts: "api/v2/email/accounts",
+  defaultAccount: "api/v2/email/default",
+  deleteEmail: "api/v2/email/delete",
+  moveEmail: "api/v2/email/move",
+  trashEmail: "api/v2/email/trash",
+  trashList: "api/v2/email/folder/trash",
+  threadView: "api/v2/email/thread",
+  unlinkAccount: "api/v2/email/accounts",
+  showEmail: "api/v2/email/show",
 };
