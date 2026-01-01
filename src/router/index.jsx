@@ -109,6 +109,21 @@ import MvaPage from "@/pages/mva-prod/components/mva-prod_editor";
 import PsychologicalPage from "@/pages/psychological/components/psychological_editor";
 import Psychological from "@/pages/psychological";
 import ReportPage from "@/pages/report";
+import Draft from "@/pages/email/draft_editor";
+import ExportApplicantInfo from "@/pages/generate_report/applicant_information";
+import ExportFileAssignedInfo from "@/pages/generate_report/assigned_file_info";
+import ExportListOfFiles from "@/pages/generate_report/list_of_files";
+import ExportApplicantContactInfo from "@/pages/generate_report/applicant_contact_information";
+import ExportApplicantAccidentDetail from "@/pages/generate_report/applicant_accident_detail";
+import ExportMvaCasesByMedicalCentre from "@/pages/generate_report/mva_cases_by_medical_centre";
+import ExportVehicleOwnershipInfo from "@/pages/generate_report/vehicle_ownership_information";
+import ExportLatFiles from "@/pages/generate_report/lat_files";
+import ExportSectionRequest from "@/pages/generate_report/section_request";
+import ExportS258Request from "@/pages/generate_report/s258_request";
+import ExportOpposingCounsel from "@/pages/generate_report/opposing_counsel";
+import ExportAdjustersOnFiles from "@/pages/generate_report/adjusters_on_files";
+import ExportListOfPoliceStations from "@/pages/generate_report/list_of_police_stations";
+import ExportVsrExamination from "@/pages/generate_report/vsr_examination";
 import Email from "@/pages/email";
 
 const Router = () => {
@@ -552,6 +567,62 @@ const Router = () => {
             element={<InternalCalendar />}
           />
           <Route path="/dashboard/report" element={<ReportPage />} />
+          <Route
+            path="/dashboard/export-applicant-information"
+            element={<ExportApplicantInfo />}
+          />
+          <Route
+            path="/dashboard/export-file-assigned-info"
+            element={<ExportFileAssignedInfo />}
+          />
+          <Route
+            path="/dashboard/export-list-of-files"
+            element={<ExportListOfFiles />}
+          />
+          <Route
+            path="/dashboard/export-applicant-contact-information"
+            element={<ExportApplicantContactInfo />}
+          />
+          <Route
+            path="/dashboard/export-applicant-accident-detail"
+            element={<ExportApplicantAccidentDetail />}
+          />
+          <Route
+            path="/dashboard/export-mva-cases-by-medical-centre"
+            element={<ExportMvaCasesByMedicalCentre />}
+          />
+          <Route
+            path="/dashboard/export-vehicle-ownership-information"
+            element={<ExportVehicleOwnershipInfo />}
+          />
+          <Route
+            path="/dashboard/export-lat-files"
+            element={<ExportLatFiles />}
+          />
+          <Route
+            path="/dashboard/export-s33-request"
+            element={<ExportSectionRequest />}
+          />
+          <Route
+            path="/dashboard/export-s258-request"
+            element={<ExportS258Request />}
+          />
+          <Route
+            path="/dashboard/export-opposing-counsel"
+            element={<ExportOpposingCounsel />}
+          />
+          <Route
+            path="/dashboard/export-adjusters-on-files"
+            element={<ExportAdjustersOnFiles />}
+          />
+          <Route
+            path="/dashboard/export-list-of-police-stations"
+            element={<ExportListOfPoliceStations />}
+          />
+          <Route
+            path="/dashboard/export-vsr-examination"
+            element={<ExportVsrExamination />}
+          />
         </Route>
       </Route>
       <Route path="*" element={<ErrorPage />} />
