@@ -292,6 +292,8 @@ export const endpoints = {
   deleteEmail: "api/v2/email/delete",
   moveEmail: "api/v2/email/move",
   trashEmail: "api/v2/email/trash",
+  starredEmail: "api/v2/emails/starred",
+  starEmail: "api/v2/email",
   trashList: "api/v2/email/folder/trash",
   threadView: "api/v2/email/thread",
   unlinkAccount: "api/v2/email/accounts",

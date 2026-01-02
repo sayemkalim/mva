@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { fetchEmailById, fetchThreadView, deleteEmail, moveEmail, trashEmail } from "../helpers";
+import { fetchEmailById, fetchThreadView, deleteEmail, moveEmail, trashEmail, starEmail } from "../helpers";
 import { format, isValid } from "date-fns";
 import { Button } from "@/components/ui/button";
 import {
@@ -8,6 +8,7 @@ import {
   Reply,
   Paperclip,
   Move,
+  Star,
 } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
@@ -24,6 +25,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useState } from "react";
 import ComposeEmail from "./ComposeEmail";
+import { cn } from "@/lib/utils";
 
 const safeFormat = (dateStr, formatStr) => {
   if (!dateStr) return "-";
@@ -116,6 +118,23 @@ const EmailDetail = ({ email, onBack, onDelete, onMove, onReply, accounts, defau
       toast.error("Failed to move email");
     },
   });
+
+  const starMutation = useMutation({
+    mutationFn: (emailId) => starEmail(emailId),
+    onSuccess: () => {
+      queryClient.invalidateQueries(["emails"]);
+      queryClient.invalidateQueries(["email", emailId]);
+      toast.success("Updated star status");
+    },
+    onError: (error) => {
+      console.error("Error starring email:", error);
+      toast.error("Failed to update star status");
+    },
+  });
+
+  const handleStarEmail = () => {
+    starMutation.mutate(emailDetail.id);
+  };
   const confirmDelete = () => {
     deleteMutation.mutate(emailDetail.id);
     setIsDeleteDialogOpen(false);
@@ -169,6 +188,17 @@ const EmailDetail = ({ email, onBack, onDelete, onMove, onReply, accounts, defau
             <ArrowLeft className="size-4" />
           </Button>
           <div className="flex items-center gap-2">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={handleStarEmail}
+              disabled={starMutation.isPending}
+            >
+              <Star className={cn(
+                "size-4",
+                emailDetail.is_starred ? "fill-yellow-400 text-yellow-400" : "text-muted-foreground hover:text-yellow-400"
+              )} />
+            </Button>
             <Button
               variant="ghost"
               size="icon"

@@ -9,6 +9,7 @@ export { createAccount } from "./createAccount";
 export { deleteEmail } from "./deleteEmail";
 export { moveEmail } from "./moveEmail";
 export { trashEmail } from "./trashEmail";
+export { starEmail } from "./starEmail";
 export { fetchThreadView } from "./fetchThreadView";
 export { unlinkAccount } from "./unlinkAccount";
 

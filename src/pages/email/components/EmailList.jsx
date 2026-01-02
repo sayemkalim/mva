@@ -1,10 +1,10 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { fetchInbox, fetchSent, fetchDraft, fetchTrash, trashEmail } from "../helpers";
+import { fetchInbox, fetchSent, fetchDraft, fetchTrash, trashEmail, starEmail } from "../helpers";
 import { formatDistanceToNow, isValid } from "date-fns";
 import { Skeleton } from "@/components/ui/skeleton";
 
 import { Button } from "@/components/ui/button";
-import { Mail, Paperclip, RefreshCw, MoreVertical, Trash2 } from "lucide-react";
+import { Mail, Paperclip, RefreshCw, MoreVertical, Trash2, Star } from "lucide-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
@@ -17,6 +17,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { fetchStarred } from "../helpers/fetchStarred";
 
 const formatRelativeTime = (dateStr) => {
   if (!dateStr) return "-";
@@ -71,6 +72,8 @@ const EmailList = ({ folder, accountId, onEmailSelect, onRefresh }) => {
         return fetchDraft;
       case "trash":
         return fetchTrash;
+      case "starred":
+        return fetchStarred;
       default:
         return fetchInbox;
     }
@@ -108,6 +111,23 @@ const EmailList = ({ folder, accountId, onEmailSelect, onRefresh }) => {
       toast.error("Failed to delete email");
     },
   });
+
+  const starMutation = useMutation({
+    mutationFn: (emailId) => starEmail(emailId),
+    onSuccess: () => {
+      queryClient.invalidateQueries(["emails", folder, accountId]);
+      toast.success("Email updated");
+    },
+    onError: (error) => {
+      console.error("Error starring email:", error);
+      toast.error("Failed to update star status");
+    },
+  });
+
+  const handleStarEmail = (e, email) => {
+    e.stopPropagation();
+    starMutation.mutate(email.id);
+  };
 
   const handleDeleteEmail = (e, email) => {
     e.stopPropagation();
@@ -271,16 +291,30 @@ const EmailList = ({ folder, accountId, onEmailSelect, onRefresh }) => {
                   })()}
                 </div>
 
-                {/* Delete Button */}
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="size-8 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity"
-                  onClick={(e) => handleDeleteEmail(e, email)}
-                  disabled={deleteMutation.isPending}
-                >
-                  <Trash2 className="size-4 text-muted-foreground hover:text-destructive" />
-                </Button>
+                {/* Action Buttons */}
+                <div className="flex items-center gap-1 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="size-8"
+                    onClick={(e) => handleStarEmail(e, email)}
+                    disabled={starMutation.isPending}
+                  >
+                    <Star className={cn(
+                      "size-4",
+                      email.is_starred ? "fill-yellow-400 text-yellow-400" : "text-muted-foreground hover:text-yellow-400"
+                    )} />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="size-8"
+                    onClick={(e) => handleDeleteEmail(e, email)}
+                    disabled={deleteMutation.isPending}
+                  >
+                    <Trash2 className="size-4 text-muted-foreground hover:text-destructive" />
+                  </Button>
+                </div>
               </div>
             );
           })}
