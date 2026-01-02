@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Checkbox } from "@/components/ui/checkbox";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   Dialog,
@@ -44,13 +45,14 @@ const AccountManagement = ({
   const queryClient = useQueryClient();
   const [isAddingAccount, setIsAddingAccount] = useState(false);
   const [showAdvanced, setShowAdvanced] = useState(false);
+  const [isDefaultConfig, setIsDefaultConfig] = useState(true);
   const [formData, setFormData] = useState({
     email: "",
     password: "",
-    imap_host: "",
+    imap_host: "mail.ratetrade.in",
     imap_port: 993,
     imap_encryption: "ssl",
-    smtp_host: "",
+    smtp_host: "mail.ratetrade.in",
     smtp_port: 587,
     smtp_encryption: "tls",
   });
@@ -65,13 +67,14 @@ const AccountManagement = ({
       onAccountAdded?.();
       setIsAddingAccount(false);
       setShowAdvanced(false);
+      setIsDefaultConfig(true);
       setFormData({
         email: "",
         password: "",
-        imap_host: "",
+        imap_host: "mail.ratetrade.in",
         imap_port: 993,
         imap_encryption: "ssl",
-        smtp_host: "",
+        smtp_host: "mail.ratetrade.in",
         smtp_port: 587,
         smtp_encryption: "tls",
       });
@@ -136,13 +139,14 @@ const AccountManagement = ({
   };
 
   const resetForm = () => {
+    setIsDefaultConfig(true);
     setFormData({
       email: "",
       password: "",
-      imap_host: "",
+      imap_host: "mail.ratetrade.in",
       imap_port: 993,
       imap_encryption: "ssl",
-      smtp_host: "",
+      smtp_host: "mail.ratetrade.in",
       smtp_port: 587,
       smtp_encryption: "tls",
     });
@@ -212,6 +216,29 @@ const AccountManagement = ({
                       />
                     </div>
                   </div>
+                  <div className="flex items-center space-x-2">
+                    <Checkbox
+                      id="default-config"
+                      checked={isDefaultConfig}
+                      onCheckedChange={(checked) => {
+                        setIsDefaultConfig(checked);
+                        if (checked) {
+                          setFormData((prev) => ({
+                            ...prev,
+                            imap_host: "mail.ratetrade.in",
+                            smtp_host: "mail.ratetrade.in",
+                          }));
+                        }
+                      }}
+                    />
+                    <Label
+                      htmlFor="default-config"
+                      className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                    >
+                      Default Configuration (mail.ratetrade.in)
+                    </Label>
+                  </div>
+
                   <div>
                     <button
                       type="button"
@@ -252,6 +279,7 @@ const AccountManagement = ({
                               }
                               placeholder="mail.example.com"
                               required
+                              disabled={isDefaultConfig}
                             />
                           </div>
                           <div>
@@ -311,6 +339,7 @@ const AccountManagement = ({
                               }
                               placeholder="mail.example.com"
                               required
+                              disabled={isDefaultConfig}
                             />
                           </div>
                           <div>

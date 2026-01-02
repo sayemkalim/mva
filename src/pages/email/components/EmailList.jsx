@@ -185,21 +185,29 @@ const EmailList = ({ folder, accountId, onEmailSelect, onRefresh }) => {
       <div className="flex-1 overflow-y-auto">
         <div className="divide-y divide-border">
           {emails.map((email) => {
-            const isUnread = folder === "inbox" && !email.read;
+            const isUnread = email.is_read === false;
             return (
               <div
                 key={email.id}
                 onClick={() => handleEmailClick(email)}
                 className={cn(
-                  "flex items-start gap-3 px-4 py-3 cursor-pointer transition-colors group",
+                  "flex items-start gap-3 px-4 py-3 cursor-pointer transition-colors group relative",
                   isUnread
-                    ? "bg-primary/5 hover:bg-primary/10"
+                    ? "bg-blue-50/40 hover:bg-blue-50/60"
                     : "hover:bg-accent/50"
                 )}
               >
+                {/* Unread Indicator Bar */}
+                {isUnread && (
+                  <div className="absolute left-0 top-0 bottom-0 w-[3px] bg-blue-500" />
+                )}
+
                 {/* Avatar */}
                 <Avatar className="size-10 shrink-0">
-                  <AvatarFallback className="bg-primary/10 text-primary text-sm font-medium">
+                  <AvatarFallback className={cn(
+                    "text-sm font-medium",
+                    isUnread ? "bg-blue-50 text-blue-500" : "bg-primary/10 text-primary"
+                  )}>
                     {getInitials(
                       folder === "sent"
                         ? email.to || email.recipient
@@ -211,10 +219,11 @@ const EmailList = ({ folder, accountId, onEmailSelect, onRefresh }) => {
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center justify-between gap-2 mb-1">
                     <div className="flex items-center gap-2 min-w-0 flex-1">
+                      {isUnread && <div className="size-2 rounded-full bg-blue-500 shrink-0" />}
                       <span
                         className={cn(
                           "text-sm truncate",
-                          isUnread ? "font-semibold" : "font-normal"
+                          isUnread ? "font-semibold text-foreground" : "font-medium text-muted-foreground/80"
                         )}
                       >
                         {parseAddress(
@@ -224,7 +233,10 @@ const EmailList = ({ folder, accountId, onEmailSelect, onRefresh }) => {
                         )}
                       </span>
                     </div>
-                    <span className="text-xs text-muted-foreground shrink-0">
+                    <span className={cn(
+                      "text-xs shrink-0",
+                      isUnread ? "font-medium text-blue-500" : "text-muted-foreground"
+                    )}>
                       {formatRelativeTime(email.created_at)}
                     </span>
                   </div>
