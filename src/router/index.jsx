@@ -109,7 +109,6 @@ import MvaPage from "@/pages/mva-prod/components/mva-prod_editor";
 import PsychologicalPage from "@/pages/psychological/components/psychological_editor";
 import Psychological from "@/pages/psychological";
 import ReportPage from "@/pages/report";
-import Draft from "@/pages/email/draft_editor";
 import ExportApplicantInfo from "@/pages/generate_report/applicant_information";
 import ExportFileAssignedInfo from "@/pages/generate_report/assigned_file_info";
 import ExportListOfFiles from "@/pages/generate_report/list_of_files";

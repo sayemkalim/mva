@@ -265,6 +265,7 @@ export const endpoints = {
   sent: "api/v2/email/folder/sent",
   email: "api/v2/email",
   draft: "api/v2/email/folder/draft",
+  saveDraft: "api/v2/email/draft",
   createEmail: "api/v2/email/send",
   exportApplicantMeta: "api/v2/export/applicant-information",
   exportApplicantInfo: "api/v2/export/export-applicant-information",

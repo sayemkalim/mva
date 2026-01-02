@@ -258,7 +258,7 @@ const EmailDetail = ({ email, onBack, onDelete, onMove, onReply, accounts, defau
         <div
           className="prose prose-sm max-w-none dark:prose-invert flex-1"
           dangerouslySetInnerHTML={{
-            __html: emailDetail.body || emailDetail.content || emailDetail.text || "<p>No content</p>",
+            __html: emailDetail.body || emailDetail.content || emailDetail.text || "",
           }}
         />
 

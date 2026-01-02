@@ -13,4 +13,5 @@ export { fetchThreadView } from "./fetchThreadView";
 export { unlinkAccount } from "./unlinkAccount";
 
 export { createEmail } from "./createEmail";
+export { saveDraft } from "./saveDraft";
 
