@@ -60,6 +60,9 @@ export const saveDraft = async (emailData) => {
                 formData.append("attachments[]", file);
             });
         }
+        if (emailData.draft_id) {
+            formData.append("draft_id", emailData.draft_id);
+        }
 
         const apiResponse = await apiService({
             endpoint: endpoints.saveDraft,
