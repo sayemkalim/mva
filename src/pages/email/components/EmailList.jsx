@@ -1,13 +1,13 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { fetchInbox, fetchSent, fetchDraft, fetchTrash, trashEmail } from "../helpers";
+import { fetchInbox, fetchSent, fetchDraft, fetchTrash, trashEmail, starEmail } from "../helpers";
 import { formatDistanceToNow, isValid } from "date-fns";
 import { Skeleton } from "@/components/ui/skeleton";
 
 import { Button } from "@/components/ui/button";
-import { Mail, Paperclip, RefreshCw, MoreVertical, Trash2 } from "lucide-react";
+import { Mail, Paperclip, RefreshCw, MoreVertical, Trash2, Star, ChevronLeft, ChevronRight } from "lucide-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import {
   Dialog,
@@ -17,6 +17,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { fetchStarred } from "../helpers/fetchStarred";
 
 const formatRelativeTime = (dateStr) => {
   if (!dateStr) return "-";
@@ -60,6 +61,12 @@ const getInitials = (name) => {
 const EmailList = ({ folder, accountId, onEmailSelect, onRefresh }) => {
   const queryClient = useQueryClient();
   const [emailToDelete, setEmailToDelete] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+
+  // Reset page when folder or accountId changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [folder, accountId]);
 
   const getFetchFunction = () => {
     switch (folder) {
@@ -71,15 +78,18 @@ const EmailList = ({ folder, accountId, onEmailSelect, onRefresh }) => {
         return fetchDraft;
       case "trash":
         return fetchTrash;
+      case "starred":
+        return fetchStarred;
       default:
         return fetchInbox;
     }
   };
 
-  const { data, isLoading, error, refetch } = useQuery({
-    queryKey: ["emails", folder, accountId],
-    queryFn: () => getFetchFunction()(1),
+  const { data, isLoading, error, refetch, isPlaceholderData } = useQuery({
+    queryKey: ["emails", folder, accountId, currentPage],
+    queryFn: () => getFetchFunction()(currentPage),
     enabled: !!accountId && !!folder,
+    placeholderData: (previousData) => previousData,
   });
   const emails = Array.isArray(data?.response?.emails)
     ? data.response.emails
@@ -109,6 +119,23 @@ const EmailList = ({ folder, accountId, onEmailSelect, onRefresh }) => {
     },
   });
 
+  const starMutation = useMutation({
+    mutationFn: (emailId) => starEmail(emailId),
+    onSuccess: () => {
+      queryClient.invalidateQueries(["emails", folder, accountId]);
+      toast.success("Email updated");
+    },
+    onError: (error) => {
+      console.error("Error starring email:", error);
+      toast.error("Failed to update star status");
+    },
+  });
+
+  const handleStarEmail = (e, email) => {
+    e.stopPropagation();
+    starMutation.mutate(email.id);
+  };
+
   const handleDeleteEmail = (e, email) => {
     e.stopPropagation();
     setEmailToDelete(email);
@@ -126,63 +153,46 @@ const EmailList = ({ folder, accountId, onEmailSelect, onRefresh }) => {
     onRefresh?.();
   };
 
-  if (isLoading) {
+  // Main rendering logic
+  const renderContent = () => {
+    if (isLoading && !isPlaceholderData) {
+      return (
+        <div className="flex-1 overflow-y-auto bg-background">
+          <div className="p-4 space-y-2">
+            {[...Array(10)].map((_, i) => (
+              <Skeleton key={i} className="h-20 w-full" />
+            ))}
+          </div>
+        </div>
+      );
+    }
+
+    if (error) {
+      return (
+        <div className="flex-1 flex items-center justify-center bg-background">
+          <div className="text-center">
+            <p className="text-destructive mb-2">Error loading emails</p>
+            <Button onClick={handleRefresh} variant="outline" size="sm">
+              Retry
+            </Button>
+          </div>
+        </div>
+      );
+    }
+
+    if (emails.length === 0) {
+      return (
+        <div className="flex-1 flex items-center justify-center bg-background">
+          <div className="text-center">
+            <Mail className="size-16 mx-auto text-muted-foreground mb-4 opacity-50" />
+            <p className="text-muted-foreground text-lg">No emails in {folder}</p>
+          </div>
+        </div>
+      );
+    }
+
     return (
-      <div className="flex-1 overflow-y-auto bg-background">
-        <div className="p-4 space-y-2">
-          {[...Array(10)].map((_, i) => (
-            <Skeleton key={i} className="h-20 w-full" />
-          ))}
-        </div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="flex-1 flex items-center justify-center bg-background">
-        <div className="text-center">
-          <p className="text-destructive mb-2">Error loading emails</p>
-          <Button onClick={handleRefresh} variant="outline" size="sm">
-            Retry
-          </Button>
-        </div>
-      </div>
-    );
-  }
-
-  if (emails.length === 0) {
-    return (
-      <div className="flex-1 flex items-center justify-center bg-background">
-        <div className="text-center">
-          <Mail className="size-16 mx-auto text-muted-foreground mb-4 opacity-50" />
-          <p className="text-muted-foreground text-lg">No emails in {folder}</p>
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <div className="flex-1 flex flex-col overflow-hidden bg-background">
-      {/* Toolbar */}
-      <div className="sticky top-0 z-10 bg-card border-b border-border px-4 py-2 flex items-center gap-2">
-        <Button
-          variant="ghost"
-          size="icon"
-          className="size-8"
-          onClick={handleRefresh}
-        >
-          <RefreshCw className="size-4" />
-        </Button>
-        <div className="ml-auto text-sm text-muted-foreground">
-          {data?.response?.pagination
-            ? `${data.response.pagination.from}-${data.response.pagination.to} of ${data.response.pagination.total}`
-            : `1-${emails.length} of ${emails.length}`}
-        </div>
-      </div>
-
-      {/* Email List */}
-      <div className="flex-1 overflow-y-auto">
+      <div className={cn("flex-1 overflow-y-auto", isPlaceholderData && "opacity-50 pointer-events-none transition-opacity")}>
         <div className="divide-y divide-border">
           {emails.map((email) => {
             const isUnread = email.is_read === false;
@@ -271,21 +281,99 @@ const EmailList = ({ folder, accountId, onEmailSelect, onRefresh }) => {
                   })()}
                 </div>
 
-                {/* Delete Button */}
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="size-8 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity"
-                  onClick={(e) => handleDeleteEmail(e, email)}
-                  disabled={deleteMutation.isPending}
-                >
-                  <Trash2 className="size-4 text-muted-foreground hover:text-destructive" />
-                </Button>
+                {/* Action Buttons */}
+                <div className="flex items-center gap-1 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="size-8"
+                    onClick={(e) => handleStarEmail(e, email)}
+                    disabled={starMutation.isPending}
+                  >
+                    <Star className={cn(
+                      "size-4",
+                      email.is_starred ? "fill-yellow-400 text-yellow-400" : "text-muted-foreground hover:text-yellow-400"
+                    )} />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="size-8"
+                    onClick={(e) => handleDeleteEmail(e, email)}
+                    disabled={deleteMutation.isPending}
+                  >
+                    <Trash2 className="size-4 text-muted-foreground hover:text-destructive" />
+                  </Button>
+                </div>
               </div>
             );
           })}
         </div>
       </div>
+    );
+  };
+
+  return (
+    <div className="flex-1 flex flex-col overflow-hidden bg-background">
+      {/* Toolbar */}
+      <div className="sticky top-0 z-10 bg-card border-b border-border px-4 py-2 flex items-center gap-2">
+        <Button
+          variant="ghost"
+          size="icon"
+          className="size-8"
+          onClick={handleRefresh}
+        >
+          <RefreshCw className="size-4" />
+        </Button>
+        <div className="ml-auto flex items-center gap-4">
+          <div className="text-sm text-muted-foreground">
+            {(() => {
+              const pagination = data?.pagination || data?.response?.pagination;
+              if (pagination) {
+                const { current_page, per_page, total } = pagination;
+                const from = (current_page - 1) * per_page + 1;
+                const to = Math.min(current_page * per_page, total);
+                return `${from}-${to} of ${total}`;
+              }
+              return `1-${emails.length} of ${emails.length}`;
+            })()}
+          </div>
+          <div className="flex items-center gap-1">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="size-8"
+              onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
+              disabled={currentPage === 1 || isLoading}
+            >
+              <ChevronLeft className="size-4" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="size-8"
+              onClick={() => {
+                const pagination = data?.pagination || data?.response?.pagination;
+                if (pagination && currentPage < pagination.last_page) {
+                  setCurrentPage((prev) => prev + 1);
+                }
+              }}
+              disabled={
+                isLoading ||
+                (() => {
+                  const pagination = data?.pagination || data?.response?.pagination;
+                  return !pagination || currentPage >= pagination.last_page;
+                })()
+              }
+            >
+              <ChevronRight className="size-4" />
+            </Button>
+          </div>
+        </div>
+      </div>
+
+      {/* Content Area */}
+      {renderContent()}
 
       <Dialog open={!!emailToDelete} onOpenChange={(open) => !open && setEmailToDelete(null)}>
         <DialogContent className="sm:max-w-[425px]">

@@ -14,10 +14,10 @@ export const createEmail = async (emailData) => {
     // To field as array
     if (emailData.to) {
       // Support both string and array formats
-      const toArray = Array.isArray(emailData.to) 
-        ? emailData.to 
+      const toArray = Array.isArray(emailData.to)
+        ? emailData.to
         : emailData.to.split(",").map(email => email.trim()).filter(email => email);
-      
+
       toArray.forEach((email) => {
         formData.append("to[]", email);
       });
@@ -28,7 +28,7 @@ export const createEmail = async (emailData) => {
       const ccArray = Array.isArray(emailData.cc)
         ? emailData.cc
         : emailData.cc.split(",").map(email => email.trim()).filter(email => email);
-      
+
       ccArray.forEach((email) => {
         formData.append("cc[]", email);
       });
@@ -39,7 +39,7 @@ export const createEmail = async (emailData) => {
       const bccArray = Array.isArray(emailData.bcc)
         ? emailData.bcc
         : emailData.bcc.split(",").map(email => email.trim()).filter(email => email);
-      
+
       bccArray.forEach((email) => {
         formData.append("bcc[]", email);
       });
@@ -60,6 +60,11 @@ export const createEmail = async (emailData) => {
       emailData.attachments.forEach((file) => {
         formData.append("attachments[]", file);
       });
+    }
+
+    // Draft ID
+    if (emailData.draft_id) {
+      formData.append("draft_id", emailData.draft_id);
     }
 
     const apiResponse = await apiService({

@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { X, Paperclip, Send, Minimize2, Maximize2, Trash2 } from "lucide-react";
-import { createEmail } from "../helpers";
+import { createEmail, saveDraft } from "../helpers";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import {
@@ -30,30 +30,49 @@ const ComposeEmail = ({ open, onClose, accounts = [], defaultAccount, onSuccess,
   const fileInputRef = useRef(null);
   const [isMinimized, setIsMinimized] = useState(false);
   const [isMaximized, setIsMaximized] = useState(false);
+  const parseEmails = (val) => {
+    if (!val) return [];
+    if (Array.isArray(val)) return val;
+    if (typeof val === "string") {
+      if (val.startsWith("[") && val.endsWith("]")) {
+        try {
+          return JSON.parse(val);
+        } catch (e) {
+          return [val];
+        }
+      }
+      return val.split(/[,;]+/).map(e => e.trim()).filter(Boolean);
+    }
+    return [];
+  };
+
   const [formData, setFormData] = useState({
-    to: initialData?.to || [],
-    cc: initialData?.cc || [],
-    bcc: initialData?.bcc || [],
+    to: parseEmails(initialData?.to),
+    cc: parseEmails(initialData?.cc),
+    bcc: parseEmails(initialData?.bcc),
     subject: initialData?.subject || "",
     body: initialData?.body || "",
     attachments: [],
     from: initialData?.from || defaultAccount?.email || "",
+    draft_id: initialData?.id || initialData?.draft_id || null,
   });
 
   const [isSendDialogOpen, setIsSendDialogOpen] = useState(false);
+  const [isDraftDialogOpen, setIsDraftDialogOpen] = useState(false);
 
   useEffect(() => {
     if (open && initialData) {
       setFormData({
-        to: initialData.to || [],
-        cc: initialData.cc || [],
-        bcc: initialData.bcc || [],
+        to: parseEmails(initialData.to),
+        cc: parseEmails(initialData.cc),
+        bcc: parseEmails(initialData.bcc),
         subject: initialData.subject || "",
         body: initialData.body || "",
         attachments: [],
         from: initialData.from || defaultAccount?.email || "",
+        draft_id: initialData.id || initialData.draft_id || null,
       });
-      if (initialData.cc?.length > 0 || initialData.bcc?.length > 0) {
+      if (parseEmails(initialData.cc).length > 0 || parseEmails(initialData.bcc).length > 0) {
         setShowCcBcc(true);
       }
     }
@@ -109,6 +128,41 @@ const ComposeEmail = ({ open, onClose, accounts = [], defaultAccount, onSuccess,
     },
   });
 
+  const draftMutation = useMutation({
+    mutationFn: (data) => saveDraft(data),
+    onSuccess: () => {
+      toast.success("Draft saved successfully");
+      queryClient.invalidateQueries(["emails"]);
+      onSuccess?.();
+      handleClose();
+    },
+    onError: (error) => {
+      toast.error(error.message || "Failed to save draft");
+    },
+  });
+
+  const hasUnsavedContent = () => {
+    return (
+      formData.to.length > 0 ||
+      formData.cc.length > 0 ||
+      formData.bcc.length > 0 ||
+      formData.subject.trim() !== "" ||
+      (formData.body.trim() !== "" && formData.body !== "<p><br></p>") ||
+      formData.attachments.length > 0 ||
+      toInput.trim() !== "" ||
+      ccInput.trim() !== "" ||
+      bccInput.trim() !== ""
+    );
+  };
+
+  const handleCloseAction = () => {
+    if (hasUnsavedContent()) {
+      setIsDraftDialogOpen(true);
+    } else {
+      handleClose();
+    }
+  };
+
   const handleClose = () => {
     setFormData({
       to: [],
@@ -118,6 +172,7 @@ const ComposeEmail = ({ open, onClose, accounts = [], defaultAccount, onSuccess,
       body: "",
       attachments: [],
       from: defaultAccount?.email || "",
+      draft_id: null,
     });
     setToInput("");
     setCcInput("");
@@ -126,7 +181,33 @@ const ComposeEmail = ({ open, onClose, accounts = [], defaultAccount, onSuccess,
     setShowCcBcc(false);
     setIsMinimized(false);
     setIsMaximized(false);
+    setIsDraftDialogOpen(false);
     onClose();
+  };
+
+  const confirmDraft = () => {
+    // Add pending inputs
+    const updatedTo = [...formData.to];
+    if (toInput.trim() && /^\S+@\S+\.\S+$/.test(toInput.trim())) {
+      if (!updatedTo.includes(toInput.trim())) updatedTo.push(toInput.trim());
+    }
+
+    const updatedCc = [...formData.cc];
+    if (ccInput.trim() && /^\S+@\S+\.\S+$/.test(ccInput.trim())) {
+      if (!updatedCc.includes(ccInput.trim())) updatedCc.push(ccInput.trim());
+    }
+
+    const updatedBcc = [...formData.bcc];
+    if (bccInput.trim() && /^\S+@\S+\.\S+$/.test(bccInput.trim())) {
+      if (!updatedBcc.includes(bccInput.trim())) updatedBcc.push(bccInput.trim());
+    }
+
+    draftMutation.mutate({
+      ...formData,
+      to: updatedTo,
+      cc: updatedCc,
+      bcc: updatedBcc,
+    });
   };
 
   const handleSubmit = (e) => {
@@ -151,8 +232,20 @@ const ComposeEmail = ({ open, onClose, accounts = [], defaultAccount, onSuccess,
       setBccInput("");
     }
 
-    if (updatedTo.length === 0 && !isDraft) {
+    setFormData(prev => ({
+      ...prev,
+      to: updatedTo,
+      cc: updatedCc,
+      bcc: updatedBcc
+    }));
+
+    if (updatedTo.length === 0) {
       toast.error("Please enter a recipient");
+      return;
+    }
+
+    if (!formData.subject.trim()) {
+      toast.error("Please enter a subject");
       return;
     }
 
@@ -179,7 +272,8 @@ const ComposeEmail = ({ open, onClose, accounts = [], defaultAccount, onSuccess,
       to: updatedTo,
       cc: updatedCc,
       bcc: updatedBcc,
-      draft: false
+      draft: false,
+      draft_id: formData.draft_id
     });
     setIsSendDialogOpen(false);
   };
@@ -297,7 +391,7 @@ const ComposeEmail = ({ open, onClose, accounts = [], defaultAccount, onSuccess,
                 variant="ghost"
                 size="icon"
                 className="size-8"
-                onClick={handleClose}
+                onClick={handleCloseAction}
               >
                 <X className="size-4" />
               </Button>
@@ -444,6 +538,7 @@ const ComposeEmail = ({ open, onClose, accounts = [], defaultAccount, onSuccess,
                     }
                     placeholder="Subject"
                     className="border-0 border-b border-border rounded-none focus-visible:ring-0 focus-visible:border-primary"
+                    required
                   />
                 </div>
               </div>
@@ -534,7 +629,7 @@ const ComposeEmail = ({ open, onClose, accounts = [], defaultAccount, onSuccess,
                   type="button"
                   variant="ghost"
                   size="icon"
-                  onClick={handleClose}
+                  onClick={handleCloseAction}
                   className="text-muted-foreground hover:text-destructive"
                 >
                   <Trash2 className="size-4" />
@@ -566,6 +661,41 @@ const ComposeEmail = ({ open, onClose, accounts = [], defaultAccount, onSuccess,
             >
               {sendMutation.isPending ? "Sending..." : "Send Now"}
             </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+      <Dialog open={isDraftDialogOpen} onOpenChange={setIsDraftDialogOpen}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Save as Draft</DialogTitle>
+            <DialogDescription>
+              Do you want to save this email in draft before closing?
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="mt-4 gap-2 sm:gap-0">
+            <Button
+              variant="outline"
+              onClick={handleClose}
+              disabled={draftMutation.isPending}
+              className="text-destructive hover:text-destructive"
+            >
+              Don't Save
+            </Button>
+            <div className="flex gap-2 ml-2">
+              <Button
+                variant="outline"
+                onClick={() => setIsDraftDialogOpen(false)}
+                disabled={draftMutation.isPending}
+              >
+                Cancel
+              </Button>
+              <Button
+                onClick={confirmDraft}
+                disabled={draftMutation.isPending}
+              >
+                {draftMutation.isPending ? "Saving..." : "Save Draft"}
+              </Button>
+            </div>
           </DialogFooter>
         </DialogContent>
       </Dialog>
