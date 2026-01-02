@@ -30,14 +30,31 @@ const ComposeEmail = ({ open, onClose, accounts = [], defaultAccount, onSuccess,
   const fileInputRef = useRef(null);
   const [isMinimized, setIsMinimized] = useState(false);
   const [isMaximized, setIsMaximized] = useState(false);
+  const parseEmails = (val) => {
+    if (!val) return [];
+    if (Array.isArray(val)) return val;
+    if (typeof val === "string") {
+      if (val.startsWith("[") && val.endsWith("]")) {
+        try {
+          return JSON.parse(val);
+        } catch (e) {
+          return [val];
+        }
+      }
+      return val.split(/[,;]+/).map(e => e.trim()).filter(Boolean);
+    }
+    return [];
+  };
+
   const [formData, setFormData] = useState({
-    to: initialData?.to || [],
-    cc: initialData?.cc || [],
-    bcc: initialData?.bcc || [],
+    to: parseEmails(initialData?.to),
+    cc: parseEmails(initialData?.cc),
+    bcc: parseEmails(initialData?.bcc),
     subject: initialData?.subject || "",
     body: initialData?.body || "",
     attachments: [],
     from: initialData?.from || defaultAccount?.email || "",
+    draft_id: initialData?.id || initialData?.draft_id || null,
   });
 
   const [isSendDialogOpen, setIsSendDialogOpen] = useState(false);
@@ -46,15 +63,16 @@ const ComposeEmail = ({ open, onClose, accounts = [], defaultAccount, onSuccess,
   useEffect(() => {
     if (open && initialData) {
       setFormData({
-        to: initialData.to || [],
-        cc: initialData.cc || [],
-        bcc: initialData.bcc || [],
+        to: parseEmails(initialData.to),
+        cc: parseEmails(initialData.cc),
+        bcc: parseEmails(initialData.bcc),
         subject: initialData.subject || "",
         body: initialData.body || "",
         attachments: [],
         from: initialData.from || defaultAccount?.email || "",
+        draft_id: initialData.id || initialData.draft_id || null,
       });
-      if (initialData.cc?.length > 0 || initialData.bcc?.length > 0) {
+      if (parseEmails(initialData.cc).length > 0 || parseEmails(initialData.bcc).length > 0) {
         setShowCcBcc(true);
       }
     }
@@ -154,6 +172,7 @@ const ComposeEmail = ({ open, onClose, accounts = [], defaultAccount, onSuccess,
       body: "",
       attachments: [],
       from: defaultAccount?.email || "",
+      draft_id: null,
     });
     setToInput("");
     setCcInput("");
@@ -213,8 +232,20 @@ const ComposeEmail = ({ open, onClose, accounts = [], defaultAccount, onSuccess,
       setBccInput("");
     }
 
-    if (updatedTo.length === 0 && !isDraft) {
+    setFormData(prev => ({
+      ...prev,
+      to: updatedTo,
+      cc: updatedCc,
+      bcc: updatedBcc
+    }));
+
+    if (updatedTo.length === 0) {
       toast.error("Please enter a recipient");
+      return;
+    }
+
+    if (!formData.subject.trim()) {
+      toast.error("Please enter a subject");
       return;
     }
 
@@ -241,7 +272,8 @@ const ComposeEmail = ({ open, onClose, accounts = [], defaultAccount, onSuccess,
       to: updatedTo,
       cc: updatedCc,
       bcc: updatedBcc,
-      draft: false
+      draft: false,
+      draft_id: formData.draft_id
     });
     setIsSendDialogOpen(false);
   };
@@ -506,6 +538,7 @@ const ComposeEmail = ({ open, onClose, accounts = [], defaultAccount, onSuccess,
                     }
                     placeholder="Subject"
                     className="border-0 border-b border-border rounded-none focus-visible:ring-0 focus-visible:border-primary"
+                    required
                   />
                 </div>
               </div>
@@ -648,7 +681,7 @@ const ComposeEmail = ({ open, onClose, accounts = [], defaultAccount, onSuccess,
             >
               Don't Save
             </Button>
-            <div className="flex gap-2">
+            <div className="flex gap-2 ml-2">
               <Button
                 variant="outline"
                 onClick={() => setIsDraftDialogOpen(false)}

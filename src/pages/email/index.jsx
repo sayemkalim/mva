@@ -115,7 +115,14 @@ const Email = () => {
               <EmailList
                 folder={selectedFolder}
                 accountId={selectedAccount?.id}
-                onEmailSelect={setSelectedEmail}
+                onEmailSelect={(email) => {
+                  if (selectedFolder === "draft") {
+                    setComposeInitialData(email);
+                    setIsComposeOpen(true);
+                  } else {
+                    setSelectedEmail(email);
+                  }
+                }}
                 onRefresh={() => {
                   queryClient.invalidateQueries(["emails", selectedFolder]);
                 }}
