@@ -5,8 +5,12 @@ import EmailSidebar from "./components/EmailSidebar";
 import EmailList from "./components/EmailList";
 import EmailDetail from "./components/EmailDetail";
 import ComposeEmail from "./components/ComposeEmail";
-import { fetchAccounts, fetchDefaultAccount } from "./helpers";
+import {
+  fetchAccounts,
+  setDefaultAccount,
+} from "./helpers";
 import { Inbox, Send, FileText, Trash2, Star } from "lucide-react";
+
 
 const Email = () => {
   const queryClient = useQueryClient();
@@ -15,16 +19,14 @@ const Email = () => {
   const [isComposeOpen, setIsComposeOpen] = useState(false);
   const [composeInitialData, setComposeInitialData] = useState(null);
   const [selectedAccount, setSelectedAccount] = useState(null);
+  const [searchQuery, setSearchQuery] = useState("");
 
   const { data: accountsData } = useQuery({
     queryKey: ["emailAccounts"],
     queryFn: fetchAccounts,
   });
 
-  const { data: defaultAccountData } = useQuery({
-    queryKey: ["defaultAccount"],
-    queryFn: fetchDefaultAccount,
-  });
+
 
   const accounts = useMemo(() => {
     const accountsArray =
@@ -38,14 +40,8 @@ const Email = () => {
   }, [accountsData]);
 
   const defaultAccount = useMemo(() => {
-    return (
-      defaultAccountData?.response?.data ||
-      defaultAccountData?.response?.account ||
-      defaultAccountData?.response ||
-      defaultAccountData?.data ||
-      defaultAccountData
-    );
-  }, [defaultAccountData]);
+    return accounts.find((acc) => Number(acc.is_active) === 1);
+  }, [accounts]);
 
   useEffect(() => {
     if (!selectedAccount) {
@@ -65,13 +61,26 @@ const Email = () => {
     { id: "trash", label: "Trash", icon: Trash2, count: 0 },
   ];
 
+  const handleAccountSelect = async (account) => {
+    console.log("account >>>>>>>>>>>>>>>>>>>", account);
+    try {
+      await setDefaultAccount(account.id);
+      setSelectedAccount(account);
+      queryClient.invalidateQueries();
+    } catch (error) {
+      console.error("Error switching account:", error);
+    }
+  };
+
   return (
     <div className="flex flex-col h-screen bg-background overflow-hidden">
       <EmailHeader
         accounts={accounts}
         selectedAccount={selectedAccount}
-        onAccountSelect={setSelectedAccount}
+        onAccountSelect={handleAccountSelect}
         defaultAccount={defaultAccount}
+        onSearch={setSearchQuery}
+        searchQuery={searchQuery}
       />
 
       <div className="flex flex-1 overflow-hidden">
@@ -81,6 +90,7 @@ const Email = () => {
           onFolderSelect={(folder) => {
             setSelectedFolder(folder);
             setSelectedEmail(null);
+            setSearchQuery("");
           }}
           onCompose={() => {
             setComposeInitialData(null);
@@ -115,6 +125,7 @@ const Email = () => {
               <EmailList
                 folder={selectedFolder}
                 accountId={selectedAccount?.id}
+                searchQuery={searchQuery}
                 onEmailSelect={(email) => {
                   if (selectedFolder === "draft") {
                     setComposeInitialData(email);

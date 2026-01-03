@@ -4,7 +4,7 @@ import { endpoints } from "@/api/endpoints";
 export const setDefaultAccount = async (accountId) => {
   try {
     const apiResponse = await apiService({
-      endpoint: `${endpoints.defaultAccount}?account_id=${accountId}`,
+      endpoint: `${endpoints.defaultAccount}/${accountId}`,
       method: "GET",
     });
     return apiResponse;

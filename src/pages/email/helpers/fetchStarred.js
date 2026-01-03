@@ -1,10 +1,11 @@
 import { apiService } from "@/api/api_service/apiService";
 import { endpoints } from "@/api/endpoints";
 
-export const fetchStarred = async (page = 1) => {
+export const fetchStarred = async (page = 1, search = "") => {
     try {
         const apiResponse = await apiService({
-            endpoint: `${endpoints.starredEmail}?page=${page}`,
+            endpoint: endpoints.starredEmail,
+            params: { page, search },
             method: "GET",
         });
         return apiResponse;

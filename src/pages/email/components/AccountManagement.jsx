@@ -90,7 +90,6 @@ const AccountManagement = ({
     onSuccess: () => {
       toast.success("Account unlinked successfully");
       queryClient.invalidateQueries(["emailAccounts"]);
-      queryClient.invalidateQueries(["defaultAccount"]);
       onAccountDeleted?.();
       setDeleteDialogOpen(false);
       setAccountToDelete(null);

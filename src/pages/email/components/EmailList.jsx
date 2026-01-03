@@ -58,7 +58,7 @@ const getInitials = (name) => {
   return (parts[0].charAt(0) + parts[parts.length - 1].charAt(0)).toUpperCase();
 };
 
-const EmailList = ({ folder, accountId, onEmailSelect, onRefresh }) => {
+const EmailList = ({ folder, accountId, searchQuery, onEmailSelect, onRefresh }) => {
   const queryClient = useQueryClient();
   const [emailToDelete, setEmailToDelete] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
@@ -86,8 +86,8 @@ const EmailList = ({ folder, accountId, onEmailSelect, onRefresh }) => {
   };
 
   const { data, isLoading, error, refetch, isPlaceholderData } = useQuery({
-    queryKey: ["emails", folder, accountId, currentPage],
-    queryFn: () => getFetchFunction()(currentPage),
+    queryKey: ["emails", folder, accountId, currentPage, searchQuery],
+    queryFn: () => getFetchFunction()(currentPage, searchQuery),
     enabled: !!accountId && !!folder,
     placeholderData: (previousData) => previousData,
   });
@@ -281,8 +281,7 @@ const EmailList = ({ folder, accountId, onEmailSelect, onRefresh }) => {
                   })()}
                 </div>
 
-                {/* Action Buttons */}
-                <div className="flex items-center gap-1 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
+                <div className="flex items-center gap-1 shrink-0">
                   <Button
                     variant="ghost"
                     size="icon"
