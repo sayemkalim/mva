@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { fetchInbox, fetchSent, fetchDraft, fetchTrash, trashEmail, starEmail } from "../helpers";
+import { fetchInbox, fetchSent, fetchDraft, fetchTrash, trashEmail, starEmail, fetchLabelEmails } from "../helpers";
 import { formatDistanceToNow, isValid } from "date-fns";
 import { Skeleton } from "@/components/ui/skeleton";
 
@@ -81,7 +81,8 @@ const EmailList = ({ folder, accountId, searchQuery, onEmailSelect, onRefresh })
       case "starred":
         return fetchStarred;
       default:
-        return fetchInbox;
+        // Assume it is a label ID if it's not one of the standard folders
+        return (page, search) => fetchLabelEmails(folder, { page, search, per_page: 25 });
     }
   };
 

@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 import EmailHeader from "./components/EmailHeader";
 import EmailSidebar from "./components/EmailSidebar";
 import EmailList from "./components/EmailList";
@@ -8,8 +8,13 @@ import ComposeEmail from "./components/ComposeEmail";
 import {
   fetchAccounts,
   setDefaultAccount,
+  fetchLabels,
+  createLabel,
+  renameLabel,
+  deleteLabel,
 } from "./helpers";
 import { Inbox, Send, FileText, Trash2, Star } from "lucide-react";
+import { toast } from "sonner";
 
 
 const Email = () => {
@@ -26,7 +31,52 @@ const Email = () => {
     queryFn: fetchAccounts,
   });
 
+  const { data: labelsData } = useQuery({
+    queryKey: ["emailLabels", selectedAccount?.id],
+    queryFn: () => fetchLabels({ account_id: selectedAccount?.id, per_page: 25 }),
+    enabled: !!selectedAccount?.id,
+  });
 
+  const labels = labelsData?.response?.labels || [];
+
+  const createLabelMutation = useMutation({
+    mutationFn: createLabel,
+    onSuccess: () => {
+      queryClient.invalidateQueries(["emailLabels"]);
+      toast.success("Label created successfully");
+    },
+    onError: (error) => {
+      console.error(error);
+      toast.error("Failed to create label");
+    },
+  });
+
+  const renameLabelMutation = useMutation({
+    mutationFn: ({ id, data }) => renameLabel(id, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries(["emailLabels"]);
+      toast.success("Label renamed successfully");
+    },
+    onError: (error) => {
+      console.error(error);
+      toast.error("Failed to rename label");
+    },
+  });
+
+  const deleteLabelMutation = useMutation({
+    mutationFn: deleteLabel,
+    onSuccess: () => {
+      queryClient.invalidateQueries(["emailLabels"]);
+      toast.success("Label deleted successfully");
+      if (labels.some(l => l.id === selectedFolder)) {
+        setSelectedFolder("inbox");
+      }
+    },
+    onError: (error) => {
+      console.error(error);
+      toast.error("Failed to delete label");
+    },
+  });
 
   const accounts = useMemo(() => {
     const accountsArray =
@@ -62,7 +112,6 @@ const Email = () => {
   ];
 
   const handleAccountSelect = async (account) => {
-    console.log("account >>>>>>>>>>>>>>>>>>>", account);
     try {
       await setDefaultAccount(account.id);
       setSelectedAccount(account);
@@ -96,6 +145,15 @@ const Email = () => {
             setComposeInitialData(null);
             setIsComposeOpen(true);
           }}
+          labels={labels}
+          onLabelSelect={(label) => {
+            setSelectedFolder(label.id);
+            setSelectedEmail(null);
+            setSearchQuery("");
+          }}
+          onCreateLabel={(data) => createLabelMutation.mutate(data)}
+          onRenameLabel={(id, data) => renameLabelMutation.mutate({ id, data })}
+          onDeleteLabel={(id) => deleteLabelMutation.mutate(id)}
         />
 
         <div className="flex-1 flex flex-col overflow-hidden bg-background">
@@ -103,6 +161,7 @@ const Email = () => {
             {selectedEmail ? (
               <EmailDetail
                 email={selectedEmail}
+                selectedFolder={selectedFolder}
                 onBack={() => setSelectedEmail(null)}
                 onDelete={() => {
                   queryClient.invalidateQueries(["emails", selectedFolder]);

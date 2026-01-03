@@ -15,4 +15,13 @@ export { unlinkAccount } from "./unlinkAccount";
 export { setDefaultAccount } from "./setDefaultAccount";
 export { createEmail } from "./createEmail";
 export { saveDraft } from "./saveDraft";
+export {
+    fetchLabels,
+    createLabel,
+    renameLabel,
+    deleteLabel,
+    fetchLabelEmails,
+    linkEmailToLabel,
+    unlinkEmailFromLabel
+} from "./labelOperations";
 
