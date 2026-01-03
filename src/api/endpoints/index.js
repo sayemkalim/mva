@@ -298,4 +298,8 @@ export const endpoints = {
   threadView: "api/v2/email/thread",
   unlinkAccount: "api/v2/email/accounts",
   showEmail: "api/v2/email/show",
+  createLabel: "api/v2/labels/create",
+  renameLabel: "api/v2/labels/rename",
+  deleteLabel: "api/v2/labels/delete",
+  labelsList: "api/v2/labels/list",
 };
