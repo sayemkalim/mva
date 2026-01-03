@@ -302,4 +302,5 @@ export const endpoints = {
   renameLabel: "api/v2/labels/rename",
   deleteLabel: "api/v2/labels/delete",
   labelsList: "api/v2/labels/list",
+  labelEmails: "api/v2/labels/emails",
 };

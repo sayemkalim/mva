@@ -58,3 +58,21 @@ export const deleteLabel = async (id) => {
         throw error;
     }
 };
+
+export const fetchLabelEmails = async (labelId, { per_page = 25, page = 1, search = "" } = {}) => {
+    try {
+        const apiResponse = await apiService({
+            endpoint: `${endpoints.labelEmails}/${labelId}`,
+            method: "GET",
+            params: {
+                per_page,
+                page,
+                search,
+            },
+        });
+        return apiResponse;
+    } catch (error) {
+        console.error("Error fetching label emails:", error);
+        throw error;
+    }
+};

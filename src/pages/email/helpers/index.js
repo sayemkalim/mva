@@ -20,5 +20,6 @@ export {
     createLabel,
     renameLabel,
     deleteLabel,
+    fetchLabelEmails,
 } from "./labelOperations";
 
