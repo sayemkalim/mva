@@ -7,7 +7,6 @@ import EmailDetail from "./components/EmailDetail";
 import ComposeEmail from "./components/ComposeEmail";
 import {
   fetchAccounts,
-  fetchDefaultAccount,
   setDefaultAccount,
 } from "./helpers";
 import { Inbox, Send, FileText, Trash2, Star } from "lucide-react";
@@ -27,10 +26,7 @@ const Email = () => {
     queryFn: fetchAccounts,
   });
 
-  const { data: defaultAccountData } = useQuery({
-    queryKey: ["defaultAccount"],
-    queryFn: fetchDefaultAccount,
-  });
+
 
   const accounts = useMemo(() => {
     const accountsArray =
@@ -44,14 +40,8 @@ const Email = () => {
   }, [accountsData]);
 
   const defaultAccount = useMemo(() => {
-    return (
-      defaultAccountData?.response?.data ||
-      defaultAccountData?.response?.account ||
-      defaultAccountData?.response ||
-      defaultAccountData?.data ||
-      defaultAccountData
-    );
-  }, [defaultAccountData]);
+    return accounts.find((acc) => Number(acc.is_active) === 1);
+  }, [accounts]);
 
   useEffect(() => {
     if (!selectedAccount) {
