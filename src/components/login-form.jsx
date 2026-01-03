@@ -10,6 +10,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { apiService } from "@/api/api_service/apiService";
 import { setToken } from "@/utils/auth";
 import { setItem } from "@/utils/local_storage";
+import { resetEcho } from "@/hooks/echo";
 import { Mail, Eye, EyeOff } from "lucide-react";
 const generateBrowserToken = () => {
   const canvas = document.createElement("canvas");
@@ -75,6 +76,10 @@ export function LoginForm() {
         userRole: userData.role_id,
         firmId: userData.firm_id,
       });
+      
+      // Reset Echo if token is changed 
+      resetEcho();
+      
       if (rememberMe) {
         localStorage.setItem("rememberedEmail", formData.email);
         localStorage.setItem("rememberedPassword", formData.password);
