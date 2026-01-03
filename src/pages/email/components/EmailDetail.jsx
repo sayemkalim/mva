@@ -160,6 +160,7 @@ const EmailDetail = ({ email, onBack, onDelete, onMove, onReply, accounts, defau
       toast.success("Label linked successfully");
       queryClient.invalidateQueries(["emails"]);
       queryClient.invalidateQueries(["email", emailId]);
+      onBack();
     },
     onError: () => {
       toast.error("Failed to link label");
@@ -179,6 +180,7 @@ const EmailDetail = ({ email, onBack, onDelete, onMove, onReply, accounts, defau
       toast.success("Label unlinked successfully");
       queryClient.invalidateQueries(["emails"]);
       queryClient.invalidateQueries(["email", emailId]);
+      onBack();
     },
     onError: () => {
       toast.error("Failed to unlink label");
