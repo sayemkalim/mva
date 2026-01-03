@@ -93,3 +93,21 @@ export const linkEmailToLabel = async ({ label_id, email_id }) => {
         throw error;
     }
 };
+
+export const unlinkEmailFromLabel = async ({ label_id, email_id }) => {
+    try {
+        const apiResponse = await apiService({
+            endpoint: endpoints.unlinkEmailFromLabel,
+            method: "POST",
+            data: {
+                label_id,
+                email_id,
+            },
+        });
+        return apiResponse;
+    } catch (error) {
+        console.error("Error unlinking email from label:", error);
+        throw error;
+    }
+};
+

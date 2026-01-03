@@ -22,5 +22,6 @@ export {
     deleteLabel,
     fetchLabelEmails,
     linkEmailToLabel,
+    unlinkEmailFromLabel
 } from "./labelOperations";
 

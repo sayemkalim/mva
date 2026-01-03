@@ -161,6 +161,7 @@ const Email = () => {
             {selectedEmail ? (
               <EmailDetail
                 email={selectedEmail}
+                selectedFolder={selectedFolder}
                 onBack={() => setSelectedEmail(null)}
                 onDelete={() => {
                   queryClient.invalidateQueries(["emails", selectedFolder]);

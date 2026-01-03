@@ -304,4 +304,5 @@ export const endpoints = {
   labelsList: "api/v2/labels/list",
   labelEmails: "api/v2/labels/emails",
   linkEmailToLabel: "api/v2/labels/link-email",
+  unlinkEmailFromLabel: "api/v2/labels/unlink-email",
 };
