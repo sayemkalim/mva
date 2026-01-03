@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { fetchEmailById, fetchThreadView, deleteEmail, moveEmail, trashEmail } from "../helpers";
+import { fetchEmailById, fetchThreadView, deleteEmail, moveEmail, trashEmail, starEmail, linkEmailToLabel, unlinkEmailFromLabel, fetchLabels } from "../helpers";
 import { format, isValid } from "date-fns";
 import { Button } from "@/components/ui/button";
 import {
@@ -8,6 +8,9 @@ import {
   Reply,
   Paperclip,
   Move,
+  Star,
+  Tag,
+  Unlink,
 } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
@@ -20,10 +23,17 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useState } from "react";
 import ComposeEmail from "./ComposeEmail";
+import { cn } from "@/lib/utils";
 
 const safeFormat = (dateStr, formatStr) => {
   if (!dateStr) return "-";
@@ -31,7 +41,8 @@ const safeFormat = (dateStr, formatStr) => {
   return isValid(dateObj) ? format(dateObj, formatStr) : "-";
 };
 
-const EmailDetail = ({ email, onBack, onDelete, onMove, onReply, accounts, defaultAccount }) => {
+const EmailDetail = ({ email, onBack, onDelete, onMove, onReply, accounts, defaultAccount, selectedFolder }) => {
+  console.log("selectedFolder >>>>>>>>>>>>>>>>>>>>>>>>>>>", selectedFolder);
   const queryClient = useQueryClient();
   const emailId = email?.id;
 
@@ -116,6 +127,69 @@ const EmailDetail = ({ email, onBack, onDelete, onMove, onReply, accounts, defau
       toast.error("Failed to move email");
     },
   });
+
+  const starMutation = useMutation({
+    mutationFn: (emailId) => starEmail(emailId),
+    onSuccess: () => {
+      queryClient.invalidateQueries(["emails"]);
+      queryClient.invalidateQueries(["email", emailId]);
+      toast.success("Updated star status");
+    },
+    onError: (error) => {
+      console.error("Error starring email:", error);
+      toast.error("Failed to update star status");
+    },
+  });
+
+  const handleStarEmail = () => {
+    starMutation.mutate(emailDetail.id);
+  };
+
+  const { data: labelsData } = useQuery({
+    queryKey: ["labels", defaultAccount?.id],
+    queryFn: () => fetchLabels({ account_id: defaultAccount?.id }),
+    enabled: !!defaultAccount?.id,
+  });
+
+  const linkLabelMutation = useMutation({
+    mutationFn: (labelId) => linkEmailToLabel({
+      label_id: labelId,
+      email_id: emailDetail.id
+    }),
+    onSuccess: () => {
+      toast.success("Label linked successfully");
+      queryClient.invalidateQueries(["emails"]);
+      queryClient.invalidateQueries(["email", emailId]);
+      onBack();
+    },
+    onError: () => {
+      toast.error("Failed to link label");
+    },
+  });
+
+  const handleLabelClick = (labelId) => {
+    linkLabelMutation.mutate(labelId);
+  };
+
+  const unlinkLabelMutation = useMutation({
+    mutationFn: (labelId) => unlinkEmailFromLabel({
+      label_id: labelId,
+      email_id: emailDetail.id
+    }),
+    onSuccess: () => {
+      toast.success("Label unlinked successfully");
+      queryClient.invalidateQueries(["emails"]);
+      queryClient.invalidateQueries(["email", emailId]);
+      onBack();
+    },
+    onError: () => {
+      toast.error("Failed to unlink label");
+    },
+  });
+
+  const isLabelView = selectedFolder && !["inbox", "sent", "draft", "trash", "starred"].includes(selectedFolder);
+  const currentLabel = isLabelView ? labelsData?.response?.labels?.find(l => l.id === selectedFolder) : null;
+
   const confirmDelete = () => {
     deleteMutation.mutate(emailDetail.id);
     setIsDeleteDialogOpen(false);
@@ -169,6 +243,49 @@ const EmailDetail = ({ email, onBack, onDelete, onMove, onReply, accounts, defau
             <ArrowLeft className="size-4" />
           </Button>
           <div className="flex items-center gap-2">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={handleStarEmail}
+              disabled={starMutation.isPending}
+            >
+              <Star className={cn(
+                "size-4",
+                emailDetail.is_starred ? "fill-yellow-400 text-yellow-400" : "text-muted-foreground hover:text-yellow-400"
+              )} />
+            </Button>
+            {isLabelView && currentLabel ? (
+              <Button
+                variant="ghost"
+                size="icon"
+                title={`Unlink from ${currentLabel.name}`}
+                onClick={() => unlinkLabelMutation.mutate(currentLabel.id)}
+                disabled={unlinkLabelMutation.isPending}
+              >
+                <Unlink className="size-4" />
+              </Button>
+            ) : (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="icon" title="Labels">
+                    <Tag className="size-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  {labelsData?.response?.labels?.map((label) => (
+                    <DropdownMenuItem
+                      key={label.id}
+                      onClick={() => handleLabelClick(label.id)}
+                    >
+                      {label.name}
+                    </DropdownMenuItem>
+                  ))}
+                  {!labelsData?.response?.labels?.length && (
+                    <DropdownMenuItem disabled>No labels found</DropdownMenuItem>
+                  )}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            )}
             <Button
               variant="ghost"
               size="icon"
@@ -258,7 +375,7 @@ const EmailDetail = ({ email, onBack, onDelete, onMove, onReply, accounts, defau
         <div
           className="prose prose-sm max-w-none dark:prose-invert flex-1"
           dangerouslySetInnerHTML={{
-            __html: emailDetail.body || emailDetail.content || emailDetail.text || "<p>No content</p>",
+            __html: emailDetail.body || emailDetail.content || emailDetail.text || "",
           }}
         />
 
