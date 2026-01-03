@@ -5,8 +5,13 @@ import EmailSidebar from "./components/EmailSidebar";
 import EmailList from "./components/EmailList";
 import EmailDetail from "./components/EmailDetail";
 import ComposeEmail from "./components/ComposeEmail";
-import { fetchAccounts, fetchDefaultAccount } from "./helpers";
+import {
+  fetchAccounts,
+  fetchDefaultAccount,
+  setDefaultAccount,
+} from "./helpers";
 import { Inbox, Send, FileText, Trash2, Star } from "lucide-react";
+
 
 const Email = () => {
   const queryClient = useQueryClient();
@@ -65,12 +70,23 @@ const Email = () => {
     { id: "trash", label: "Trash", icon: Trash2, count: 0 },
   ];
 
+  const handleAccountSelect = async (account) => {
+    console.log("account >>>>>>>>>>>>>>>>>>>", account);
+    try {
+      await setDefaultAccount(account.id);
+      setSelectedAccount(account);
+      queryClient.invalidateQueries();
+    } catch (error) {
+      console.error("Error switching account:", error);
+    }
+  };
+
   return (
     <div className="flex flex-col h-screen bg-background overflow-hidden">
       <EmailHeader
         accounts={accounts}
         selectedAccount={selectedAccount}
-        onAccountSelect={setSelectedAccount}
+        onAccountSelect={handleAccountSelect}
         defaultAccount={defaultAccount}
       />
 
