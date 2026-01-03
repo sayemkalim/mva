@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Search, Settings, HelpCircle, Grid3x3, User, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -18,10 +18,25 @@ const EmailHeader = ({
   onAccountSelect,
   defaultAccount,
   onSearch,
+  searchQuery: initialSearchQuery = "",
 }) => {
-  const [searchQuery, setSearchQuery] = useState("");
+  const [searchQuery, setSearchQuery] = useState(initialSearchQuery);
   const [isAccountManagementOpen, setIsAccountManagementOpen] = useState(false);
   const queryClient = useQueryClient();
+
+  useEffect(() => {
+    setSearchQuery(initialSearchQuery);
+  }, [initialSearchQuery]);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (searchQuery !== initialSearchQuery) {
+        onSearch?.(searchQuery);
+      }
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [searchQuery, onSearch, initialSearchQuery]);
 
   const handleSearch = (e) => {
     e.preventDefault();

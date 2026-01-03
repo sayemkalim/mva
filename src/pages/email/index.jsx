@@ -20,6 +20,7 @@ const Email = () => {
   const [isComposeOpen, setIsComposeOpen] = useState(false);
   const [composeInitialData, setComposeInitialData] = useState(null);
   const [selectedAccount, setSelectedAccount] = useState(null);
+  const [searchQuery, setSearchQuery] = useState("");
 
   const { data: accountsData } = useQuery({
     queryKey: ["emailAccounts"],
@@ -88,6 +89,8 @@ const Email = () => {
         selectedAccount={selectedAccount}
         onAccountSelect={handleAccountSelect}
         defaultAccount={defaultAccount}
+        onSearch={setSearchQuery}
+        searchQuery={searchQuery}
       />
 
       <div className="flex flex-1 overflow-hidden">
@@ -97,6 +100,7 @@ const Email = () => {
           onFolderSelect={(folder) => {
             setSelectedFolder(folder);
             setSelectedEmail(null);
+            setSearchQuery("");
           }}
           onCompose={() => {
             setComposeInitialData(null);
@@ -131,6 +135,7 @@ const Email = () => {
               <EmailList
                 folder={selectedFolder}
                 accountId={selectedAccount?.id}
+                searchQuery={searchQuery}
                 onEmailSelect={(email) => {
                   if (selectedFolder === "draft") {
                     setComposeInitialData(email);
