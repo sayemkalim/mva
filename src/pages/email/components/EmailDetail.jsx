@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { fetchEmailById, fetchThreadView, deleteEmail, moveEmail, trashEmail, starEmail } from "../helpers";
+import { fetchEmailById, fetchThreadView, deleteEmail, moveEmail, trashEmail, starEmail, linkEmailToLabel, fetchLabels } from "../helpers";
 import { format, isValid } from "date-fns";
 import { Button } from "@/components/ui/button";
 import {
@@ -9,6 +9,7 @@ import {
   Paperclip,
   Move,
   Star,
+  Tag,
 } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
@@ -21,6 +22,12 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useState } from "react";
@@ -135,6 +142,32 @@ const EmailDetail = ({ email, onBack, onDelete, onMove, onReply, accounts, defau
   const handleStarEmail = () => {
     starMutation.mutate(emailDetail.id);
   };
+
+  const { data: labelsData } = useQuery({
+    queryKey: ["labels", defaultAccount?.id],
+    queryFn: () => fetchLabels({ account_id: defaultAccount?.id }),
+    enabled: !!defaultAccount?.id,
+  });
+
+  const linkLabelMutation = useMutation({
+    mutationFn: (labelId) => linkEmailToLabel({
+      label_id: labelId,
+      email_id: emailDetail.id
+    }),
+    onSuccess: () => {
+      toast.success("Label linked successfully");
+      queryClient.invalidateQueries(["emails"]);
+      queryClient.invalidateQueries(["email", emailId]);
+    },
+    onError: () => {
+      toast.error("Failed to link label");
+    },
+  });
+
+  const handleLabelClick = (labelId) => {
+    linkLabelMutation.mutate(labelId);
+  };
+
   const confirmDelete = () => {
     deleteMutation.mutate(emailDetail.id);
     setIsDeleteDialogOpen(false);
@@ -199,6 +232,26 @@ const EmailDetail = ({ email, onBack, onDelete, onMove, onReply, accounts, defau
                 emailDetail.is_starred ? "fill-yellow-400 text-yellow-400" : "text-muted-foreground hover:text-yellow-400"
               )} />
             </Button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon" title="Labels">
+                  <Tag className="size-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                {labelsData?.response?.labels?.map((label) => (
+                  <DropdownMenuItem
+                    key={label.id}
+                    onClick={() => handleLabelClick(label.id)}
+                  >
+                    {label.name}
+                  </DropdownMenuItem>
+                ))}
+                {!labelsData?.response?.labels?.length && (
+                  <DropdownMenuItem disabled>No labels found</DropdownMenuItem>
+                )}
+              </DropdownMenuContent>
+            </DropdownMenu>
             <Button
               variant="ghost"
               size="icon"

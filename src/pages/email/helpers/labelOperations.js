@@ -76,3 +76,20 @@ export const fetchLabelEmails = async (labelId, { per_page = 25, page = 1, searc
         throw error;
     }
 };
+
+export const linkEmailToLabel = async ({ label_id, email_id }) => {
+    try {
+        const apiResponse = await apiService({
+            endpoint: endpoints.linkEmailToLabel,
+            method: "POST",
+            data: {
+                label_id,
+                email_id,
+            },
+        });
+        return apiResponse;
+    } catch (error) {
+        console.error("Error linking email to label:", error);
+        throw error;
+    }
+};
