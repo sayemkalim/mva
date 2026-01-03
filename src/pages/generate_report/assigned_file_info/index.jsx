@@ -240,8 +240,8 @@ const ExportFileAssignedInfo = () => {
                       <SelectContent side="bottom" avoidCollisions={false}>
                         {taskMeta?.assignees?.map((item) => (
                           <SelectItem
-                            key={item.id}
-                            value={item.id?.toString() || ""}
+                            key={item.name}
+                            value={item.name}
                           >
                             {item.name}
                           </SelectItem>

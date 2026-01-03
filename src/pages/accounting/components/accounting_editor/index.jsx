@@ -37,7 +37,7 @@ export default function AccountingPage() {
   const uploadMutation = useMutation({
     mutationFn: uploadAttachment,
     onSuccess: (data) => {
-      console.log("✅ Full API Response:", data);
+      // console.log("✅ Full API Response:", data);
       const attachmentId =
         data?.response?.attachment?.id ||
         data?.attachment?.id ||

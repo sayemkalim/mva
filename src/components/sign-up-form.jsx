@@ -61,7 +61,7 @@ export function SignupForm() {
         removeToken: true,
       });
 
-      console.log("Full API Response:", response);
+      // console.log("Full API Response:", response);
 
       // Extract data from nested response
       const actualData = response.response || response;

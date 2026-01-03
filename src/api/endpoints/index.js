@@ -295,4 +295,12 @@ export const endpoints = {
   threadView: "api/v2/email/thread",
   unlinkAccount: "api/v2/email/accounts",
   showEmail: "api/v2/email/show",
+  //Notification
+  getNotification: "api/v2/notifications",
+  readNotificationById: "api/v2/notifications/read",
+  readMultipleNotification: "api/v2/notifications/read-multiple",
+  readAllNotification: "api/v2/notifications/read-all",
+  deleteNotificationById: "api/v2/notifications/clear",
+  deleteAllNotification: "api/v2/notifications/clear-all",
+  unreadNotification: "api/v2/notifications/unread-count",
 };
