@@ -22,7 +22,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Plus, ChevronDown, X, Trash2, Pencil } from "lucide-react";
+import { Plus, ChevronDown, X, Trash2, Pencil, ChevronRight } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -45,6 +45,7 @@ import { Navbar2 } from "@/components/navbar2";
 
 const CostList = () => {
   const { slug } = useParams();
+  const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [currentPage, setCurrentPage] = useState(1);
   const [dialogOpen, setDialogOpen] = useState(null);
@@ -427,13 +428,27 @@ const CostList = () => {
       </header>
 
       {/* Breadcrumb */}
-      <div className="flex items-center gap-2 text-sm text-muted-foreground mb-6 px-6 pt-2">
-        <span className="cursor-pointer hover:text-foreground">CRM</span>
-        <span>&gt;</span>
-        <span className="cursor-pointer hover:text-foreground">Accounting</span>
-        <span>&gt;</span>
-        <span className="text-foreground font-medium">List</span>
-      </div>
+      <nav className="bg-white border-b px-6 py-4 text-sm text-gray-600">
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => navigate("/dashboard")}
+            className="hover:text-gray-900 transition"
+            type="button"
+          >
+            Dashboard
+          </button>
+          <ChevronRight className="w-4 h-4" />
+          <button
+            onClick={() => navigate("/dashboard/workstation")}
+            className="hover:text-gray-900 transition"
+            type="button"
+          >
+            Workstation
+          </button>
+          <ChevronRight className="w-4 h-4" />
+          <span className="text-gray-900 font-medium">Cost</span>
+        </div>
+      </nav>
 
       {/* Add New Button with Popover */}
       <div className="mb-6 px-6">
@@ -478,9 +493,6 @@ const CostList = () => {
         <Table>
           <TableHeader>
             <TableRow className="bg-gray-50">
-              <TableHead className="w-12">
-                <Checkbox />
-              </TableHead>
               <TableHead>Date</TableHead>
               <TableHead>Type</TableHead>
               <TableHead>Cost Type</TableHead>
@@ -514,9 +526,6 @@ const CostList = () => {
 
                 return (
                   <TableRow key={item.id} className="hover:bg-gray-50">
-                    <TableCell>
-                      <Checkbox />
-                    </TableCell>
                     <TableCell>{formatDate(item.date)}</TableCell>
                     <TableCell>{item.type || "-"}</TableCell>
                     <TableCell>{getSectionTypeLabel(item.section_type)}</TableCell>

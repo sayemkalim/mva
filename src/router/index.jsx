@@ -84,6 +84,7 @@ import SuePage from "@/pages/sue/sue_editor";
 import NonEngagementPage from "@/pages/non_engagement/nonEngagement_editor";
 import ClientSettlementPage from "@/pages/clientSettlement/clientSettlement_editor";
 import Cost from "@/pages/cost";
+import BankTranscation from "@/pages/bank_transcation";
 import TaskPage from "@/pages/task/components/task_editor";
 import Task from "@/pages/task";
 import CommentPage from "@/pages/task/components/comment_editor";
@@ -436,6 +437,10 @@ const Router = () => {
           <Route
             path="/dashboard/workstation/edit/:slug/cost"
             element={<Cost />}
+          />
+          <Route
+            path="/dashboard/workstation/edit/:slug/bank-transaction"
+            element={<BankTranscation />}
           />
           <Route
             path="/dashboard/workstation/edit/:slug/task"

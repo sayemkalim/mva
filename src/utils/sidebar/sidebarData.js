@@ -1020,6 +1020,11 @@ export const getEditModeData = (slug) => ({
               url: `/dashboard/workstation/edit/${slug}/cost`,
               icon: User,
             },
+            {
+              title: "Bank Transaction",
+              url: `/dashboard/workstation/edit/${slug}/bank-transaction`,
+              icon: User,
+            }
           ],
         },
       ],

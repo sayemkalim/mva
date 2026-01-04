@@ -313,5 +313,12 @@ export const endpoints = {
   addCost: "api/v2/file/accounting/expence/save",
   updateCost: "api/v2/file/accounting/expence/update",
   accountingMeta: "api/v2/file/accounting/expence/meta",
+
+  // Bank Transactions (Deposits)
+  depositList: "api/v2/file/accounting/deposit/list",
+  depositSave: "api/v2/file/accounting/deposit/save",
+  depositUpdate: "api/v2/file/accounting/deposit/update",
+  depositDelete: "api/v2/file/accounting/deposit/delete",
+
   accidentBenifitMeta: "api/v2/file/accident-benefits/meta"
 };
