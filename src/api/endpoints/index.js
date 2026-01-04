@@ -308,8 +308,8 @@ export const endpoints = {
 
   // Accounting
   accountList: "api/v2/file/accounting/expence/list",
-  singleCost: "/api/v2/file/accounting/expence/show",
+  singleCost: "api/v2/file/accounting/expence/show",
   deleteCost: "api/v2/file/accounting/expence/delete",
-  addCost: "/api/v2/file/accounting/expence/save",
+  addCost: "api/v2/file/accounting/expence/save",
   updateCost: "api/v2/file/accounting/expence/update"
 };
