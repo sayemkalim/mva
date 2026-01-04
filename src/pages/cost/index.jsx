@@ -5,6 +5,8 @@ import { fetchList } from "./helper/fetchList";
 import { fetchMeta } from "./helper/fetchMeta";
 import { addCost } from "./helper/addCost";
 import { deleteCost } from "./helper/deleteCost";
+import { updateCost } from "./helper/updateCost";
+import { fetchSingleCost } from "./helper/fetchSingleCost";
 import { Button } from "@/components/ui/button";
 import {
   Popover,
@@ -20,7 +22,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Plus, ChevronDown, X, Trash2 } from "lucide-react";
+import { Plus, ChevronDown, X, Trash2, Pencil } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -47,6 +49,8 @@ const CostList = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [dialogOpen, setDialogOpen] = useState(null);
   const [deleteConfirmId, setDeleteConfirmId] = useState(null);
+  const [editingCost, setEditingCost] = useState(null);
+  const [editDialogOpen, setEditDialogOpen] = useState(null);
 
   // Soft Cost Form State
   const [softCostForm, setSoftCostForm] = useState({
@@ -199,6 +203,31 @@ const CostList = () => {
     },
   });
 
+  const updateCostMutation = useMutation({
+    mutationFn: ({ payload, id }) => updateCost(payload, id),
+    onSuccess: () => {
+      queryClient.invalidateQueries(["costList", slug]);
+      setEditDialogOpen(null);
+      setEditingCost(null);
+    },
+    onError: (error) => {
+      console.error("Failed to update cost:", error);
+    },
+  });
+
+  const handleEditCost = async (item) => {
+    try {
+      const costDetail = await fetchSingleCost(item.id);
+      setEditingCost(costDetail.data || costDetail);
+      setEditDialogOpen(item.section_type);
+    } catch (error) {
+      console.error("Failed to fetch cost details:", error);
+      // Fallback to using the item data from the list
+      setEditingCost(item);
+      setEditDialogOpen(item.section_type);
+    }
+  };
+
   const handleDeleteCost = (id) => {
     setDeleteConfirmId(id);
   };
@@ -208,6 +237,61 @@ const CostList = () => {
       deleteCostMutation.mutate(deleteConfirmId);
       setDeleteConfirmId(null);
     }
+  };
+
+  const handleEditSoftCostSubmit = () => {
+    const payload = {
+      section_type: "soft-cost",
+      timekeeker: editingCost.timekeeker,
+      date: editingCost.date,
+      type: editingCost.type,
+      expesne: editingCost.expesne,
+      description: editingCost.description,
+      quantity: parseFloat(editingCost.quantity) || 0,
+      rate: parseFloat(editingCost.rate) || 0,
+      taxable: editingCost.taxable,
+    };
+    updateCostMutation.mutate({ payload, id: editingCost.id });
+  };
+
+  const handleEditTimeCardSubmit = () => {
+    const payload = {
+      section_type: "time-card",
+      timekeeker: editingCost.timekeeker,
+      date: editingCost.date,
+      type: editingCost.type,
+      task: editingCost.task,
+      description: editingCost.description,
+      time_spent_id: parseInt(editingCost.time_spent_id) || null,
+      time_billed: editingCost.time_billed,
+      rate_level_id: parseInt(editingCost.rate_level_id) || null,
+      rate: parseFloat(editingCost.rate) || 0,
+      rate_type_id: parseInt(editingCost.rate_type_id) || null,
+      billing_status_id: parseInt(editingCost.billing_status_id) || null,
+      hold: editingCost.hold,
+      flag_id: parseInt(editingCost.flag_id) || null,
+      note: editingCost.note,
+      taxable: editingCost.taxable,
+    };
+    updateCostMutation.mutate({ payload, id: editingCost.id });
+  };
+
+  const handleEditHardCostSubmit = () => {
+    const payload = {
+      section_type: "hard-cost",
+      date: editingCost.date,
+      bank_type_id: parseInt(editingCost.bank_type_id) || null,
+      type: editingCost.type,
+      method_id: parseInt(editingCost.method_id) || null,
+      quantity: parseFloat(editingCost.quantity) || 1,
+      pay_to: editingCost.pay_to,
+      amount: parseFloat(editingCost.amount) || 0,
+      memo_1: editingCost.memo_1,
+      memo_2: editingCost.memo_2,
+      address_1: editingCost.address_1 || {},
+      address_2: editingCost.address_2 || {},
+    };
+    updateCostMutation.mutate({ payload, id: editingCost.id });
   };
 
   const handleSoftCostSubmit = () => {
@@ -447,15 +531,25 @@ const CostList = () => {
                     <TableCell>{runningBalance.toFixed(2)}</TableCell>
                     <TableCell className="text-orange-500">{getStatusLabel(item)}</TableCell>
                     <TableCell>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-8 w-8 text-destructive hover:text-destructive hover:bg-destructive/10"
-                        onClick={() => handleDeleteCost(item.id)}
-                        disabled={deleteCostMutation.isPending}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
+                      <div className="flex gap-1">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8 text-muted-foreground hover:text-foreground"
+                          onClick={() => handleEditCost(item)}
+                        >
+                          <Pencil className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8 text-destructive hover:text-destructive hover:bg-destructive/10"
+                          onClick={() => handleDeleteCost(item.id)}
+                          disabled={deleteCostMutation.isPending}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
                     </TableCell>
                   </TableRow>
                 );
@@ -1134,6 +1228,657 @@ const CostList = () => {
               disabled={deleteCostMutation.isPending}
             >
               {deleteCostMutation.isPending ? "Deleting..." : "Delete"}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={editDialogOpen === "soft-cost"} onOpenChange={(open) => { if (!open) { setEditDialogOpen(null); setEditingCost(null); } }}>
+        <DialogContent className="w-[70vw] max-w-none max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="text-xl">Edit Soft Cost</DialogTitle>
+            <DialogDescription>Edit the soft cost entry</DialogDescription>
+            <button
+              onClick={() => { setEditDialogOpen(null); setEditingCost(null); }}
+              className="absolute right-4 top-4 rounded-sm opacity-70 hover:opacity-100"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          </DialogHeader>
+          {editingCost && (
+            <div className="space-y-6 py-4">
+              <div className="grid grid-cols-4 gap-4">
+                <div className="space-y-2">
+                  <Label>Timekeeper</Label>
+                  <Input 
+                    placeholder="" 
+                    value={editingCost.timekeeker || ""}
+                    onChange={(e) => setEditingCost({...editingCost, timekeeker: e.target.value})}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Date</Label>
+                  <Input
+                    type="date"
+                    value={editingCost.date || ""}
+                    onChange={(e) => setEditingCost({...editingCost, date: e.target.value})}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Type</Label>
+                  <Input 
+                    value={editingCost.type || "Expense"} 
+                    disabled
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Expense</Label>
+                  <Input 
+                    placeholder="" 
+                    value={editingCost.expesne || ""}
+                    onChange={(e) => setEditingCost({...editingCost, expesne: e.target.value})}
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label>Description</Label>
+                <Textarea 
+                  className="min-h-[100px]" 
+                  placeholder="" 
+                  value={editingCost.description || ""}
+                  onChange={(e) => setEditingCost({...editingCost, description: e.target.value})}
+                />
+              </div>
+
+              <div className="grid grid-cols-3 gap-4">
+                <div className="space-y-2">
+                  <Label>Quantity</Label>
+                  <Input 
+                    type="number" 
+                    placeholder="" 
+                    value={editingCost.quantity || ""}
+                    onChange={(e) => setEditingCost({...editingCost, quantity: e.target.value})}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Rate</Label>
+                  <Input 
+                    type="number" 
+                    placeholder="" 
+                    value={editingCost.rate || ""}
+                    onChange={(e) => setEditingCost({...editingCost, rate: e.target.value})}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Value</Label>
+                  <Input 
+                    type="number" 
+                    placeholder="" 
+                    value={(parseFloat(editingCost.quantity) || 0) * (parseFloat(editingCost.rate) || 0)}
+                    disabled
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label>Tax</Label>
+                <Select 
+                  value={editingCost.taxable ? "taxable" : "non-taxable"}
+                  onValueChange={(value) => setEditingCost({...editingCost, taxable: value === "taxable"})}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="taxable">Taxable</SelectItem>
+                    <SelectItem value="non-taxable">Non-Taxable</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+          )}
+          <div className="flex justify-end gap-2 pt-4 border-t">
+            <Button variant="outline" onClick={() => { setEditDialogOpen(null); setEditingCost(null); }}>
+              Close
+            </Button>
+            <Button onClick={handleEditSoftCostSubmit} disabled={updateCostMutation.isPending}>
+              {updateCostMutation.isPending ? "Updating..." : "Update"}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Edit Time Card Dialog */}
+      <Dialog open={editDialogOpen === "time-card"} onOpenChange={(open) => { if (!open) { setEditDialogOpen(null); setEditingCost(null); } }}>
+        <DialogContent className="w-[70vw] max-w-none max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="text-xl">Edit TimeCard</DialogTitle>
+            <DialogDescription>Edit the timecard entry</DialogDescription>
+            <button
+              onClick={() => { setEditDialogOpen(null); setEditingCost(null); }}
+              className="absolute right-4 top-4 rounded-sm opacity-70 hover:opacity-100"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          </DialogHeader>
+          {editingCost && (
+            <div className="space-y-6 py-4">
+              <div className="grid grid-cols-3 gap-4">
+                <div className="space-y-2">
+                  <Label>Timekeeper</Label>
+                  <Input 
+                    placeholder="" 
+                    value={editingCost.timekeeker || ""}
+                    onChange={(e) => setEditingCost({...editingCost, timekeeker: e.target.value})}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Date</Label>
+                  <Input
+                    type="date"
+                    value={editingCost.date || ""}
+                    onChange={(e) => setEditingCost({...editingCost, date: e.target.value})}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Type</Label>
+                  <Input 
+                    value={editingCost.type || "Lawyer Work"}
+                    disabled
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label>Task</Label>
+                <Input 
+                  placeholder="" 
+                  value={editingCost.task || ""}
+                  onChange={(e) => setEditingCost({...editingCost, task: e.target.value})}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label>Description</Label>
+                <Textarea 
+                  className="min-h-[100px]" 
+                  placeholder="" 
+                  value={editingCost.description || ""}
+                  onChange={(e) => setEditingCost({...editingCost, description: e.target.value})}
+                />
+              </div>
+
+              <div>
+                <h3 className="text-lg font-medium mb-4">Time & Amount</h3>
+                <div className="grid grid-cols-6 gap-4 mb-4">
+                  <div className="space-y-2 col-span-3">
+                    <Label>Time Spent</Label>
+                    <Select
+                      value={String(editingCost.time_spent_id || "")}
+                      onValueChange={(value) => setEditingCost({...editingCost, time_spent_id: value})}
+                    >
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="Select" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {timeSpentOptions.map((item) => (
+                          <SelectItem key={item.id} value={String(item.id)}>
+                            {item.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2 col-span-3">
+                    <Label>Time Billed</Label>
+                    <Input 
+                      placeholder="00:00" 
+                      className="w-full" 
+                      value={editingCost.time_billed || ""}
+                      onChange={(e) => setEditingCost({...editingCost, time_billed: e.target.value})}
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-6 gap-4">
+                  <div className="space-y-2 col-span-2">
+                    <Label>Rate Level</Label>
+                    <Select
+                      value={String(editingCost.rate_level_id || "")}
+                      onValueChange={(value) => setEditingCost({...editingCost, rate_level_id: value})}
+                    >
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="Select" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {rateLevelOptions.map((item) => (
+                          <SelectItem key={item.id} value={String(item.id)}>
+                            {item.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2 col-span-2">
+                    <Label>Rate/Price</Label>
+                    <Input 
+                      type="number" 
+                      className="w-full" 
+                      value={editingCost.rate || ""}
+                      onChange={(e) => setEditingCost({...editingCost, rate: e.target.value})}
+                    />
+                  </div>
+                  <div className="space-y-2 col-span-2">
+                    <Label>Rate Type</Label>
+                    <Select
+                      value={String(editingCost.rate_type_id || "")}
+                      onValueChange={(value) => setEditingCost({...editingCost, rate_type_id: value})}
+                    >
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="Select" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {rateTypeOptions.map((item) => (
+                          <SelectItem key={item.id} value={String(item.id)}>
+                            {item.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+              </div>
+
+              <Tabs defaultValue="billing" className="w-full">
+                <TabsList className="grid w-full grid-cols-3">
+                  <TabsTrigger value="billing">Billing Info</TabsTrigger>
+                  <TabsTrigger value="note">Note</TabsTrigger>
+                  <TabsTrigger value="tax">Tax</TabsTrigger>
+                </TabsList>
+                <TabsContent value="billing" className="space-y-4 pt-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label>Billing Status</Label>
+                      <Select
+                        value={String(editingCost.billing_status_id || "")}
+                        onValueChange={(value) => setEditingCost({...editingCost, billing_status_id: value})}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {billingStatusOptions.map((item) => (
+                            <SelectItem key={item.id} value={String(item.id)}>
+                              {item.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="flex items-center space-x-2 pt-8">
+                      <Checkbox 
+                        id="edit-hold" 
+                        checked={editingCost.hold || false}
+                        onCheckedChange={(checked) => setEditingCost({...editingCost, hold: checked})}
+                      />
+                      <Label htmlFor="edit-hold" className="font-normal">Hold</Label>
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Flag</Label>
+                    <Select
+                      value={String(editingCost.flag_id || "")}
+                      onValueChange={(value) => setEditingCost({...editingCost, flag_id: value})}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {flagOptions.map((item) => (
+                          <SelectItem key={item.id} value={String(item.id)}>
+                            {item.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </TabsContent>
+                <TabsContent value="note" className="pt-4">
+                  <Textarea 
+                    className="min-h-[100px]" 
+                    placeholder="Add notes..." 
+                    value={editingCost.note || ""}
+                    onChange={(e) => setEditingCost({...editingCost, note: e.target.value})}
+                  />
+                </TabsContent>
+                <TabsContent value="tax" className="pt-4">
+                  <div className="space-y-4">
+                    <Select 
+                      value={editingCost.taxable ? "taxable" : "non-taxable"}
+                      onValueChange={(value) => setEditingCost({...editingCost, taxable: value === "taxable"})}
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="taxable">Taxable</SelectItem>
+                        <SelectItem value="non-taxable">Non-Taxable</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </TabsContent>
+              </Tabs>
+            </div>
+          )}
+          <div className="flex justify-end gap-2 pt-4 border-t">
+            <Button variant="outline" onClick={() => { setEditDialogOpen(null); setEditingCost(null); }}>
+              Close
+            </Button>
+            <Button onClick={handleEditTimeCardSubmit} disabled={updateCostMutation.isPending}>
+              {updateCostMutation.isPending ? "Updating..." : "Update"}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Edit Hard Cost Dialog */}
+      <Dialog open={editDialogOpen === "hard-cost"} onOpenChange={(open) => { if (!open) { setEditDialogOpen(null); setEditingCost(null); } }}>
+        <DialogContent className="w-[70vw] max-w-none max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="text-xl">Edit Hard Cost</DialogTitle>
+            <DialogDescription>Edit the hard cost entry</DialogDescription>
+            <button
+              onClick={() => { setEditDialogOpen(null); setEditingCost(null); }}
+              className="absolute right-4 top-4 rounded-sm opacity-70 hover:opacity-100"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          </DialogHeader>
+          {editingCost && (
+            <div className="space-y-6 py-4">
+              <div className="grid grid-cols-5 gap-4">
+                <div className="space-y-2">
+                  <Label>Date</Label>
+                  <Input
+                    type="date"
+                    value={editingCost.date || ""}
+                    onChange={(e) => setEditingCost({...editingCost, date: e.target.value})}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Bank Type</Label>
+                  <Select
+                    value={String(editingCost.bank_type_id || "")}
+                    onValueChange={(value) => setEditingCost({...editingCost, bank_type_id: value})}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {bankTypes.map((item) => (
+                        <SelectItem key={item.id} value={String(item.id)}>
+                          {item.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label>Type</Label>
+                  <Input 
+                    disabled
+                    value={editingCost.type || "Payment"}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Method</Label>
+                  <Select
+                    value={String(editingCost.method_id || "")}
+                    onValueChange={(value) => setEditingCost({...editingCost, method_id: value})}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {accountingMethods.map((item) => (
+                        <SelectItem key={item.id} value={String(item.id)}>
+                          {item.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label>Quantity</Label>
+                  <Input 
+                    type="number" 
+                    value={editingCost.quantity || ""}
+                    onChange={(e) => setEditingCost({...editingCost, quantity: e.target.value})}
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label>Pay to</Label>
+                  <Input 
+                    placeholder="" 
+                    value={editingCost.pay_to || ""}
+                    onChange={(e) => setEditingCost({...editingCost, pay_to: e.target.value})}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Amount</Label>
+                  <Input 
+                    type="number" 
+                    placeholder="" 
+                    value={editingCost.amount || ""}
+                    onChange={(e) => setEditingCost({...editingCost, amount: e.target.value})}
+                  />
+                </div>
+              </div>
+
+              {/* Address 1 */}
+              <div className="space-y-4">
+                <h3 className="text-md font-medium">Address 1</h3>
+                <div className="grid grid-cols-4 gap-4">
+                  <div className="space-y-2">
+                    <Label>Unit Number</Label>
+                    <Input 
+                      placeholder="" 
+                      value={editingCost.address_1?.unit_number || ""}
+                      onChange={(e) => setEditingCost({
+                        ...editingCost, 
+                        address_1: {...(editingCost.address_1 || {}), unit_number: e.target.value}
+                      })}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Street Number</Label>
+                    <Input 
+                      placeholder="" 
+                      value={editingCost.address_1?.street_number || ""}
+                      onChange={(e) => setEditingCost({
+                        ...editingCost, 
+                        address_1: {...(editingCost.address_1 || {}), street_number: e.target.value}
+                      })}
+                    />
+                  </div>
+                  <div className="space-y-2 col-span-2">
+                    <Label>Street Name</Label>
+                    <Input 
+                      placeholder="" 
+                      value={editingCost.address_1?.street_name || ""}
+                      onChange={(e) => setEditingCost({
+                        ...editingCost, 
+                        address_1: {...(editingCost.address_1 || {}), street_name: e.target.value}
+                      })}
+                    />
+                  </div>
+                </div>
+                <div className="grid grid-cols-4 gap-4">
+                  <div className="space-y-2">
+                    <Label>City</Label>
+                    <Input 
+                      placeholder="" 
+                      value={editingCost.address_1?.city || ""}
+                      onChange={(e) => setEditingCost({
+                        ...editingCost, 
+                        address_1: {...(editingCost.address_1 || {}), city: e.target.value}
+                      })}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Province</Label>
+                    <Input 
+                      placeholder="" 
+                      value={editingCost.address_1?.province || ""}
+                      onChange={(e) => setEditingCost({
+                        ...editingCost, 
+                        address_1: {...(editingCost.address_1 || {}), province: e.target.value}
+                      })}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Postal Code</Label>
+                    <Input 
+                      placeholder="" 
+                      value={editingCost.address_1?.postal_code || ""}
+                      onChange={(e) => setEditingCost({
+                        ...editingCost, 
+                        address_1: {...(editingCost.address_1 || {}), postal_code: e.target.value}
+                      })}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Country</Label>
+                    <Input 
+                      placeholder="" 
+                      value={editingCost.address_1?.country || ""}
+                      onChange={(e) => setEditingCost({
+                        ...editingCost, 
+                        address_1: {...(editingCost.address_1 || {}), country: e.target.value}
+                      })}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Address 2 */}
+              <div className="space-y-4">
+                <h3 className="text-md font-medium">Address 2</h3>
+                <div className="grid grid-cols-4 gap-4">
+                  <div className="space-y-2">
+                    <Label>Unit Number</Label>
+                    <Input 
+                      placeholder="" 
+                      value={editingCost.address_2?.unit_number || ""}
+                      onChange={(e) => setEditingCost({
+                        ...editingCost, 
+                        address_2: {...(editingCost.address_2 || {}), unit_number: e.target.value}
+                      })}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Street Number</Label>
+                    <Input 
+                      placeholder="" 
+                      value={editingCost.address_2?.street_number || ""}
+                      onChange={(e) => setEditingCost({
+                        ...editingCost, 
+                        address_2: {...(editingCost.address_2 || {}), street_number: e.target.value}
+                      })}
+                    />
+                  </div>
+                  <div className="space-y-2 col-span-2">
+                    <Label>Street Name</Label>
+                    <Input 
+                      placeholder="" 
+                      value={editingCost.address_2?.street_name || ""}
+                      onChange={(e) => setEditingCost({
+                        ...editingCost, 
+                        address_2: {...(editingCost.address_2 || {}), street_name: e.target.value}
+                      })}
+                    />
+                  </div>
+                </div>
+                <div className="grid grid-cols-4 gap-4">
+                  <div className="space-y-2">
+                    <Label>City</Label>
+                    <Input 
+                      placeholder="" 
+                      value={editingCost.address_2?.city || ""}
+                      onChange={(e) => setEditingCost({
+                        ...editingCost, 
+                        address_2: {...(editingCost.address_2 || {}), city: e.target.value}
+                      })}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Province</Label>
+                    <Input 
+                      placeholder="" 
+                      value={editingCost.address_2?.province || ""}
+                      onChange={(e) => setEditingCost({
+                        ...editingCost, 
+                        address_2: {...(editingCost.address_2 || {}), province: e.target.value}
+                      })}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Postal Code</Label>
+                    <Input 
+                      placeholder="" 
+                      value={editingCost.address_2?.postal_code || ""}
+                      onChange={(e) => setEditingCost({
+                        ...editingCost, 
+                        address_2: {...(editingCost.address_2 || {}), postal_code: e.target.value}
+                      })}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Country</Label>
+                    <Input 
+                      placeholder="" 
+                      value={editingCost.address_2?.country || ""}
+                      onChange={(e) => setEditingCost({
+                        ...editingCost, 
+                        address_2: {...(editingCost.address_2 || {}), country: e.target.value}
+                      })}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label>Memo 1</Label>
+                  <Textarea 
+                    className="min-h-[80px]" 
+                    placeholder="" 
+                    value={editingCost.memo_1 || ""}
+                    onChange={(e) => setEditingCost({...editingCost, memo_1: e.target.value})}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Memo 2</Label>
+                  <Textarea 
+                    className="min-h-[80px]" 
+                    placeholder="" 
+                    value={editingCost.memo_2 || ""}
+                    onChange={(e) => setEditingCost({...editingCost, memo_2: e.target.value})}
+                  />
+                </div>
+              </div>
+            </div>
+          )}
+          <div className="flex justify-end gap-2 pt-4 border-t">
+            <Button variant="outline" onClick={() => { setEditDialogOpen(null); setEditingCost(null); }}>
+              Close
+            </Button>
+            <Button onClick={handleEditHardCostSubmit} disabled={updateCostMutation.isPending}>
+              {updateCostMutation.isPending ? "Updating..." : "Update"}
             </Button>
           </div>
         </DialogContent>
