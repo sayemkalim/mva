@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useParams, useNavigate } from "react-router-dom";
 import { fetchList } from "./helper/fetchList";
+import { fetchMeta } from "./helper/fetchMeta";
 import { addCost } from "./helper/addCost";
 import { Button } from "@/components/ui/button";
 import {
@@ -45,7 +46,6 @@ const CostList = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [dialogOpen, setDialogOpen] = useState(null);
   const [timecardDate, setTimecardDate] = useState("");
-  const [hardCostDate, setHardCostDate] = useState("");
 
   // Soft Cost Form State
   const [softCostForm, setSoftCostForm] = useState({
@@ -57,6 +57,37 @@ const CostList = () => {
     quantity: "",
     rate: "",
     taxable: true,
+  });
+
+  // Hard Cost Form State
+  const [hardCostForm, setHardCostForm] = useState({
+    date: "",
+    bank_type_id: "",
+    type: "Payment",
+    method_id: "",
+    quantity: "",
+    pay_to: "",
+    amount: "",
+    memo_1: "",
+    memo_2: "",
+    address_1: {
+      unit_number: "",
+      street_number: "",
+      street_name: "",
+      city: "",
+      province: "",
+      postal_code: "",
+      country: "",
+    },
+    address_2: {
+      unit_number: "",
+      street_number: "",
+      street_name: "",
+      city: "",
+      province: "",
+      postal_code: "",
+      country: "",
+    },
   });
 
   const resetSoftCostForm = () => {
@@ -72,12 +103,45 @@ const CostList = () => {
     });
   };
 
+  const resetHardCostForm = () => {
+    setHardCostForm({
+      date: "",
+      bank_type_id: "",
+      type: "Payment",
+      method_id: "",
+      quantity: "",
+      pay_to: "",
+      amount: "",
+      memo_1: "",
+      memo_2: "",
+      address_1: {
+        unit_number: "",
+        street_number: "",
+        street_name: "",
+        city: "",
+        province: "",
+        postal_code: "",
+        country: "",
+      },
+      address_2: {
+        unit_number: "",
+        street_number: "",
+        street_name: "",
+        city: "",
+        province: "",
+        postal_code: "",
+        country: "",
+      },
+    });
+  };
+
   const addCostMutation = useMutation({
     mutationFn: (payload) => addCost(payload, slug),
     onSuccess: () => {
       queryClient.invalidateQueries(["costList", slug]);
       setDialogOpen(null);
       resetSoftCostForm();
+      resetHardCostForm();
     },
     onError: (error) => {
       console.error("Failed to add cost:", error);
@@ -99,11 +163,38 @@ const CostList = () => {
     addCostMutation.mutate(payload, slug);
   };
 
+  const handleHardCostSubmit = () => {
+    const payload = {
+      section_type: "hard-cost",
+      date: hardCostForm.date,
+      bank_type_id: parseInt(hardCostForm.bank_type_id) || null,
+      type: hardCostForm.type,
+      method_id: parseInt(hardCostForm.method_id) || null,
+      quantity: parseFloat(hardCostForm.quantity) || 1,
+      pay_to: hardCostForm.pay_to,
+      amount: parseFloat(hardCostForm.amount) || 0,
+      memo_1: hardCostForm.memo_1,
+      memo_2: hardCostForm.memo_2,
+      address_1: hardCostForm.address_1,
+      address_2: hardCostForm.address_2,
+    };
+    addCostMutation.mutate(payload, slug);
+  };
+
   const { data, isLoading } = useQuery({
     queryKey: ["costList", slug, currentPage],
     queryFn: () => fetchList(slug, currentPage, 25),
     enabled: !!slug,
   });
+
+  const { data: metaData } = useQuery({
+    queryKey: ["accountingMeta", slug],
+    queryFn: () => fetchMeta(slug),
+    enabled: !!slug,
+  });
+
+  const bankTypes = metaData?.accounting_bank_type || [];
+  const accountingMethods = metaData?.accounting_method || [];
 
   const costs = data?.data || [];
   const unpaid = data?.unpaid || "0.00";
@@ -555,95 +646,279 @@ const CostList = () => {
             </button>
           </DialogHeader>
           <div className="space-y-6 py-4">
-            <div className="grid grid-cols-4 gap-4">
+            <div className="grid grid-cols-5 gap-4">
               <div className="space-y-2">
                 <Label>Date</Label>
                 <Input
                   type="date"
-                  value={hardCostDate}
-                  onChange={(e) => setHardCostDate(e.target.value)}
+                  value={hardCostForm.date}
+                  onChange={(e) => setHardCostForm({...hardCostForm, date: e.target.value})}
                 />
               </div>
               <div className="space-y-2">
                 <Label>Bank Type</Label>
-                <Select>
+                <Select
+                  value={hardCostForm.bank_type_id}
+                  onValueChange={(value) => setHardCostForm({...hardCostForm, bank_type_id: value})}
+                >
                   <SelectTrigger>
-                    <SelectValue placeholder="" />
+                    <SelectValue placeholder="Select" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="trust">Trust</SelectItem>
-                    <SelectItem value="operating">Operating</SelectItem>
+                    {bankTypes.map((item) => (
+                      <SelectItem key={item.id} value={String(item.id)}>
+                        {item.name}
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               </div>
               <div className="space-y-2">
                 <Label>Type</Label>
-                <Input defaultValue="withdrawal" />
+                <Input 
+                  disabled
+                  value={hardCostForm.type}
+                  onChange={(e) => setHardCostForm({...hardCostForm, type: e.target.value})}
+                />
               </div>
               <div className="space-y-2">
                 <Label>Method</Label>
-                <Select>
+                <Select
+                  value={hardCostForm.method_id}
+                  onValueChange={(value) => setHardCostForm({...hardCostForm, method_id: value})}
+                >
                   <SelectTrigger>
-                    <SelectValue placeholder="" />
+                    <SelectValue placeholder="Select" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="cash">Cash</SelectItem>
-                    <SelectItem value="check">Check</SelectItem>
-                    <SelectItem value="transfer">Transfer</SelectItem>
+                    {accountingMethods.map((item) => (
+                      <SelectItem key={item.id} value={String(item.id)}>
+                        {item.name}
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
+              </div>
+              <div className="space-y-2">
+                <Label>Quantity</Label>
+                <Input 
+                  type="number" 
+                  value={hardCostForm.quantity}
+                  onChange={(e) => setHardCostForm({...hardCostForm, quantity: e.target.value})}
+                />
               </div>
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label>Pay to</Label>
-                <Input placeholder="" />
+                <Input 
+                  placeholder="" 
+                  value={hardCostForm.pay_to}
+                  onChange={(e) => setHardCostForm({...hardCostForm, pay_to: e.target.value})}
+                />
               </div>
               <div className="space-y-2">
                 <Label>Amount</Label>
-                <Input type="number" placeholder="" />
+                <Input 
+                  type="number" 
+                  placeholder="" 
+                  value={hardCostForm.amount}
+                  onChange={(e) => setHardCostForm({...hardCostForm, amount: e.target.value})}
+                />
+              </div>
+            </div>
+
+            {/* Address 1 */}
+            <div className="space-y-4">
+              <h3 className="text-md font-medium">Address 1</h3>
+              <div className="grid grid-cols-4 gap-4">
+                <div className="space-y-2">
+                  <Label>Unit Number</Label>
+                  <Input 
+                    placeholder="" 
+                    value={hardCostForm.address_1.unit_number}
+                    onChange={(e) => setHardCostForm({
+                      ...hardCostForm, 
+                      address_1: {...hardCostForm.address_1, unit_number: e.target.value}
+                    })}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Street Number</Label>
+                  <Input 
+                    placeholder="" 
+                    value={hardCostForm.address_1.street_number}
+                    onChange={(e) => setHardCostForm({
+                      ...hardCostForm, 
+                      address_1: {...hardCostForm.address_1, street_number: e.target.value}
+                    })}
+                  />
+                </div>
+                <div className="space-y-2 col-span-2">
+                  <Label>Street Name</Label>
+                  <Input 
+                    placeholder="" 
+                    value={hardCostForm.address_1.street_name}
+                    onChange={(e) => setHardCostForm({
+                      ...hardCostForm, 
+                      address_1: {...hardCostForm.address_1, street_name: e.target.value}
+                    })}
+                  />
+                </div>
+              </div>
+              <div className="grid grid-cols-4 gap-4">
+                <div className="space-y-2">
+                  <Label>City</Label>
+                  <Input 
+                    placeholder="" 
+                    value={hardCostForm.address_1.city}
+                    onChange={(e) => setHardCostForm({
+                      ...hardCostForm, 
+                      address_1: {...hardCostForm.address_1, city: e.target.value}
+                    })}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Province</Label>
+                  <Input 
+                    placeholder="" 
+                    value={hardCostForm.address_1.province}
+                    onChange={(e) => setHardCostForm({
+                      ...hardCostForm, 
+                      address_1: {...hardCostForm.address_1, province: e.target.value}
+                    })}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Postal Code</Label>
+                  <Input 
+                    placeholder="" 
+                    value={hardCostForm.address_1.postal_code}
+                    onChange={(e) => setHardCostForm({
+                      ...hardCostForm, 
+                      address_1: {...hardCostForm.address_1, postal_code: e.target.value}
+                    })}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Country</Label>
+                  <Input 
+                    placeholder="" 
+                    value={hardCostForm.address_1.country}
+                    onChange={(e) => setHardCostForm({
+                      ...hardCostForm, 
+                      address_1: {...hardCostForm.address_1, country: e.target.value}
+                    })}
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Address 2 */}
+            <div className="space-y-4">
+              <h3 className="text-md font-medium">Address 2</h3>
+              <div className="grid grid-cols-4 gap-4">
+                <div className="space-y-2">
+                  <Label>Unit Number</Label>
+                  <Input 
+                    placeholder="" 
+                    value={hardCostForm.address_2.unit_number}
+                    onChange={(e) => setHardCostForm({
+                      ...hardCostForm, 
+                      address_2: {...hardCostForm.address_2, unit_number: e.target.value}
+                    })}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Street Number</Label>
+                  <Input 
+                    placeholder="" 
+                    value={hardCostForm.address_2.street_number}
+                    onChange={(e) => setHardCostForm({
+                      ...hardCostForm, 
+                      address_2: {...hardCostForm.address_2, street_number: e.target.value}
+                    })}
+                  />
+                </div>
+                <div className="space-y-2 col-span-2">
+                  <Label>Street Name</Label>
+                  <Input 
+                    placeholder="" 
+                    value={hardCostForm.address_2.street_name}
+                    onChange={(e) => setHardCostForm({
+                      ...hardCostForm, 
+                      address_2: {...hardCostForm.address_2, street_name: e.target.value}
+                    })}
+                  />
+                </div>
+              </div>
+              <div className="grid grid-cols-4 gap-4">
+                <div className="space-y-2">
+                  <Label>City</Label>
+                  <Input 
+                    placeholder="" 
+                    value={hardCostForm.address_2.city}
+                    onChange={(e) => setHardCostForm({
+                      ...hardCostForm, 
+                      address_2: {...hardCostForm.address_2, city: e.target.value}
+                    })}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Province</Label>
+                  <Input 
+                    placeholder="" 
+                    value={hardCostForm.address_2.province}
+                    onChange={(e) => setHardCostForm({
+                      ...hardCostForm, 
+                      address_2: {...hardCostForm.address_2, province: e.target.value}
+                    })}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Postal Code</Label>
+                  <Input 
+                    placeholder="" 
+                    value={hardCostForm.address_2.postal_code}
+                    onChange={(e) => setHardCostForm({
+                      ...hardCostForm, 
+                      address_2: {...hardCostForm.address_2, postal_code: e.target.value}
+                    })}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Country</Label>
+                  <Input 
+                    placeholder="" 
+                    value={hardCostForm.address_2.country}
+                    onChange={(e) => setHardCostForm({
+                      ...hardCostForm, 
+                      address_2: {...hardCostForm.address_2, country: e.target.value}
+                    })}
+                  />
+                </div>
               </div>
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label>Address 1</Label>
-                <Input placeholder="" />
-              </div>
-              <div className="space-y-2">
-                <Label>Address 2</Label>
-                <Input placeholder="" />
-              </div>
-            </div>
-
-            <div className="grid grid-cols-4 gap-4">
-              <div className="space-y-2">
-                <Label>City</Label>
-                <Input placeholder="" />
-              </div>
-              <div className="space-y-2">
-                <Label>State/Province</Label>
-                <Input placeholder="" />
-              </div>
-              <div className="space-y-2">
-                <Label>Zip/Postal code</Label>
-                <Input placeholder="" />
-              </div>
-              <div className="space-y-2">
-                <Label>Country</Label>
-                <Input placeholder="" />
-              </div>
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label>Memo</Label>
-                <Textarea className="min-h-[80px]" placeholder="" />
+                <Label>Memo 1</Label>
+                <Textarea 
+                  className="min-h-[80px]" 
+                  placeholder="" 
+                  value={hardCostForm.memo_1}
+                  onChange={(e) => setHardCostForm({...hardCostForm, memo_1: e.target.value})}
+                />
               </div>
               <div className="space-y-2">
                 <Label>Memo 2</Label>
-                <Textarea className="min-h-[80px]" placeholder="" />
+                <Textarea 
+                  className="min-h-[80px]" 
+                  placeholder="" 
+                  value={hardCostForm.memo_2}
+                  onChange={(e) => setHardCostForm({...hardCostForm, memo_2: e.target.value})}
+                />
               </div>
             </div>
           </div>
@@ -651,7 +926,9 @@ const CostList = () => {
             <Button variant="outline" onClick={() => setDialogOpen(null)}>
               Close
             </Button>
-            <Button>Save changes</Button>
+            <Button onClick={handleHardCostSubmit} disabled={addCostMutation.isPending}>
+              {addCostMutation.isPending ? "Saving..." : "Save changes"}
+            </Button>
           </div>
         </DialogContent>
       </Dialog>

@@ -311,5 +311,7 @@ export const endpoints = {
   singleCost: "api/v2/file/accounting/expence/show",
   deleteCost: "api/v2/file/accounting/expence/delete",
   addCost: "api/v2/file/accounting/expence/save",
-  updateCost: "api/v2/file/accounting/expence/update"
+  updateCost: "api/v2/file/accounting/expence/update",
+  accountingMeta: "api/v2/file/accounting/expence/meta",
+  accidentBenifitMeta: "api/v2/file/accident-benefits/meta"
 };
