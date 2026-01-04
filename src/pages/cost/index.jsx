@@ -37,6 +37,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Navbar2 } from "@/components/navbar2";
 
 const CostList = () => {
   const { slug } = useParams();
@@ -71,7 +72,6 @@ const CostList = () => {
     });
   };
 
-  // Add Cost Mutation
   const addCostMutation = useMutation({
     mutationFn: (payload) => addCost(payload, slug),
     onSuccess: () => {
@@ -142,31 +142,28 @@ const CostList = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background p-6">
-      {/* Header Section with Financial Summary */}
-      <div className="mb-6 bg-white border border-border p-4 rounded-lg">
-        <div className="flex items-center justify-between text-sm">
-          <div className="flex items-center gap-6">
-            <span>
-              <span className="font-medium">Unpaid:</span> {formatCurrency(unpaid)}
-            </span>
-            <span>
-              <span className="font-medium">Unbilled:</span> {formatCurrency(unbilled)}
-            </span>
-            <span>
-              <span className="font-medium">Client Funds-Operating:</span>{" "}
-              {formatCurrency(clientFundsOperating)}
-            </span>
-            <span>
-              <span className="font-medium">Client Funds-Trust:</span>{" "}
-              {formatCurrency(clientFundsTrust)}
-            </span>
+
+    <div className="min-h-screen bg-background">
+      <Navbar2 />
+      <header className="bg-white border-b px-6 py-3">
+        <div className="flex items-center justify-end gap-6 text-sm text-gray-700">
+          <div>
+            Unpaid: <span className="font-semibold">{formatCurrency(unpaid)}</span>
+          </div>
+          <div>
+            Unbilled: <span className="font-semibold">{formatCurrency(unbilled)}</span>
+          </div>
+          <div>
+            Client Funds-Operating: <span className="font-semibold">{formatCurrency(clientFundsOperating)}</span>
+          </div>
+          <div>
+            Client Funds-Trust: <span className="font-semibold">{formatCurrency(clientFundsTrust)}</span>
           </div>
         </div>
-      </div>
+      </header>
 
       {/* Breadcrumb */}
-      <div className="flex items-center gap-2 text-sm text-muted-foreground mb-6">
+      <div className="flex items-center gap-2 text-sm text-muted-foreground mb-6 px-6 pt-2">
         <span className="cursor-pointer hover:text-foreground">CRM</span>
         <span>&gt;</span>
         <span className="cursor-pointer hover:text-foreground">Accounting</span>
@@ -175,7 +172,7 @@ const CostList = () => {
       </div>
 
       {/* Add New Button with Popover */}
-      <div className="mb-6">
+      <div className="mb-6 px-6">
         <Popover>
           <PopoverTrigger asChild>
             <Button className="bg-primary hover:bg-primary/90 gap-2">
@@ -213,7 +210,7 @@ const CostList = () => {
       </div>
 
       {/* Table */}
-      <div className="bg-white rounded-lg border border-border overflow-hidden">
+      <div className="bg-white rounded-lg border border-border overflow-hidden mx-6 mb-6">
         <Table>
           <TableHeader>
             <TableRow className="bg-gray-50">

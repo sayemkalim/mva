@@ -47,6 +47,7 @@ import {
   Mail,
   FileChartColumn,
   LogOutIcon,
+  Wallet
 } from "lucide-react";
 import { getItem } from "../local_storage";
 
@@ -1005,14 +1006,21 @@ export const getEditModeData = (slug) => ({
       icon: Receipt,
       items: [
         {
-          title: "Client Memo Settlement",
-          url: `/dashboard/workstation/edit/${slug}/client-memo-settlement`,
-          icon: User,
-        },
-        {
-          title: "Cost",
-          url: `/dashboard/workstation/edit/${slug}/cost`,
-          icon: User,
+          title: "Billing",
+          url: `/dashboard/workstation/edit/${slug}/billing`,
+          icon: Wallet,
+          items: [
+            {
+              title: "Client Memo Settlement",
+              url: `/dashboard/workstation/edit/${slug}/client-memo-settlement`,
+              icon: User,
+            },
+            {
+              title: "Cost",
+              url: `/dashboard/workstation/edit/${slug}/cost`,
+              icon: User,
+            },
+          ],
         },
       ],
     },
