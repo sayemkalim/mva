@@ -3,6 +3,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useParams } from "react-router-dom";
 import { fetchList } from "./helper/fetchList";
 import { fetchMeta } from "./helper/fetchMeta";
+import { fetchSingleDeposit } from "./helper/fetchSingleDeposit";
 import { addDeposit } from "./helper/addDeposit";
 import { deleteDeposit } from "./helper/deleteDeposit";
 import { updateDeposit } from "./helper/updateDeposit";
@@ -124,9 +125,18 @@ const BankTransaction = () => {
     },
   });
 
-  const handleEditDeposit = (item) => {
-    setEditingDeposit(item);
-    setEditDialogOpen(true);
+  const handleEditDeposit = async (item) => {
+    try {
+      const response = await fetchSingleDeposit(item.id);
+      const depositData = response?.data || response;
+      setEditingDeposit({
+        ...depositData,
+        date: depositData.date ? depositData.date.split("T")[0] : "",
+      });
+      setEditDialogOpen(true);
+    } catch (error) {
+      console.error("Failed to fetch deposit details:", error);
+    }
   };
 
   const handleDeleteDeposit = (id) => {
@@ -235,7 +245,6 @@ const formatDate = (dateString) => {
         </div>
       </header>
 
-      {/* Breadcrumb */}
       <nav className="bg-white border-b px-6 py-4 text-sm text-gray-600">
         <div className="flex items-center gap-2">
           <button
@@ -258,7 +267,6 @@ const formatDate = (dateString) => {
         </div>
       </nav>
 
-      {/* Add New Button */}
       <div className="mb-6 px-6">
         <Button 
           className="bg-primary hover:bg-primary/90 gap-2"
@@ -333,7 +341,6 @@ const formatDate = (dateString) => {
         </Table>
       </div>
 
-      {/* Add Transaction Dialog */}
       <Dialog open={dialogOpen} onOpenChange={(open) => !open && setDialogOpen(false)}>
         <DialogContent className="w-[70vw] max-w-none max-h-[90vh] overflow-y-auto">
           <DialogHeader>
@@ -530,7 +537,6 @@ const formatDate = (dateString) => {
         </DialogContent>
       </Dialog>
 
-      {/* Edit Transaction Dialog */}
       <Dialog open={editDialogOpen} onOpenChange={(open) => { if (!open) { setEditDialogOpen(false); setEditingDeposit(null); } }}>
         <DialogContent className="w-[70vw] max-w-none max-h-[90vh] overflow-y-auto">
           <DialogHeader>
@@ -729,7 +735,6 @@ const formatDate = (dateString) => {
         </DialogContent>
       </Dialog>
 
-      {/* Delete Confirmation Dialog */}
       <Dialog open={deleteConfirmId !== null} onOpenChange={(open) => !open && setDeleteConfirmId(null)}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
