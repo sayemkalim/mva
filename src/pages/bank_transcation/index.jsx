@@ -369,7 +369,7 @@ const formatDate = (dateString) => {
                   value={form.banktype_id}
                   onValueChange={(value) => setForm({...form, banktype_id: value})}
                 >
-                  <SelectTrigger>
+                  <SelectTrigger className="w-full">
                     <SelectValue placeholder="Select" />
                   </SelectTrigger>
                   <SelectContent>
@@ -387,7 +387,7 @@ const formatDate = (dateString) => {
                   value={form.method_id}
                   onValueChange={(value) => setForm({...form, method_id: value})}
                 >
-                  <SelectTrigger>
+                  <SelectTrigger className="w-full">
                     <SelectValue placeholder="Select" />
                   </SelectTrigger>
                   <SelectContent>
@@ -405,7 +405,7 @@ const formatDate = (dateString) => {
                   value={form.type_id}
                   onValueChange={(value) => setForm({...form, type_id: value})}
                 >
-                  <SelectTrigger>
+                  <SelectTrigger className="w-full">
                     <SelectValue placeholder="Select" />
                   </SelectTrigger>
                   <SelectContent>
@@ -566,7 +566,7 @@ const formatDate = (dateString) => {
                     value={String(editingDeposit.banktype_id || "")}
                     onValueChange={(value) => setEditingDeposit({...editingDeposit, banktype_id: value})}
                   >
-                    <SelectTrigger>
+                    <SelectTrigger className="w-full">
                       <SelectValue placeholder="Select" />
                     </SelectTrigger>
                     <SelectContent>
@@ -584,7 +584,7 @@ const formatDate = (dateString) => {
                     value={String(editingDeposit.method_id || "")}
                     onValueChange={(value) => setEditingDeposit({...editingDeposit, method_id: value})}
                   >
-                    <SelectTrigger>
+                    <SelectTrigger className="w-full">
                       <SelectValue placeholder="Select" />
                     </SelectTrigger>
                     <SelectContent>
@@ -602,7 +602,7 @@ const formatDate = (dateString) => {
                     value={String(editingDeposit.type_id || "")}
                     onValueChange={(value) => setEditingDeposit({...editingDeposit, type_id: value})}
                   >
-                    <SelectTrigger>
+                    <SelectTrigger className="w-full">
                       <SelectValue placeholder="Select" />
                     </SelectTrigger>
                     <SelectContent>
