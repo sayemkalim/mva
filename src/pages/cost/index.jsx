@@ -4,6 +4,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { fetchList } from "./helper/fetchList";
 import { fetchMeta } from "./helper/fetchMeta";
 import { addCost } from "./helper/addCost";
+import { deleteCost } from "./helper/deleteCost";
 import { Button } from "@/components/ui/button";
 import {
   Popover,
@@ -19,7 +20,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Plus, ChevronDown, X } from "lucide-react";
+import { Plus, ChevronDown, X, Trash2 } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -45,6 +46,7 @@ const CostList = () => {
   const queryClient = useQueryClient();
   const [currentPage, setCurrentPage] = useState(1);
   const [dialogOpen, setDialogOpen] = useState(null);
+  const [deleteConfirmId, setDeleteConfirmId] = useState(null);
 
   // Soft Cost Form State
   const [softCostForm, setSoftCostForm] = useState({
@@ -186,6 +188,27 @@ const CostList = () => {
       console.error("Failed to add cost:", error);
     },
   });
+
+  const deleteCostMutation = useMutation({
+    mutationFn: (id) => deleteCost(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries(["costList", slug]);
+    },
+    onError: (error) => {
+      console.error("Failed to delete cost:", error);
+    },
+  });
+
+  const handleDeleteCost = (id) => {
+    setDeleteConfirmId(id);
+  };
+
+  const confirmDelete = () => {
+    if (deleteConfirmId) {
+      deleteCostMutation.mutate(deleteConfirmId);
+      setDeleteConfirmId(null);
+    }
+  };
 
   const handleSoftCostSubmit = () => {
     const payload = {
@@ -383,6 +406,7 @@ const CostList = () => {
               <TableHead>Payment Amount</TableHead>
               <TableHead>Balance</TableHead>
               <TableHead>Status</TableHead>
+              <TableHead className="w-20">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -422,6 +446,17 @@ const CostList = () => {
                     <TableCell>{parseFloat(item.amount || 0).toFixed(2)}</TableCell>
                     <TableCell>{runningBalance.toFixed(2)}</TableCell>
                     <TableCell className="text-orange-500">{getStatusLabel(item)}</TableCell>
+                    <TableCell>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8 text-destructive hover:text-destructive hover:bg-destructive/10"
+                        onClick={() => handleDeleteCost(item.id)}
+                        disabled={deleteCostMutation.isPending}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </TableCell>
                   </TableRow>
                 );
               })
@@ -1075,6 +1110,30 @@ const CostList = () => {
             </Button>
             <Button onClick={handleHardCostSubmit} disabled={addCostMutation.isPending}>
               {addCostMutation.isPending ? "Saving..." : "Save changes"}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={deleteConfirmId !== null} onOpenChange={(open) => !open && setDeleteConfirmId(null)}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Delete Cost Entry</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to delete this cost entry? This action cannot be undone.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex justify-end gap-2 pt-4">
+            <Button variant="outline" onClick={() => setDeleteConfirmId(null)}>
+              Cancel
+            </Button>
+            <Button 
+              variant="destructive" 
+              onClick={confirmDelete}
+              disabled={deleteCostMutation.isPending}
+            >
+              {deleteCostMutation.isPending ? "Deleting..." : "Delete"}
             </Button>
           </div>
         </DialogContent>
