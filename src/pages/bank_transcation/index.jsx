@@ -52,7 +52,6 @@ const BankTransaction = () => {
   const [editingDeposit, setEditingDeposit] = useState(null);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
 
-  // Form State
   const [form, setForm] = useState({
     banktype_id: "",
     method_id: "",
@@ -158,6 +157,7 @@ const BankTransaction = () => {
       country: form.country,
       memo_1st: form.memo_1st,
       memo_2nd: form.memo_2nd,
+      slug: slug,
     };
     addMutation.mutate(payload);
   };
@@ -278,7 +278,7 @@ const formatDate = (dateString) => {
               <TableHead>Bank Type</TableHead>
               <TableHead>Method</TableHead>
               <TableHead>Type</TableHead>
-              <TableHead>Pay/Depoist</TableHead>
+              <TableHead>Payor</TableHead>
               <TableHead>Amount</TableHead>
               <TableHead className="w-24">Actions</TableHead>
             </TableRow>
@@ -414,7 +414,7 @@ const formatDate = (dateString) => {
 
             <div className="grid grid-cols-4 gap-4">
               <div className="space-y-2">
-                <Label>Pay/Or</Label>
+                <Label>Payor</Label>
                 <Input 
                   placeholder="" 
                   value={form.pay_or}
@@ -612,7 +612,7 @@ const formatDate = (dateString) => {
 
               <div className="grid grid-cols-4 gap-4">
                 <div className="space-y-2">
-                  <Label>Pay/Or</Label>
+                  <Label>Payor</Label>
                   <Input 
                     placeholder="" 
                     value={editingDeposit.pay_or || ""}
