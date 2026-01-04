@@ -1030,25 +1030,9 @@ export const getEditModeData = (slug) => ({
     },
     {
       title: "Email",
-      url: ``,
+      url: `/dashboard/workstation/edit/${slug}/email`,
       icon: Mail,
-      items: [
-        {
-          title: "Inbox",
-          url: `/dashboard/workstation/edit/${slug}/inbox`,
-          icon: User,
-        },
-        {
-          title: "Sent",
-          url: `/dashboard/workstation/edit/${slug}/sent`,
-          icon: User,
-        },
-        {
-          title: "Draft",
-          url: `/dashboard/workstation/edit/${slug}/draft`,
-          icon: User,
-        },
-      ],
+      items: [],
     },
   ],
   projects: [],

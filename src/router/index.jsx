@@ -124,6 +124,7 @@ import ExportAdjustersOnFiles from "@/pages/generate_report/adjusters_on_files";
 import ExportListOfPoliceStations from "@/pages/generate_report/list_of_police_stations";
 import ExportVsrExamination from "@/pages/generate_report/vsr_examination";
 import Email from "@/pages/email";
+import InternalEmail from "@/pages/internal_email";
 
 const Router = () => {
   return (
@@ -564,6 +565,10 @@ const Router = () => {
           <Route
             path="/dashboard/workstation/edit/:slug/event"
             element={<InternalCalendar />}
+          />
+          <Route
+            path="/dashboard/workstation/edit/:slug/email"
+            element={<InternalEmail />}
           />
           <Route path="/dashboard/report" element={<ReportPage />} />
           <Route
