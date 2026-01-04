@@ -45,7 +45,6 @@ const CostList = () => {
   const queryClient = useQueryClient();
   const [currentPage, setCurrentPage] = useState(1);
   const [dialogOpen, setDialogOpen] = useState(null);
-  const [timecardDate, setTimecardDate] = useState("");
 
   // Soft Cost Form State
   const [softCostForm, setSoftCostForm] = useState({
@@ -88,6 +87,25 @@ const CostList = () => {
       postal_code: "",
       country: "",
     },
+  });
+
+  // TimeCard Form State
+  const [timeCardForm, setTimeCardForm] = useState({
+    timekeeper: "",
+    date: "",
+    type: "Lawyer Work",
+    task: "",
+    description: "",
+    time_spent_id: "",
+    time_billed: "",
+    rate_level_id: "",
+    rate: "",
+    rate_type_id: "",
+    billing_status_id: "",
+    hold: false,
+    flag_id: "",
+    note: "",
+    taxable: true,
   });
 
   const resetSoftCostForm = () => {
@@ -135,6 +153,26 @@ const CostList = () => {
     });
   };
 
+  const resetTimeCardForm = () => {
+    setTimeCardForm({
+      timekeeper: "",
+      date: "",
+      type: "Lawyer Work",
+      task: "",
+      description: "",
+      time_spent_id: "",
+      time_billed: "",
+      rate_level_id: "",
+      rate: "",
+      rate_type_id: "",
+      billing_status_id: "",
+      hold: false,
+      flag_id: "",
+      note: "",
+      taxable: true,
+    });
+  };
+
   const addCostMutation = useMutation({
     mutationFn: (payload) => addCost(payload, slug),
     onSuccess: () => {
@@ -142,6 +180,7 @@ const CostList = () => {
       setDialogOpen(null);
       resetSoftCostForm();
       resetHardCostForm();
+      resetTimeCardForm();
     },
     onError: (error) => {
       console.error("Failed to add cost:", error);
@@ -159,6 +198,28 @@ const CostList = () => {
       quantity: parseFloat(softCostForm.quantity) || 0,
       rate: parseFloat(softCostForm.rate) || 0,
       taxable: softCostForm.taxable,
+    };
+    addCostMutation.mutate(payload, slug);
+  };
+
+  const handleTimeCardSubmit = () => {
+    const payload = {
+      section_type: "time-card",
+      timekeeker: timeCardForm.timekeeper,
+      date: timeCardForm.date,
+      type: timeCardForm.type,
+      task: timeCardForm.task,
+      description: timeCardForm.description,
+      time_spent_id: parseInt(timeCardForm.time_spent_id) || null,
+      time_billed: timeCardForm.time_billed,
+      rate_level_id: parseInt(timeCardForm.rate_level_id) || null,
+      rate: parseFloat(timeCardForm.rate) || 0,
+      rate_type_id: parseInt(timeCardForm.rate_type_id) || null,
+      billing_status_id: parseInt(timeCardForm.billing_status_id) || null,
+      hold: timeCardForm.hold,
+      flag_id: parseInt(timeCardForm.flag_id) || null,
+      note: timeCardForm.note,
+      taxable: timeCardForm.taxable,
     };
     addCostMutation.mutate(payload, slug);
   };
@@ -195,6 +256,11 @@ const CostList = () => {
 
   const bankTypes = metaData?.accounting_bank_type || [];
   const accountingMethods = metaData?.accounting_method || [];
+  const timeSpentOptions = metaData?.timeentries || [];
+  const rateLevelOptions = metaData?.rateentries || [];
+  const rateTypeOptions = metaData?.accounting_rate_type || [];
+  const billingStatusOptions = metaData?.accounting_billing_status || [];
+  const flagOptions = metaData?.accounting_flag || [];
 
   const costs = data?.data || [];
   const unpaid = data?.unpaid || "0.00";
@@ -377,29 +443,49 @@ const CostList = () => {
             </button>
           </DialogHeader>
           <div className="space-y-6 py-4">
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-3 gap-4">
               <div className="space-y-2">
                 <Label>Timekeeper</Label>
-                <Input placeholder="" />
+                <Input 
+                  placeholder="" 
+                  value={timeCardForm.timekeeper}
+                  onChange={(e) => setTimeCardForm({...timeCardForm, timekeeper: e.target.value})}
+                />
               </div>
               <div className="space-y-2">
                 <Label>Date</Label>
                 <Input
                   type="date"
-                  value={timecardDate}
-                  onChange={(e) => setTimecardDate(e.target.value)}
+                  value={timeCardForm.date}
+                  onChange={(e) => setTimeCardForm({...timeCardForm, date: e.target.value})}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Type</Label>
+                <Input 
+                  value={timeCardForm.type}
+                  disabled
                 />
               </div>
             </div>
 
             <div className="space-y-2">
               <Label>Task</Label>
-              <Input placeholder="" />
+              <Input 
+                placeholder="" 
+                value={timeCardForm.task}
+                onChange={(e) => setTimeCardForm({...timeCardForm, task: e.target.value})}
+              />
             </div>
 
             <div className="space-y-2">
               <Label>Description</Label>
-              <Textarea className="min-h-[100px]" placeholder="" />
+              <Textarea 
+                className="min-h-[100px]" 
+                placeholder="" 
+                value={timeCardForm.description}
+                onChange={(e) => setTimeCardForm({...timeCardForm, description: e.target.value})}
+              />
             </div>
 
             <div>
@@ -407,59 +493,86 @@ const CostList = () => {
               <div className="grid grid-cols-6 gap-4 mb-4">
                 <div className="space-y-2 col-span-3">
                   <Label>Time Spent</Label>
-                  <Select>
+                  <Select
+                    value={timeCardForm.time_spent_id}
+                    onValueChange={(value) => setTimeCardForm({...timeCardForm, time_spent_id: value})}
+                  >
                     <SelectTrigger className="w-full">
-                      <SelectValue placeholder="" />
+                      <SelectValue placeholder="Select" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="0.25">0.25 hours</SelectItem>
-                      <SelectItem value="0.5">0.5 hours</SelectItem>
-                      <SelectItem value="1">1 hour</SelectItem>
-                      <SelectItem value="2">2 hours</SelectItem>
+                      {timeSpentOptions.map((item) => (
+                        <SelectItem key={item.id} value={String(item.id)}>
+                          {item.name}
+                        </SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                 </div>
                 <div className="space-y-2 col-span-3">
                   <Label>Time Billed</Label>
-                  <Input placeholder="" className="w-full" />
+                  <Input 
+                    placeholder="00:00" 
+                    className="w-full" 
+                    value={timeCardForm.time_billed}
+                    onChange={(e) => setTimeCardForm({...timeCardForm, time_billed: e.target.value})}
+                  />
                 </div>
               </div>
 
               <div className="grid grid-cols-6 gap-4">
                 <div className="space-y-2 col-span-2">
                   <Label>Rate Level</Label>
-                  <Select>
+                  <Select
+                    value={timeCardForm.rate_level_id}
+                    onValueChange={(value) => setTimeCardForm({...timeCardForm, rate_level_id: value})}
+                  >
                     <SelectTrigger className="w-full">
-                      <SelectValue placeholder="" />
+                      <SelectValue placeholder="Select" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="junior">Junior</SelectItem>
-                      <SelectItem value="senior">Senior</SelectItem>
-                      <SelectItem value="partner">Partner</SelectItem>
+                      {rateLevelOptions.map((item) => (
+                        <SelectItem key={item.id} value={String(item.id)}>
+                          {item.name}
+                        </SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                 </div>
                 <div className="space-y-2 col-span-2">
                   <Label>Rate/Price</Label>
-                  <Input type="number" defaultValue="0" className="w-full" />
+                  <Input 
+                    type="number" 
+                    className="w-full" 
+                    value={timeCardForm.rate}
+                    onChange={(e) => setTimeCardForm({...timeCardForm, rate: e.target.value})}
+                  />
                 </div>
                 <div className="space-y-2 col-span-2">
                   <Label>Rate Type</Label>
-                  <Select defaultValue="hourly">
+                  <Select
+                    value={timeCardForm.rate_type_id}
+                    onValueChange={(value) => setTimeCardForm({...timeCardForm, rate_type_id: value})}
+                  >
                     <SelectTrigger className="w-full">
-                      <SelectValue />
+                      <SelectValue placeholder="Select" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="hourly">Hourly</SelectItem>
-                      <SelectItem value="fixed">Fixed</SelectItem>
+                      {rateTypeOptions.map((item) => (
+                        <SelectItem key={item.id} value={String(item.id)}>
+                          {item.name}
+                        </SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                 </div>
               </div>
 
-              <div className="text-right mt-4">
-                <span className="text-sm text-muted-foreground">Value: $0.00</span>
-              </div>
+              {/* <div className="text-right mt-4">
+                <span className="text-sm text-muted-foreground">
+                  Value: ${((parseFloat(timeCardForm.rate) || 0) * (parseFloat(timeCardForm.time_billed?.split(':')[0]) || 0)).toFixed(2)}
+                </span>
+              </div> */}
             </div>
 
             <Tabs defaultValue="billing" className="w-full">
@@ -472,40 +585,72 @@ const CostList = () => {
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label>Billing Status</Label>
-                    <Select>
+                    <Select
+                      value={timeCardForm.billing_status_id}
+                      onValueChange={(value) => setTimeCardForm({...timeCardForm, billing_status_id: value})}
+                    >
                       <SelectTrigger>
-                        <SelectValue placeholder="" />
+                        <SelectValue placeholder="Select" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="billed">Billed</SelectItem>
-                        <SelectItem value="unbilled">Unbilled</SelectItem>
+                        {billingStatusOptions.map((item) => (
+                          <SelectItem key={item.id} value={String(item.id)}>
+                            {item.name}
+                          </SelectItem>
+                        ))}
                       </SelectContent>
                     </Select>
                   </div>
                   <div className="flex items-center space-x-2 pt-8">
-                    <Checkbox id="hold" />
+                    <Checkbox 
+                      id="hold" 
+                      checked={timeCardForm.hold}
+                      onCheckedChange={(checked) => setTimeCardForm({...timeCardForm, hold: checked})}
+                    />
                     <Label htmlFor="hold" className="font-normal">Hold</Label>
                   </div>
                 </div>
                 <div className="space-y-2">
                   <Label>Flag</Label>
-                  <Select>
+                  <Select
+                    value={timeCardForm.flag_id}
+                    onValueChange={(value) => setTimeCardForm({...timeCardForm, flag_id: value})}
+                  >
                     <SelectTrigger>
-                      <SelectValue placeholder="" />
+                      <SelectValue placeholder="Select" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="urgent">Urgent</SelectItem>
-                      <SelectItem value="normal">Normal</SelectItem>
+                      {flagOptions.map((item) => (
+                        <SelectItem key={item.id} value={String(item.id)}>
+                          {item.name}
+                        </SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                 </div>
               </TabsContent>
               <TabsContent value="note" className="pt-4">
-                <Textarea className="min-h-[100px]" placeholder="Add notes..." />
+                <Textarea 
+                  className="min-h-[100px]" 
+                  placeholder="Add notes..." 
+                  value={timeCardForm.note}
+                  onChange={(e) => setTimeCardForm({...timeCardForm, note: e.target.value})}
+                />
               </TabsContent>
               <TabsContent value="tax" className="pt-4">
                 <div className="space-y-4">
-                  <p className="text-sm text-muted-foreground">Tax information will be displayed here</p>
+                  <Select 
+                    value={timeCardForm.taxable ? "taxable" : "non-taxable"}
+                    onValueChange={(value) => setTimeCardForm({...timeCardForm, taxable: value === "taxable"})}
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="taxable">Taxable</SelectItem>
+                      <SelectItem value="non-taxable">Non-Taxable</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
               </TabsContent>
             </Tabs>
@@ -514,7 +659,9 @@ const CostList = () => {
             <Button variant="outline" onClick={() => setDialogOpen(null)}>
               Close
             </Button>
-            <Button>Save changes</Button>
+            <Button onClick={handleTimeCardSubmit} disabled={addCostMutation.isPending}>
+              {addCostMutation.isPending ? "Saving..." : "Save changes"}
+            </Button>
           </div>
         </DialogContent>
       </Dialog>
