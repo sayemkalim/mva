@@ -1,14 +1,16 @@
 import { apiService } from "@/api/api_service/apiService";
 import { endpoints } from "@/api/endpoints";
 
-export const fetchLabels = async ({ account_id, per_page = 25 }) => {
+export const fetchLabels = async ({ account_id, per_page = 25, slug }) => {
     try {
         const apiResponse = await apiService({
             endpoint: endpoints.labelsList,
             method: "GET",
             params: {
                 account_id,
+                account_id,
                 per_page,
+                slug,
             },
         });
         return apiResponse;
@@ -18,12 +20,12 @@ export const fetchLabels = async ({ account_id, per_page = 25 }) => {
     }
 };
 
-export const createLabel = async (labelData) => {
+export const createLabel = async (labelData, slug) => {
     try {
         const apiResponse = await apiService({
             endpoint: endpoints.createLabel,
             method: "POST",
-            data: labelData,
+            data: { ...labelData, slug },
         });
         return apiResponse;
     } catch (error) {
@@ -32,12 +34,12 @@ export const createLabel = async (labelData) => {
     }
 };
 
-export const renameLabel = async (id, labelData) => {
+export const renameLabel = async (id, labelData, slug) => {
     try {
         const apiResponse = await apiService({
             endpoint: `${endpoints.renameLabel}/${id}`,
             method: "PUT",
-            data: labelData,
+            data: { ...labelData, slug },
         });
         return apiResponse;
     } catch (error) {
@@ -46,11 +48,12 @@ export const renameLabel = async (id, labelData) => {
     }
 };
 
-export const deleteLabel = async (id) => {
+export const deleteLabel = async (id, slug) => {
     try {
         const apiResponse = await apiService({
             endpoint: `${endpoints.deleteLabel}/${id}`,
             method: "DELETE",
+            params: { slug },
         });
         return apiResponse;
     } catch (error) {
@@ -59,7 +62,7 @@ export const deleteLabel = async (id) => {
     }
 };
 
-export const fetchLabelEmails = async (labelId, { per_page = 25, page = 1, search = "" } = {}) => {
+export const fetchLabelEmails = async (labelId, { per_page = 25, page = 1, search = "", slug } = {}) => {
     try {
         const apiResponse = await apiService({
             endpoint: `${endpoints.labelEmails}/${labelId}`,
@@ -68,6 +71,7 @@ export const fetchLabelEmails = async (labelId, { per_page = 25, page = 1, searc
                 per_page,
                 page,
                 search,
+                slug,
             },
         });
         return apiResponse;
@@ -77,7 +81,7 @@ export const fetchLabelEmails = async (labelId, { per_page = 25, page = 1, searc
     }
 };
 
-export const linkEmailToLabel = async ({ label_id, email_id }) => {
+export const linkEmailToLabel = async ({ label_id, email_id, slug }) => {
     try {
         const apiResponse = await apiService({
             endpoint: endpoints.linkEmailToLabel,
@@ -85,6 +89,7 @@ export const linkEmailToLabel = async ({ label_id, email_id }) => {
             data: {
                 label_id,
                 email_id,
+                slug,
             },
         });
         return apiResponse;
@@ -94,7 +99,7 @@ export const linkEmailToLabel = async ({ label_id, email_id }) => {
     }
 };
 
-export const unlinkEmailFromLabel = async ({ label_id, email_id }) => {
+export const unlinkEmailFromLabel = async ({ label_id, email_id, slug }) => {
     try {
         const apiResponse = await apiService({
             endpoint: endpoints.unlinkEmailFromLabel,
@@ -102,6 +107,7 @@ export const unlinkEmailFromLabel = async ({ label_id, email_id }) => {
             data: {
                 label_id,
                 email_id,
+                slug,
             },
         });
         return apiResponse;

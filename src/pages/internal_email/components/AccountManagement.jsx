@@ -40,6 +40,7 @@ const AccountManagement = ({
   defaultAccount,
   onAccountAdded,
   onAccountDeleted,
+  slug,
 }) => {
   const accounts = Array.isArray(accountsProp) ? accountsProp : [];
   const queryClient = useQueryClient();
@@ -60,7 +61,7 @@ const AccountManagement = ({
   const [accountToDelete, setAccountToDelete] = useState(null);
 
   const createMutation = useMutation({
-    mutationFn: createAccount,
+    mutationFn: (data) => createAccount(data, slug),
     onSuccess: () => {
       toast.success("Account added successfully");
       queryClient.invalidateQueries(["emailAccounts"]);
@@ -86,7 +87,7 @@ const AccountManagement = ({
 
 
   const unlinkMutation = useMutation({
-    mutationFn: unlinkAccount,
+    mutationFn: (id) => unlinkAccount(id, slug),
     onSuccess: () => {
       toast.success("Account unlinked successfully");
       queryClient.invalidateQueries(["emailAccounts"]);

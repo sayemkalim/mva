@@ -19,6 +19,7 @@ const EmailHeader = ({
   defaultAccount,
   onSearch,
   searchQuery: initialSearchQuery = "",
+  slug,
 }) => {
   const [searchQuery, setSearchQuery] = useState(initialSearchQuery);
   const [isAccountManagementOpen, setIsAccountManagementOpen] = useState(false);
@@ -126,11 +127,11 @@ const EmailHeader = ({
                         </DropdownMenuItem>
                       ))}
                   </div>
-                  <DropdownMenuSeparator />
+                  {/* <DropdownMenuSeparator /> */}
                 </>
               )}
 
-              <DropdownMenuItem onClick={() => setIsAccountManagementOpen(true)}>
+              {/* <DropdownMenuItem onClick={() => setIsAccountManagementOpen(true)}>
                 <Settings className="size-4 mr-2" />
                 Manage Accounts
               </DropdownMenuItem>
@@ -138,7 +139,7 @@ const EmailHeader = ({
               <DropdownMenuItem onClick={() => setIsAccountManagementOpen(true)}>
                 <User className="size-4 mr-2" />
                 Add Account
-              </DropdownMenuItem>
+              </DropdownMenuItem> */}
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
@@ -155,6 +156,7 @@ const EmailHeader = ({
         onAccountDeleted={() => {
           queryClient.invalidateQueries(["emailAccounts"]);
         }}
+        slug={slug}
       />
     </>
   );

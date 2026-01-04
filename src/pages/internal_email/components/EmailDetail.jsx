@@ -41,14 +41,14 @@ const safeFormat = (dateStr, formatStr) => {
   return isValid(dateObj) ? format(dateObj, formatStr) : "-";
 };
 
-const EmailDetail = ({ email, onBack, onDelete, onMove, onReply, accounts, defaultAccount, selectedFolder }) => {
+const EmailDetail = ({ email, onBack, onDelete, onMove, onReply, accounts, defaultAccount, selectedFolder, slug }) => {
   console.log("selectedFolder >>>>>>>>>>>>>>>>>>>>>>>>>>>", selectedFolder);
   const queryClient = useQueryClient();
   const emailId = email?.id;
 
   const { data: emailData, isLoading } = useQuery({
     queryKey: ["email", emailId],
-    queryFn: () => fetchEmailById(emailId),
+    queryFn: () => fetchEmailById(emailId, slug),
     enabled: !!emailId,
     initialData: email,
   });
@@ -94,7 +94,7 @@ const EmailDetail = ({ email, onBack, onDelete, onMove, onReply, accounts, defau
   };
 
   const deleteMutation = useMutation({
-    mutationFn: deleteEmail,
+    mutationFn: (id) => deleteEmail(id, slug),
     onSuccess: () => {
       toast.success("Email deleted successfully");
       onDelete(emailDetail.id);
@@ -105,7 +105,7 @@ const EmailDetail = ({ email, onBack, onDelete, onMove, onReply, accounts, defau
   });
 
   const trashMutation = useMutation({
-    mutationFn: trashEmail,
+    mutationFn: (id) => trashEmail(id, slug),
     onSuccess: () => {
       toast.success("Email moved to trash");
       queryClient.invalidateQueries(["emails"]);
@@ -117,7 +117,7 @@ const EmailDetail = ({ email, onBack, onDelete, onMove, onReply, accounts, defau
   });
 
   const moveMutation = useMutation({
-    mutationFn: (data) => moveEmail(data),
+    mutationFn: (data) => moveEmail(data, slug),
     onSuccess: () => {
       toast.success("Email moved successfully");
       queryClient.invalidateQueries(["emails"]);
@@ -129,7 +129,7 @@ const EmailDetail = ({ email, onBack, onDelete, onMove, onReply, accounts, defau
   });
 
   const starMutation = useMutation({
-    mutationFn: (emailId) => starEmail(emailId),
+    mutationFn: (emailId) => starEmail(emailId, slug),
     onSuccess: () => {
       queryClient.invalidateQueries(["emails"]);
       queryClient.invalidateQueries(["email", emailId]);
@@ -147,14 +147,15 @@ const EmailDetail = ({ email, onBack, onDelete, onMove, onReply, accounts, defau
 
   const { data: labelsData } = useQuery({
     queryKey: ["labels", defaultAccount?.id],
-    queryFn: () => fetchLabels({ account_id: defaultAccount?.id }),
+    queryFn: () => fetchLabels({ account_id: defaultAccount?.id, slug }),
     enabled: !!defaultAccount?.id,
   });
 
   const linkLabelMutation = useMutation({
     mutationFn: (labelId) => linkEmailToLabel({
       label_id: labelId,
-      email_id: emailDetail.id
+      email_id: emailDetail.id,
+      slug
     }),
     onSuccess: () => {
       toast.success("Label linked successfully");
@@ -174,7 +175,8 @@ const EmailDetail = ({ email, onBack, onDelete, onMove, onReply, accounts, defau
   const unlinkLabelMutation = useMutation({
     mutationFn: (labelId) => unlinkEmailFromLabel({
       label_id: labelId,
-      email_id: emailDetail.id
+      email_id: emailDetail.id,
+      slug
     }),
     onSuccess: () => {
       toast.success("Label unlinked successfully");
@@ -396,6 +398,7 @@ const EmailDetail = ({ email, onBack, onDelete, onMove, onReply, accounts, defau
                 setIsReplying(false);
                 queryClient.invalidateQueries(["emails"]);
               }}
+              slug={slug}
             />
           </div>
         )}

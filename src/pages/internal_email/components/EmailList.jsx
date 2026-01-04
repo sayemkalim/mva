@@ -58,7 +58,7 @@ const getInitials = (name) => {
   return (parts[0].charAt(0) + parts[parts.length - 1].charAt(0)).toUpperCase();
 };
 
-const EmailList = ({ folder, accountId, searchQuery, onEmailSelect, onRefresh }) => {
+const EmailList = ({ folder, accountId, searchQuery, onEmailSelect, onRefresh, slug }) => {
   const queryClient = useQueryClient();
   const [emailToDelete, setEmailToDelete] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
@@ -71,18 +71,18 @@ const EmailList = ({ folder, accountId, searchQuery, onEmailSelect, onRefresh })
   const getFetchFunction = () => {
     switch (folder) {
       case "inbox":
-        return fetchInbox;
+        return (page, search) => fetchInbox(page, search, slug);
       case "sent":
-        return fetchSent;
+        return (page, search) => fetchSent(page, search, slug);
       case "draft":
-        return fetchDraft;
+        return (page, search) => fetchDraft(page, search, slug);
       case "trash":
-        return fetchTrash;
+        return (page, search) => fetchTrash(page, search, slug);
       case "starred":
-        return fetchStarred;
+        return (page, search) => fetchStarred(page, search, slug);
       default:
         // Assume it is a label ID if it's not one of the standard folders
-        return (page, search) => fetchLabelEmails(folder, { page, search, per_page: 25 });
+        return (page, search) => fetchLabelEmails(folder, { page, search, per_page: 25, slug });
     }
   };
 
@@ -109,7 +109,7 @@ const EmailList = ({ folder, accountId, searchQuery, onEmailSelect, onRefresh })
   };
 
   const deleteMutation = useMutation({
-    mutationFn: (emailId) => trashEmail(emailId),
+    mutationFn: (emailId) => trashEmail(emailId, slug),
     onSuccess: () => {
       queryClient.invalidateQueries(["emails", folder, accountId]);
       toast.success("Email moved to trash");
@@ -121,7 +121,7 @@ const EmailList = ({ folder, accountId, searchQuery, onEmailSelect, onRefresh })
   });
 
   const starMutation = useMutation({
-    mutationFn: (emailId) => starEmail(emailId),
+    mutationFn: (emailId) => starEmail(emailId, slug),
     onSuccess: () => {
       queryClient.invalidateQueries(["emails", folder, accountId]);
       toast.success("Email updated");

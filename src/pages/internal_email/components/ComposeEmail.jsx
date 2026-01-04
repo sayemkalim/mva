@@ -25,7 +25,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 
-const ComposeEmail = ({ open, onClose, accounts = [], defaultAccount, onSuccess, initialData, variant = "floating" }) => {
+const ComposeEmail = ({ open, onClose, accounts = [], defaultAccount, onSuccess, initialData, variant = "floating", slug }) => {
   const queryClient = useQueryClient();
   const fileInputRef = useRef(null);
   const [isMinimized, setIsMinimized] = useState(false);
@@ -116,7 +116,7 @@ const ComposeEmail = ({ open, onClose, accounts = [], defaultAccount, onSuccess,
   );
 
   const sendMutation = useMutation({
-    mutationFn: (data) => createEmail(data),
+    mutationFn: (data) => createEmail(data, slug),
     onSuccess: () => {
       toast.success(isDraft ? "Draft saved" : "Email sent successfully");
       queryClient.invalidateQueries(["emails"]);
@@ -129,7 +129,7 @@ const ComposeEmail = ({ open, onClose, accounts = [], defaultAccount, onSuccess,
   });
 
   const draftMutation = useMutation({
-    mutationFn: (data) => saveDraft(data),
+    mutationFn: (data) => saveDraft(data, slug),
     onSuccess: () => {
       toast.success("Draft saved successfully");
       queryClient.invalidateQueries(["emails"]);

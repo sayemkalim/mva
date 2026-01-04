@@ -1,11 +1,12 @@
 import { apiService } from "@/api/api_service/apiService";
 import { endpoints } from "@/api/endpoints";
 
-export const fetchEmailById = async (id) => {
+export const fetchEmailById = async (id, slug) => {
   try {
 
     const apiResponse = await apiService({
       endpoint: `${endpoints.email}/${id}`,
+      params: { slug },
     });
 
     if (!apiResponse) {

@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo } from "react";
 import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
+import { useParams } from "react-router-dom";
 import EmailHeader from "./components/EmailHeader";
 import EmailSidebar from "./components/EmailSidebar";
 import EmailList from "./components/EmailList";
@@ -18,6 +19,7 @@ import { toast } from "sonner";
 
 
 const InternalEmail = () => {
+  const { slug } = useParams();
   const queryClient = useQueryClient();
   const [selectedFolder, setSelectedFolder] = useState("inbox");
   const [selectedEmail, setSelectedEmail] = useState(null);
@@ -27,20 +29,20 @@ const InternalEmail = () => {
   const [searchQuery, setSearchQuery] = useState("");
 
   const { data: accountsData } = useQuery({
-    queryKey: ["emailAccounts"],
-    queryFn: fetchAccounts,
+    queryKey: ["emailAccounts", slug],
+    queryFn: () => fetchAccounts(slug),
   });
 
   const { data: labelsData } = useQuery({
-    queryKey: ["emailLabels", selectedAccount?.id],
-    queryFn: () => fetchLabels({ account_id: selectedAccount?.id, per_page: 25 }),
+    queryKey: ["emailLabels", selectedAccount?.id, slug],
+    queryFn: () => fetchLabels({ account_id: selectedAccount?.id, per_page: 25, slug }),
     enabled: !!selectedAccount?.id,
   });
 
   const labels = labelsData?.response?.labels || [];
 
   const createLabelMutation = useMutation({
-    mutationFn: createLabel,
+    mutationFn: (data) => createLabel(data, slug),
     onSuccess: () => {
       queryClient.invalidateQueries(["emailLabels"]);
       toast.success("Label created successfully");
@@ -52,7 +54,7 @@ const InternalEmail = () => {
   });
 
   const renameLabelMutation = useMutation({
-    mutationFn: ({ id, data }) => renameLabel(id, data),
+    mutationFn: ({ id, data }) => renameLabel(id, data, slug),
     onSuccess: () => {
       queryClient.invalidateQueries(["emailLabels"]);
       toast.success("Label renamed successfully");
@@ -64,7 +66,7 @@ const InternalEmail = () => {
   });
 
   const deleteLabelMutation = useMutation({
-    mutationFn: deleteLabel,
+    mutationFn: (id) => deleteLabel(id, slug),
     onSuccess: () => {
       queryClient.invalidateQueries(["emailLabels"]);
       toast.success("Label deleted successfully");
@@ -113,7 +115,7 @@ const InternalEmail = () => {
 
   const handleAccountSelect = async (account) => {
     try {
-      await setDefaultAccount(account.id);
+      await setDefaultAccount(account.id, slug);
       setSelectedAccount(account);
       queryClient.invalidateQueries();
     } catch (error) {
@@ -130,6 +132,7 @@ const InternalEmail = () => {
         defaultAccount={defaultAccount}
         onSearch={setSearchQuery}
         searchQuery={searchQuery}
+        slug={slug}
       />
 
       <div className="flex flex-1 overflow-hidden">
@@ -179,6 +182,7 @@ const InternalEmail = () => {
                 }}
                 accounts={accounts}
                 defaultAccount={selectedAccount}
+                slug={slug}
               />
             ) : (
               <EmailList
@@ -196,6 +200,7 @@ const InternalEmail = () => {
                 onRefresh={() => {
                   queryClient.invalidateQueries(["emails", selectedFolder]);
                 }}
+                slug={slug}
               />
             )}
           </div>
@@ -216,6 +221,7 @@ const InternalEmail = () => {
             queryClient.invalidateQueries(["emails", "sent"]);
             queryClient.invalidateQueries(["emails", "draft"]);
           }}
+          slug={slug}
         />
       )}
     </div>

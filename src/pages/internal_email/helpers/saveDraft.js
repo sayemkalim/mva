@@ -1,7 +1,7 @@
 import { apiService } from "@/api/api_service/apiService";
 import { endpoints } from "@/api/endpoints";
 
-export const saveDraft = async (emailData) => {
+export const saveDraft = async (emailData, slug) => {
     try {
         console.log("Saving draft with data:", emailData);
         const formData = new FormData();
@@ -62,6 +62,9 @@ export const saveDraft = async (emailData) => {
         }
         if (emailData.draft_id) {
             formData.append("draft_id", emailData.draft_id);
+        }
+        if (slug) {
+            formData.append("slug", slug);
         }
 
         const apiResponse = await apiService({

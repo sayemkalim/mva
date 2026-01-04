@@ -1,11 +1,11 @@
 import { apiService } from "@/api/api_service/apiService";
 import { endpoints } from "@/api/endpoints";
 
-export const fetchInbox = async (page = 1, search = "") => {
+export const fetchInbox = async (page = 1, search = "", slug) => {
   try {
     const apiResponse = await apiService({
       endpoint: endpoints.inbox,
-      params: { page, search },
+      params: { page, search, slug },
     });
 
     console.log("Inbox API response:", apiResponse);

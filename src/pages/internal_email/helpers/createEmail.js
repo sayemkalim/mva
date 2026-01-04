@@ -1,7 +1,7 @@
 import { apiService } from "@/api/api_service/apiService";
 import { endpoints } from "@/api/endpoints";
 
-export const createEmail = async (emailData) => {
+export const createEmail = async (emailData, slug) => {
   try {
     console.log("Creating email with data:", emailData);
     const formData = new FormData();
@@ -65,6 +65,10 @@ export const createEmail = async (emailData) => {
     // Draft ID
     if (emailData.draft_id) {
       formData.append("draft_id", emailData.draft_id);
+    }
+
+    if (slug) {
+      formData.append("slug", slug);
     }
 
     const apiResponse = await apiService({

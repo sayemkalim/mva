@@ -1,11 +1,12 @@
 import { apiService } from "@/api/api_service/apiService";
 import { endpoints } from "@/api/endpoints";
 
-export const printPsychological = async (id) => {
+export const printPsychological = async (id, slug) => {
   try {
     const apiResponse = await apiService({
       endpoint: `${endpoints.psychologicalPrint}/${id}`,
       method: "GET",
+      params: { slug },
       responseType: "blob",
     });
 
