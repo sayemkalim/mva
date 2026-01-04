@@ -195,8 +195,8 @@ const BankTransaction = () => {
     enabled: !!slug,
   });
 
-  const bankTypes = metaData?.correspondence_status || [];
-  const accountingMethods = metaData?.accounting_flag || [];
+  const bankTypes = metaData?.accounting_banking_bank_type || [];
+  const accountingMethods = metaData?.accounting_banking_method || [];
   const depositTypes = metaData?.accounting_banking_type || [];
 
   const deposits = data?.data || [];
