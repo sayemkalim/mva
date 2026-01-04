@@ -727,7 +727,7 @@ const CostList = () => {
                       value={timeCardForm.billing_status_id}
                       onValueChange={(value) => setTimeCardForm({...timeCardForm, billing_status_id: value})}
                     >
-                      <SelectTrigger>
+                      <SelectTrigger className="w-full">
                         <SelectValue placeholder="Select" />
                       </SelectTrigger>
                       <SelectContent>
@@ -754,7 +754,7 @@ const CostList = () => {
                     value={timeCardForm.flag_id}
                     onValueChange={(value) => setTimeCardForm({...timeCardForm, flag_id: value})}
                   >
-                    <SelectTrigger>
+                    <SelectTrigger className="w-full">
                       <SelectValue placeholder="Select" />
                     </SelectTrigger>
                     <SelectContent>
@@ -781,7 +781,7 @@ const CostList = () => {
                     value={timeCardForm.taxable ? "taxable" : "non-taxable"}
                     onValueChange={(value) => setTimeCardForm({...timeCardForm, taxable: value === "taxable"})}
                   >
-                    <SelectTrigger>
+                    <SelectTrigger className="w-full">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -946,7 +946,7 @@ const CostList = () => {
                   value={hardCostForm.bank_type_id}
                   onValueChange={(value) => setHardCostForm({...hardCostForm, bank_type_id: value})}
                 >
-                  <SelectTrigger>
+                  <SelectTrigger className="w-full">
                     <SelectValue placeholder="Select" />
                   </SelectTrigger>
                   <SelectContent>
@@ -972,7 +972,7 @@ const CostList = () => {
                   value={hardCostForm.method_id}
                   onValueChange={(value) => setHardCostForm({...hardCostForm, method_id: value})}
                 >
-                  <SelectTrigger>
+                  <SelectTrigger className="w-full">
                     <SelectValue placeholder="Select" />
                   </SelectTrigger>
                   <SelectContent>
@@ -1513,7 +1513,7 @@ const CostList = () => {
                         value={String(editingCost.billing_status_id || "")}
                         onValueChange={(value) => setEditingCost({...editingCost, billing_status_id: value})}
                       >
-                        <SelectTrigger>
+                        <SelectTrigger className="w-full">
                           <SelectValue placeholder="Select" />
                         </SelectTrigger>
                         <SelectContent>
@@ -1540,7 +1540,7 @@ const CostList = () => {
                       value={String(editingCost.flag_id || "")}
                       onValueChange={(value) => setEditingCost({...editingCost, flag_id: value})}
                     >
-                      <SelectTrigger>
+                      <SelectTrigger className="w-full">
                         <SelectValue placeholder="Select" />
                       </SelectTrigger>
                       <SelectContent>
@@ -1621,7 +1621,7 @@ const CostList = () => {
                     value={String(editingCost.bank_type_id || "")}
                     onValueChange={(value) => setEditingCost({...editingCost, bank_type_id: value})}
                   >
-                    <SelectTrigger>
+                    <SelectTrigger className="w-full">
                       <SelectValue placeholder="Select" />
                     </SelectTrigger>
                     <SelectContent>
@@ -1646,7 +1646,7 @@ const CostList = () => {
                     value={String(editingCost.method_id || "")}
                     onValueChange={(value) => setEditingCost({...editingCost, method_id: value})}
                   >
-                    <SelectTrigger>
+                    <SelectTrigger className="w-full">
                       <SelectValue placeholder="Select" />
                     </SelectTrigger>
                     <SelectContent>

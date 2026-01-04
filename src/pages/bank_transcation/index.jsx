@@ -3,6 +3,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useParams } from "react-router-dom";
 import { fetchList } from "./helper/fetchList";
 import { fetchMeta } from "./helper/fetchMeta";
+import { fetchSingleDeposit } from "./helper/fetchSingleDeposit";
 import { addDeposit } from "./helper/addDeposit";
 import { deleteDeposit } from "./helper/deleteDeposit";
 import { updateDeposit } from "./helper/updateDeposit";
@@ -52,7 +53,6 @@ const BankTransaction = () => {
   const [editingDeposit, setEditingDeposit] = useState(null);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
 
-  // Form State
   const [form, setForm] = useState({
     banktype_id: "",
     method_id: "",
@@ -125,9 +125,18 @@ const BankTransaction = () => {
     },
   });
 
-  const handleEditDeposit = (item) => {
-    setEditingDeposit(item);
-    setEditDialogOpen(true);
+  const handleEditDeposit = async (item) => {
+    try {
+      const response = await fetchSingleDeposit(item.id);
+      const depositData = response?.data || response;
+      setEditingDeposit({
+        ...depositData,
+        date: depositData.date ? depositData.date.split("T")[0] : "",
+      });
+      setEditDialogOpen(true);
+    } catch (error) {
+      console.error("Failed to fetch deposit details:", error);
+    }
   };
 
   const handleDeleteDeposit = (id) => {
@@ -158,6 +167,7 @@ const BankTransaction = () => {
       country: form.country,
       memo_1st: form.memo_1st,
       memo_2nd: form.memo_2nd,
+      slug: slug,
     };
     addMutation.mutate(payload);
   };
@@ -195,8 +205,8 @@ const BankTransaction = () => {
     enabled: !!slug,
   });
 
-  const bankTypes = metaData?.correspondence_status || [];
-  const accountingMethods = metaData?.accounting_flag || [];
+  const bankTypes = metaData?.accounting_banking_bank_type || [];
+  const accountingMethods = metaData?.accounting_banking_method || [];
   const depositTypes = metaData?.accounting_banking_type || [];
 
   const deposits = data?.data || [];
@@ -235,7 +245,6 @@ const formatDate = (dateString) => {
         </div>
       </header>
 
-      {/* Breadcrumb */}
       <nav className="bg-white border-b px-6 py-4 text-sm text-gray-600">
         <div className="flex items-center gap-2">
           <button
@@ -258,7 +267,6 @@ const formatDate = (dateString) => {
         </div>
       </nav>
 
-      {/* Add New Button */}
       <div className="mb-6 px-6">
         <Button 
           className="bg-primary hover:bg-primary/90 gap-2"
@@ -278,7 +286,7 @@ const formatDate = (dateString) => {
               <TableHead>Bank Type</TableHead>
               <TableHead>Method</TableHead>
               <TableHead>Type</TableHead>
-              <TableHead>Pay/Depoist</TableHead>
+              <TableHead>Payor</TableHead>
               <TableHead>Amount</TableHead>
               <TableHead className="w-24">Actions</TableHead>
             </TableRow>
@@ -333,7 +341,6 @@ const formatDate = (dateString) => {
         </Table>
       </div>
 
-      {/* Add Transaction Dialog */}
       <Dialog open={dialogOpen} onOpenChange={(open) => !open && setDialogOpen(false)}>
         <DialogContent className="w-[70vw] max-w-none max-h-[90vh] overflow-y-auto">
           <DialogHeader>
@@ -362,7 +369,7 @@ const formatDate = (dateString) => {
                   value={form.banktype_id}
                   onValueChange={(value) => setForm({...form, banktype_id: value})}
                 >
-                  <SelectTrigger>
+                  <SelectTrigger className="w-full">
                     <SelectValue placeholder="Select" />
                   </SelectTrigger>
                   <SelectContent>
@@ -380,7 +387,7 @@ const formatDate = (dateString) => {
                   value={form.method_id}
                   onValueChange={(value) => setForm({...form, method_id: value})}
                 >
-                  <SelectTrigger>
+                  <SelectTrigger className="w-full">
                     <SelectValue placeholder="Select" />
                   </SelectTrigger>
                   <SelectContent>
@@ -398,7 +405,7 @@ const formatDate = (dateString) => {
                   value={form.type_id}
                   onValueChange={(value) => setForm({...form, type_id: value})}
                 >
-                  <SelectTrigger>
+                  <SelectTrigger className="w-full">
                     <SelectValue placeholder="Select" />
                   </SelectTrigger>
                   <SelectContent>
@@ -414,7 +421,7 @@ const formatDate = (dateString) => {
 
             <div className="grid grid-cols-4 gap-4">
               <div className="space-y-2">
-                <Label>Pay/Or</Label>
+                <Label>Payor</Label>
                 <Input 
                   placeholder="" 
                   value={form.pay_or}
@@ -530,7 +537,6 @@ const formatDate = (dateString) => {
         </DialogContent>
       </Dialog>
 
-      {/* Edit Transaction Dialog */}
       <Dialog open={editDialogOpen} onOpenChange={(open) => { if (!open) { setEditDialogOpen(false); setEditingDeposit(null); } }}>
         <DialogContent className="w-[70vw] max-w-none max-h-[90vh] overflow-y-auto">
           <DialogHeader>
@@ -560,7 +566,7 @@ const formatDate = (dateString) => {
                     value={String(editingDeposit.banktype_id || "")}
                     onValueChange={(value) => setEditingDeposit({...editingDeposit, banktype_id: value})}
                   >
-                    <SelectTrigger>
+                    <SelectTrigger className="w-full">
                       <SelectValue placeholder="Select" />
                     </SelectTrigger>
                     <SelectContent>
@@ -578,7 +584,7 @@ const formatDate = (dateString) => {
                     value={String(editingDeposit.method_id || "")}
                     onValueChange={(value) => setEditingDeposit({...editingDeposit, method_id: value})}
                   >
-                    <SelectTrigger>
+                    <SelectTrigger className="w-full">
                       <SelectValue placeholder="Select" />
                     </SelectTrigger>
                     <SelectContent>
@@ -596,7 +602,7 @@ const formatDate = (dateString) => {
                     value={String(editingDeposit.type_id || "")}
                     onValueChange={(value) => setEditingDeposit({...editingDeposit, type_id: value})}
                   >
-                    <SelectTrigger>
+                    <SelectTrigger className="w-full">
                       <SelectValue placeholder="Select" />
                     </SelectTrigger>
                     <SelectContent>
@@ -612,7 +618,7 @@ const formatDate = (dateString) => {
 
               <div className="grid grid-cols-4 gap-4">
                 <div className="space-y-2">
-                  <Label>Pay/Or</Label>
+                  <Label>Payor</Label>
                   <Input 
                     placeholder="" 
                     value={editingDeposit.pay_or || ""}
@@ -729,7 +735,6 @@ const formatDate = (dateString) => {
         </DialogContent>
       </Dialog>
 
-      {/* Delete Confirmation Dialog */}
       <Dialog open={deleteConfirmId !== null} onOpenChange={(open) => !open && setDeleteConfirmId(null)}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>

@@ -327,6 +327,7 @@ export const endpoints = {
   depositSave: "api/v2/file/accounting/deposit/save",
   depositUpdate: "api/v2/file/accounting/deposit/update",
   depositDelete: "api/v2/file/accounting/deposit/delete",
+  depositShow: "api/v2/file/accounting/deposit/show",
 
   accidentBenifitMeta: "api/v2/file/accident-benefits/meta"
 };

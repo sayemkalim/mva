@@ -47,7 +47,8 @@ import {
   Mail,
   FileChartColumn,
   LogOutIcon,
-  Wallet
+  Wallet,
+  Banknote
 } from "lucide-react";
 import { getItem } from "../local_storage";
 
@@ -1020,13 +1021,20 @@ export const getEditModeData = (slug) => ({
               url: `/dashboard/workstation/edit/${slug}/cost`,
               icon: User,
             },
+          ],
+        },
+        {
+          title: "Banking",
+          url: ``,
+          icon: Banknote,
+          items: [
             {
               title: "Bank Transaction",
               url: `/dashboard/workstation/edit/${slug}/bank-transaction`,
               icon: User,
             }
           ],
-        },
+        }
       ],
     },
     {

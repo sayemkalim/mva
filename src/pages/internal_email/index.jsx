@@ -16,7 +16,7 @@ import {
 } from "./helpers";
 import { Inbox, Send, FileText, Trash2, Star } from "lucide-react";
 import { toast } from "sonner";
-
+import { Navbar2 } from "@/components/navbar2";
 
 const InternalEmail = () => {
   const { slug } = useParams();
@@ -122,9 +122,9 @@ const InternalEmail = () => {
       console.error("Error switching account:", error);
     }
   };
-
   return (
     <div className="flex flex-col h-screen bg-background overflow-hidden">
+      <Navbar2 />
       <EmailHeader
         accounts={accounts}
         selectedAccount={selectedAccount}
