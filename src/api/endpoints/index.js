@@ -1,3 +1,6 @@
+import { add } from "date-fns";
+import { de, th } from "date-fns/locale";
+
 export const endpoints = {
   login: "api/login",
   signup: "api/firm/register",
@@ -328,6 +331,12 @@ export const endpoints = {
   depositUpdate: "api/v2/file/accounting/deposit/update",
   depositDelete: "api/v2/file/accounting/deposit/delete",
   depositShow: "api/v2/file/accounting/deposit/show",
+  accidentBenifitMeta: "api/v2/file/accident-benefits/meta",
 
-  accidentBenifitMeta: "api/v2/file/accident-benefits/meta"
+  // Third Party Invoice
+  thirdPartyInvoiceList: "api/v2/file/accounting/third-party-invoices/list",
+  addThirdPartyInvoice: "api/v2/file/accounting/third-party-invoices/save",
+  updateThirdPartyInvoice: "api/v2/file/accounting/third-party-invoices/update",
+  deleteThirdPartyInvoice: "api/v2/file/accounting/third-party-invoices/delete",
+  thirdPartyInvoiceShow: "api/v2/file/accounting/third-party-invoices/show",
 };

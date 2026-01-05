@@ -124,6 +124,7 @@ import ExportListOfPoliceStations from "@/pages/generate_report/list_of_police_s
 import ExportVsrExamination from "@/pages/generate_report/vsr_examination";
 import Email from "@/pages/email";
 import InternalEmail from "@/pages/internal_email";
+import ThirdPartyInvoice from "@/pages/third_party_invoice";
 
 const Router = () => {
   return (
@@ -442,6 +443,10 @@ const Router = () => {
           <Route
             path="/dashboard/workstation/edit/:slug/bank-transaction"
             element={<BankTranscation />}
+          />
+          <Route
+            path="/dashboard/workstation/edit/:slug/third-party-invoice"
+            element={<ThirdPartyInvoice />}
           />
           <Route
             path="/dashboard/workstation/edit/:slug/task"
