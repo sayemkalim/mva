@@ -6,6 +6,7 @@ import { fetchInvoiceDetails } from "./helpers/fetchInvoiceDetails";
 import { fetchUnbilledList } from "./helpers/fetchUnbilledList";
 import { createInvoice } from "./helpers/createInvoice";
 import { deleteInvoice } from "./helpers/deleteInvoice";
+import { updateInvoice } from "./helpers/updateInvoice";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -25,6 +26,7 @@ import {
   X,
   Loader2,
   Trash2,
+  Pencil,
 } from "lucide-react";
 import {
   Dialog,
@@ -54,6 +56,16 @@ const Invoice = () => {
   // Delete Invoice Dialog State
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [invoiceToDelete, setInvoiceToDelete] = useState(null);
+
+  // Edit Invoice Dialog State
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [editInvoiceId, setEditInvoiceId] = useState(null);
+  const [editInvoiceNumber, setEditInvoiceNumber] = useState("");
+  const [editInvoiceDate, setEditInvoiceDate] = useState("");
+  const [editDueDate, setEditDueDate] = useState("");
+  const [editSelectedBillingIds, setEditSelectedBillingIds] = useState([]);
+  const [editBillingsData, setEditBillingsData] = useState([]);
+  const [editLoading, setEditLoading] = useState(false);
 
   const { data, isLoading } = useQuery({
     queryKey: ["invoiceList", slug, currentPage],
@@ -103,19 +115,16 @@ const Invoice = () => {
     );
   };
 
-  // Add Invoice Dialog Handlers
   const handleOpenAddDialog = async () => {
     setAddDialogOpen(true);
     setUnbilledLoading(true);
     
-    // Generate invoice number (you can customize this)
     const nextNumber = String(invoices.length + 1).padStart(5, "0");
     setInvoiceNumber(nextNumber);
     
-    // Set default dates
     const today = new Date().toISOString().split("T")[0];
     const nextMonth = new Date();
-    nextMonth.setDate(nextMonth.getDate() + 30);
+    nextMonth.setDate(nextMonth.getDate() + 15);
     setInvoiceDate(today);
     setDueDate(nextMonth.toISOString().split("T")[0]);
     
@@ -191,7 +200,6 @@ const Invoice = () => {
     });
   };
 
-  // Delete Invoice Handlers
   const handleOpenDeleteDialog = (item) => {
     setInvoiceToDelete(item);
     setDeleteDialogOpen(true);
@@ -223,6 +231,98 @@ const Invoice = () => {
     if (invoiceToDelete) {
       deleteInvoiceMutation.mutate(invoiceToDelete.id);
     }
+  };
+
+  // Edit Invoice Handlers
+  const handleOpenEditDialog = async (item) => {
+    setEditDialogOpen(true);
+    setEditLoading(true);
+    setEditInvoiceId(item.id);
+    setEditInvoiceNumber(item.invoice_number);
+
+    try {
+      const response = await fetchInvoiceDetails(item.id);
+      const invoiceData = response;
+      
+      setEditInvoiceDate(invoiceData.invoice?.invoice_date || "");
+      setEditDueDate(invoiceData.invoice?.due_date || "");
+      
+      // Combine attached and available billings
+      const attached = (invoiceData.attached_billings || []).map(b => ({ ...b, is_attached: true }));
+      const available = (invoiceData.available_billings || []).map(b => ({ ...b, is_attached: false }));
+      const allBillings = [...attached, ...available];
+      setEditBillingsData(allBillings);
+      
+      // Pre-select attached billings
+      const attachedIds = attached.map(b => b.id);
+      setEditSelectedBillingIds(attachedIds);
+    } catch (error) {
+      console.error("Failed to fetch invoice details:", error);
+      toast.error("Failed to load invoice details");
+      setEditBillingsData([]);
+    } finally {
+      setEditLoading(false);
+    }
+  };
+
+  const closeEditDialog = () => {
+    setEditDialogOpen(false);
+    setEditInvoiceId(null);
+    setEditInvoiceNumber("");
+    setEditInvoiceDate("");
+    setEditDueDate("");
+    setEditSelectedBillingIds([]);
+    setEditBillingsData([]);
+  };
+
+  const handleEditSelectAll = (checked) => {
+    if (checked) {
+      setEditSelectedBillingIds(editBillingsData.map((item) => item.id));
+    } else {
+      setEditSelectedBillingIds([]);
+    }
+  };
+
+  const handleEditSelectBilling = (id, checked) => {
+    if (checked) {
+      setEditSelectedBillingIds((prev) => [...prev, id]);
+    } else {
+      setEditSelectedBillingIds((prev) => prev.filter((itemId) => itemId !== id));
+    }
+  };
+
+  const updateInvoiceMutation = useMutation({
+    mutationFn: (data) => updateInvoice(editInvoiceId, data),
+    onSuccess: (response) => {
+      if (response?.response?.Apistatus === true) {
+        toast.success("Invoice updated successfully");
+        queryClient.invalidateQueries(["invoiceList", slug]);
+        closeEditDialog();
+      } else {
+        toast.error(response?.response?.message || "Failed to update invoice");
+      }
+    },
+    onError: (error) => {
+      console.error("Failed to update invoice:", error);
+      toast.error("Failed to update invoice");
+    },
+  });
+
+  const handleUpdateInvoice = () => {
+    if (!editInvoiceDate || !editDueDate) {
+      toast.error("Please fill in invoice date and due date");
+      return;
+    }
+    if (editSelectedBillingIds.length === 0) {
+      toast.error("Please select at least one billing item");
+      return;
+    }
+
+    updateInvoiceMutation.mutate({
+      invoice_date: editInvoiceDate,
+      due_date: editDueDate,
+      billing_ids: editSelectedBillingIds,
+    });
   };
 
   return (
@@ -330,16 +430,28 @@ const Invoice = () => {
                   <TableCell>{getStatusBadge(item.status)}</TableCell>
                   <TableCell>{item.created_by || "-"}</TableCell>
                   <TableCell>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-8 w-8 text-destructive hover:text-destructive/80"
-                      onClick={() => handleOpenDeleteDialog(item)}
-                      title="Delete Invoice"
-                      disabled={item.status !== "unpaid"}
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
+                    <div className="flex items-center gap-1">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8 text-primary hover:text-primary/80"
+                        onClick={() => handleOpenEditDialog(item)}
+                        title="Edit Invoice"
+                        disabled={item.status !== "unpaid"}
+                      >
+                        <Pencil className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8 text-destructive hover:text-destructive/80"
+                        onClick={() => handleOpenDeleteDialog(item)}
+                        title="Delete Invoice"
+                        disabled={item.status !== "unpaid"}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
                   </TableCell>
                 </TableRow>
               ))
@@ -499,6 +611,133 @@ const Invoice = () => {
                 <Loader2 className="h-4 w-4 animate-spin mr-2" />
               ) : null}
               Delete
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Edit Invoice Dialog */}
+      <Dialog open={editDialogOpen} onOpenChange={(open) => !open && closeEditDialog()}>
+        <DialogContent className="w-[80vw] max-w-none max-h-[90vh] overflow-y-auto p-0 [&>button]:hidden">
+          <div className="flex items-center justify-between px-6 py-4 border-b">
+            <DialogTitle className="text-xl font-semibold">Edit Invoice - {editInvoiceNumber}</DialogTitle>
+            <Button
+              className="bg-primary hover:bg-primary/90"
+              onClick={handleUpdateInvoice}
+              disabled={updateInvoiceMutation.isPending}
+            >
+              {updateInvoiceMutation.isPending ? (
+                <Loader2 className="h-4 w-4 animate-spin mr-2" />
+              ) : null}
+              Update
+            </Button>
+          </div>
+
+          <div className="flex gap-6 p-6">
+            {/* Left Side - Edit Info */}
+            <div className="w-64 shrink-0">
+              <h3 className="text-sm font-medium text-muted-foreground mb-4">Edit Info</h3>
+              <div className="space-y-4">
+                <div>
+                  <label className="text-sm font-medium mb-1 block">Invoice #</label>
+                  <Input
+                    value={editInvoiceNumber}
+                    placeholder="00001"
+                    disabled
+                  />
+                </div>
+                <div>
+                  <label className="text-sm font-medium mb-1 block">Invoice Date</label>
+                  <Input
+                    type="date"
+                    value={editInvoiceDate}
+                    onChange={(e) => setEditInvoiceDate(e.target.value)}
+                  />
+                </div>
+                <div>
+                  <label className="text-sm font-medium mb-1 block">Due Date</label>
+                  <Input
+                    type="date"
+                    value={editDueDate}
+                    onChange={(e) => setEditDueDate(e.target.value)}
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Right Side - Billings Table */}
+            <div className="flex-1 overflow-auto">
+              <div className="border rounded-lg overflow-hidden">
+                <Table>
+                  <TableHeader>
+                    <TableRow className="bg-gray-50">
+                      <TableHead className="w-12">
+                        <Checkbox
+                          checked={
+                            editBillingsData.length > 0 &&
+                            editSelectedBillingIds.length === editBillingsData.length
+                          }
+                          onCheckedChange={handleEditSelectAll}
+                        />
+                      </TableHead>
+                      <TableHead>ID</TableHead>
+                      <TableHead>Date</TableHead>
+                      <TableHead>Task / Expense</TableHead>
+                      <TableHead>Description</TableHead>
+                      <TableHead>Qty</TableHead>
+                      <TableHead>Rate</TableHead>
+                      <TableHead>Value</TableHead>
+                      <TableHead>Status</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {editLoading ? (
+                      <TableRow>
+                        <TableCell colSpan={9} className="text-center py-8">
+                          <Loader2 className="h-6 w-6 animate-spin mx-auto text-primary" />
+                        </TableCell>
+                      </TableRow>
+                    ) : editBillingsData.length === 0 ? (
+                      <TableRow>
+                        <TableCell colSpan={9} className="text-center py-8 text-muted-foreground">
+                          No billing items available
+                        </TableCell>
+                      </TableRow>
+                    ) : (
+                      editBillingsData.map((item) => (
+                        <TableRow key={item.id}>
+                          <TableCell>
+                            <Checkbox
+                              checked={editSelectedBillingIds.includes(item.id)}
+                              onCheckedChange={(checked) =>
+                                handleEditSelectBilling(item.id, checked)
+                              }
+                            />
+                          </TableCell>
+                          <TableCell>{item.id}</TableCell>
+                          <TableCell>{formatDate(item.date)}</TableCell>
+                          <TableCell>{getSectionTypeBadge(item.section_type)}</TableCell>
+                          <TableCell>{item.description || "-"}</TableCell>
+                          <TableCell>{item.quantity}</TableCell>
+                          <TableCell>{formatCurrency(item.rate)}</TableCell>
+                          <TableCell>{formatCurrency(item.total_amount)}</TableCell>
+                          <TableCell>
+                            <Badge className={item.is_attached ? "bg-green-100 text-green-800" : "bg-gray-100 text-gray-800"}>
+                              {item.is_attached ? "Attached" : "Available"}
+                            </Badge>
+                          </TableCell>
+                        </TableRow>
+                      ))
+                    )}
+                  </TableBody>
+                </Table>
+              </div>
+            </div>
+          </div>
+
+          <div className="flex justify-end px-6 py-4 border-t">
+            <Button variant="outline" onClick={closeEditDialog}>
+              Close
             </Button>
           </div>
         </DialogContent>
