@@ -301,6 +301,7 @@ export const endpoints = {
   threadView: "api/v2/email/thread",
   unlinkAccount: "api/v2/email/accounts",
   showEmail: "api/v2/email/show",
+  unlinkAttachment: "api/v2/email/unlink",
   //Notification
   getNotification: "api/v2/notifications",
   readNotificationById: "api/v2/notifications/read",
