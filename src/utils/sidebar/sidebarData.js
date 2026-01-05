@@ -1032,7 +1032,12 @@ export const getEditModeData = (slug) => ({
               title: "Bank Transaction",
               url: `/dashboard/workstation/edit/${slug}/bank-transaction`,
               icon: User,
-            }
+            },
+            {
+              title: "Third Party Invoice",
+              url: `/dashboard/workstation/edit/${slug}/third-party-invoice`,
+              icon: User,
+            },
           ],
         }
       ],
