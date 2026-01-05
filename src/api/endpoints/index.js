@@ -347,4 +347,6 @@ export const endpoints = {
   // Invoice
   invoiceList: "api/v2/file/accounting/invoice/list",
   invoiceShow: "api/v2/file/accounting/invoice/show",
+  invoiceUnbilledList: "api/v2/file/accounting/invoice/unbilled-list",
+  invoiceCreate: "api/v2/file/accounting/invoice/create-invoice",
 };
