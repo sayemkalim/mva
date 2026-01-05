@@ -339,4 +339,7 @@ export const endpoints = {
   updateThirdPartyInvoice: "api/v2/file/accounting/third-party-invoices/update",
   deleteThirdPartyInvoice: "api/v2/file/accounting/third-party-invoices/delete",
   thirdPartyInvoiceShow: "api/v2/file/accounting/third-party-invoices/show",
+  unlinkThirdPartyInvoice: "api/v2/file/accounting/pay-bills/unlink",
+  payBillsList: "api/v2/file/accounting/pay-bills/list",
+  payBills: "api/v2/file/accounting/pay-bills/pay"
 };

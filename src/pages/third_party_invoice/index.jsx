@@ -6,6 +6,9 @@ import { addInvoice } from "./helpers/addInvoice";
 import { deleteInvoice } from "./helpers/deleteInvoice";
 import { showThirdPartyInvoice } from "./helpers/showInvoice";
 import { updateInvoice } from "./helpers/updateInvoice";
+import { unlinkInvoice } from "./helpers/unlinkInvoice";
+import { fetchPayBillsList } from "./helpers/fetchPayBillsList";
+import { payBill } from "./helpers/payBill";
 import { Button } from "@/components/ui/button";
 import {
   Table,
@@ -25,6 +28,8 @@ import {
   FileIcon,
   Trash2,
   Pencil,
+  Unlink,
+  DollarSign,
 } from "lucide-react";
 import {
   Dialog,
@@ -46,6 +51,8 @@ import { toast } from "sonner";
 import { fetchMeta } from "../bank_transcation/helper/fetchMeta";
 import { Select } from "@radix-ui/react-select";
 import { SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { meta } from "@eslint/js";
+import { set } from "date-fns";
 
 const AttachmentUploader = ({ files, onFilesChange, onUpload, onDelete }) => {
   const [isDragging, setIsDragging] = useState(false);
@@ -297,11 +304,28 @@ const ThirdPartyInvoice = () => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [deleteConfirmId, setDeleteConfirmId] = useState(null);
+  const [unlinkConfirmItem, setUnlinkConfirmItem] = useState(null);
   const [uploadedFiles, setUploadedFiles] = useState([]);
   const [attachmentIds, setAttachmentIds] = useState([]);
   const [editingInvoice, setEditingInvoice] = useState(null);
   const [editUploadedFiles, setEditUploadedFiles] = useState([]);
   const [editAttachmentIds, setEditAttachmentIds] = useState([]);
+  const [payDialogOpen, setPayDialogOpen] = useState(false);
+  const [payingInvoice, setPayingInvoice] = useState(null);
+  const [payBillsData, setPayBillsData] = useState([]);
+  const [payBillsLoading, setPayBillsLoading] = useState(false);
+  const [initialAmount, setInitialAmount] = useState(0);
+  const [payForm, setPayForm] = useState({
+    pay_date: "",
+    pay_type: "Withdrawal",
+    amount: "",
+    pay_method: "",
+    pay_to: "",
+    memo_1st: "",
+    memo_2nd: "",
+    to_be_printed: false,
+  });
+  const [appliedAmounts, setAppliedAmounts] = useState({});
 
   const [form, setForm] = useState({
     bill_date: "",
@@ -426,6 +450,7 @@ const ThirdPartyInvoice = () => {
   });
 
   const methodType = metaData?.accounting_banking_other_type || [];
+  const categoryType = metaData?.accounting_banking_method || [];
 
   const handleFilesChange = (newFiles) => {
     setUploadedFiles(newFiles);
@@ -468,6 +493,37 @@ const ThirdPartyInvoice = () => {
     },
   });
 
+  const unlinkMutation = useMutation({
+    mutationFn: (paidId) => unlinkInvoice(paidId),
+    onSuccess: () => {
+      queryClient.invalidateQueries(["thirdPartyInvoiceList", slug]);
+      toast.success("Invoice unlinked successfully");
+      setUnlinkConfirmItem(null);
+    },
+    onError: (error) => {
+      console.error("Failed to unlink invoice:", error);
+      toast.error("Failed to unlink invoice");
+    },
+  });
+
+  const payMutation = useMutation({
+    mutationFn: (payload) => payBill(payload),
+    onSuccess: (response) => {
+      if (response?.Apistatus === true) {
+        queryClient.invalidateQueries(["thirdPartyInvoiceList", slug]);
+        toast.success(response?.message || "Payment successful");
+        closePayDialog();
+      } else {
+        toast.error(response?.message || "Failed to process payment");
+        closePayDialog();
+      }
+    },
+    onError: (error) => {
+      console.error("Failed to process payment:", error);
+      toast.error(error?.response?.data?.message || "Failed to process payment");
+    },
+  });
+
   const updateMutation = useMutation({
     mutationFn: ({ payload, id }) => updateInvoice(payload, id),
     onSuccess: () => {
@@ -493,6 +549,90 @@ const ThirdPartyInvoice = () => {
       deleteMutation.mutate(deleteConfirmId);
       setDeleteConfirmId(null);
     }
+  };
+
+  const confirmUnlink = () => {
+    if (unlinkConfirmItem?.paid_id) {
+      unlinkMutation.mutate(unlinkConfirmItem.paid_id);
+    }
+  };
+
+  const handlePayInvoice = async (item) => {
+    setPayingInvoice(item);
+    setPayBillsLoading(true);
+    setPayDialogOpen(true);
+    
+    try {
+      const response = await fetchPayBillsList(item.id);
+      const billsData = response?.data || response || [];
+      setPayBillsData(Array.isArray(billsData) ? billsData : [billsData]);
+      setInitialAmount(item.amount || 0);
+      
+      const initialApplied = {};
+      if (Array.isArray(billsData)) {
+        billsData.forEach((bill) => {
+          initialApplied[bill.id] = bill.applied_amount || "0.00";
+        });
+      }
+      setAppliedAmounts(initialApplied);
+    } catch (error) {
+      console.error("Failed to fetch pay bills list:", error);
+      toast.error("Failed to load payment details");
+      setPayBillsData([]);
+    } finally {
+      setPayBillsLoading(false);
+    }
+  };
+
+  const closePayDialog = () => {
+    setPayDialogOpen(false);
+    setPayingInvoice(null);
+    setPayBillsData([]);
+    setAppliedAmounts({});
+    setPayForm({
+      pay_date: "",
+      pay_type: "Withdrawal",
+      amount: "",
+      pay_method: "",
+      pay_to: "",
+      memo_1st: "",
+      memo_2nd: "",
+      to_be_printed: false,
+    });
+  };
+
+  const calculateRemaining = () => {
+    const totalAmount = parseFloat(initialAmount) || 0;
+    const totalApplied = Object.values(appliedAmounts).reduce(
+      (sum, val) => sum + (parseFloat(val) || 0),
+      0
+    );
+    return (totalAmount - totalApplied).toFixed(2);
+  };
+
+  const handlePaySubmit = () => {
+    if (!payingInvoice) return;
+    
+    const totalApplied = Object.values(appliedAmounts).reduce(
+      (sum, val) => sum + (parseFloat(val) || 0),
+      0
+    );
+    
+    const payload = {
+      pay_date: payForm.pay_date,
+      pay_type: payForm.pay_type,
+      amount: parseFloat(payForm.amount) || 0,
+      remaining_amount: parseFloat(calculateRemaining()) || 0,
+      pay_method: payForm.pay_method,
+      pay_to: payForm.pay_to,
+      applied_credit: totalApplied,
+      to_be_printed: payForm.to_be_printed,
+      memo_1st: payForm.memo_1st,
+      memo_2nd: payForm.memo_2nd,
+      third_party_invoice_id: payingInvoice.id,
+    };
+    
+    payMutation.mutate(payload);
   };
 
   const handleEditInvoice = async (item) => {
@@ -668,6 +808,7 @@ const ThirdPartyInvoice = () => {
     queryFn: () => fetchList(slug, currentPage, 25),
     enabled: !!slug,
   });
+  
 
   const invoices = data?.data?.data || [];
   const unpaid = data?.data?.unpaid || "0.00";
@@ -819,6 +960,28 @@ const ThirdPartyInvoice = () => {
                       >
                         <Pencil className="h-4 w-4" />
                       </Button>
+                      {item.paid_id ? (
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8 text-orange-500 hover:text-orange-600 hover:bg-orange-50"
+                          onClick={() => setUnlinkConfirmItem(item)}
+                          disabled={unlinkMutation.isPending}
+                          title="Unlink Payment"
+                        >
+                          <Unlink className="h-4 w-4" />
+                        </Button>
+                      ) : (
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8 text-green-500 hover:text-green-600 hover:bg-green-50"
+                          onClick={() => handlePayInvoice(item)}
+                          title="Pay Bill"
+                        >
+                          <DollarSign className="h-4 w-4" />
+                        </Button>
+                      )}
                       <Button
                         variant="ghost"
                         size="icon"
@@ -1302,6 +1465,208 @@ const ThirdPartyInvoice = () => {
             >
               {deleteMutation.isPending ? "Deleting..." : "Delete"}
             </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={unlinkConfirmItem !== null} onOpenChange={(open) => !open && setUnlinkConfirmItem(null)}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Unlink Payment</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to unlink this payment from the invoice? This will remove the payment association.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex justify-end gap-2 pt-4">
+            <Button variant="outline" onClick={() => setUnlinkConfirmItem(null)}>
+              Cancel
+            </Button>
+            <Button 
+              variant="destructive" 
+              onClick={confirmUnlink}
+              disabled={unlinkMutation.isPending}
+            >
+              {unlinkMutation.isPending ? "Unlinking..." : "Unlink"}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Pay Bills Dialog */}
+      <Dialog open={payDialogOpen} onOpenChange={(open) => !open && closePayDialog()}>
+        <DialogContent className="w-[80vw] max-w-none max-h-[90vh] overflow-y-auto">
+          <DialogHeader className="flex flex-row items-center justify-between">
+            <DialogTitle className="text-xl">Pay Bills</DialogTitle>
+            <Button
+              onClick={handlePaySubmit}
+              disabled={payMutation.isPending}
+              className="bg-primary hover:bg-primary/90"
+            >
+              {payMutation.isPending ? "Saving..." : "Save"}
+            </Button>
+          </DialogHeader>
+          
+          <div className="space-y-6 py-4">
+            {/* Form Fields */}
+            <div className="grid grid-cols-2 gap-x-12 gap-y-4">
+              {/* Left Column */}
+              <div className="space-y-4">
+                <div className="grid grid-cols-[100px_1fr] items-center gap-2">
+                  <Label>Date</Label>
+                  <Input
+                    type="date"
+                    value={payForm.pay_date}
+                    onChange={(e) => setPayForm({ ...payForm, pay_date: e.target.value })}
+                  />
+                </div>
+                <div className="grid grid-cols-[100px_1fr] items-center gap-2">
+                  <Label>Type</Label>
+                  <Input
+                    disabled
+                    type="text"
+                    value={payForm.pay_type}
+                    onChange={(e) => setPayForm({ ...payForm, pay_type: e.target.value })}
+                  />
+                </div>
+                <div className="grid grid-cols-[100px_1fr] items-center gap-2">
+                  <Label>Method</Label>
+                  <Select
+                    value={payForm.pay_method}
+                    onValueChange={(value) => setPayForm({ ...payForm, pay_method: value })}
+                  >
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Select method" />
+                    </SelectTrigger>
+                    <SelectContent>
+                    {categoryType.map((item) => (
+                        <SelectItem key={item.id} value={String(item.id)}>
+                          {item.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="grid grid-cols-[100px_1fr] items-center gap-2">
+                  <Label>Pay To</Label>
+                  <Input
+                    placeholder="Enter payee"
+                    value={payForm.pay_to}
+                    onChange={(e) => setPayForm({ ...payForm, pay_to: e.target.value })}
+                  />
+                </div>
+                <div className="grid grid-cols-[100px_1fr] items-center gap-2">
+                  <Label>Memo 1</Label>
+                  <Input
+                    placeholder="Enter memo"
+                    value={payForm.memo_1st}
+                    onChange={(e) => setPayForm({ ...payForm, memo_1st: e.target.value })}
+                  />
+                </div>
+                <div className="grid grid-cols-[100px_1fr] items-center gap-2">
+                  <Label>Memo 2</Label>
+                  <Input
+                    placeholder="Enter memo"
+                    value={payForm.memo_2nd}
+                    onChange={(e) => setPayForm({ ...payForm, memo_2nd: e.target.value })}
+                  />
+                </div>
+              </div>
+
+              {/* Right Column */}
+              <div className="space-y-4">
+                <div className="grid grid-cols-[100px_1fr] items-center gap-2">
+                  <Label>Amount</Label>
+                  <Input
+                    disabled
+                    type="number"
+                    placeholder="Enter amount"
+                    value={payForm.amount | initialAmount}
+                    onChange={(e) => setPayForm({ ...payForm, amount: e.target.value })}
+                  />
+                </div>
+                <div className="grid grid-cols-[100px_1fr] items-center gap-2">
+                    <Button variant="outline" size="sm">To print</Button>
+                    <div className="flex items-center gap-1">
+                      <Checkbox
+                        id="to_be_printed"
+                        checked={payForm.to_be_printed}
+                        onCheckedChange={(checked) => setPayForm({ ...payForm, to_be_printed: checked })}
+                      />
+                      <Label htmlFor="to_be_printed" className="text-sm cursor-pointer">To be printed</Label>
+                    </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Remaining Amount */}
+            <div className="flex justify-between items-center">
+              <span className="text-sm text-muted-foreground">Remaining</span>
+              <span className="text-lg font-semibold text-primary">{calculateRemaining()}</span>
+            </div>
+
+            {/* Bills Table */}
+            <div className="border rounded-lg overflow-hidden">
+              <Table>
+                <TableHeader>
+                  <TableRow className="bg-gray-50">
+                    <TableHead className="w-10">
+                      <Checkbox />
+                    </TableHead>
+                    <TableHead>ID#</TableHead>
+                    <TableHead>Client</TableHead>
+                    <TableHead>Amount</TableHead>
+                    <TableHead>Remaining Amount</TableHead>
+                    <TableHead>Applied Amount</TableHead>
+                    <TableHead className="w-12"></TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {payBillsLoading ? (
+                    <TableRow>
+                      <TableCell colSpan={9} className="text-center py-8">
+                        <Loader2 className="h-6 w-6 animate-spin mx-auto" />
+                      </TableCell>
+                    </TableRow>
+                  ) : payBillsData.length === 0 ? (
+                    <TableRow>
+                      <TableCell colSpan={9} className="text-center py-8 text-muted-foreground">
+                        No bills found
+                      </TableCell>
+                    </TableRow>
+                  ) : (
+                    payBillsData.map((bill) => (
+                      <TableRow key={bill.id}>
+                        <TableCell>
+                          <Checkbox />
+                        </TableCell>
+                        <TableCell>{bill.id}</TableCell>
+                        <TableCell>{bill.applicant_name}</TableCell>
+                        <TableCell>{formatCurrency(bill.amount)}</TableCell>
+                        <TableCell>{formatCurrency(bill.remaining_amount || bill.balance)}</TableCell>
+                        <TableCell>
+                          <Input
+                            type="number"
+                            className="w-28"
+                            value={appliedAmounts[bill.id] || ""}
+                            onChange={(e) =>
+                              setAppliedAmounts({
+                                ...appliedAmounts,
+                                [bill.id]: e.target.value,
+                              })
+                            }
+                          />
+                        </TableCell>
+                        <TableCell>
+                          <Button variant="ghost" size="icon" className="h-8 w-8 bg-primary text-white hover:bg-primary/90">
+                            <Pencil className="h-4 w-4" />
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  )}
+                </TableBody>
+              </Table>
+            </div>
           </div>
         </DialogContent>
       </Dialog>
