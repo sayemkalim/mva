@@ -6,6 +6,7 @@ import { addInvoice } from "./helpers/addInvoice";
 import { deleteInvoice } from "./helpers/deleteInvoice";
 import { showThirdPartyInvoice } from "./helpers/showInvoice";
 import { updateInvoice } from "./helpers/updateInvoice";
+import { unlinkInvoice } from "./helpers/unlinkInvoice";
 import { Button } from "@/components/ui/button";
 import {
   Table,
@@ -25,6 +26,7 @@ import {
   FileIcon,
   Trash2,
   Pencil,
+  Unlink,
 } from "lucide-react";
 import {
   Dialog,
@@ -297,6 +299,7 @@ const ThirdPartyInvoice = () => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [deleteConfirmId, setDeleteConfirmId] = useState(null);
+  const [unlinkConfirmItem, setUnlinkConfirmItem] = useState(null);
   const [uploadedFiles, setUploadedFiles] = useState([]);
   const [attachmentIds, setAttachmentIds] = useState([]);
   const [editingInvoice, setEditingInvoice] = useState(null);
@@ -468,6 +471,19 @@ const ThirdPartyInvoice = () => {
     },
   });
 
+  const unlinkMutation = useMutation({
+    mutationFn: (paidId) => unlinkInvoice(paidId),
+    onSuccess: () => {
+      queryClient.invalidateQueries(["thirdPartyInvoiceList", slug]);
+      toast.success("Invoice unlinked successfully");
+      setUnlinkConfirmItem(null);
+    },
+    onError: (error) => {
+      console.error("Failed to unlink invoice:", error);
+      toast.error("Failed to unlink invoice");
+    },
+  });
+
   const updateMutation = useMutation({
     mutationFn: ({ payload, id }) => updateInvoice(payload, id),
     onSuccess: () => {
@@ -492,6 +508,12 @@ const ThirdPartyInvoice = () => {
     if (deleteConfirmId) {
       deleteMutation.mutate(deleteConfirmId);
       setDeleteConfirmId(null);
+    }
+  };
+
+  const confirmUnlink = () => {
+    if (unlinkConfirmItem?.paid_id) {
+      unlinkMutation.mutate(unlinkConfirmItem.paid_id);
     }
   };
 
@@ -819,6 +841,18 @@ const ThirdPartyInvoice = () => {
                       >
                         <Pencil className="h-4 w-4" />
                       </Button>
+                      {item.paid_id && (
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8 text-orange-500 hover:text-orange-600 hover:bg-orange-50"
+                          onClick={() => setUnlinkConfirmItem(item)}
+                          disabled={unlinkMutation.isPending}
+                          title="Unlink Payment"
+                        >
+                          <Unlink className="h-4 w-4" />
+                        </Button>
+                      )}
                       <Button
                         variant="ghost"
                         size="icon"
@@ -1301,6 +1335,29 @@ const ThirdPartyInvoice = () => {
               disabled={deleteMutation.isPending}
             >
               {deleteMutation.isPending ? "Deleting..." : "Delete"}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={unlinkConfirmItem !== null} onOpenChange={(open) => !open && setUnlinkConfirmItem(null)}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Unlink Payment</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to unlink this payment from the invoice? This will remove the payment association.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex justify-end gap-2 pt-4">
+            <Button variant="outline" onClick={() => setUnlinkConfirmItem(null)}>
+              Cancel
+            </Button>
+            <Button 
+              variant="destructive" 
+              onClick={confirmUnlink}
+              disabled={unlinkMutation.isPending}
+            >
+              {unlinkMutation.isPending ? "Unlinking..." : "Unlink"}
             </Button>
           </div>
         </DialogContent>
