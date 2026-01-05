@@ -4,6 +4,8 @@ import { useParams, useNavigate } from "react-router-dom";
 import { fetchList } from "./helpers/fetchList";
 import { addInvoice } from "./helpers/addInvoice";
 import { deleteInvoice } from "./helpers/deleteInvoice";
+import { showThirdPartyInvoice } from "./helpers/showInvoice";
+import { updateInvoice } from "./helpers/updateInvoice";
 import { Button } from "@/components/ui/button";
 import {
   Table,
@@ -22,6 +24,7 @@ import {
   Check,
   FileIcon,
   Trash2,
+  Pencil,
 } from "lucide-react";
 import {
   Dialog,
@@ -292,9 +295,13 @@ const ThirdPartyInvoice = () => {
   const queryClient = useQueryClient();
   const [currentPage] = useState(1);
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [deleteConfirmId, setDeleteConfirmId] = useState(null);
   const [uploadedFiles, setUploadedFiles] = useState([]);
   const [attachmentIds, setAttachmentIds] = useState([]);
+  const [editingInvoice, setEditingInvoice] = useState(null);
+  const [editUploadedFiles, setEditUploadedFiles] = useState([]);
+  const [editAttachmentIds, setEditAttachmentIds] = useState([]);
 
   const [form, setForm] = useState({
     bill_date: "",
@@ -461,6 +468,22 @@ const ThirdPartyInvoice = () => {
     },
   });
 
+  const updateMutation = useMutation({
+    mutationFn: ({ payload, id }) => updateInvoice(payload, id),
+    onSuccess: () => {
+      queryClient.invalidateQueries(["thirdPartyInvoiceList", slug]);
+      setEditDialogOpen(false);
+      setEditingInvoice(null);
+      setEditUploadedFiles([]);
+      setEditAttachmentIds([]);
+      toast.success("Invoice updated successfully");
+    },
+    onError: (error) => {
+      console.error("Failed to update invoice:", error);
+      toast.error("Failed to update invoice");
+    },
+  });
+
   const handleDeleteInvoice = (id) => {
     setDeleteConfirmId(id);
   };
@@ -470,6 +493,152 @@ const ThirdPartyInvoice = () => {
       deleteMutation.mutate(deleteConfirmId);
       setDeleteConfirmId(null);
     }
+  };
+
+  const handleEditInvoice = async (item) => {
+    try {
+      const response = await showThirdPartyInvoice(item.id);
+      const invoiceData = response?.data || response;
+      
+      // Set edit form data
+      setEditingInvoice({
+        id: item.id,
+        bill_date: invoiceData.bill_date ? invoiceData.bill_date.split("T")[0] : "",
+        due_date: invoiceData.due_date ? invoiceData.due_date.split("T")[0] : "",
+        amount: invoiceData.amount || "",
+        pay_to: invoiceData.pay_to || "",
+        reference: invoiceData.reference || "",
+        memo_1st: invoiceData.memo_1st || "",
+        memo_2nd: invoiceData.memo_2nd || "",
+        category: invoiceData.category || "",
+        hold_bill_payment: invoiceData.hold_bill_payment || false,
+        type_id: invoiceData.type_id ? String(invoiceData.type_id) : "",
+        original_amount: invoiceData.original_amount || "",
+        date_of_service: invoiceData.date_of_service ? invoiceData.date_of_service.split("T")[0] : "",
+        mark_as_paid_by_other: invoiceData.mark_as_paid_by_other || false,
+        paid_by: invoiceData.paid_by || "",
+      });
+
+      // Set existing attachments
+      if (Array.isArray(invoiceData.attachments)) {
+        const existingFiles = invoiceData.attachments.map((att) => ({
+          tempId: `existing_${att.id}`,
+          id: att.id,
+          name: att.original_name || att.name || "File",
+          size: att.size || 0,
+          type: att.mime_type || "",
+          uploaded: true,
+          uploading: false,
+        }));
+        setEditUploadedFiles(existingFiles);
+        setEditAttachmentIds(invoiceData.attachments.map((att) => att.id));
+      } else {
+        setEditUploadedFiles([]);
+        setEditAttachmentIds([]);
+      }
+
+      setEditDialogOpen(true);
+    } catch (error) {
+      console.error("Failed to fetch invoice details:", error);
+      toast.error("Failed to load invoice details");
+    }
+  };
+
+  const handleEditSubmit = () => {
+    const payload = {
+      bill_date: editingInvoice.bill_date,
+      due_date: editingInvoice.due_date,
+      amount: parseFloat(editingInvoice.amount) || 0,
+      pay_to: editingInvoice.pay_to,
+      reference: editingInvoice.reference,
+      memo_1st: editingInvoice.memo_1st,
+      memo_2nd: editingInvoice.memo_2nd,
+      category: editingInvoice.category,
+      hold_bill_payment: editingInvoice.hold_bill_payment,
+      type_id: editingInvoice.type_id ? parseInt(editingInvoice.type_id) : null,
+      original_amount: parseFloat(editingInvoice.original_amount) || parseFloat(editingInvoice.amount) || 0,
+      date_of_service: editingInvoice.date_of_service,
+      mark_as_paid_by_other: editingInvoice.mark_as_paid_by_other,
+      paid_by: editingInvoice.paid_by || null,
+      attachment_ids: editAttachmentIds,
+    };
+    updateMutation.mutate({ payload, id: editingInvoice.id });
+  };
+
+  // Edit file handlers
+  const editUploadMutation = useMutation({
+    mutationFn: uploadAttachment,
+    onSuccess: (response, variables) => {
+      const attachmentId = response?.response?.attachment?.id;
+      const fileName = response?.response?.attachment?.original_name || "Uploaded File";
+      const fileExtension = response?.response?.attachment?.extension;
+      const fullFileName = fileExtension ? `${fileName}.${fileExtension}` : fileName;
+
+      if (attachmentId) {
+        setEditUploadedFiles((prev) =>
+          prev.map((file) =>
+            file.tempId === variables.tempId
+              ? { ...file, id: attachmentId, name: fullFileName, uploaded: true, uploading: false }
+              : file
+          )
+        );
+        setEditAttachmentIds((prev) => [...prev, attachmentId]);
+        toast.success(`File uploaded: ${fullFileName}`);
+      } else {
+        setEditUploadedFiles((prev) =>
+          prev.map((file) =>
+            file.tempId === variables.tempId
+              ? { ...file, uploading: false, uploadFailed: true }
+              : file
+          )
+        );
+      }
+    },
+    onError: (error, variables) => {
+      setEditUploadedFiles((prev) =>
+        prev.map((file) =>
+          file.tempId === variables.tempId
+            ? { ...file, uploading: false, uploadFailed: true }
+            : file
+        )
+      );
+      toast.error("Failed to upload file");
+    },
+  });
+
+  const editDeleteAttachmentMutation = useMutation({
+    mutationFn: deleteAttachment,
+    onMutate: async (attachmentId) => {
+      setEditUploadedFiles((prev) =>
+        prev.map((file) => (file.id === attachmentId ? { ...file, deleting: true } : file))
+      );
+    },
+    onSuccess: (response, attachmentId) => {
+      setEditUploadedFiles((prev) => prev.filter((file) => file.id !== attachmentId));
+      setEditAttachmentIds((prev) => prev.filter((id) => id !== attachmentId));
+      toast.success("Attachment deleted successfully");
+    },
+    onError: (error, attachmentId) => {
+      setEditUploadedFiles((prev) =>
+        prev.map((file) => (file.id === attachmentId ? { ...file, deleting: false } : file))
+      );
+      toast.error("Failed to delete attachment");
+    },
+  });
+
+  const handleEditFilesChange = (newFiles) => {
+    setEditUploadedFiles(newFiles);
+  };
+
+  const handleEditFileUpload = (fileData) => {
+    editUploadMutation.mutate({
+      file: fileData.fileObject,
+      tempId: fileData.tempId,
+    });
+  };
+
+  const handleEditFileDelete = (attachmentId) => {
+    editDeleteAttachmentMutation.mutate(attachmentId);
   };
 
   const handleSubmit = () => {
@@ -641,15 +810,25 @@ const ThirdPartyInvoice = () => {
                     {item.memo || "-"}
                   </TableCell>
                   <TableCell>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-8 w-8 text-destructive hover:text-destructive hover:bg-destructive/10"
-                      onClick={() => handleDeleteInvoice(item.id)}
-                      disabled={deleteMutation.isPending}
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
+                    <div className="flex gap-1">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8 text-muted-foreground hover:text-foreground"
+                        onClick={() => handleEditInvoice(item)}
+                      >
+                        <Pencil className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8 text-destructive hover:text-destructive hover:bg-destructive/10"
+                        onClick={() => handleDeleteInvoice(item.id)}
+                        disabled={deleteMutation.isPending}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
                   </TableCell>
                 </TableRow>
               ))
@@ -886,6 +1065,218 @@ const ThirdPartyInvoice = () => {
             </Button>
             <Button onClick={handleSubmit} disabled={addMutation.isPending}>
               {addMutation.isPending ? "Saving..." : "Save"}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Edit Invoice Dialog */}
+      <Dialog
+        open={editDialogOpen}
+        onOpenChange={(open) => {
+          if (!open) {
+            setEditDialogOpen(false);
+            setEditingInvoice(null);
+            setEditUploadedFiles([]);
+            setEditAttachmentIds([]);
+          }
+        }}
+      >
+        <DialogContent className="w-[70vw] max-w-none max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="text-xl">Edit Third Party Invoice</DialogTitle>
+            <DialogDescription>Update the invoice details</DialogDescription>
+            <button
+              onClick={() => {
+                setEditDialogOpen(false);
+                setEditingInvoice(null);
+                setEditUploadedFiles([]);
+                setEditAttachmentIds([]);
+              }}
+              className="absolute right-4 top-4 rounded-sm opacity-70 hover:opacity-100"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          </DialogHeader>
+          {editingInvoice && (
+            <div className="space-y-6 py-4">
+              {/* Row 1: Pay To, Amount, Original Amount */}
+              <div className="grid grid-cols-3 gap-4">
+                <div className="space-y-2">
+                  <Label>Pay To</Label>
+                  <Input
+                    placeholder="Enter payee name"
+                    value={editingInvoice.pay_to}
+                    onChange={(e) => setEditingInvoice({ ...editingInvoice, pay_to: e.target.value })}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Amount</Label>
+                  <Input
+                    type="number"
+                    placeholder="Enter amount"
+                    value={editingInvoice.amount}
+                    onChange={(e) => setEditingInvoice({ ...editingInvoice, amount: e.target.value })}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Original Amount</Label>
+                  <Input
+                    type="number"
+                    placeholder="Enter original amount"
+                    value={editingInvoice.original_amount}
+                    onChange={(e) => setEditingInvoice({ ...editingInvoice, original_amount: e.target.value })}
+                  />
+                </div>
+              </div>
+
+              {/* Row 2: Bill Date, Due Date, Date of Service */}
+              <div className="grid grid-cols-3 gap-4">
+                <div className="space-y-2">
+                  <Label>Bill Date</Label>
+                  <Input
+                    type="date"
+                    value={editingInvoice.bill_date}
+                    onChange={(e) => setEditingInvoice({ ...editingInvoice, bill_date: e.target.value })}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Due Date</Label>
+                  <Input
+                    type="date"
+                    value={editingInvoice.due_date}
+                    onChange={(e) => setEditingInvoice({ ...editingInvoice, due_date: e.target.value })}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Date of Service</Label>
+                  <Input
+                    type="date"
+                    value={editingInvoice.date_of_service}
+                    onChange={(e) => setEditingInvoice({ ...editingInvoice, date_of_service: e.target.value })}
+                  />
+                </div>
+              </div>
+
+              {/* Row 3: Reference, Category, Type */}
+              <div className="grid grid-cols-3 gap-4">
+                <div className="space-y-2">
+                  <Label>Reference</Label>
+                  <Input
+                    placeholder="Enter reference"
+                    value={editingInvoice.reference}
+                    onChange={(e) => setEditingInvoice({ ...editingInvoice, reference: e.target.value })}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Category</Label>
+                  <Input
+                    placeholder="Enter category"
+                    value={editingInvoice.category}
+                    onChange={(e) => setEditingInvoice({ ...editingInvoice, category: e.target.value })}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Type ID</Label>
+                  <Select
+                    value={String(editingInvoice.type_id || "")}
+                    onValueChange={(value) => setEditingInvoice({ ...editingInvoice, type_id: value })}
+                  >
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Select" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {methodType.map((item) => (
+                        <SelectItem key={item.id} value={String(item.id)}>
+                          {item.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+
+              {/* Row 4: Paid By */}
+              <div className="grid grid-cols-3 gap-4">
+                <div className="space-y-2">
+                  <Label>Paid By</Label>
+                  <Input
+                    placeholder="Enter paid by (optional)"
+                    value={editingInvoice.paid_by}
+                    onChange={(e) => setEditingInvoice({ ...editingInvoice, paid_by: e.target.value })}
+                  />
+                </div>
+              </div>
+
+              {/* Row 5: Checkboxes */}
+              <div className="grid grid-cols-2 gap-4">
+                <div className="flex items-center space-x-2">
+                  <Checkbox
+                    id="edit_hold_bill_payment"
+                    checked={editingInvoice.hold_bill_payment}
+                    onCheckedChange={(checked) => setEditingInvoice({ ...editingInvoice, hold_bill_payment: checked })}
+                  />
+                  <Label htmlFor="edit_hold_bill_payment" className="cursor-pointer">
+                    Hold Bill Payment
+                  </Label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <Checkbox
+                    id="edit_mark_as_paid_by_other"
+                    checked={editingInvoice.mark_as_paid_by_other}
+                    onCheckedChange={(checked) => setEditingInvoice({ ...editingInvoice, mark_as_paid_by_other: checked })}
+                  />
+                  <Label htmlFor="edit_mark_as_paid_by_other" className="cursor-pointer">
+                    Mark as Paid by Other
+                  </Label>
+                </div>
+              </div>
+
+              {/* Row 6: Memos */}
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label>Memo 1</Label>
+                  <Textarea
+                    className="min-h-[80px]"
+                    placeholder="Enter memo"
+                    value={editingInvoice.memo_1st}
+                    onChange={(e) => setEditingInvoice({ ...editingInvoice, memo_1st: e.target.value })}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Memo 2</Label>
+                  <Textarea
+                    className="min-h-[80px]"
+                    placeholder="Enter additional memo"
+                    value={editingInvoice.memo_2nd}
+                    onChange={(e) => setEditingInvoice({ ...editingInvoice, memo_2nd: e.target.value })}
+                  />
+                </div>
+              </div>
+
+              {/* Row 7: Attachments */}
+              <AttachmentUploader
+                files={editUploadedFiles}
+                onFilesChange={handleEditFilesChange}
+                onUpload={handleEditFileUpload}
+                onDelete={handleEditFileDelete}
+              />
+            </div>
+          )}
+          <div className="flex justify-end gap-2 pt-4 border-t">
+            <Button
+              variant="outline"
+              onClick={() => {
+                setEditDialogOpen(false);
+                setEditingInvoice(null);
+                setEditUploadedFiles([]);
+                setEditAttachmentIds([]);
+              }}
+            >
+              Close
+            </Button>
+            <Button onClick={handleEditSubmit} disabled={updateMutation.isPending}>
+              {updateMutation.isPending ? "Updating..." : "Update"}
             </Button>
           </div>
         </DialogContent>
