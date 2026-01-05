@@ -5,6 +5,7 @@ import { fetchInvoiceList } from "./helpers/fetchInvoiceList";
 import { fetchInvoiceDetails } from "./helpers/fetchInvoiceDetails";
 import { fetchUnbilledList } from "./helpers/fetchUnbilledList";
 import { createInvoice } from "./helpers/createInvoice";
+import { deleteInvoice } from "./helpers/deleteInvoice";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -21,9 +22,9 @@ import {
   ChevronRight,
   Lock,
   Unlock,
-  Eye,
   X,
   Loader2,
+  Trash2,
 } from "lucide-react";
 import {
   Dialog,
@@ -40,10 +41,6 @@ const Invoice = () => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [currentPage] = useState(1);
-  const [detailDialogOpen, setDetailDialogOpen] = useState(false);
-  const [selectedInvoice, setSelectedInvoice] = useState(null);
-  const [invoiceDetails, setInvoiceDetails] = useState(null);
-  const [detailsLoading, setDetailsLoading] = useState(false);
 
   // Add Invoice Dialog State
   const [addDialogOpen, setAddDialogOpen] = useState(false);
@@ -53,6 +50,10 @@ const Invoice = () => {
   const [selectedBillingIds, setSelectedBillingIds] = useState([]);
   const [unbilledData, setUnbilledData] = useState([]);
   const [unbilledLoading, setUnbilledLoading] = useState(false);
+
+  // Delete Invoice Dialog State
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [invoiceToDelete, setInvoiceToDelete] = useState(null);
 
   const { data, isLoading } = useQuery({
     queryKey: ["invoiceList", slug, currentPage],
@@ -100,29 +101,6 @@ const Invoice = () => {
         {label}
       </Badge>
     );
-  };
-
-  const handleViewDetails = async (item) => {
-    setSelectedInvoice(item);
-    setDetailsLoading(true);
-    setDetailDialogOpen(true);
-
-    try {
-      const response = await fetchInvoiceDetails(item.id);
-      setInvoiceDetails(response);
-    } catch (error) {
-      console.error("Failed to fetch invoice details:", error);
-      toast.error("Failed to load invoice details");
-      setInvoiceDetails(null);
-    } finally {
-      setDetailsLoading(false);
-    }
-  };
-
-  const closeDetailDialog = () => {
-    setDetailDialogOpen(false);
-    setSelectedInvoice(null);
-    setInvoiceDetails(null);
   };
 
   // Add Invoice Dialog Handlers
@@ -211,6 +189,40 @@ const Invoice = () => {
       due_date: dueDate,
       billing_ids: selectedBillingIds,
     });
+  };
+
+  // Delete Invoice Handlers
+  const handleOpenDeleteDialog = (item) => {
+    setInvoiceToDelete(item);
+    setDeleteDialogOpen(true);
+  };
+
+  const closeDeleteDialog = () => {
+    setDeleteDialogOpen(false);
+    setInvoiceToDelete(null);
+  };
+
+  const deleteInvoiceMutation = useMutation({
+    mutationFn: (invoiceId) => deleteInvoice(invoiceId),
+    onSuccess: (response) => {
+      if (response?.response?.Apistatus === true) {
+        toast.success("Invoice deleted successfully");
+        queryClient.invalidateQueries(["invoiceList", slug]);
+        closeDeleteDialog();
+      } else {
+        toast.error(response?.response?.message || "Failed to delete invoice");
+      }
+    },
+    onError: (error) => {
+      console.error("Failed to delete invoice:", error);
+      toast.error("Failed to delete invoice");
+    },
+  });
+
+  const handleConfirmDelete = () => {
+    if (invoiceToDelete) {
+      deleteInvoiceMutation.mutate(invoiceToDelete.id);
+    }
   };
 
   return (
@@ -321,11 +333,12 @@ const Invoice = () => {
                     <Button
                       variant="ghost"
                       size="icon"
-                      className="h-8 w-8 text-primary hover:text-primary/80"
-                      onClick={() => handleViewDetails(item)}
-                      title="View Details"
+                      className="h-8 w-8 text-destructive hover:text-destructive/80"
+                      onClick={() => handleOpenDeleteDialog(item)}
+                      title="Delete Invoice"
+                      disabled={item.status !== "unpaid"}
                     >
-                      <Eye className="h-4 w-4" />
+                      <Trash2 className="h-4 w-4" />
                     </Button>
                   </TableCell>
                 </TableRow>
@@ -334,147 +347,6 @@ const Invoice = () => {
           </TableBody>
         </Table>
       </div>
-
-      {/* Invoice Details Dialog */}
-      <Dialog open={detailDialogOpen} onOpenChange={(open) => !open && closeDetailDialog()}>
-        <DialogContent className="w-[80vw] max-w-none max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle className="text-xl">
-              Invoice Details {invoiceDetails?.invoice?.invoice_number && `- ${invoiceDetails.invoice.invoice_number}`}
-            </DialogTitle>
-            <button
-              onClick={closeDetailDialog}
-              className="absolute right-4 top-4 rounded-sm opacity-70 hover:opacity-100"
-            >
-              <X className="h-4 w-4" />
-            </button>
-          </DialogHeader>
-
-          {detailsLoading ? (
-            <div className="flex items-center justify-center py-12">
-              <Loader2 className="h-8 w-8 animate-spin text-primary" />
-            </div>
-          ) : invoiceDetails ? (
-            <div className="space-y-6 py-4">
-              {/* Invoice Info */}
-              <div className="grid grid-cols-4 gap-4 p-4 bg-gray-50 rounded-lg">
-                <div>
-                  <p className="text-sm text-muted-foreground">Invoice Number</p>
-                  <p className="font-semibold">{invoiceDetails.invoice?.invoice_number || "-"}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-muted-foreground">Invoice Date</p>
-                  <p className="font-semibold">{formatDate(invoiceDetails.invoice?.invoice_date)}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-muted-foreground">Due Date</p>
-                  <p className="font-semibold">{formatDate(invoiceDetails.invoice?.due_date)}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-muted-foreground">Amount</p>
-                  <p className="font-semibold">{formatCurrency(invoiceDetails.invoice?.amount)}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-muted-foreground">Balance</p>
-                  <p className="font-semibold">{formatCurrency(invoiceDetails.invoice?.balance)}</p>
-                </div>
-              </div>
-
-              {/* Attached Billings */}
-              <div>
-                <h3 className="font-semibold text-lg mb-3">Attached Billings</h3>
-                <div className="border rounded-lg overflow-hidden">
-                  <Table>
-                    <TableHeader>
-                      <TableRow className="bg-gray-50">
-                        <TableHead>ID</TableHead>
-                        <TableHead>Section Type</TableHead>
-                        <TableHead>Date</TableHead>
-                        <TableHead>Description</TableHead>
-                        <TableHead>Quantity</TableHead>
-                        <TableHead>Rate</TableHead>
-                        <TableHead>Total Amount</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {invoiceDetails.attached_billings?.length > 0 ? (
-                        invoiceDetails.attached_billings.map((billing) => (
-                          <TableRow key={billing.id}>
-                            <TableCell>{billing.id}</TableCell>
-                            <TableCell>{getSectionTypeBadge(billing.section_type)}</TableCell>
-                            <TableCell>{formatDate(billing.date)}</TableCell>
-                            <TableCell>{billing.description || "-"}</TableCell>
-                            <TableCell>{billing.quantity}</TableCell>
-                            <TableCell>{formatCurrency(billing.rate)}</TableCell>
-                            <TableCell>{formatCurrency(billing.total_amount)}</TableCell>
-                          </TableRow>
-                        ))
-                      ) : (
-                        <TableRow>
-                          <TableCell colSpan={7} className="text-center py-4 text-muted-foreground">
-                            No attached billings
-                          </TableCell>
-                        </TableRow>
-                      )}
-                    </TableBody>
-                  </Table>
-                </div>
-              </div>
-
-              {/* Available Billings */}
-              <div>
-                <h3 className="font-semibold text-lg mb-3">Available Billings</h3>
-                <div className="border rounded-lg overflow-hidden">
-                  <Table>
-                    <TableHeader>
-                      <TableRow className="bg-gray-50">
-                        <TableHead>ID</TableHead>
-                        <TableHead>Section Type</TableHead>
-                        <TableHead>Date</TableHead>
-                        <TableHead>Description</TableHead>
-                        <TableHead>Quantity</TableHead>
-                        <TableHead>Rate</TableHead>
-                        <TableHead>Total Amount</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {invoiceDetails.available_billings?.length > 0 ? (
-                        invoiceDetails.available_billings.map((billing) => (
-                          <TableRow key={billing.id}>
-                            <TableCell>{billing.id}</TableCell>
-                            <TableCell>{getSectionTypeBadge(billing.section_type)}</TableCell>
-                            <TableCell>{formatDate(billing.date)}</TableCell>
-                            <TableCell>{billing.description || "-"}</TableCell>
-                            <TableCell>{billing.quantity}</TableCell>
-                            <TableCell>{formatCurrency(billing.rate)}</TableCell>
-                            <TableCell>{formatCurrency(billing.total_amount)}</TableCell>
-                          </TableRow>
-                        ))
-                      ) : (
-                        <TableRow>
-                          <TableCell colSpan={7} className="text-center py-4 text-muted-foreground">
-                            No available billings
-                          </TableCell>
-                        </TableRow>
-                      )}
-                    </TableBody>
-                  </Table>
-                </div>
-              </div>
-            </div>
-          ) : (
-            <div className="text-center py-8 text-muted-foreground">
-              Failed to load invoice details
-            </div>
-          )}
-
-          <div className="flex justify-end pt-4 border-t">
-            <Button variant="outline" onClick={closeDetailDialog}>
-              Close
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
 
       <Dialog open={addDialogOpen} onOpenChange={(open) => !open && closeAddDialog()}>
         <DialogContent className="w-[80vw] max-w-none max-h-[90vh] overflow-y-auto p-0 [&>button]:hidden">
@@ -594,6 +466,39 @@ const Invoice = () => {
           <div className="flex justify-end px-6 py-4 border-t">
             <Button variant="outline" onClick={closeAddDialog}>
               Close
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={deleteDialogOpen} onOpenChange={(open) => !open && closeDeleteDialog()}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Delete Invoice</DialogTitle>
+          </DialogHeader>
+          <div className="py-4">
+            <p className="text-muted-foreground">
+              Are you sure you want to delete invoice{" "}
+              <span className="font-semibold text-foreground">
+                {invoiceToDelete?.invoice_number}
+              </span>
+              ? This action cannot be undone.
+            </p>
+          </div>
+          <div className="flex justify-end gap-3">
+            <Button variant="outline" onClick={closeDeleteDialog}>
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={handleConfirmDelete}
+              disabled={deleteInvoiceMutation.isPending}
+            >
+              {deleteInvoiceMutation.isPending ? (
+                <Loader2 className="h-4 w-4 animate-spin mr-2" />
+              ) : null}
+              Delete
             </Button>
           </div>
         </DialogContent>
