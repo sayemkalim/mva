@@ -22,7 +22,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Plus, ChevronDown, X, Trash2, Pencil, ChevronRight } from "lucide-react";
+import { Plus, ChevronDown, X, Trash2, Pencil, ChevronRight, MoreHorizontal } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -392,19 +392,20 @@ const CostList = () => {
   const getSectionTypeLabel = (sectionType) => {
     switch (sectionType) {
       case "soft-cost":
-        return "soft cost";
+        return "Soft Cost";
       case "hard-cost":
-        return "hard cost";
+        return "Hard Cost";
       case "time-card":
-        return "time card";
+        return "Time Card";
       default:
         return sectionType || "-";
     }
   };
 
-  const getStatusLabel = (item) => {
-    return "Unbilled";
-  };
+  const parseString = (str) => {
+  if (!str || typeof str !== "string") return "";
+  return str.charAt(0).toUpperCase() + str.slice(1);
+}
 
   return (
 
@@ -498,7 +499,6 @@ const CostList = () => {
               <TableHead>Cost Type</TableHead>
               <TableHead>Method</TableHead>
               <TableHead>Description</TableHead>
-              <TableHead>Memo</TableHead>
               <TableHead>Payment Amount</TableHead>
               <TableHead>Balance</TableHead>
               <TableHead>Status</TableHead>
@@ -535,31 +535,37 @@ const CostList = () => {
                     <TableCell className="text-muted-foreground">
                       {item.description || "null"}
                     </TableCell>
-                    <TableCell className="text-muted-foreground">null</TableCell>
                     <TableCell>{parseFloat(item.amount || 0).toFixed(2)}</TableCell>
                     <TableCell>{runningBalance.toFixed(2)}</TableCell>
-                    <TableCell className="text-orange-500">{getStatusLabel(item)}</TableCell>
+                    <TableCell className="text-orange-500">{parseString(item.status)}</TableCell>
                     <TableCell>
-                      <div className="flex gap-1">
-                        <Button
-                          disabled={item.status === "paid"}
-                          variant="ghost"
-                          size="icon"
-                          className="h-8 w-8 text-muted-foreground hover:text-foreground cursor-pointer hover:bg-muted/50"
-                          onClick={() => handleEditCost(item)}
-                        >
-                          <Pencil className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-8 w-8 text-destructive hover:text-destructive hover:bg-destructive/10 cursor-pointer"
-                          onClick={() => handleDeleteCost(item.id)}
-                          disabled={deleteCostMutation.isPending || item.status === "paid"}
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </div>
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <Button variant="ghost" size="icon" className="h-8 w-8">
+                            <MoreHorizontal className="h-4 w-4" />
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent align="end" className="w-48 p-1">
+                          <div className="flex flex-col">
+                            <button
+                              className="flex items-center gap-2 px-3 py-2 text-sm rounded-md hover:bg-accent text-left disabled:opacity-50 disabled:cursor-not-allowed"
+                              onClick={() => handleEditCost(item)}
+                              disabled={item.status === "paid"}
+                            >
+                              <Pencil className="h-4 w-4" />
+                              Edit
+                            </button>
+                            <button
+                              className="flex items-center gap-2 px-3 py-2 text-sm rounded-md hover:bg-accent text-left text-destructive disabled:opacity-50 disabled:cursor-not-allowed"
+                              onClick={() => handleDeleteCost(item.id)}
+                              disabled={deleteCostMutation.isPending || item.status === "paid"}
+                            >
+                              <Trash2 className="h-4 w-4" />
+                              Delete
+                            </button>
+                          </div>
+                        </PopoverContent>
+                      </Popover>
                     </TableCell>
                   </TableRow>
                 );

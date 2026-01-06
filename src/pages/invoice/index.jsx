@@ -230,6 +230,19 @@ const Invoice = () => {
     setUnbilledData([]);
   };
 
+  const handleInvoiceDateChange = (e) => {
+    const newDate = e.target.value;
+    setInvoiceDate(newDate);
+
+    // Calculate due date 15 days after invoice date
+    if (newDate) {
+      const date = new Date(newDate);
+      date.setDate(date.getDate() + 15);
+      const newDueDate = date.toISOString().split("T")[0];
+      setDueDate(newDueDate);
+    }
+  };
+
   const handleSelectAll = (checked) => {
     if (checked) {
       setSelectedBillingIds(unbilledData.map((item) => item.id));
@@ -489,14 +502,26 @@ const Invoice = () => {
   };
 
   const handleAppliedCreditChange = (value) => {
-    setPaymentInvoiceCredit(value);
+    const invoiceBalance = parseFloat(trustPaymentData?.balance) || 0;
+    let appliedAmount = parseFloat(value) || 0;
+
+    // Cap applied credit to invoice balance
+    if (appliedAmount > invoiceBalance) {
+      appliedAmount = invoiceBalance;
+      toast.warning(
+        `Applied Credit cannot exceed Invoice Balance (${formatCurrency(
+          invoiceBalance
+        )})`
+      );
+    }
+
+    setPaymentInvoiceCredit(appliedAmount.toString());
     const bankBalance = parseFloat(trustPaymentForm.bankBalance) || 0;
-    const appliedCredit = parseFloat(value) || 0;
-    const remainingCredit = bankBalance - appliedCredit;
+    const remainingCredit = bankBalance - appliedAmount;
 
     setTrustPaymentForm((prev) => ({
       ...prev,
-      appliedCredit: appliedCredit.toFixed(2),
+      appliedCredit: appliedAmount.toFixed(2),
       remainingCredit: remainingCredit.toFixed(2),
     }));
   };
@@ -597,15 +622,27 @@ const Invoice = () => {
   };
 
   const handleOperatingAppliedCreditChange = (value) => {
-    setOperatingPaymentInvoiceCredit(value);
+    const invoiceBalance = parseFloat(operatingPaymentData?.balance) || 0;
+    let appliedAmount = parseFloat(value) || 0;
+
+    // Cap applied credit to invoice balance
+    if (appliedAmount > invoiceBalance) {
+      appliedAmount = invoiceBalance;
+      toast.warning(
+        `Applied Credit cannot exceed Invoice Balance (${formatCurrency(
+          invoiceBalance
+        )})`
+      );
+    }
+
+    setOperatingPaymentInvoiceCredit(appliedAmount.toString());
     const availableCredit =
       parseFloat(operatingPaymentForm.availableCredit) || 0;
-    const appliedCredit = parseFloat(value) || 0;
-    const remainingCredit = availableCredit - appliedCredit;
+    const remainingCredit = availableCredit - appliedAmount;
 
     setOperatingPaymentForm((prev) => ({
       ...prev,
-      appliedCredit: appliedCredit.toFixed(2),
+      appliedCredit: appliedAmount.toFixed(2),
       remainingCredit: remainingCredit.toFixed(2),
     }));
   };
@@ -938,7 +975,7 @@ const Invoice = () => {
                   <Input
                     type="date"
                     value={invoiceDate}
-                    onChange={(e) => setInvoiceDate(e.target.value)}
+                    onChange={handleInvoiceDateChange}
                   />
                 </div>
                 <div>
@@ -1229,7 +1266,7 @@ const Invoice = () => {
         open={trustPaymentDialogOpen}
         onOpenChange={(open) => !open && closeTrustPaymentDialog()}
       >
-        <DialogContent className="w-[80vw] max-w-none max-h-[90vh] overflow-y-auto p-0 [&>button]:hidden">
+        <DialogContent className="w-[70vw] max-w-none max-h-[90vh] overflow-y-auto p-0 [&>button]:hidden">
           <div className="flex items-center justify-between px-6 py-4 border-b">
             <DialogTitle className="text-xl font-semibold">
               Invoice Payments from Existing Trust Retainers
@@ -1519,7 +1556,7 @@ const Invoice = () => {
         open={operatingPaymentDialogOpen}
         onOpenChange={(open) => !open && closeOperatingPaymentDialog()}
       >
-        <DialogContent className="w-[80vw] max-w-none max-h-[90vh] overflow-y-auto p-0 [&>button]:hidden">
+        <DialogContent className="w-[70vw] max-w-none max-h-[90vh] overflow-y-auto p-0 [&>button]:hidden">
           <div className="flex items-center justify-between px-6 py-4 border-b">
             <DialogTitle className="text-xl font-semibold">
               Invoice Payments from Existing Operating Retainers
@@ -1700,12 +1737,19 @@ const Invoice = () => {
               Payment History - Invoice{" "}
               {selectedInvoiceForHistory?.invoice_number}
             </DialogTitle>
-            <button
-              onClick={closePaymentHistoryDialog}
-              className="absolute right-4 top-4 rounded-sm opacity-70 hover:opacity-100"
-            >
-              <X className="h-5 w-5" />
-            </button>
+            <div className="flex items-center gap-3 absolute right-4 top-4">
+              <Button
+                className="bg-primary hover:bg-primary/90 gap-2"
+              >
+                Print History
+              </Button>
+              <button
+                onClick={closePaymentHistoryDialog}
+                className=" rounded-sm opacity-70 hover:opacity-100"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
           </DialogHeader>
 
           <div className="py-4">
@@ -1756,7 +1800,9 @@ const Invoice = () => {
                             variant="ghost"
                             size="icon"
                             className="h-8 w-8 hover:bg-red-50 hover:text-red-600"
-                            onClick={() => handleOpenDeletePaymentDialog(payment)}
+                            onClick={() =>
+                              handleOpenDeletePaymentDialog(payment)
+                            }
                           >
                             <Trash2 className="h-4 w-4" />
                           </Button>
@@ -1771,22 +1817,22 @@ const Invoice = () => {
         </DialogContent>
       </Dialog>
 
-      <Dialog open={deletePaymentDialogOpen} onOpenChange={setDeletePaymentDialogOpen}>
+      <Dialog
+        open={deletePaymentDialogOpen}
+        onOpenChange={setDeletePaymentDialogOpen}
+      >
         <DialogContent className="max-w-sm">
           <DialogHeader>
             <DialogTitle>Delete Payment</DialogTitle>
           </DialogHeader>
           <div className="py-4">
             <p className="text-sm text-muted-foreground">
-              Are you sure you want to delete payment Id {paymentToDelete?.id}? This action cannot be
-              undone.
+              Are you sure you want to delete payment Id {paymentToDelete?.id}?
+              This action cannot be undone.
             </p>
           </div>
           <div className="flex justify-end gap-2">
-            <Button
-              variant="outline"
-              onClick={closeDeletePaymentDialog}
-            >
+            <Button variant="outline" onClick={closeDeletePaymentDialog}>
               Cancel
             </Button>
             <Button
