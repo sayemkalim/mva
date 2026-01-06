@@ -9,6 +9,7 @@ import { deleteInvoice } from "./helpers/deleteInvoice";
 import { updateInvoice } from "./helpers/updateInvoice";
 import { fetchInvoicePaymentDetail } from "./helpers/fetchInvoicePaymentDetail";
 import { saveInvoicePaymentTrust } from "./helpers/saveInvoicePaymentTrust";
+import { saveInvoicePaymentOperating } from "./helpers/saveInvoicePaymentOperating";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -111,6 +112,19 @@ const Invoice = () => {
   const [selectedPaymentInvoice, setSelectedPaymentInvoice] = useState(null);
   const [paymentInvoiceCredit, setPaymentInvoiceCredit] = useState("");
   const [isAppliedCreditEditable, setIsAppliedCreditEditable] = useState(false);
+
+  // Operating Payment Dialog State
+  const [operatingPaymentDialogOpen, setOperatingPaymentDialogOpen] = useState(false);
+  const [operatingPaymentLoading, setOperatingPaymentLoading] = useState(false);
+  const [operatingPaymentData, setOperatingPaymentData] = useState(null);
+  const [operatingPaymentForm, setOperatingPaymentForm] = useState({
+    applyDate: "",
+    availableCredit: "0.00",
+    appliedCredit: "0.00",
+    remainingCredit: "0.00",
+  });
+  const [operatingPaymentInvoiceCredit, setOperatingPaymentInvoiceCredit] = useState("");
+  const [isOperatingAppliedCreditEditable, setIsOperatingAppliedCreditEditable] = useState(false);
 
   const { data, isLoading } = useQuery({
     queryKey: ["invoiceList", slug, currentPage],
@@ -272,6 +286,7 @@ const Invoice = () => {
         closeDeleteDialog();
       } else {
         toast.error(response?.response?.message || "Failed to delete invoice");
+        closeDeleteDialog();
       }
     },
     onError: (error) => {
@@ -502,10 +517,87 @@ const Invoice = () => {
     }
   };
 
-  const handlePaymentFromOperating = (item) => {
+  const handlePaymentFromOperating = async (item) => {
     setPaymentPopoverOpen(null);
-    toast.info(`Payment from Operating Bank for invoice ${item.invoice_number}`);
-    // TODO: Implement operating bank payment API
+    setOperatingPaymentDialogOpen(true);
+    setOperatingPaymentLoading(true);
+    
+    // Set default date
+    const today = new Date().toISOString().split("T")[0];
+    setOperatingPaymentForm(prev => ({
+      ...prev,
+      applyDate: today,
+    }));
+    
+    try {
+      const response = await fetchInvoicePaymentDetail(item.id);
+      const data = response?.response?.data;
+      setOperatingPaymentData(data);
+      
+      setOperatingPaymentForm(prev => ({
+        ...prev,
+        availableCredit: data?.client_funds_operating || "0.00",
+        appliedCredit: "0.00",
+        remainingCredit: data?.client_funds_operating || "0.00",
+      }));
+    } catch (error) {
+      console.error("Failed to fetch payment details:", error);
+      toast.error("Failed to load payment details");
+      setOperatingPaymentData(null);
+    } finally {
+      setOperatingPaymentLoading(false);
+    }
+  };
+
+  const closeOperatingPaymentDialog = () => {
+    setOperatingPaymentDialogOpen(false);
+    setOperatingPaymentData(null);
+    setOperatingPaymentForm({
+      applyDate: "",
+      availableCredit: "0.00",
+      appliedCredit: "0.00",
+      remainingCredit: "0.00",
+    });
+    setOperatingPaymentInvoiceCredit("");
+    setIsOperatingAppliedCreditEditable(false);
+  };
+
+  const handleOperatingAppliedCreditChange = (value) => {
+    setOperatingPaymentInvoiceCredit(value);
+    const availableCredit = parseFloat(operatingPaymentForm.availableCredit) || 0;
+    const appliedCredit = parseFloat(value) || 0;
+    const remainingCredit = availableCredit - appliedCredit;
+    
+    setOperatingPaymentForm(prev => ({
+      ...prev,
+      appliedCredit: appliedCredit.toFixed(2),
+      remainingCredit: remainingCredit.toFixed(2),
+    }));
+  };
+
+  const handleReceiveOperatingPayment = async () => {
+    if (!operatingPaymentInvoiceCredit || parseFloat(operatingPaymentInvoiceCredit) <= 0) {
+      toast.error("Please enter applied credit amount");
+      return;
+    }
+    
+    const payload = {
+      apply_date: operatingPaymentForm.applyDate,
+      bank_balance: parseFloat(operatingPaymentForm.availableCredit) || 0,
+      applied_credit: parseFloat(operatingPaymentInvoiceCredit) || 0,
+      remaining_credit: parseFloat(operatingPaymentForm.remainingCredit) || 0,
+      invoice_id: operatingPaymentData?.id,
+    };
+    
+    try {
+      await saveInvoicePaymentOperating(slug, payload);
+      toast.success("Payment received successfully");
+      closeOperatingPaymentDialog();
+      queryClient.invalidateQueries(["invoiceList", slug]);
+    } catch (error) {
+      console.error("Failed to save payment:", error);
+      toast.error(error?.response?.data?.message || "Failed to save payment");
+    }
   };
 
   return (
@@ -1160,6 +1252,140 @@ const Invoice = () => {
                               size="icon"
                               className="h-8 w-8 bg-primary text-white hover:bg-primary/90"
                               onClick={() => setIsAppliedCreditEditable(!isAppliedCreditEditable)}
+                            >
+                              <Pencil className="h-4 w-4" />
+                            </Button>
+                          </TableCell>
+                        </TableRow>
+                      ) : (
+                        <TableRow>
+                          <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
+                            No invoice data available
+                          </TableCell>
+                        </TableRow>
+                      )}
+                    </TableBody>
+                  </Table>
+                </div>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Operating Payment Dialog */}
+      <Dialog open={operatingPaymentDialogOpen} onOpenChange={(open) => !open && closeOperatingPaymentDialog()}>
+        <DialogContent className="w-[80vw] max-w-none max-h-[90vh] overflow-y-auto p-0 [&>button]:hidden">
+          <div className="flex items-center justify-between px-6 py-4 border-b">
+            <DialogTitle className="text-xl font-semibold">Invoice Payments from Existing Operating Retainers</DialogTitle>
+            <div className="flex items-center gap-3">
+              <button
+                onClick={closeOperatingPaymentDialog}
+                className="rounded-sm opacity-70 hover:opacity-100"
+              >
+                <X className="h-5 w-5" />
+              </button>
+              <Button
+                className="bg-primary hover:bg-primary/90"
+                onClick={handleReceiveOperatingPayment}
+              >
+                Receive Payment
+              </Button>
+            </div>
+          </div>
+
+          {operatingPaymentLoading ? (
+            <div className="flex items-center justify-center py-12">
+              <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            </div>
+          ) : (
+            <div className="flex gap-6 p-6">
+              <div className="w-80 shrink-0 border rounded-lg p-4">
+                <h3 className="text-sm font-medium text-muted-foreground mb-4">Credit Summary</h3>
+                <div className="space-y-4">
+                  <div className="flex items-center gap-4">
+                    <label className="text-sm w-28 shrink-0">Apply Date</label>
+                    <Input
+                      type="date"
+                      value={operatingPaymentForm.applyDate}
+                      onChange={(e) => setOperatingPaymentForm(prev => ({ ...prev, applyDate: e.target.value }))}
+                      className="flex-1"
+                    />
+                  </div>
+                  <div className="flex items-center gap-4">
+                    <label className="text-sm w-28 shrink-0">Available Credit</label>
+                    <Input
+                      value={operatingPaymentForm.availableCredit}
+                      className="flex-1"
+                      disabled
+                    />
+                  </div>
+                  <div className="flex items-center gap-4">
+                    <label className="text-sm w-28 shrink-0">Applied Credit</label>
+                    <Input
+                      value={operatingPaymentForm.appliedCredit}
+                      className="flex-1"
+                      disabled
+                    />
+                  </div>
+                  <div className="flex items-center gap-4">
+                    <label className="text-sm w-28 shrink-0">Remaining Credit</label>
+                    <Input
+                      value={operatingPaymentForm.remainingCredit}
+                      className="flex-1"
+                      disabled
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Right Side - Credit Applied To */}
+              <div className="flex-1 border rounded-lg p-4">
+                <h3 className="text-sm font-medium text-muted-foreground mb-4">Credit Applied To</h3>
+                <div className="border rounded-lg overflow-hidden">
+                  <Table>
+                    <TableHeader>
+                      <TableRow className="bg-gray-50">
+                        <TableHead className="w-12"></TableHead>
+                        <TableHead>Invoice #</TableHead>
+                        <TableHead>Invoice Date</TableHead>
+                        <TableHead>Invoice Amount</TableHead>
+                        <TableHead>Invoice Balance</TableHead>
+                        <TableHead>Applied Credit</TableHead>
+                        <TableHead className="w-16"></TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {operatingPaymentData ? (
+                        <TableRow>
+                          <TableCell>
+                            <RadioGroup
+                              value={operatingPaymentData.id?.toString()}
+                            >
+                              <RadioGroupItem value={operatingPaymentData.id?.toString()} />
+                            </RadioGroup>
+                          </TableCell>
+                          <TableCell>{operatingPaymentData.invoice_number}</TableCell>
+                          <TableCell>{formatDate(operatingPaymentData.invoice_date)}</TableCell>
+                          <TableCell>{formatCurrency(operatingPaymentData.amount)}</TableCell>
+                          <TableCell>{formatCurrency(operatingPaymentData.balance)}</TableCell>
+                          <TableCell>
+                            <Input
+                              type="number"
+                              step="0.01"
+                              value={operatingPaymentInvoiceCredit}
+                              onChange={(e) => handleOperatingAppliedCreditChange(e.target.value)}
+                              className="w-24 h-8"
+                              placeholder="0.00"
+                              disabled={!isOperatingAppliedCreditEditable}
+                            />
+                          </TableCell>
+                          <TableCell>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-8 w-8 bg-primary text-white hover:bg-primary/90"
+                              onClick={() => setIsOperatingAppliedCreditEditable(!isOperatingAppliedCreditEditable)}
                             >
                               <Pencil className="h-4 w-4" />
                             </Button>
