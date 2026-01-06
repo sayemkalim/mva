@@ -7,9 +7,20 @@ import { fetchUnbilledList } from "./helpers/fetchUnbilledList";
 import { createInvoice } from "./helpers/createInvoice";
 import { deleteInvoice } from "./helpers/deleteInvoice";
 import { updateInvoice } from "./helpers/updateInvoice";
+import { fetchInvoicePaymentDetail } from "./helpers/fetchInvoicePaymentDetail";
+import { saveInvoicePaymentTrust } from "./helpers/saveInvoicePaymentTrust";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
+import {fetchMeta} from "../cost/helper/fetchMeta.js"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import {
   Table,
   TableBody,
@@ -27,6 +38,10 @@ import {
   Loader2,
   Trash2,
   Pencil,
+  MoreHorizontal,
+  CreditCard,
+  Building,
+  ChevronDown,
 } from "lucide-react";
 import {
   Dialog,
@@ -34,6 +49,11 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import { Navbar2 } from "@/components/navbar2";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
@@ -66,6 +86,31 @@ const Invoice = () => {
   const [editSelectedBillingIds, setEditSelectedBillingIds] = useState([]);
   const [editBillingsData, setEditBillingsData] = useState([]);
   const [editLoading, setEditLoading] = useState(false);
+
+  // Payment Popover State
+  const [paymentPopoverOpen, setPaymentPopoverOpen] = useState(null);
+  const [isPayToEditable, setIsPayToEditable] = useState(false);
+
+  // Trust Payment Dialog State
+  const [trustPaymentDialogOpen, setTrustPaymentDialogOpen] = useState(false);
+  const [trustPaymentLoading, setTrustPaymentLoading] = useState(false);
+  const [trustPaymentData, setTrustPaymentData] = useState(null);
+  const [trustPaymentForm, setTrustPaymentForm] = useState({
+    bankName: "",
+    applyDate: "",
+    payTo: "",
+    bankBalance: "0.00",
+    appliedCredit: "0.00",
+    remainingCredit: "0.00",
+    type: "withdrawal",
+    method: "",
+    refNumber: "",
+    memo: "",
+    memo2: "",
+  });
+  const [selectedPaymentInvoice, setSelectedPaymentInvoice] = useState(null);
+  const [paymentInvoiceCredit, setPaymentInvoiceCredit] = useState("");
+  const [isAppliedCreditEditable, setIsAppliedCreditEditable] = useState(false);
 
   const { data, isLoading } = useQuery({
     queryKey: ["invoiceList", slug, currentPage],
@@ -165,6 +210,14 @@ const Invoice = () => {
       setSelectedBillingIds((prev) => prev.filter((itemId) => itemId !== id));
     }
   };
+
+    const { data: metaData } = useQuery({
+    queryKey: ["accountingMeta", slug],
+    queryFn: () => fetchMeta(slug),
+    enabled: !!slug,
+  });
+
+  const methodType = metaData?.accounting_banking_method || [];
 
   const createInvoiceMutation = useMutation({
     mutationFn: (data) => createInvoice(slug, data),
@@ -325,6 +378,136 @@ const Invoice = () => {
     });
   };
 
+  // Invoice Payment Handlers
+  const handlePaymentFromTrust = async (item) => {
+    setPaymentPopoverOpen(null);
+    setTrustPaymentDialogOpen(true);
+    setTrustPaymentLoading(true);
+    
+    // Set default date
+    const today = new Date().toISOString().split("T")[0];
+    setTrustPaymentForm(prev => ({
+      ...prev,
+      applyDate: today,
+      type: "withdrawal",
+      bankName: "Trust Bank",
+    }));
+    
+    try {
+      const response = await fetchInvoicePaymentDetail(item.id);
+      const data = response?.response?.data;
+      setTrustPaymentData(data);
+      
+      setTrustPaymentForm(prev => ({
+        ...prev,
+        payTo: data?.pay_to || "",
+        bankBalance: data?.client_funds_trust || "0.00",
+        appliedCredit: "0.00",
+        remainingCredit: data?.client_funds_trust || "0.00",
+      }));
+
+      setIsPayToEditable(data?.is_pay_to || false);
+      
+      setSelectedPaymentInvoice(data?.id || null);
+    } catch (error) {
+      console.error("Failed to fetch payment details:", error);
+      toast.error("Failed to load payment details");
+      setTrustPaymentData(null);
+    } finally {
+      setTrustPaymentLoading(false);
+    }
+  };
+
+  const closeTrustPaymentDialog = () => {
+    setTrustPaymentDialogOpen(false);
+    setTrustPaymentData(null);
+    setTrustPaymentForm({
+      bankName: "",
+      applyDate: "",
+      payTo: "",
+      bankBalance: "0.00",
+      appliedCredit: "0.00",
+      remainingCredit: "0.00",
+      type: "withdrawal",
+      method: "",
+      refNumber: "",
+      memo: "",
+      memo2: "",
+    });
+    setSelectedPaymentInvoice(null);
+    setPaymentInvoiceCredit("");
+    setIsAppliedCreditEditable(false);
+  };
+
+  const handleSelectPaymentInvoice = (invoiceId) => {
+    setSelectedPaymentInvoice(invoiceId);
+    setPaymentInvoiceCredit("");
+    setIsAppliedCreditEditable(false);
+  };
+
+  const handleAppliedCreditChange = (value) => {
+    setPaymentInvoiceCredit(value);
+    const bankBalance = parseFloat(trustPaymentForm.bankBalance) || 0;
+    const appliedCredit = parseFloat(value) || 0;
+    const remainingCredit = bankBalance - appliedCredit;
+    
+    setTrustPaymentForm(prev => ({
+      ...prev,
+      appliedCredit: appliedCredit.toFixed(2),
+      remainingCredit: remainingCredit.toFixed(2),
+    }));
+  };
+
+  const handleReceivePayment = async () => {
+    if (!trustPaymentForm.method) {
+      toast.error("Please select a payment method");
+      return;
+    }
+    if (!paymentInvoiceCredit || parseFloat(paymentInvoiceCredit) <= 0) {
+      toast.error("Please enter applied credit amount");
+      return;
+    }
+    
+    // Map method name to method_id
+    const methodMap = {
+      cheque: 1,
+      wire: 2,
+      eft: 3,
+      cash: 4,
+    };
+    
+    const payload = {
+      bank_name: trustPaymentForm.bankName === "trust-bank" ? "Trust Bank" : trustPaymentForm.bankName,
+      apply_date: trustPaymentForm.applyDate,
+      pay_to: trustPaymentForm.payTo,
+      bank_balance: parseFloat(trustPaymentForm.bankBalance) || 0,
+      applied_credit: parseFloat(paymentInvoiceCredit) || 0,
+      remaining_credit: parseFloat(trustPaymentForm.remainingCredit) || 0,
+      type: trustPaymentForm.type === "withdrawal" ? "Withdrawal" : trustPaymentForm.type,
+      method_id: methodMap[trustPaymentForm.method] || 1,
+      ref: trustPaymentForm.refNumber,
+      memo_1: trustPaymentForm.memo,
+      memo_2: trustPaymentForm.memo2,
+      invoice_id: selectedPaymentInvoice,
+    };
+    
+    try {
+      await saveInvoicePaymentTrust(slug, payload);
+      toast.success("Payment received successfully");
+      closeTrustPaymentDialog();
+      queryClient.invalidateQueries(["invoiceList", slug]);
+    } catch (error) {
+      console.error("Failed to save payment:", error);
+      toast.error(error?.response?.data?.message || "Failed to save payment");
+    }
+  };
+
+  const handlePaymentFromOperating = (item) => {
+    setPaymentPopoverOpen(null);
+    toast.info(`Payment from Operating Bank for invoice ${item.invoice_number}`);
+    // TODO: Implement operating bank payment API
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <Navbar2 />
@@ -430,28 +613,70 @@ const Invoice = () => {
                   <TableCell>{getStatusBadge(item.status)}</TableCell>
                   <TableCell>{item.created_by || "-"}</TableCell>
                   <TableCell>
-                    <div className="flex items-center gap-1">
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-8 w-8 text-primary hover:text-primary/80"
-                        onClick={() => handleOpenEditDialog(item)}
-                        title="Edit Invoice"
-                        disabled={item.status !== "unpaid"}
-                      >
-                        <Pencil className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-8 w-8 text-destructive hover:text-destructive/80"
-                        onClick={() => handleOpenDeleteDialog(item)}
-                        title="Delete Invoice"
-                        disabled={item.status !== "unpaid"}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </div>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8"
+                        >
+                          <MoreHorizontal className="h-4 w-4" />
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent align="end" className="w-48 p-1">
+                        <div className="flex flex-col">
+                          <button
+                            className="flex items-center gap-2 px-3 py-2 text-sm rounded-md hover:bg-accent text-left disabled:opacity-50 disabled:cursor-not-allowed"
+                            onClick={() => handleOpenEditDialog(item)}
+                            disabled={item.status !== "unpaid"}
+                          >
+                            <Pencil className="h-4 w-4" />
+                            Edit
+                          </button>
+                          <button
+                            className="flex items-center gap-2 px-3 py-2 text-sm rounded-md hover:bg-accent text-left text-destructive disabled:opacity-50 disabled:cursor-not-allowed"
+                            onClick={() => handleOpenDeleteDialog(item)}
+                            disabled={item.status !== "unpaid"}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                            Delete
+                          </button>
+                          
+                          {/* Invoice Payment Nested Popover */}
+                          <Popover open={paymentPopoverOpen === item.id} onOpenChange={(open) => setPaymentPopoverOpen(open ? item.id : null)}>
+                            <PopoverTrigger asChild>
+                              <button
+                                className="flex items-center justify-between gap-2 px-3 py-2 text-sm rounded-md hover:bg-accent text-left w-full"
+                              >
+                                <span className="flex items-center gap-2">
+                                  <CreditCard className="h-4 w-4" />
+                                  Invoice Payment
+                                </span>
+                                <ChevronDown className="h-3 w-3" />
+                              </button>
+                            </PopoverTrigger>
+                            <PopoverContent side="right" align="start" className="w-48 p-1">
+                              <div className="flex flex-col">
+                                <button
+                                  className="flex items-center gap-2 px-3 py-2 text-sm rounded-md hover:bg-accent text-left"
+                                  onClick={() => handlePaymentFromTrust(item)}
+                                >
+                                  <Building className="h-4 w-4" />
+                                  Existing Trust Bank
+                                </button>
+                                <button
+                                  className="flex items-center gap-2 px-3 py-2 text-sm rounded-md hover:bg-accent text-left"
+                                  onClick={() => handlePaymentFromOperating(item)}
+                                >
+                                  <Building className="h-4 w-4" />
+                                  Existing Operating Bank
+                                </button>
+                              </div>
+                            </PopoverContent>
+                          </Popover>
+                        </div>
+                      </PopoverContent>
+                    </Popover>
                   </TableCell>
                 </TableRow>
               ))
@@ -740,6 +965,219 @@ const Invoice = () => {
               Close
             </Button>
           </div>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={trustPaymentDialogOpen} onOpenChange={(open) => !open && closeTrustPaymentDialog()}>
+        <DialogContent className="w-[80vw] max-w-none max-h-[90vh] overflow-y-auto p-0 [&>button]:hidden">
+          <div className="flex items-center justify-between px-6 py-4 border-b">
+            <DialogTitle className="text-xl font-semibold">Invoice Payments from Existing Trust Retainers</DialogTitle>
+            <div className="flex items-center gap-3">
+              <button
+                onClick={closeTrustPaymentDialog}
+                className="rounded-sm opacity-70 hover:opacity-100"
+              >
+                <X className="h-5 w-5" />
+              </button>
+              <Button
+                className="bg-primary hover:bg-primary/90"
+                onClick={handleReceivePayment}
+              >
+                Receive Payment
+              </Button>
+            </div>
+          </div>
+
+          {trustPaymentLoading ? (
+            <div className="flex items-center justify-center py-12">
+              <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            </div>
+          ) : (
+            <div className="flex gap-6 p-6">
+              <div className="w-80 shrink-0 border rounded-lg p-4">
+                <h3 className="text-sm font-medium text-muted-foreground mb-4">Funds Drawn From</h3>
+                <div className="space-y-4">
+                  <div className="flex items-center gap-4">
+                    <label className="text-sm w-28 shrink-0">Bank Name</label>
+                    <Select
+                      value={trustPaymentForm.bankName}
+                      onValueChange={(value) => setTrustPaymentForm(prev => ({ ...prev, bankName: value }))}
+                    >
+                      <SelectTrigger className="flex-1">
+                        <SelectValue placeholder="Select bank" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="Trust Bank">Trust Bank</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="flex items-center gap-4">
+                    <label className="text-sm w-28 shrink-0">Apply Date</label>
+                    <Input
+                      type="date"
+                      value={trustPaymentForm.applyDate}
+                      onChange={(e) => setTrustPaymentForm(prev => ({ ...prev, applyDate: e.target.value }))}
+                      className="flex-1"
+                    />
+                  </div>
+                  <div className="flex items-center gap-4">
+                    <label className="text-sm w-28 shrink-0">Pay To</label>
+                    <Input
+                      value={trustPaymentForm.payTo}
+                      onChange={(e) => setTrustPaymentForm(prev => ({ ...prev, payTo: e.target.value }))}
+                      className="flex-1"
+                      disabled={!isPayToEditable}
+                    />
+                  </div>
+                  <div className="flex items-center gap-4">
+                    <label className="text-sm w-28 shrink-0">Bank Balance</label>
+                    <Input
+                      value={trustPaymentForm.bankBalance}
+                      className="flex-1"
+                      disabled
+                    />
+                  </div>
+                  <div className="flex items-center gap-4">
+                    <label className="text-sm w-28 shrink-0">Applied Credit</label>
+                    <Input
+                      value={trustPaymentForm.appliedCredit}
+                      className="flex-1"
+                      disabled
+                    />
+                  </div>
+                  <div className="flex items-center gap-4">
+                    <label className="text-sm w-28 shrink-0">Remaining Credit</label>
+                    <Input
+                      value={trustPaymentForm.remainingCredit}
+                      className="flex-1"
+                      disabled
+                    />
+                  </div>
+                  <div className="flex items-center gap-4">
+                    <label className="text-sm w-28 shrink-0">Type</label>
+                    <Select
+                      value={trustPaymentForm.type}
+                      onValueChange={(value) => setTrustPaymentForm(prev => ({ ...prev, type: value }))}
+                    >
+                      <SelectTrigger className="flex-1">
+                        <SelectValue placeholder="Select type" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="withdrawal">Withdrawal</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="flex items-center gap-4">
+                    <label className="text-sm w-28 shrink-0">Method</label>
+                    <Select
+                      value={trustPaymentForm.method}
+                      onValueChange={(value) => setTrustPaymentForm(prev => ({ ...prev, method: value }))}
+                    >
+                      <SelectTrigger className="flex-1">
+                        <SelectValue placeholder="Select method" />
+                      </SelectTrigger>
+                      <SelectContent>
+                      {methodType.map((item) => (
+                        <SelectItem key={item.id} value={String(item.id)}>
+                          {item.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="flex items-center gap-4">
+                    <label className="text-sm w-28 shrink-0">Ref#</label>
+                    <Input
+                      value={trustPaymentForm.refNumber}
+                      onChange={(e) => setTrustPaymentForm(prev => ({ ...prev, refNumber: e.target.value }))}
+                      className="flex-1"
+                    />
+                  </div>
+                  <div className="flex items-center gap-4">
+                    <label className="text-sm w-28 shrink-0">Memo</label>
+                    <Input
+                      value={trustPaymentForm.memo}
+                      onChange={(e) => setTrustPaymentForm(prev => ({ ...prev, memo: e.target.value }))}
+                      className="flex-1"
+                    />
+                  </div>
+                  <div className="flex items-center gap-4">
+                    <label className="text-sm w-28 shrink-0">Memo2</label>
+                    <Input
+                      value={trustPaymentForm.memo2}
+                      onChange={(e) => setTrustPaymentForm(prev => ({ ...prev, memo2: e.target.value }))}
+                      className="flex-1"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Right Side - Credit Applied To */}
+              <div className="flex-1 border rounded-lg p-4">
+                <h3 className="text-sm font-medium text-muted-foreground mb-4">Credit Applied To</h3>
+                <div className="border rounded-lg overflow-hidden">
+                  <Table>
+                    <TableHeader>
+                      <TableRow className="bg-gray-50">
+                        <TableHead className="w-12"></TableHead>
+                        <TableHead>Invoice #</TableHead>
+                        <TableHead>Invoice Date</TableHead>
+                        <TableHead>Invoice Amount</TableHead>
+                        <TableHead>Invoice Balance</TableHead>
+                        <TableHead>Applied Credit</TableHead>
+                        <TableHead className="w-16"></TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {trustPaymentData ? (
+                        <TableRow>
+                          <TableCell>
+                            <RadioGroup
+                              value={selectedPaymentInvoice?.toString()}
+                              onValueChange={(value) => handleSelectPaymentInvoice(Number(value))}
+                            >
+                              <RadioGroupItem value={trustPaymentData.id?.toString()} />
+                            </RadioGroup>
+                          </TableCell>
+                          <TableCell>{trustPaymentData.invoice_number}</TableCell>
+                          <TableCell>{formatDate(trustPaymentData.invoice_date)}</TableCell>
+                          <TableCell>{formatCurrency(trustPaymentData.amount)}</TableCell>
+                          <TableCell>{formatCurrency(trustPaymentData.balance)}</TableCell>
+                          <TableCell>
+                            <Input
+                              type="number"
+                              step="0.01"
+                              value={paymentInvoiceCredit}
+                              onChange={(e) => handleAppliedCreditChange(e.target.value)}
+                              className="w-24 h-8"
+                              placeholder="0.00"
+                              disabled={!isAppliedCreditEditable}
+                            />
+                          </TableCell>
+                          <TableCell>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-8 w-8 bg-primary text-white hover:bg-primary/90"
+                              onClick={() => setIsAppliedCreditEditable(!isAppliedCreditEditable)}
+                            >
+                              <Pencil className="h-4 w-4" />
+                            </Button>
+                          </TableCell>
+                        </TableRow>
+                      ) : (
+                        <TableRow>
+                          <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
+                            No invoice data available
+                          </TableCell>
+                        </TableRow>
+                      )}
+                    </TableBody>
+                  </Table>
+                </div>
+              </div>
+            </div>
+          )}
         </DialogContent>
       </Dialog>
     </div>

@@ -451,7 +451,7 @@ const CostList = () => {
       </nav>
 
       {/* Add New Button with Popover */}
-      <div className="mb-6 px-6">
+      <div className="mb-6 px-6 mt-4">
         <Popover>
           <PopoverTrigger asChild>
             <Button className="bg-primary hover:bg-primary/90 gap-2">
@@ -542,9 +542,10 @@ const CostList = () => {
                     <TableCell>
                       <div className="flex gap-1">
                         <Button
+                          disabled={item.status === "paid"}
                           variant="ghost"
                           size="icon"
-                          className="h-8 w-8 text-muted-foreground hover:text-foreground"
+                          className="h-8 w-8 text-muted-foreground hover:text-foreground cursor-pointer hover:bg-muted/50"
                           onClick={() => handleEditCost(item)}
                         >
                           <Pencil className="h-4 w-4" />
@@ -552,9 +553,9 @@ const CostList = () => {
                         <Button
                           variant="ghost"
                           size="icon"
-                          className="h-8 w-8 text-destructive hover:text-destructive hover:bg-destructive/10"
+                          className="h-8 w-8 text-destructive hover:text-destructive hover:bg-destructive/10 cursor-pointer"
                           onClick={() => handleDeleteCost(item.id)}
-                          disabled={deleteCostMutation.isPending}
+                          disabled={deleteCostMutation.isPending || item.status === "paid"}
                         >
                           <Trash2 className="h-4 w-4" />
                         </Button>

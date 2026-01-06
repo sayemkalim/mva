@@ -267,7 +267,7 @@ const formatDate = (dateString) => {
         </div>
       </nav>
 
-      <div className="mb-6 px-6">
+      <div className="mb-6 px-6 mt-4">
         <Button 
           className="bg-primary hover:bg-primary/90 gap-2"
           onClick={() => setDialogOpen(true)}

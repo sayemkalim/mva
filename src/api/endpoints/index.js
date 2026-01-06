@@ -351,4 +351,6 @@ export const endpoints = {
   invoiceCreate: "api/v2/file/accounting/invoice/create-invoice",
   invoiceUpdate: "api/v2/file/accounting/invoice/update-invoice",
   invoiceDelete: "api/v2/file/accounting/invoice-write-off/delete",
+  invoicePaymentDetail: "api/v2/file/accounting/invoice-payments/invoice-detail",
+  invoicePaymentSaveTrust: "api/v2/file/accounting/invoice-payments/save/trust-bank",
 };
