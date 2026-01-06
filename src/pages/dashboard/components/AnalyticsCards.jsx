@@ -12,12 +12,17 @@ import {
 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { fetchDashboard } from "../helpers/fetchDashboard";
+import { hasPermission } from "@/utils/permissions";
 
 const AnalyticsCards = () => {
   const { data, isLoading, isError, error } = useQuery({
     queryKey: ["dashboard"],
     queryFn: fetchDashboard,
   });
+
+  // Check permissions
+  const hasTaskPermission = hasPermission("task");
+  const hasWorkstationPermission = hasPermission("workstation");
 
   if (isLoading) {
     return (
@@ -53,25 +58,25 @@ const AnalyticsCards = () => {
         <CardContent className="space-y-2 pt-2 pb-3">
           <CaseItem
             label="Active"
-            value={data?.cases?.active || 0}
+            value={hasWorkstationPermission ? (data?.cases?.active || 0) : 0}
             icon={FolderOpen}
             color="text-blue-600"
           />
           <CaseItem
             label="Closed"
-            value={data?.cases?.closed || 0}
+            value={hasWorkstationPermission ? (data?.cases?.closed || 0) : 0}
             icon={CheckCircle}
             color="text-green-600"
           />
           <CaseItem
             label="Client Moved"
-            value={data?.cases?.client_moved || 0}
+            value={hasWorkstationPermission ? (data?.cases?.client_moved || 0) : 0}
             icon={UserX}
             color="text-orange-600"
           />
           <CaseItem
             label="Non Engagement Issued"
-            value={data?.cases?.non_engagement_issued || 0}
+            value={hasWorkstationPermission ? (data?.cases?.non_engagement_issued || 0) : 0}
             icon={AlertCircle}
             color="text-red-600"
           />
@@ -89,25 +94,25 @@ const AnalyticsCards = () => {
         <CardContent className="space-y-2 pt-2 pb-3">
           <TaskItem
             label="Today"
-            value={data?.tasks?.today || 0}
+            value={hasTaskPermission ? (data?.tasks?.today || 0) : 0}
             icon={Calendar}
             color="text-purple-600"
           />
           <TaskItem
             label="Pending"
-            value={data?.tasks?.pending || 0}
+            value={hasTaskPermission ? (data?.tasks?.pending || 0) : 0}
             icon={Clock}
             color="text-yellow-600"
           />
           <TaskItem
             label="Incomplete"
-            value={data?.tasks?.incomplete || 0}
+            value={hasTaskPermission ? (data?.tasks?.incomplete || 0) : 0}
             icon={XCircle}
             color="text-red-600"
           />
           <TaskItem
             label="Complete"
-            value={data?.tasks?.complete || 0}
+            value={hasTaskPermission ? (data?.tasks?.complete || 0) : 0}
             icon={CheckSquare}
             color="text-green-600"
           />
