@@ -376,6 +376,7 @@ const Invoice = () => {
     });
   };
 
+  // Delete Invoice Handlers
   const handleOpenDeleteDialog = (item) => {
     setInvoiceToDelete(item);
     setDeleteDialogOpen(true);
