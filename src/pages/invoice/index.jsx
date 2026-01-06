@@ -12,6 +12,10 @@ import { saveInvoicePaymentTrust } from "./helpers/saveInvoicePaymentTrust";
 import { saveInvoicePaymentOperating } from "./helpers/saveInvoicePaymentOperating";
 import { fetchInvoicePaymentHistory } from "./helpers/fetchInvoicePaymentHistory";
 import { deleteInvoicePayment } from "./helpers/deleteInvoicePayment";
+import { fetchInvoiceWriteOff } from "./helpers/fetchInvoiceWriteOff";
+import { saveInvoiceWriteOff } from "./helpers/saveInvoiceWriteOff";
+import { deleteInvoiceWriteOff } from "./helpers/deleteInvoiceWriteOff";
+import { unlinkInvoicePayment } from "./helpers/unlinkInvoicePayment";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -45,6 +49,7 @@ import {
   CreditCard,
   Building,
   ChevronDown,
+  Link2Off,
 } from "lucide-react";
 import {
   Dialog,
@@ -144,6 +149,76 @@ const Invoice = () => {
   // Delete Payment Dialog State
   const [deletePaymentDialogOpen, setDeletePaymentDialogOpen] = useState(false);
   const [paymentToDelete, setPaymentToDelete] = useState(null);
+
+  // Write Off Dialog State
+  const [writeOffDialogOpen, setWriteOffDialogOpen] = useState(false);
+  const [invoiceToWriteOff, setInvoiceToWriteOff] = useState(null);
+  const [writeOffForm, setWriteOffForm] = useState({
+    changeDate: new Date().toISOString().split("T")[0],
+    changeExplanation: "",
+    writeOffFullBalance: true,
+  });
+  const [writeOffTableData, setWriteOffTableData] = useState([
+    {
+      category: "Fee",
+      original: "0.00",
+      new: "0",
+      change: "0",
+      chartOfAccount: "4100:Fee Income (Income)",
+      notes: "",
+    },
+    {
+      category: "HST On Fee",
+      original: "0.00",
+      new: "0",
+      change: "0",
+      chartOfAccount: "2201:HST Collected/Paid",
+      notes: "",
+    },
+    {
+      category: "Soft Cost",
+      original: "0.00",
+      new: "0",
+      change: "0",
+      chartOfAccount: "4250:Inhouse Reimbursed",
+      notes: "",
+    },
+    {
+      category: "HST On Soft Cost",
+      original: "0.00",
+      new: "0",
+      change: "0",
+      chartOfAccount: "2201:HST Collected/Paid",
+      notes: "",
+    },
+    {
+      category: "Hard Cost-ACC",
+      original: "0.00",
+      new: "0",
+      change: "0",
+      chartOfAccount: "1700:Advanced Client Cost",
+      notes: "",
+    },
+    {
+      category: "HST On Hard Cost",
+      original: "0.00",
+      new: "0",
+      change: "0",
+      chartOfAccount: "2201:HST Collected/Paid",
+      notes: "",
+    },
+  ]);
+  const [writeOffData, setWriteOffData] = useState(null);
+  const [writeOffLoading, setWriteOffLoading] = useState(false);
+  const [deleteWriteOffDialogOpen, setDeleteWriteOffDialogOpen] =
+    useState(false);
+  const [writeOffToDelete, setWriteOffToDelete] = useState(null);
+  const [deleteWriteOffLoading, setDeleteWriteOffLoading] = useState(false);
+  const [writeOffHistoryDialogOpen, setWriteOffHistoryDialogOpen] =
+    useState(false);
+  const [unlinkPaymentDialogOpen, setUnlinkPaymentDialogOpen] = useState(false);
+  const [invoiceToUnlink, setInvoiceToUnlink] = useState(null);
+  const [unlinkPaymentLoading, setUnlinkPaymentLoading] = useState(false);
 
   const { data, isLoading } = useQuery({
     queryKey: ["invoiceList", slug, currentPage],
@@ -736,6 +811,197 @@ const Invoice = () => {
     }
   };
 
+  // Write Off Handlers
+  const handleOpenWriteOffDialog = async (item) => {
+    setInvoiceToWriteOff(item);
+    const today = new Date().toISOString().split("T")[0];
+    setWriteOffForm({
+      changeDate: today,
+      changeExplanation: "",
+      writeOffFullBalance: true,
+    });
+    setWriteOffDialogOpen(true);
+    setWriteOffLoading(true);
+
+    try {
+      const response = await fetchInvoiceWriteOff(item.id);
+      if (response?.Apistatus) {
+        setWriteOffData(response);
+        const feeOriginal = parseFloat(response.Fee || 0).toFixed(2);
+        const feeNew = parseFloat(
+          response.Fee - response?.RemainingBalance || 0
+        ).toFixed(2);
+        const feeChange = (feeOriginal - feeNew).toFixed(2);
+        const hstOnFeeOriginal = parseFloat(response.hst_on_fee || 0).toFixed(
+          2
+        );
+        const softCostOriginal = parseFloat(response.soft_cost || 0).toFixed(2);
+        const hstOnSoftCostOriginal = parseFloat(
+          response.hst_on_soft_cost || 0
+        ).toFixed(2);
+        const hardCostOriginal = parseFloat(response.hard_cost || 0).toFixed(2);
+        const hstOnHardCostOriginal = "0.00";
+
+        setWriteOffTableData([
+          {
+            category: "Fee",
+            original: feeOriginal,
+            new: feeNew,
+            change: feeChange,
+            chartOfAccount: "4100:Fee Income (Income)",
+            notes: "",
+          },
+          {
+            category: "HST On Fee",
+            original: hstOnFeeOriginal,
+            new: hstOnFeeOriginal,
+            change: "0",
+            chartOfAccount: "2201:HST Collected/Paid",
+            notes: "",
+          },
+          {
+            category: "Soft Cost",
+            original: softCostOriginal,
+            new: softCostOriginal,
+            change: "0",
+            chartOfAccount: "4250:Inhouse Reimbursed",
+            notes: "",
+          },
+          {
+            category: "HST On Soft Cost",
+            original: hstOnSoftCostOriginal,
+            new: hstOnSoftCostOriginal,
+            change: "0",
+            chartOfAccount: "2201:HST Collected/Paid",
+            notes: "",
+          },
+          {
+            category: "Hard Cost-ACC",
+            original: hardCostOriginal,
+            new: hardCostOriginal,
+            change: "0",
+            chartOfAccount: "1700:Advanced Client Cost",
+            notes: "",
+          },
+          {
+            category: "HST On Hard Cost",
+            original: hstOnHardCostOriginal,
+            new: hstOnHardCostOriginal,
+            change: "0",
+            chartOfAccount: "2201:HST Collected/Paid",
+            notes: "",
+          },
+        ]);
+      }
+    } catch (error) {
+      console.error("Failed to fetch write-off data:", error);
+      toast.error("Failed to fetch write-off data");
+    } finally {
+      setWriteOffLoading(false);
+    }
+  };
+
+  const closeWriteOffDialog = () => {
+    setWriteOffDialogOpen(false);
+    setInvoiceToWriteOff(null);
+    setWriteOffData(null);
+    setWriteOffForm({
+      changeDate: "",
+      changeExplanation: "",
+      writeOffFullBalance: false,
+    });
+  };
+
+  const handleWriteOffTableChange = (index, field, value) => {
+    setWriteOffTableData((prev) => {
+      const newData = [...prev];
+      newData[index] = { ...newData[index], [field]: value };
+      return newData;
+    });
+  };
+
+  const handleSaveWriteOff = async () => {
+    const payload = {
+      change_date: writeOffForm.changeDate,
+      invoice_id: invoiceToWriteOff?.id,
+      invoice_number:
+        writeOffData?.invoice_number || invoiceToWriteOff?.invoice_number,
+      change_fee: parseFloat(writeOffTableData[0]?.change || 0),
+      notes_fee: writeOffTableData[0]?.notes || "",
+      change_hst: parseFloat(writeOffTableData[1]?.change || 0),
+      notes_hst: writeOffTableData[1]?.notes || "",
+      change_soft: parseFloat(writeOffTableData[2]?.change || 0),
+      notes_soft: writeOffTableData[2]?.notes || "",
+      change_soft_hst: parseFloat(writeOffTableData[3]?.change || 0),
+      notes_soft_hst: writeOffTableData[3]?.notes || "",
+      change_hard: parseFloat(writeOffTableData[4]?.change || 0),
+      notes_hard: writeOffTableData[4]?.notes || "",
+    };
+
+    try {
+      const response = await saveInvoiceWriteOff(payload);
+      if (response?.response?.Apistatus) {
+        toast.success("Write-off saved successfully");
+        queryClient.invalidateQueries(["invoiceList", slug]);
+        closeWriteOffDialog();
+      } else {
+        toast.error(response?.message || "Failed to save write-off");
+      }
+    } catch (error) {
+      console.error("Failed to save write-off:", error);
+      toast.error("Failed to save write-off");
+    }
+  };
+
+  const handleDeleteWriteOff = async () => {
+    if (!writeOffToDelete) return;
+
+    setDeleteWriteOffLoading(true);
+    try {
+      const response = await deleteInvoiceWriteOff(writeOffToDelete.id);
+      if (response?.Apistatus) {
+        toast.success("Write-off deleted successfully");
+        // Refresh write-off data
+        const refreshedData = await fetchInvoiceWriteOff(invoiceToWriteOff.id);
+        if (refreshedData?.Apistatus) {
+          setWriteOffData(refreshedData);
+        }
+        queryClient.invalidateQueries(["invoiceList", slug]);
+      } else {
+        toast.error(response?.message || "Failed to delete write-off");
+      }
+    } catch (error) {
+      console.error("Failed to delete write-off:", error);
+      toast.error("Failed to delete write-off");
+    } finally {
+      setDeleteWriteOffLoading(false);
+      setDeleteWriteOffDialogOpen(false);
+      setWriteOffToDelete(null);
+    }
+  };
+
+  const handleUnlinkPayment = async () => {
+    if (!invoiceToUnlink) return;
+
+    setUnlinkPaymentLoading(true);
+    try {
+      const response = await unlinkInvoicePayment(invoiceToUnlink.id);
+      if (response?.Apistatus) {
+        toast.success("Payment unlinked successfully");
+        queryClient.invalidateQueries(["invoiceList", slug]);
+      } else {
+        toast.error(response?.message || "Failed to unlink payment");
+      }
+    } catch (error) {
+      console.error("Failed to unlink payment:", error);
+      toast.error("Failed to unlink payment");
+    } finally {
+      setUnlinkPaymentLoading(false);
+      setUnlinkPaymentDialogOpen(false);
+      setInvoiceToUnlink(null);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <Navbar2 />
@@ -875,6 +1141,24 @@ const Invoice = () => {
                           >
                             <Trash2 className="h-4 w-4" />
                             Delete
+                          </button>
+                          <button
+                            className="flex items-center gap-2 px-3 py-2 text-sm rounded-md hover:bg-accent text-left disabled:opacity-50 disabled:cursor-not-allowed"
+                            onClick={() => handleOpenWriteOffDialog(item)}
+                          >
+                            <X className="h-4 w-4" />
+                            Write Off
+                          </button>
+                          <button
+                            className="flex items-center gap-2 px-3 py-2 text-sm rounded-md hover:bg-accent text-left disabled:opacity-50 disabled:cursor-not-allowed"
+                            onClick={() => {
+                              setInvoiceToUnlink(item);
+                              setUnlinkPaymentDialogOpen(true);
+                            }}
+                            disabled={!item.isLocked}
+                          >
+                            <Link2Off className="h-4 w-4" />
+                            Unlink Payment
                           </button>
 
                           {/* Invoice Payment Nested Popover */}
@@ -1738,9 +2022,7 @@ const Invoice = () => {
               {selectedInvoiceForHistory?.invoice_number}
             </DialogTitle>
             <div className="flex items-center gap-3 absolute right-4 top-4">
-              <Button
-                className="bg-primary hover:bg-primary/90 gap-2"
-              >
+              <Button className="bg-primary hover:bg-primary/90 gap-2">
                 Print History
               </Button>
               <button
@@ -1847,6 +2129,395 @@ const Invoice = () => {
                 </>
               ) : (
                 "Delete Payment"
+              )}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Write Off Dialog */}
+      <Dialog open={writeOffDialogOpen} onOpenChange={setWriteOffDialogOpen}>
+        <DialogContent className="max-w-5xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader className="flex flex-row items-center justify-between">
+            <DialogTitle>Write Off</DialogTitle>
+            {writeOffData?.data && writeOffData.data.length > 0 && (
+              <Button
+                size="sm"
+                onClick={() => setWriteOffHistoryDialogOpen(true)}
+                className="mr-8"
+              >
+                View Write-off History
+              </Button>
+            )}
+          </DialogHeader>
+          {writeOffLoading ? (
+            <div className="flex items-center justify-center py-8">
+              <Loader2 className="h-8 w-8 animate-spin" />
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {/* Top Section - Matter, Change Date, Invoice# */}
+              <div className="grid grid-cols-3 gap-4">
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Matter</label>
+                  <Input
+                    value={
+                      writeOffData?.name || invoiceToWriteOff?.client_name || ""
+                    }
+                    readOnly
+                    className="bg-muted"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Change Date</label>
+                  <Input
+                    type="date"
+                    value={writeOffForm.changeDate}
+                    onChange={(e) =>
+                      setWriteOffForm((prev) => ({
+                        ...prev,
+                        changeDate: e.target.value,
+                      }))
+                    }
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Invoice#</label>
+                  <Input
+                    value={
+                      writeOffData?.invoice_number ||
+                      invoiceToWriteOff?.id ||
+                      ""
+                    }
+                    readOnly
+                    className="bg-muted"
+                  />
+                </div>
+              </div>
+
+              {/* Change Explanation */}
+              <div className="space-y-2">
+                <label className="text-sm font-medium">
+                  Change Explanation
+                </label>
+                <Input
+                  placeholder="Enter explanation for write off"
+                  value={writeOffForm.changeExplanation}
+                  onChange={(e) =>
+                    setWriteOffForm((prev) => ({
+                      ...prev,
+                      changeExplanation: e.target.value,
+                    }))
+                  }
+                />
+              </div>
+
+              {/* Write-off full remaining balance checkbox */}
+              <div className="flex items-center space-x-2">
+                <Checkbox
+                  id="writeOffFullBalance"
+                  checked={writeOffForm.writeOffFullBalance}
+                  onCheckedChange={(checked) =>
+                    setWriteOffForm((prev) => ({
+                      ...prev,
+                      writeOffFullBalance: checked,
+                    }))
+                  }
+                />
+                <label
+                  htmlFor="writeOffFullBalance"
+                  className="text-sm font-medium cursor-pointer"
+                >
+                  Write-off full remaining balance
+                </label>
+              </div>
+
+              {/* Summary Row */}
+              <div className="grid grid-cols-4 gap-4 p-4 bg-muted rounded-lg">
+                <div className="text-center">
+                  <p className="text-sm text-muted-foreground">
+                    Original Amount
+                  </p>
+                  <p className="text-lg font-semibold">
+                    {parseFloat(writeOffData?.Fee || 0)}
+                  </p>
+                </div>
+                <div className="text-center">
+                  <p className="text-sm text-muted-foreground">Payments</p>
+                  <p className="text-lg font-semibold">
+                    {parseFloat(
+                      writeOffData?.Fee - writeOffData?.RemainingBalance || 0
+                    ).toFixed(2)}
+                  </p>
+                </div>
+                <div className="text-center">
+                  <p className="text-sm text-muted-foreground">Change Amount</p>
+                  <p className="text-lg font-semibold">
+                    {parseFloat(writeOffData?.changeBalance || 0).toFixed(2)}
+                  </p>
+                </div>
+                <div className="text-center">
+                  <p className="text-sm text-muted-foreground">Balance</p>
+                  <p className="text-lg font-semibold">
+                    {parseFloat(
+                      writeOffData?.RemainingBalance ||
+                        invoiceToWriteOff?.total_amount ||
+                        0
+                    ).toFixed(2)}
+                  </p>
+                </div>
+              </div>
+
+              {/* Write Off Table */}
+              <div className="border rounded-lg overflow-hidden">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead className="w-[150px]">Category</TableHead>
+                      <TableHead className="w-[100px]">Original</TableHead>
+                      <TableHead className="w-[100px]">New</TableHead>
+                      <TableHead className="w-[100px]">Change</TableHead>
+                      <TableHead className="w-[250px]">
+                        Chart of Account
+                      </TableHead>
+                      <TableHead>Notes</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {writeOffTableData.map((row, index) => (
+                      <TableRow key={index}>
+                        <TableCell className="font-medium">
+                          {row.category}
+                        </TableCell>
+                        <TableCell>{row.original}</TableCell>
+                        <TableCell>
+                          <Input
+                            type="number"
+                            value={row.new}
+                            onChange={(e) =>
+                              handleWriteOffTableChange(
+                                index,
+                                "new",
+                                e.target.value
+                              )
+                            }
+                            className="w-20 h-8"
+                            disabled
+                          />
+                        </TableCell>
+                        <TableCell>
+                          <Input
+                            type="number"
+                            value={row.change}
+                            onChange={(e) =>
+                              handleWriteOffTableChange(
+                                index,
+                                "change",
+                                e.target.value
+                              )
+                            }
+                            className="w-20 h-8"
+                            disabled={
+                              writeOffForm.writeOffFullBalance || index !== 0
+                            }
+                          />
+                        </TableCell>
+                        <TableCell>
+                          <span className="text-sm">{row.chartOfAccount}</span>
+                        </TableCell>
+                        <TableCell>
+                          <Input
+                            value={row.notes}
+                            onChange={(e) =>
+                              handleWriteOffTableChange(
+                                index,
+                                "notes",
+                                e.target.value
+                              )
+                            }
+                            placeholder="Add notes..."
+                            className="h-8"
+                          />
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+
+              {/* Footer Buttons */}
+              <div className="flex justify-end gap-2 pt-4">
+                <Button variant="outline" onClick={closeWriteOffDialog}>
+                  Cancel
+                </Button>
+                <Button onClick={handleSaveWriteOff}>Save</Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete Write-off Confirmation Dialog */}
+      <Dialog
+        open={deleteWriteOffDialogOpen}
+        onOpenChange={setDeleteWriteOffDialogOpen}
+      >
+        <DialogContent className="max-w-sm">
+          <DialogHeader>
+            <DialogTitle>Delete Write-off</DialogTitle>
+          </DialogHeader>
+          <div className="py-4">
+            <p className="text-sm text-muted-foreground">
+              Are you sure you want to delete this write-off record? This action
+              cannot be undone.
+            </p>
+          </div>
+          <div className="flex justify-end gap-2">
+            <Button
+              variant="outline"
+              onClick={() => {
+                setDeleteWriteOffDialogOpen(false);
+                setWriteOffToDelete(null);
+              }}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={handleDeleteWriteOff}
+              disabled={deleteWriteOffLoading}
+            >
+              {deleteWriteOffLoading ? (
+                <>
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  Deleting...
+                </>
+              ) : (
+                "Delete"
+              )}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Write-off History Dialog */}
+      <Dialog
+        open={writeOffHistoryDialogOpen}
+        onOpenChange={setWriteOffHistoryDialogOpen}
+      >
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Write-off History</DialogTitle>
+          </DialogHeader>
+          <div className="py-4">
+            {writeOffData?.data && writeOffData.data.length > 0 ? (
+              <div className="border rounded-lg overflow-hidden">
+                <Table>
+                  <TableHeader>
+                    <TableRow className="bg-gray-50">
+                      <TableHead>Date</TableHead>
+                      <TableHead>Invoice #</TableHead>
+                      <TableHead>Fee Change</TableHead>
+                      <TableHead>HST Change</TableHead>
+                      <TableHead>Soft Cost</TableHead>
+                      <TableHead>Hard Cost</TableHead>
+                      <TableHead>Actions</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {writeOffData.data.map((history) => (
+                      <TableRow key={history.id}>
+                        <TableCell>
+                          {new Date(history.change_date).toLocaleDateString()}
+                        </TableCell>
+                        <TableCell>{history.invoice_number}</TableCell>
+                        <TableCell>
+                          {parseFloat(history.change_fee || 0).toFixed(2)}
+                        </TableCell>
+                        <TableCell>
+                          {parseFloat(history.change_hst || 0).toFixed(2)}
+                        </TableCell>
+                        <TableCell>
+                          {parseFloat(history.change_soft || 0).toFixed(2)}
+                        </TableCell>
+                        <TableCell>
+                          {parseFloat(history.change_hard || 0).toFixed(2)}
+                        </TableCell>
+                        <TableCell>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 hover:bg-red-50 hover:text-red-600"
+                            onClick={() => {
+                              setWriteOffToDelete(history);
+                              setDeleteWriteOffDialogOpen(true);
+                            }}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            ) : (
+              <div className="text-center py-8 text-muted-foreground">
+                No write-off history available
+              </div>
+            )}
+          </div>
+          <div className="flex justify-end">
+            <Button
+              variant="outline"
+              onClick={() => setWriteOffHistoryDialogOpen(false)}
+            >
+              Close
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Unlink Payment Confirmation Dialog */}
+      <Dialog
+        open={unlinkPaymentDialogOpen}
+        onOpenChange={setUnlinkPaymentDialogOpen}
+      >
+        <DialogContent className="max-w-sm">
+          <DialogHeader>
+            <DialogTitle>Unlink Payment</DialogTitle>
+          </DialogHeader>
+          <div className="py-4">
+            <p className="text-sm text-muted-foreground">
+              Are you sure you want to unlink all payments from invoice{" "}
+              <span className="font-semibold text-foreground">
+                {invoiceToUnlink?.invoice_number}
+              </span>
+              ? This action cannot be undone.
+            </p>
+          </div>
+          <div className="flex justify-end gap-2">
+            <Button
+              variant="outline"
+              onClick={() => {
+                setUnlinkPaymentDialogOpen(false);
+                setInvoiceToUnlink(null);
+              }}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={handleUnlinkPayment}
+              disabled={unlinkPaymentLoading}
+            >
+              {unlinkPaymentLoading ? (
+                <>
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  Unlinking...
+                </>
+              ) : (
+                "Unlink Payment"
               )}
             </Button>
           </div>
