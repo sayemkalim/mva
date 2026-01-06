@@ -246,7 +246,9 @@ export function Navbar2() {
   };
 
   // Combine API notifications with WebSocket real-time notifications
-  const allNotifications = notificationsData || [];
+  const allNotifications = Array.isArray(notificationsData)
+    ? notificationsData
+    : [];
 
   // notification count
   const notificationCount = unreadCountData || allNotifications?.length || 0;
