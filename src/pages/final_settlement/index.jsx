@@ -16,7 +16,6 @@ import {
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 import Typography from '@/components/typography';
-import { Input } from '@/components/ui/input';
 import { fetchFinalSettlement } from './helpers/fetchFinalSettlement';
 
 const FinalSettlement = () => {
@@ -166,21 +165,21 @@ const FinalSettlement = () => {
   );
 
   const renderTable = () => (
-    <Card className="overflow-hidden">
-      <Table>
+    <Card className="overflow-hidden p-0">
+      <Table className="border-collapse">
         <TableHeader>
-          <TableRow className="bg-muted/30">
-            <TableHead className="font-semibold text-foreground py-4 px-6 w-[60%]">
+          <TableRow className="bg-muted/40">
+            <TableHead className="font-semibold text-foreground py-4 px-6 w-[60%] border border-border">
               <Typography variant="p" className="font-semibold">
                 Particulars/Description
               </Typography>
             </TableHead>
-            <TableHead className="font-semibold text-foreground py-4 px-6 text-right">
+            <TableHead className="font-semibold text-foreground py-4 px-6 text-right border border-border">
               <Typography variant="p" className="font-semibold">
                 Expenditure
               </Typography>
             </TableHead>
-            <TableHead className="font-semibold text-foreground py-4 px-6 text-right">
+            <TableHead className="font-semibold text-foreground py-4 px-6 text-right border border-border">
               <Typography variant="p" className="font-semibold">
                 Receipts
               </Typography>
@@ -191,91 +190,78 @@ const FinalSettlement = () => {
           {editableRecords.map((record, index) => (
             <TableRow
               key={record.id || index}
-              className="hover:bg-muted/20 transition-colors"
+              className="hover:bg-muted/10 transition-colors"
             >
-              <TableCell className="py-4 px-6">
-                <Typography variant="p" className="text-muted-foreground">
+              <TableCell className="py-4 px-6 border border-border">
+                <Typography variant="p" className="text-foreground">
                   {record.particular || '-'}
                 </Typography>
               </TableCell>
-              <TableCell className="py-3 px-6">
+              <TableCell className="py-3 px-6 border border-border">
                 {index > 0 ? (
                   record.particular?.toLowerCase().includes('hst') ||
                     record.particular?.toLowerCase().includes('balance payout') ? (
                     record.expenditure ? (
-                      <div className="flex items-center justify-end gap-2">
-                        <span className="text-muted-foreground font-medium text-sm">$</span>
-                        <Input
-                          type="number"
-                          value={record.expenditure}
-                          readOnly
-                          disabled
-                          className="text-right w-36 font-mono bg-muted/50 cursor-not-allowed"
-                        />
-                      </div>
+                      <input
+                        type="text"
+                        value={parseFloat(record.expenditure).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                        readOnly
+                        disabled
+                        className="text-right w-full font-mono bg-transparent border-none outline-none text-foreground cursor-default"
+                      />
                     ) : null
                   ) : (
-                    <div className="flex items-center justify-end gap-2">
-                      <span className="text-muted-foreground font-medium text-sm">$</span>
-                      <Input
-                        type="number"
-                        step="0.01"
-                        min="0"
-                        placeholder="0.00"
-                        value={record.expenditure}
-                        onChange={(e) => handleInputChange(index, 'expenditure', e.target.value)}
-                        className="text-right w-36 font-mono focus:ring-2 focus:ring-primary/20 transition-shadow"
-                      />
-                    </div>
-                  )
-                ) : null}
-              </TableCell>
-              <TableCell className="py-3 px-6">
-                {index === 0 ? (
-                  <div className="flex items-center justify-end gap-2">
-                    <span className="text-muted-foreground font-medium text-sm">$</span>
-                    <Input
+                    <input
                       type="number"
                       step="0.01"
                       min="0"
                       placeholder="0.00"
-                      value={record.receipts}
-                      onChange={(e) => handleInputChange(index, 'receipts', e.target.value)}
-                      className="text-right w-36 font-mono focus:ring-2 focus:ring-primary/20 transition-shadow"
+                      value={record.expenditure}
+                      onChange={(e) => handleInputChange(index, 'expenditure', e.target.value)}
+                      className="text-right w-full font-mono bg-transparent border-none outline-none text-foreground placeholder:text-muted-foreground/50 focus:bg-muted/30 rounded px-1 transition-colors"
                     />
-                  </div>
+                  )
+                ) : null}
+              </TableCell>
+              <TableCell className="py-3 px-6 border border-border">
+                {index === 0 ? (
+                  <input
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    placeholder="0.00"
+                    value={record.receipts}
+                    onChange={(e) => handleInputChange(index, 'receipts', e.target.value)}
+                    className="text-right w-full font-mono bg-transparent border-none outline-none text-foreground placeholder:text-muted-foreground/50 focus:bg-muted/30 rounded px-1 transition-colors"
+                  />
                 ) : record.particular?.toLowerCase().includes('balance payout') && record.receipts ? (
-                  // Balance Payout receipts (when negative balance)
-                  <div className="flex items-center justify-end gap-2">
-                    <span className="text-muted-foreground font-medium text-sm">$</span>
-                    <Input
-                      type="number"
-                      value={record.receipts}
-                      readOnly
-                      disabled
-                      className="text-right w-36 font-mono bg-muted/50 cursor-not-allowed"
-                    />
-                  </div>
+                  <input
+                    type="text"
+                    value={parseFloat(record.receipts).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                    readOnly
+                    disabled
+                    className="text-right w-full font-mono bg-transparent border-none outline-none text-foreground cursor-default"
+                  />
                 ) : null}
               </TableCell>
             </TableRow>
           ))}
         </TableBody>
         <TableFooter>
-          <TableRow className="bg-muted/50 border-t-2">
-            <TableCell className="py-4 px-6">
+          <TableRow className="bg-muted/50">
+            <TableCell className="py-4 px-6 border border-border">
               <Typography variant="p" className="font-semibold">
                 Total
               </Typography>
             </TableCell>
-            <TableCell className="py-4 px-6 text-right">
-              <Typography variant="p" className="font-semibold">
-                $ {totalExpenditure.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+            <TableCell className="py-4 px-6 text-right border border-border">
+              <Typography variant="p" className="font-semibold font-mono">
+                {totalExpenditure.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
               </Typography>
             </TableCell>
-            <TableCell className="py-4 px-6 text-right">
-              <Typography variant="p" className="font-semibold">
-                $ {totalReceipts.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+            <TableCell className="py-4 px-6 text-right border border-border">
+              <Typography variant="p" className="font-semibold font-mono">
+                {totalReceipts.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
               </Typography>
             </TableCell>
           </TableRow>
@@ -289,7 +275,7 @@ const FinalSettlement = () => {
       <Navbar2 />
       <NavbarItem title="Final Settlement" slug={slug} breadcrumbs={breadcrumbs} />
 
-      <div className="px-4 py-6">
+      <div className="px-4">
         {isLoading && renderLoadingState()}
         {error && renderErrorState()}
         {!isLoading && !error && records.length === 0 && renderEmptyState()}
