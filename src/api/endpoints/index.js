@@ -350,5 +350,11 @@ export const endpoints = {
   invoiceUnbilledList: "api/v2/file/accounting/invoice/unbilled-list",
   invoiceCreate: "api/v2/file/accounting/invoice/create-invoice",
   invoiceUpdate: "api/v2/file/accounting/invoice/update-invoice",
-  invoiceDelete: "api/v2/file/accounting/invoice-write-off/delete",
+  invoiceDelete: "api/v2/file/accounting/invoice/delete",
+  invoicePaymentDetail: "api/v2/file/accounting/invoice-payments/invoice-detail",
+  invoicePaymentSaveTrust: "api/v2/file/accounting/invoice-payments/save/trust-bank",
+  invoicePaymentSaveOperating: "api/v2/file/accounting/invoice-payments/save/operating-bank",
+  invoicePaymentHistory: "api/v2/file/accounting/invoice-payments/invoice",
+  invoicePaymentDelete: "api/v2/file/accounting/invoice-payments/delete",
 };
+
