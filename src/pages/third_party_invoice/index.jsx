@@ -30,6 +30,7 @@ import {
   Pencil,
   Unlink,
   DollarSign,
+  MoreHorizontal,
 } from "lucide-react";
 import {
   Dialog,
@@ -38,6 +39,11 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -51,8 +57,6 @@ import { toast } from "sonner";
 import { fetchMeta } from "../bank_transcation/helper/fetchMeta";
 import { Select } from "@radix-ui/react-select";
 import { SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { meta } from "@eslint/js";
-import { set } from "date-fns";
 
 const AttachmentUploader = ({ files, onFilesChange, onUpload, onDelete }) => {
   const [isDragging, setIsDragging] = useState(false);
@@ -951,47 +955,54 @@ const ThirdPartyInvoice = () => {
                     {item.memo || "-"}
                   </TableCell>
                   <TableCell>
-                    <div className="flex gap-1">
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-8 w-8 text-muted-foreground hover:text-foreground"
-                        onClick={() => handleEditInvoice(item)}
-                      >
-                        <Pencil className="h-4 w-4" />
-                      </Button>
-                      {item.paid_id ? (
+                    <Popover>
+                      <PopoverTrigger asChild>
                         <Button
                           variant="ghost"
                           size="icon"
-                          className="h-8 w-8 text-orange-500 hover:text-orange-600 hover:bg-orange-50"
-                          onClick={() => setUnlinkConfirmItem(item)}
-                          disabled={unlinkMutation.isPending}
-                          title="Unlink Payment"
+                          className="h-8 w-8"
                         >
-                          <Unlink className="h-4 w-4" />
+                          <MoreHorizontal className="h-4 w-4" />
                         </Button>
-                      ) : (
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-8 w-8 text-green-500 hover:text-green-600 hover:bg-green-50"
-                          onClick={() => handlePayInvoice(item)}
-                          title="Pay Bill"
-                        >
-                          <DollarSign className="h-4 w-4" />
-                        </Button>
-                      )}
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-8 w-8 text-destructive hover:text-destructive hover:bg-destructive/10"
-                        onClick={() => handleDeleteInvoice(item.id)}
-                        disabled={deleteMutation.isPending}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </div>
+                      </PopoverTrigger>
+                      <PopoverContent align="end" className="w-48 p-1">
+                        <div className="flex flex-col">
+                          <button
+                            className="flex items-center gap-2 px-3 py-2 text-sm rounded-md hover:bg-accent text-left"
+                            onClick={() => handleEditInvoice(item)}
+                          >
+                            <Pencil className="h-4 w-4" />
+                            Edit
+                          </button>
+                          {item.paid_id ? (
+                            <button
+                              className="flex items-center gap-2 px-3 py-2 text-sm rounded-md hover:bg-accent text-left text-orange-500"
+                              onClick={() => setUnlinkConfirmItem(item)}
+                              disabled={unlinkMutation.isPending}
+                            >
+                              <Unlink className="h-4 w-4" />
+                              Unlink Payment
+                            </button>
+                          ) : (
+                            <button
+                              className="flex items-center gap-2 px-3 py-2 text-sm rounded-md hover:bg-accent text-left text-green-500"
+                              onClick={() => handlePayInvoice(item)}
+                            >
+                              <DollarSign className="h-4 w-4" />
+                              Pay Bill
+                            </button>
+                          )}
+                          <button
+                            className="flex items-center gap-2 px-3 py-2 text-sm rounded-md hover:bg-accent text-left text-destructive"
+                            onClick={() => handleDeleteInvoice(item.id)}
+                            disabled={deleteMutation.isPending}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                            Delete
+                          </button>
+                        </div>
+                      </PopoverContent>
+                    </Popover>
                   </TableCell>
                 </TableRow>
               ))

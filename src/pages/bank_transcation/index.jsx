@@ -22,7 +22,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Plus, ChevronDown, X, Trash2, Pencil, ChevronRight  } from "lucide-react";
+import { Plus, ChevronDown, X, Trash2, Pencil, ChevronRight, MoreHorizontal  } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -314,25 +314,36 @@ const formatDate = (dateString) => {
                   <TableCell>{item.Payor || "-"}</TableCell>
                   <TableCell>{parseFloat(item.Amount || 0).toFixed(2)}</TableCell>
                   <TableCell>
-                    <div className="flex gap-1">
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-8 w-8 text-muted-foreground hover:text-foreground"
-                        onClick={() => handleEditDeposit(item)}
-                      >
-                        <Pencil className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-8 w-8 text-destructive hover:text-destructive hover:bg-destructive/10"
-                        onClick={() => handleDeleteDeposit(item.id)}
-                        disabled={deleteMutation.isPending}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </div>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8"
+                        >
+                          <MoreHorizontal className="h-4 w-4" />
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent align="end" className="w-48 p-1">
+                        <div className="flex flex-col">
+                          <button
+                            className="flex items-center gap-2 px-3 py-2 text-sm rounded-md hover:bg-accent text-left"
+                            onClick={() => handleEditDeposit(item)}
+                          >
+                            <Pencil className="h-4 w-4" />
+                            Edit
+                          </button>
+                          <button
+                            className="flex items-center gap-2 px-3 py-2 text-sm rounded-md hover:bg-accent text-left text-destructive"
+                            onClick={() => handleDeleteDeposit(item.id)}
+                            disabled={deleteMutation.isPending}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                            Delete
+                          </button>
+                        </div>
+                      </PopoverContent>
+                    </Popover>
                   </TableCell>
                 </TableRow>
               ))

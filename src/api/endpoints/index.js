@@ -354,4 +354,7 @@ export const endpoints = {
   invoicePaymentDetail: "api/v2/file/accounting/invoice-payments/invoice-detail",
   invoicePaymentSaveTrust: "api/v2/file/accounting/invoice-payments/save/trust-bank",
   invoicePaymentSaveOperating: "api/v2/file/accounting/invoice-payments/save/operating-bank",
+  invoicePaymentHistory: "api/v2/file/accounting/invoice-payments/invoice",
+  invoicePaymentDelete: "api/v2/file/accounting/invoice-payments/delete",
 };
+
