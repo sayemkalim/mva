@@ -381,5 +381,8 @@ export const endpoints = {
   invoicePaymentHistory: "api/v2/file/accounting/invoice-payments/invoice",
   invoicePaymentDelete: "api/v2/file/accounting/invoice-payments/delete",
   invoiceWriteOff: "api/v2/file/accounting/invoice-write-off/save",
+
+  // Final Settlement
+  finalSettlementShow: "api/v2/file/accounting/final-settlement/show",
 };
 

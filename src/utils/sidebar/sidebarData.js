@@ -1164,6 +1164,11 @@ export const getEditModeData = (slug) => ({
               url: `/dashboard/workstation/edit/${slug}/third-party-invoice`,
               icon: User,
             },
+            {
+              title: "Final Settlement",
+              url: `/dashboard/workstation/edit/${slug}/final-settlement`,
+              icon: User,
+            }
           ],
         },
       ],
