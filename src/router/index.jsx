@@ -123,6 +123,14 @@ import ExportAdjustersOnFiles from "@/pages/generate_report/adjusters_on_files";
 import ExportListOfPoliceStations from "@/pages/generate_report/list_of_police_stations";
 import ExportVsrExamination from "@/pages/generate_report/vsr_examination";
 import Email from "@/pages/email";
+import AccountPage from "@/pages/account";
+import UserSetup from "@/pages/setup/user";
+import AddUser from "@/pages/setup/user/components/AddUser";
+import EditUser from "@/pages/setup/user/components/EditUser";
+import FirmSettings from "@/pages/setup/firm";
+import Master from "@/pages/setup/master";
+import Permissions from "@/pages/setup/roles/index";
+import RoleDetails from "@/pages/setup/roles/components/RoleDetails";
 import InternalEmail from "@/pages/internal_email";
 import ThirdPartyInvoice from "@/pages/third_party_invoice";
 import Invoice from "@/pages/invoice";
@@ -560,6 +568,64 @@ const Router = () => {
           />
           <Route path="/dashboard/event" element={<Calender />} />
           <Route path="/dashboard/email" element={<Email />} />
+          <Route path="/dashboard/account" element={<AccountPage />} />
+          <Route path="/dashboard/setup/user" element={<UserSetup />} />
+          <Route path="/dashboard/setup/user/add" element={<AddUser />} />
+          <Route path="/dashboard/setup/user/edit/:id" element={<EditUser />} />
+          <Route path="/dashboard/setup/firm" element={<FirmSettings />} />
+          {/* Master Routes */}
+          <Route
+            path="/dashboard/setup/master/initial-info-file-status"
+            element={<Master slug="inital-info-file-status" />}
+          />
+          <Route
+            path="/dashboard/setup/master/initial-info-non-engagement-issued"
+            element={<Master slug="inital-info-non-engagement-issued" />}
+          />
+          <Route
+            path="/dashboard/setup/master/initial-info-claim-status"
+            element={<Master slug="inital-info-claim-status" />}
+          />
+          <Route
+            path="/dashboard/setup/master/initial-info-claim-type"
+            element={<Master slug="inital-info-claim-type" />}
+          />
+          <Route
+            path="/dashboard/setup/master/initial-info-mig-status"
+            element={<Master slug="inital-info-mig-status" />}
+          />
+          <Route
+            path="/dashboard/setup/master/initial-info-ab-claim-settlement-approx"
+            element={<Master slug="inital-info-ab-claim-settlement-approx" />}
+          />
+          <Route
+            path="/dashboard/setup/master/initial-info-tort-claim-settlement-approx"
+            element={<Master slug="inital-info-tort-claim-settlement-approx" />}
+          />
+          <Route
+            path="/dashboard/setup/master/initial-info-ltd-claim-settlement-approx"
+            element={<Master slug="inital-info-ltd-claim-settlement-approx" />}
+          />
+          <Route
+            path="/dashboard/setup/master/initial-info-property-damage-claim-settlem"
+            element={
+              <Master slug="inital-info-property-damage-claim-settlem" />
+            }
+          />
+          <Route
+            path="/dashboard/setup/master/initial-info-category"
+            element={<Master slug="inital-info-category" />}
+          />
+          <Route
+            path="/dashboard/setup/master/initial-info-first-party-status"
+            element={<Master slug="inital-info-first-party-status" />}
+          />
+          <Route
+            path="/dashboard/setup/master/initial-info-third-party-status"
+            element={<Master slug="inital-info-third-party-status" />}
+          />
+          <Route path="/dashboard/setup/roles" element={<Permissions />} />
+          <Route path="/dashboard/setup/roles/:id" element={<RoleDetails />} />
           <Route
             path="/dashboard/workstation/edit/:slug/event"
             element={<InternalCalendar />}

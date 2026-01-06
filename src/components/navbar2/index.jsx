@@ -11,6 +11,7 @@ import {
   X,
   Clock,
   Loader2,
+  Filter,
 } from "lucide-react";
 import { SidebarTrigger } from "../ui/sidebar";
 import { useTheme } from "../theme";
@@ -32,6 +33,7 @@ import {
   deleteAllNotifications,
   respondToNotification,
 } from "./helper";
+import { NotificationDetailDialog } from "@/components/notification-detail-dialog";
 
 export function Navbar2() {
   const queryClient = useQueryClient();
@@ -48,6 +50,9 @@ export function Navbar2() {
   const { theme, setTheme } = useTheme();
   const [loadingAction, setLoadingAction] = useState({});
   const [selectedIds, setSelectedIds] = useState([]);
+  const [notificationFilter, setNotificationFilter] = useState("all"); // "all", "action", "normal"
+  const [selectedNotification, setSelectedNotification] = useState(null);
+  const [dialogOpen, setDialogOpen] = useState(false);
 
   // Timer logic
   const [seconds, setSeconds] = useState(0);
@@ -234,6 +239,20 @@ export function Navbar2() {
     }
   };
 
+  // Handle Accept - open dialog
+  const handleAccept = (notification) => {
+    setSelectedNotification(notification);
+    setDialogOpen(true);
+  };
+
+  // Handle dialog success
+  const handleDialogSuccess = () => {
+    const notificationId = selectedNotification?.id || selectedNotification?.notificationId;
+    clearWsNotification(notificationId);
+    deleteNotificationMutation.mutate(notificationId);
+    setSelectedNotification(null);
+  };
+
   // Clear single notification
   const clearNotification = (id) => {
     deleteNotificationMutation.mutate(id);
@@ -249,6 +268,13 @@ export function Navbar2() {
   const allNotifications = Array.isArray(notificationsData)
     ? notificationsData
     : [];
+
+  // Filter notifications based on selected filter
+  const filteredNotifications = allNotifications.filter((n) => {
+    if (notificationFilter === "action") return n.type === "action";
+    if (notificationFilter === "normal") return n.type !== "action";
+    return true; // "all"
+  });
 
   // notification count
   const notificationCount = unreadCountData || allNotifications?.length || 0;
@@ -346,21 +372,54 @@ export function Navbar2() {
               </div>
             </SheetHeader>
 
-            {/* Selection controls */}
+            {/* Filter Buttons */}
             {allNotifications.length > 0 && (
+              <div className="flex gap-2 items-center mt-4 pb-3 border-b">
+                <Filter className="h-4 w-4 text-gray-500" />
+                <div className="flex gap-1 flex-1">
+                  <Button
+                    size="sm"
+                    variant={notificationFilter === "all" ? "default" : "outline"}
+                    onClick={() => setNotificationFilter("all")}
+                    className="h-8 text-xs flex-1"
+                  >
+                    All
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant={notificationFilter === "action" ? "default" : "outline"}
+                    onClick={() => setNotificationFilter("action")}
+                    className="h-8 text-xs flex-1"
+                  >
+                    Actions
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant={notificationFilter === "normal" ? "default" : "outline"}
+                    onClick={() => setNotificationFilter("normal")}
+                    className="h-8 text-xs flex-1"
+                  >
+                    Normal
+                  </Button>
+                </div>
+              </div>
+            )}
+
+            {/* Selection controls */}
+            {filteredNotifications.length > 0 && (
               <div className="flex items-center justify-between py-2 px-1 border-b mt-2">
                 <div className="flex items-center gap-2">
                   <input
                     type="checkbox"
                     checked={
                       selectedIds.length ===
-                        allNotifications.filter((n) => !n.is_read).length &&
+                        filteredNotifications.filter((n) => !n.is_read).length &&
                       selectedIds.length > 0
                     }
                     onChange={(e) => {
                       if (e.target.checked) {
                         setSelectedIds(
-                          allNotifications
+                          filteredNotifications
                             .filter((n) => !n.is_read)
                             .map((n) => n.id || n.notificationId)
                         );
@@ -400,13 +459,19 @@ export function Navbar2() {
                   <Loader2 className="h-8 w-8 animate-spin mb-3" />
                   <p className="text-sm">Loading notifications...</p>
                 </div>
-              ) : allNotifications.length === 0 ? (
+              ) : filteredNotifications.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-12 text-gray-500">
                   <Bell className="h-12 w-12 mb-3 opacity-30" />
-                  <p className="text-sm">No notifications yet</p>
+                  <p className="text-sm">
+                    {notificationFilter === "all"
+                      ? "No notifications yet"
+                      : notificationFilter === "action"
+                      ? "No action notifications"
+                      : "No normal notifications"}
+                  </p>
                 </div>
               ) : (
-                allNotifications.map((n) => (
+                filteredNotifications.map((n) => (
                   <div
                     key={n.notificationId || n.id}
                     className={`p-3 rounded-lg border transition-colors ${
@@ -461,9 +526,7 @@ export function Navbar2() {
                           <div className="flex items-center gap-2 mt-3">
                             <Button
                               size="sm"
-                              onClick={() =>
-                                handleAction(n.id || n.notificationId, "accept")
-                              }
+                              onClick={() => handleAccept(n)}
                               disabled={loadingAction[n.id || n.notificationId]}
                               className="bg-blue-500 hover:bg-blue-600 text-white text-xs px-4 py-1 h-7"
                             >
@@ -531,6 +594,16 @@ export function Navbar2() {
             </div>
           </SheetContent>
         </Sheet>
+
+        {/* Notification Detail Dialog */}
+        {selectedNotification && (
+          <NotificationDetailDialog
+            notification={selectedNotification}
+            open={dialogOpen}
+            onOpenChange={setDialogOpen}
+            onSuccess={handleDialogSuccess}
+          />
+        )}
 
         <Tooltip
           content={

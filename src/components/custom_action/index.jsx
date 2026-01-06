@@ -73,7 +73,7 @@ const CustomActionMenu = ({
             className="flex items-center gap-2 cursor-pointer"
           >
             <PlusIcon />
-            <span>Add {capitalize(singularize(title))}</span>
+            <span>Add {title}</span>
           </Button>
         )}
       </div>

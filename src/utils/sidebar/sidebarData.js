@@ -48,6 +48,7 @@ import {
   FileChartColumn,
   LogOutIcon,
   Wallet,
+  Banknote,
   Banknote
 } from "lucide-react";
 import { getItem } from "../local_storage";
@@ -215,6 +216,7 @@ export const data = {
       icon: CheckSquare,
       isActive: false,
       items: [],
+      permission: "workstation",
     },
     {
       title: "Task",
@@ -222,6 +224,7 @@ export const data = {
       icon: ClipboardList,
       isActive: false,
       items: [],
+      permission: "task",
     },
     {
       title: "Event",
@@ -229,6 +232,7 @@ export const data = {
       icon: CheckSquare,
       isActive: false,
       items: [],
+      permission: "event",
     },
     {
       title: "Emails",
@@ -236,6 +240,7 @@ export const data = {
       icon: Mail,
       isActive: false,
       items: [],
+      permission: "emails",
     },
     {
       title: "Reports",
@@ -243,11 +248,13 @@ export const data = {
       icon: FileChartColumn,
       isActive: false,
       items: [],
+      permission: "reports",
     },
     {
       title: "Generate Reports",
       url: ``,
       icon: Download,
+      permission: "reports",
       items: [
         {
           title: "Applicant Information",
@@ -321,6 +328,83 @@ export const data = {
         },
       ],
     },
+    {
+      title: "Setup",
+      url: `/dashboard/setup`,
+      icon: FileText,
+      items: [
+        {
+          title: "User",
+          url: "/dashboard/setup/user",
+          icon: User,
+        },
+        {
+          title: "Roles",
+          url: "/dashboard/setup/roles",
+          icon: Shield,
+        },
+        {
+          title: "Firm",
+          url: "/dashboard/setup/firm",
+          icon: Building2,
+        },
+        {
+          title: "Master Data",
+          url: "/dashboard/setup/master",
+          icon: "",
+          items: [
+            {
+              title: "File Status",
+              url: "/dashboard/setup/master/initial-info-file-status",
+            },
+            {
+              title: "Non Engagement Issued",
+              url: "/dashboard/setup/master/initial-info-non-engagement-issued",
+            },
+            {
+              title: "Claim Status",
+              url: "/dashboard/setup/master/initial-info-claim-status",
+            },
+            {
+              title: "Claim Type",
+              url: "/dashboard/setup/master/initial-info-claim-type",
+            },
+            {
+              title: "MIG Status",
+              url: "/dashboard/setup/master/initial-info-mig-status",
+            },
+            {
+              title: "AB Claim Settlement Approx",
+              url: "/dashboard/setup/master/initial-info-ab-claim-settlement-approx",
+            },
+            {
+              title: "Tort Claim Settlement Approx",
+              url: "/dashboard/setup/master/initial-info-tort-claim-settlement-approx",
+            },
+            {
+              title: "LTD Claim Settlement Approx",
+              url: "/dashboard/setup/master/initial-info-ltd-claim-settlement-approx",
+            },
+            {
+              title: "Property Damage Claim Settlement",
+              url: "/dashboard/setup/master/initial-info-property-damage-claim-settlem",
+            },
+            {
+              title: "Category",
+              url: "/dashboard/setup/master/initial-info-category",
+            },
+            {
+              title: "First Party Status",
+              url: "/dashboard/setup/master/initial-info-first-party-status",
+            },
+            {
+              title: "Third Party Status",
+              url: "/dashboard/setup/master/initial-info-third-party-status",
+            },
+          ],
+        },
+      ],
+    },
   ],
   projects: [],
 };
@@ -343,46 +427,55 @@ export const getEditModeData = (slug) => ({
       url: `/dashboard/workstation/edit/${slug}`,
       icon: FileText,
       items: [],
+      permission: "initial",
     },
     {
       title: "Applicant",
       url: "",
       icon: ListTodo,
+      permission: "applicant_info",
       items: [
         {
           title: "Applicant Information",
           url: `/dashboard/workstation/edit/${slug}/applicant-information`,
           icon: User,
+          permission: "applicant_info",
         },
         {
           title: "Identification",
           url: `/dashboard/workstation/edit/${slug}/identification`,
           icon: IdCard,
+          permission: "identification",
         },
         {
           title: "Employment",
           url: `/dashboard/workstation/edit/${slug}/employment`,
           icon: Briefcase,
+          permission: "employment",
         },
         {
           title: "School or Caregiver",
           url: `/dashboard/workstation/edit/${slug}/school-caregiver`,
           icon: School,
+          permission: "school_or_caregiver",
         },
         {
           title: "Representative Referral",
           url: `/dashboard/workstation/edit/${slug}/representative-referral`,
           icon: UserCheck,
+          permission: "representive_referral",
         },
         {
           title: "Primary Ehc",
           url: `/dashboard/workstation/edit/${slug}/primary-ehc`,
           icon: Heart,
+          permission: "primary_ehc",
         },
         {
           title: "Secondary Ehc",
           url: `/dashboard/workstation/edit/${slug}/secondary-ehc`,
           icon: Heart,
+          permission: "secondary_ehc",
         },
       ],
     },
@@ -390,11 +483,13 @@ export const getEditModeData = (slug) => ({
       title: "Accident Detail",
       url: ``,
       icon: AlertTriangle,
+      permission: "accident_information",
       items: [
         {
           title: "Accident Information",
           url: `/dashboard/workstation/edit/${slug}/accident-information`,
           icon: User,
+          permission: "accident_information",
         },
       ],
     },
@@ -407,31 +502,37 @@ export const getEditModeData = (slug) => ({
           title: "Insurance",
           url: `/dashboard/workstation/edit/${slug}/insurance`,
           icon: User,
+          permission: "insurance",
         },
         {
           title: "Adjuster",
           url: `/dashboard/workstation/edit/${slug}/adjuster`,
           icon: User,
+          permission: "adjuster",
         },
         {
           title: "Vehicle",
           url: `/dashboard/workstation/edit/${slug}/vechile`,
           icon: User,
+          permission: "vehicle",
         },
         {
           title: "Section 33",
           url: `/dashboard/workstation/edit/${slug}/section-33-list`,
           icon: User,
+          permission: "section_33",
         },
         {
           title: "LAT",
           url: `/dashboard/workstation/edit/${slug}/lat`,
           icon: User,
+          permission: "lat_ab_counsel",
         },
         {
           title: "AB Counsel",
           url: `/dashboard/workstation/edit/${slug}/ab-counsel`,
           icon: User,
+          permission: "lat_ab_counsel",
         },
       ],
     },
@@ -444,36 +545,43 @@ export const getEditModeData = (slug) => ({
           title: "Insurance",
           url: `/dashboard/workstation/edit/${slug}/tp-insurance`,
           icon: User,
+          permission: "insurance",
         },
         {
           title: "Adjuster",
           url: `/dashboard/workstation/edit/${slug}/tp-adjuster`,
           icon: User,
+          permission: "adjuster",
         },
         {
           title: "Driver Information",
           url: `/dashboard/workstation/edit/${slug}/tp-driverInfo`,
           icon: User,
+          permission: "driver_information",
         },
         {
           title: "Owner Information",
           url: `/dashboard/workstation/edit/${slug}/tp-ownerInfo`,
           icon: User,
+          permission: "owner_information",
         },
         {
           title: "Vehicle Information",
           url: `/dashboard/workstation/edit/${slug}/tp-vehicleInfo`,
           icon: User,
+          permission: "vehicle_information",
         },
         {
           title: "Section 258",
           url: `/dashboard/workstation/edit/${slug}/section-258-list`,
           icon: User,
+          permission: "section_528",
         },
         {
           title: "TP Counsel",
           url: `/dashboard/workstation/edit/${slug}/tp-counsel`,
           icon: User,
+          permission: "tp_counsel",
         },
       ],
     },
@@ -481,16 +589,19 @@ export const getEditModeData = (slug) => ({
       title: "SOC",
       url: ``,
       icon: Radar,
+      permission: "soc",
       items: [
         {
           title: "SOC",
           url: `/dashboard/workstation/edit/${slug}/soc`,
           icon: User,
+          permission: "soc",
         },
         {
           title: "Statement of Defence",
           url: `/dashboard/workstation/edit/${slug}/sod`,
           icon: User,
+          permission: "statement_of_defence",
         },
       ],
     },
@@ -503,16 +614,19 @@ export const getEditModeData = (slug) => ({
           title: "Scheduled",
           url: `/dashboard/workstation/edit/${slug}/scheduled`,
           icon: User,
+          permission: "scheduled",
         },
         {
           title: "AOD",
           url: `/dashboard/workstation/edit/${slug}/aod`,
           icon: User,
+          permission: "aod",
         },
         {
           title: "Undertaking",
           url: `/dashboard/workstation/edit/${slug}/undertaking`,
           icon: User,
+          permission: "undertaking",
         },
       ],
     },
@@ -521,11 +635,13 @@ export const getEditModeData = (slug) => ({
       url: `/dashboard/workstation/edit/${slug}/medical-centre`,
       icon: Syringe,
       items: [],
+      permission: "medical_centre",
     },
     {
       title: "Production",
       url: ``,
       icon: FolderOpen,
+      permission: "production",
       items: [
         {
           title: "Appendix A",
@@ -837,6 +953,7 @@ export const getEditModeData = (slug) => ({
       title: "Documents",
       url: ``,
       icon: FilePlus,
+      permission: "documents",
       items: [
         {
           title: "Conflict Search",
@@ -874,6 +991,7 @@ export const getEditModeData = (slug) => ({
       title: "Correspondence",
       url: ``,
       icon: MessageSquare,
+      permission: "correspondence",
       items: [
         {
           title: "Client",
@@ -887,17 +1005,20 @@ export const getEditModeData = (slug) => ({
       url: `/dashboard/workstation/edit/${slug}/insurance-examination`,
       icon: BadgeCheck,
       items: [],
+      permission: "insurance_examination",
     },
     {
       title: "VSR Insurance Examination",
       url: `/dashboard/workstation/edit/${slug}/vsr-insurance-examination`,
       icon: BookCheck,
       items: [],
+      permission: "vsr_insurance_examination",
     },
     {
       title: "Tracking",
       url: ``,
       icon: LocateFixed,
+      permission: "tracking",
       items: [
         {
           title: "OCF's Production",
@@ -1005,6 +1126,7 @@ export const getEditModeData = (slug) => ({
       title: "Accounting",
       url: ``,
       icon: Receipt,
+      permission: "accounting",
       items: [
         {
           title: "Billing",
@@ -1052,17 +1174,37 @@ export const getEditModeData = (slug) => ({
       url: `/dashboard/workstation/edit/${slug}/task`,
       icon: ClipboardList,
       items: [],
+      permission: "task",
     },
     {
       title: "Event",
       url: `/dashboard/workstation/edit/${slug}/event`,
       icon: CalendarIcon,
       items: [],
+      permission: "event",
     },
     {
       title: "Email",
       url: `/dashboard/workstation/edit/${slug}/email`,
       icon: Mail,
+      permission: "emails",
+      items: [
+        {
+          title: "Inbox",
+          url: `/dashboard/workstation/edit/${slug}/inbox`,
+          icon: User,
+        },
+        {
+          title: "Sent",
+          url: `/dashboard/workstation/edit/${slug}/sent`,
+          icon: User,
+        },
+        {
+          title: "Draft",
+          url: `/dashboard/workstation/edit/${slug}/draft`,
+          icon: User,
+        },
+      ],
       items: [],
     },
   ],

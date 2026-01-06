@@ -19,17 +19,16 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 import { removeItem } from "@/utils/local_storage";
+import { clearPermissions } from "@/utils/permissions";
 import { useNavigate } from "react-router-dom";
 export function NavUser({ user }) {
   const { isMobile } = useSidebar();
   const navigate = useNavigate();
   const onLogout = () => {
-    console.log("Logout clicked");
     removeItem("token");
     removeItem("userId");
     removeItem("userRole");
-    // console.log("❌ Removed: userRole");
-
+    clearPermissions();
     navigate("/login", { replace: true });
   };
   return (
@@ -72,7 +71,7 @@ export function NavUser({ user }) {
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
-              <DropdownMenuItem>
+              <DropdownMenuItem onClick={() => navigate("/dashboard/account")}>
                 <BadgeCheck />
                 Account
               </DropdownMenuItem>

@@ -11,6 +11,7 @@ import { apiService } from "@/api/api_service/apiService";
 import { setToken } from "@/utils/auth";
 import { setItem } from "@/utils/local_storage";
 import { resetEcho } from "@/hooks/echo";
+import { fetchUserPermissions, setPermissions } from "@/utils/permissions";
 import { Mail, Eye, EyeOff } from "lucide-react";
 const generateBrowserToken = () => {
   const canvas = document.createElement("canvas");
@@ -58,16 +59,13 @@ export function LoginForm() {
         data,
         removeToken: true,
       }),
-    onSuccess: (data) => {
+    onSuccess: async (data) => {
       const apiResponse = data?.response || data;
-      console.log("API Response:", apiResponse);
       if (!apiResponse?.token) {
         toast.error(apiResponse?.message || "Login failed: No token received.");
         return;
       }
       const userData = apiResponse.user;
-      console.log("User ID:", userData.id);
-      console.log("User role:", userData.role_id);
       setToken(apiResponse.token);
       setItem({
         userId: userData.id,
@@ -76,10 +74,16 @@ export function LoginForm() {
         userRole: userData.role_id,
         firmId: userData.firm_id,
       });
-      
-      // Reset Echo if token is changed 
+
+      // Fetch and store user permissions
+      if (userData.role_id) {
+        const permissions = await fetchUserPermissions(userData.role_id);
+        setPermissions(permissions);
+      }
+
+      // Reset Echo if token is changed
       resetEcho();
-      
+
       if (rememberMe) {
         localStorage.setItem("rememberedEmail", formData.email);
         localStorage.setItem("rememberedPassword", formData.password);
