@@ -61,7 +61,7 @@ const FinalSettlement = () => {
   }, 0);
 
   const totalReceipts = editableRecords.reduce((sum, record) => {
-    if (isBalancePayoutRow(record.particular)) return sum;
+    // if (isBalancePayoutRow(record.particular)) return sum;
     return sum + (parseFloat(record.receipts) || 0);
   }, 0);
 
