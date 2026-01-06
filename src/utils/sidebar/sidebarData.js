@@ -49,6 +49,7 @@ import {
   LogOutIcon,
   Wallet,
   Banknote,
+  Banknote
 } from "lucide-react";
 import { getItem } from "../local_storage";
 
@@ -1128,15 +1129,44 @@ export const getEditModeData = (slug) => ({
       permission: "accounting",
       items: [
         {
-          title: "Client Memo Settlement",
-          url: `/dashboard/workstation/edit/${slug}/client-memo-settlement`,
-          icon: User,
+          title: "Billing",
+          url: `/dashboard/workstation/edit/${slug}/billing`,
+          icon: Wallet,
+          items: [
+            {
+              title: "Client Memo Settlement",
+              url: `/dashboard/workstation/edit/${slug}/client-memo-settlement`,
+              icon: User,
+            },
+            {
+              title: "Cost",
+              url: `/dashboard/workstation/edit/${slug}/cost`,
+              icon: User,
+            },
+            {
+              title: "Invoice",
+              url: `/dashboard/workstation/edit/${slug}/invoice`,
+              icon: User,
+            },
+          ],
         },
         {
-          title: "Cost",
-          url: `/dashboard/workstation/edit/${slug}/cost`,
-          icon: User,
-        },
+          title: "Banking",
+          url: ``,
+          icon: Banknote,
+          items: [
+            {
+              title: "Bank Transaction",
+              url: `/dashboard/workstation/edit/${slug}/bank-transaction`,
+              icon: User,
+            },
+            {
+              title: "Third Party Invoice",
+              url: `/dashboard/workstation/edit/${slug}/third-party-invoice`,
+              icon: User,
+            },
+          ],
+        }
       ],
     },
     {
@@ -1155,7 +1185,7 @@ export const getEditModeData = (slug) => ({
     },
     {
       title: "Email",
-      url: ``,
+      url: `/dashboard/workstation/edit/${slug}/email`,
       icon: Mail,
       permission: "emails",
       items: [
@@ -1175,6 +1205,7 @@ export const getEditModeData = (slug) => ({
           icon: User,
         },
       ],
+      items: [],
     },
   ],
   projects: [],

@@ -1,3 +1,6 @@
+import { add } from "date-fns";
+import { de, th } from "date-fns/locale";
+
 export const endpoints = {
   login: "api/login",
   signup: "api/firm/register",
@@ -298,6 +301,7 @@ export const endpoints = {
   threadView: "api/v2/email/thread",
   unlinkAccount: "api/v2/email/accounts",
   showEmail: "api/v2/email/show",
+  unlinkAttachment: "api/v2/email/unlink",
   //Notification
   getNotification: "api/v2/notifications",
   readNotificationById: "api/v2/notifications/read",
@@ -337,4 +341,44 @@ export const endpoints = {
   createRole: "api/v2/setup/roles/store",
   updateRole: "api/v2/setup/roles/update",
   deleteRole: "api/v2/setup/roles/delete",
+
+  // Accounting
+  accountList: "api/v2/file/accounting/expence/list",
+  singleCost: "api/v2/file/accounting/expence/show",
+  deleteCost: "api/v2/file/accounting/expence/delete",
+  addCost: "api/v2/file/accounting/expence/save",
+  updateCost: "api/v2/file/accounting/expence/update",
+  accountingMeta: "api/v2/file/accounting/expence/meta",
+
+  // Bank Transactions (Deposits)
+  depositList: "api/v2/file/accounting/deposit/list",
+  depositSave: "api/v2/file/accounting/deposit/save",
+  depositUpdate: "api/v2/file/accounting/deposit/update",
+  depositDelete: "api/v2/file/accounting/deposit/delete",
+  depositShow: "api/v2/file/accounting/deposit/show",
+  accidentBenifitMeta: "api/v2/file/accident-benefits/meta",
+
+  // Third Party Invoice
+  thirdPartyInvoiceList: "api/v2/file/accounting/third-party-invoices/list",
+  addThirdPartyInvoice: "api/v2/file/accounting/third-party-invoices/save",
+  updateThirdPartyInvoice: "api/v2/file/accounting/third-party-invoices/update",
+  deleteThirdPartyInvoice: "api/v2/file/accounting/third-party-invoices/delete",
+  thirdPartyInvoiceShow: "api/v2/file/accounting/third-party-invoices/show",
+  unlinkThirdPartyInvoice: "api/v2/file/accounting/pay-bills/unlink",
+  payBillsList: "api/v2/file/accounting/pay-bills/list",
+  payBills: "api/v2/file/accounting/pay-bills/pay",
+
+  // Invoice
+  invoiceList: "api/v2/file/accounting/invoice/list",
+  invoiceShow: "api/v2/file/accounting/invoice/show",
+  invoiceUnbilledList: "api/v2/file/accounting/invoice/unbilled-list",
+  invoiceCreate: "api/v2/file/accounting/invoice/create-invoice",
+  invoiceUpdate: "api/v2/file/accounting/invoice/update-invoice",
+  invoiceDelete: "api/v2/file/accounting/invoice/delete",
+  invoicePaymentDetail: "api/v2/file/accounting/invoice-payments/invoice-detail",
+  invoicePaymentSaveTrust: "api/v2/file/accounting/invoice-payments/save/trust-bank",
+  invoicePaymentSaveOperating: "api/v2/file/accounting/invoice-payments/save/operating-bank",
+  invoicePaymentHistory: "api/v2/file/accounting/invoice-payments/invoice",
+  invoicePaymentDelete: "api/v2/file/accounting/invoice-payments/delete",
 };
+

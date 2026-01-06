@@ -84,9 +84,7 @@ import SuePage from "@/pages/sue/sue_editor";
 import NonEngagementPage from "@/pages/non_engagement/nonEngagement_editor";
 import ClientSettlementPage from "@/pages/clientSettlement/clientSettlement_editor";
 import Cost from "@/pages/cost";
-import SoftCostPage from "@/pages/cost/components/soft_editor";
-import HardCostPage from "@/pages/cost/components/hard_editor";
-import TimeCardPage from "@/pages/cost/components/timeline_editor";
+import BankTranscation from "@/pages/bank_transcation";
 import TaskPage from "@/pages/task/components/task_editor";
 import Task from "@/pages/task";
 import CommentPage from "@/pages/task/components/comment_editor";
@@ -133,6 +131,9 @@ import FirmSettings from "@/pages/setup/firm";
 import Master from "@/pages/setup/master";
 import Permissions from "@/pages/setup/roles/index";
 import RoleDetails from "@/pages/setup/roles/components/RoleDetails";
+import InternalEmail from "@/pages/internal_email";
+import ThirdPartyInvoice from "@/pages/third_party_invoice";
+import Invoice from "@/pages/invoice";
 
 const Router = () => {
   return (
@@ -449,17 +450,14 @@ const Router = () => {
             element={<Cost />}
           />
           <Route
-            path="/dashboard/cost-soft/add/:slug"
-            element={<SoftCostPage />}
+            path="/dashboard/workstation/edit/:slug/bank-transaction"
+            element={<BankTranscation />}
           />
           <Route
-            path="/dashboard/cost-hard/add/:slug"
-            element={<HardCostPage />}
+            path="/dashboard/workstation/edit/:slug/third-party-invoice"
+            element={<ThirdPartyInvoice />}
           />
-          <Route
-            path="/dashboard/cost-timecard/add/:slug"
-            element={<TimeCardPage />}
-          />
+          <Route path="/dashboard/workstation/edit/:slug/invoice" element={<Invoice />} />
           <Route
             path="/dashboard/workstation/edit/:slug/task"
             element={<Task />}
@@ -631,6 +629,10 @@ const Router = () => {
           <Route
             path="/dashboard/workstation/edit/:slug/event"
             element={<InternalCalendar />}
+          />
+          <Route
+            path="/dashboard/workstation/edit/:slug/email"
+            element={<InternalEmail />}
           />
           <Route path="/dashboard/report" element={<ReportPage />} />
           <Route
