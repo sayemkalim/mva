@@ -301,6 +301,7 @@ export const endpoints = {
   threadView: "api/v2/email/thread",
   unlinkAccount: "api/v2/email/accounts",
   showEmail: "api/v2/email/show",
+  unlinkAttachment: "api/v2/email/unlink",
   //Notification
   getNotification: "api/v2/notifications",
   readNotificationById: "api/v2/notifications/read",
@@ -341,5 +342,13 @@ export const endpoints = {
   thirdPartyInvoiceShow: "api/v2/file/accounting/third-party-invoices/show",
   unlinkThirdPartyInvoice: "api/v2/file/accounting/pay-bills/unlink",
   payBillsList: "api/v2/file/accounting/pay-bills/list",
-  payBills: "api/v2/file/accounting/pay-bills/pay"
+  payBills: "api/v2/file/accounting/pay-bills/pay",
+
+  // Invoice
+  invoiceList: "api/v2/file/accounting/invoice/list",
+  invoiceShow: "api/v2/file/accounting/invoice/show",
+  invoiceUnbilledList: "api/v2/file/accounting/invoice/unbilled-list",
+  invoiceCreate: "api/v2/file/accounting/invoice/create-invoice",
+  invoiceUpdate: "api/v2/file/accounting/invoice/update-invoice",
+  invoiceDelete: "api/v2/file/accounting/invoice-write-off/delete",
 };

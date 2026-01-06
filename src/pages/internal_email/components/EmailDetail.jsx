@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { fetchEmailById, fetchThreadView, deleteEmail, moveEmail, trashEmail, starEmail, linkEmailToLabel, unlinkEmailFromLabel, fetchLabels } from "../helpers";
+import { unlinkAccount } from "../helpers/unlinkAttachment";
 import { format, isValid } from "date-fns";
 import { Button } from "@/components/ui/button";
 import {
@@ -11,6 +12,7 @@ import {
   Star,
   Tag,
   Unlink,
+  Link2Off,
 } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
@@ -42,7 +44,6 @@ const safeFormat = (dateStr, formatStr) => {
 };
 
 const EmailDetail = ({ email, onBack, onDelete, onMove, onReply, accounts, defaultAccount, selectedFolder, slug }) => {
-  console.log("selectedFolder >>>>>>>>>>>>>>>>>>>>>>>>>>>", selectedFolder);
   const queryClient = useQueryClient();
   const emailId = email?.id;
 
@@ -56,6 +57,7 @@ const EmailDetail = ({ email, onBack, onDelete, onMove, onReply, accounts, defau
   const [isTrashDialogOpen, setIsTrashDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [isMoveDialogOpen, setIsMoveDialogOpen] = useState(false);
+  const [isUnlinkContactDialogOpen, setIsUnlinkContactDialogOpen] = useState(false);
   const [fileNo, setFileNo] = useState("");
   const [isReplying, setIsReplying] = useState(false);
   const [replyInitialData, setReplyInitialData] = useState(null);
@@ -189,6 +191,28 @@ const EmailDetail = ({ email, onBack, onDelete, onMove, onReply, accounts, defau
     },
   });
 
+  const unlinkContactMutation = useMutation({
+    mutationFn: () => unlinkAccount(emailDetail.id),
+    onSuccess: (response) => {
+        toast.success(response?.message || "Contact unlinked successfully");
+        queryClient.invalidateQueries(["emails"]);
+        queryClient.invalidateQueries(["email", emailId]);
+        setIsUnlinkContactDialogOpen(false);
+    },
+    onError: (error) => {
+      console.error("Error unlinking contact:", error);
+      toast.error(error?.response?.data?.message || "Failed to unlink contact");
+    },
+  });
+
+  const handleUnlinkContact = () => {
+    setIsUnlinkContactDialogOpen(true);
+  };
+
+  const confirmUnlinkContact = () => {
+    unlinkContactMutation.mutate();
+  };
+
   const isLabelView = selectedFolder && !["inbox", "sent", "draft", "trash", "starred"].includes(selectedFolder);
   const currentLabel = isLabelView ? labelsData?.response?.labels?.find(l => l.id === selectedFolder) : null;
 
@@ -244,6 +268,15 @@ const EmailDetail = ({ email, onBack, onDelete, onMove, onReply, accounts, defau
           <Button variant="ghost" size="icon" onClick={onBack}>
             <ArrowLeft className="size-4" />
           </Button>
+          <div className="flex items-center justify-center gap-2">
+            <p className="text-xl font-bold">{emailDetail?.contactInformation}</p>
+            {emailDetail?.contactInformation && emailDetail?.contactInformation.length > 0 && (
+              <Unlink
+                className="size-4 font-bold cursor-pointer hover:text-destructive transition-colors"
+                onClick={handleUnlinkContact}
+              />
+            )}
+          </div>
           <div className="flex items-center gap-2">
             <Button
               variant="ghost"
@@ -500,6 +533,33 @@ const EmailDetail = ({ email, onBack, onDelete, onMove, onReply, accounts, defau
               disabled={moveMutation.isPending}
             >
               {moveMutation.isPending ? "Moving..." : "Move"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={isUnlinkContactDialogOpen} onOpenChange={setIsUnlinkContactDialogOpen}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Unlink Contact</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to unlink this contact from the email? This will remove the contact association.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="mt-4">
+            <Button
+              variant="outline"
+              onClick={() => setIsUnlinkContactDialogOpen(false)}
+              disabled={unlinkContactMutation.isPending}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={confirmUnlinkContact}
+              disabled={unlinkContactMutation.isPending}
+            >
+              {unlinkContactMutation.isPending ? "Unlinking..." : "Unlink"}
             </Button>
           </DialogFooter>
         </DialogContent>

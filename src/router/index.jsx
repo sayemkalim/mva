@@ -125,6 +125,7 @@ import ExportVsrExamination from "@/pages/generate_report/vsr_examination";
 import Email from "@/pages/email";
 import InternalEmail from "@/pages/internal_email";
 import ThirdPartyInvoice from "@/pages/third_party_invoice";
+import Invoice from "@/pages/invoice";
 
 const Router = () => {
   return (
@@ -448,6 +449,7 @@ const Router = () => {
             path="/dashboard/workstation/edit/:slug/third-party-invoice"
             element={<ThirdPartyInvoice />}
           />
+          <Route path="/dashboard/workstation/edit/:slug/invoice" element={<Invoice />} />
           <Route
             path="/dashboard/workstation/edit/:slug/task"
             element={<Task />}
