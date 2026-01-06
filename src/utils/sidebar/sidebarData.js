@@ -49,7 +49,6 @@ import {
   LogOutIcon,
   Wallet,
   Banknote,
-  Banknote
 } from "lucide-react";
 import { getItem } from "../local_storage";
 
@@ -1166,7 +1165,7 @@ export const getEditModeData = (slug) => ({
               icon: User,
             },
           ],
-        }
+        },
       ],
     },
     {
