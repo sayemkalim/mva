@@ -172,17 +172,13 @@ export default function Insurance() {
     }));
   };
   const handleCheckboxChange = (checked) => {
-    let applicantName = "";
-    
     if (checked) {
-      // Retrieve workstation data from localStorage
+      let applicantName = "";
       const workstationData = localStorage.getItem("workstationData");
       
       if (workstationData) {
         try {
           const parsedData = JSON.parse(workstationData);
-          
-          // Find the current applicant by slug
           const currentApplicant = parsedData.find(
             (item) => item.slug === slug
           );
@@ -195,17 +191,22 @@ export default function Insurance() {
           toast.error("Failed to retrieve applicant information");
         }
       }
-    }
-    
-    setFormData((prev) => ({
-      ...prev,
-      policy_holder_same_as_applicant: checked,
-      ...(checked && {
+      
+      setFormData((prev) => ({
+        ...prev,
+        policy_holder_same_as_applicant: true,
         name: applicantName || "",
         type_of_ownership_id: null,
-      }),
-    }));
+      }));
+    } else {
+      setFormData((prev) => ({
+        ...prev,
+        policy_holder_same_as_applicant: false,
+        name: "",
+      }));
+    }
   };
+  
   
   const handleSubmit = async (e) => {
     e.preventDefault();
