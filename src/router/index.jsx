@@ -134,6 +134,7 @@ import RoleDetails from "@/pages/setup/roles/components/RoleDetails";
 import InternalEmail from "@/pages/internal_email";
 import ThirdPartyInvoice from "@/pages/third_party_invoice";
 import Invoice from "@/pages/invoice";
+import FinalSettlement from "@/pages/final_settlement";
 
 const Router = () => {
   return (
@@ -458,6 +459,7 @@ const Router = () => {
             element={<ThirdPartyInvoice />}
           />
           <Route path="/dashboard/workstation/edit/:slug/invoice" element={<Invoice />} />
+          <Route path="/dashboard/workstation/edit/:slug/final-settlement" element={<FinalSettlement />} />
           <Route
             path="/dashboard/workstation/edit/:slug/task"
             element={<Task />}
