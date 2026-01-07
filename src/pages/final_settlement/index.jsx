@@ -1,9 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useParams } from 'react-router-dom';
 import { Navbar2 } from '@/components/navbar2';
 import NavbarItem from '@/components/navbar/navbar_item';
 import { Card } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Download, Save } from 'lucide-react';
+import { toast } from 'sonner';
 import {
   Table,
   TableHeader,
@@ -17,9 +20,12 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 import Typography from '@/components/typography';
 import { fetchFinalSettlement } from './helpers/fetchFinalSettlement';
+import { saveFinalSettlement } from './helpers/saveFinalSettlement';
+import { fetchMeta } from '../bank_transcation/helper/fetchMeta';
 
 const FinalSettlement = () => {
   const { slug } = useParams();
+  const queryClient = useQueryClient();
   const [editableRecords, setEditableRecords] = useState([]);
 
   const breadcrumbs = [
@@ -41,6 +47,15 @@ const FinalSettlement = () => {
   const settlementData = apiResponse?.response?.data || {};
   const records = settlementData?.records || [];
 
+
+  const { data: metaData } = useQuery({
+    queryKey: ["accountingMeta", slug],
+    queryFn: () => fetchMeta(slug),
+    enabled: !!slug,
+  });
+
+  const hstRate = metaData?.hst || 13;
+
   useEffect(() => {
     if (records.length > 0) {
       setEditableRecords(records.map(record => ({
@@ -51,12 +66,12 @@ const FinalSettlement = () => {
     }
   }, [records]);
 
-  const isBalancePayoutRow = (particular) => {
-    return particular?.toLowerCase().includes('balance payout');
+  const isBalancePayoutRow = (record) => {
+    return record.item_slug === 'balance_payout';
   };
 
   const totalExpenditure = editableRecords.reduce((sum, record) => {
-    if (isBalancePayoutRow(record.particular)) return sum;
+    // if (isBalancePayoutRow(record)) return sum;
     return sum + (parseFloat(record.expenditure) || 0);
   }, 0);
 
@@ -80,13 +95,13 @@ const FinalSettlement = () => {
 
       if (field === 'expenditure' || field === 'receipts') {
         const contingencyFeeIndex = updated.findIndex(r =>
-          r.particular?.toLowerCase().includes('contingency fee')
+          r.item_slug === 'contingency_fee'
         );
         const disbursementsIndex = updated.findIndex(r =>
-          r.particular?.toLowerCase().includes('disbursement')
+          r.item_slug === 'disbursements'
         );
         const hstIndex = updated.findIndex(r =>
-          r.particular?.toLowerCase().includes('hst')
+          r.item_slug === 'hst'
         );
 
         if (hstIndex !== -1 && (contingencyFeeIndex !== -1 || disbursementsIndex !== -1)) {
@@ -97,7 +112,7 @@ const FinalSettlement = () => {
             ? parseFloat(updated[disbursementsIndex].expenditure) || 0
             : 0;
 
-          const hstValue = (contingencyFee + disbursements) * 0.13;
+          const hstValue = (contingencyFee + disbursements) * (Number(hstRate) / 100);
           updated[hstIndex] = {
             ...updated[hstIndex],
             expenditure: hstValue.toFixed(2),
@@ -105,12 +120,12 @@ const FinalSettlement = () => {
         }
 
         const balancePayoutIndex = updated.findIndex(r =>
-          r.particular?.toLowerCase().includes('balance payout')
+          r.item_slug === 'balance_payout'
         );
 
         if (balancePayoutIndex !== -1) {
           const totalExp = updated.reduce((sum, record) => {
-            if (record.particular?.toLowerCase().includes('balance payout')) return sum;
+            if (record.item_slug === 'balance_payout') return sum;
             return sum + (parseFloat(record.expenditure) || 0);
           }, 0);
 
@@ -122,12 +137,14 @@ const FinalSettlement = () => {
               ...updated[balancePayoutIndex],
               expenditure: balance.toFixed(2),
               receipts: '',
+              particular: 'Balance payout after all the expenses – client name (auto fill)'
             };
           } else {
             updated[balancePayoutIndex] = {
               ...updated[balancePayoutIndex],
               expenditure: '',
               receipts: Math.abs(balance).toFixed(2),
+              particular: 'Cash Shortfall',
             };
           }
         }
@@ -135,6 +152,38 @@ const FinalSettlement = () => {
 
       return updated;
     });
+  };
+
+  // Save Mutation for final settlement
+  const saveMutation = useMutation({
+    mutationFn: (data) => saveFinalSettlement(slug, data),
+    onSuccess: (response) => {
+      if (response?.response?.Apistatus === true) {
+        toast.success("Final settlement saved successfully");
+        queryClient.invalidateQueries(["finalSettlement", slug]);
+      } else {
+        toast.error(response.response?.message);
+        queryClient.invalidateQueries(["finalSettlement", slug]);
+      }
+    },
+    onError: (error) => {
+      console.error(error);
+      toast.error("Failed to save final settlement");
+    }
+  });
+
+  const handleSave = () => {
+    const payload = {
+      rows: [
+        ...editableRecords.map(record => ({
+          particular: record.particular,
+          expenditure: parseFloat(record.expenditure) || 0,
+          receipts: parseFloat(record.receipts) || 0,
+          item_slug: record.item_slug
+        })),
+      ]
+    };
+    saveMutation.mutate(payload);
   };
 
   const renderLoadingState = () => (
@@ -199,9 +248,9 @@ const FinalSettlement = () => {
               </TableCell>
               <TableCell className="py-3 px-6 border border-border">
                 {index > 0 ? (
-                  record.particular?.toLowerCase().includes('hst') ||
-                    record.particular?.toLowerCase().includes('balance payout') ? (
-                    record.expenditure ? (
+                  record.item_slug === 'hst' ||
+                    record.item_slug === 'balance_payout' ? (
+                    record.expenditure > 0 ? (
                       <input
                         type="text"
                         value={parseFloat(record.expenditure).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
@@ -234,7 +283,7 @@ const FinalSettlement = () => {
                     onChange={(e) => handleInputChange(index, 'receipts', e.target.value)}
                     className="text-right w-full font-mono bg-transparent border-none outline-none text-foreground placeholder:text-muted-foreground/50 focus:bg-muted/30 rounded px-1 transition-colors"
                   />
-                ) : record.particular?.toLowerCase().includes('balance payout') && record.receipts ? (
+                ) : record.item_slug === 'balance_payout' && record.receipts > 0 ? (
                   <input
                     type="text"
                     value={parseFloat(record.receipts).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
@@ -276,6 +325,22 @@ const FinalSettlement = () => {
       <NavbarItem title="Final Settlement" slug={slug} breadcrumbs={breadcrumbs} />
 
       <div className="px-4">
+        <div className="flex justify-start mb-4 gap-2">
+          <Button
+            onClick={handleSave}
+            className="flex items-center gap-2 cursor-pointer"
+            disabled={saveMutation.isPending}
+          >
+            <Save className="h-4 w-4" />
+            {saveMutation.isPending ? 'Saving...' : 'Save'}
+          </Button>
+          <Button
+            className="flex items-center gap-2 cursor-pointer"
+          >
+            <Download className="h-4 w-4" />
+            Download
+          </Button>
+        </div>
         {isLoading && renderLoadingState()}
         {error && renderErrorState()}
         {!isLoading && !error && records.length === 0 && renderEmptyState()}

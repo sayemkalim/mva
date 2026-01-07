@@ -384,5 +384,8 @@ export const endpoints = {
 
   // Final Settlement
   finalSettlementShow: "api/v2/file/accounting/final-settlement/show",
+  finalSettlementSave: "api/v2/file/accounting/final-settlement/save",
+  downloadFinalSettlement: "api/v2/file/accounting/final-settlement/download",
+
 };
 
