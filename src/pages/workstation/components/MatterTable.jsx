@@ -80,7 +80,6 @@ const MatterTable = ({ setBlogsLength }) => {
     navigate(`/dashboard/workstation/edit/${workstation.slug}`);
   };
 
-  // Details navigation
   const onNavigateDetails = (workstation) => {
     if (!workstation?.slug) {
       toast.error("Invalid workstation data");

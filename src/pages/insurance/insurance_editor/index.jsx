@@ -97,6 +97,30 @@ export default function Insurance() {
     }
   }, [slug, navigate]);
   useEffect(() => {
+    if (formData.policy_holder_same_as_applicant && !formData.name) {
+      const workstationData = localStorage.getItem("workstationData");
+      
+      if (workstationData) {
+        try {
+          const parsedData = JSON.parse(workstationData);
+          const currentApplicant = parsedData.find(
+            (item) => item.slug === slug
+          );
+          
+          if (currentApplicant && currentApplicant.name) {
+            setFormData((prev) => ({
+              ...prev,
+              name: currentApplicant.name,
+            }));
+          }
+        } catch (error) {
+          console.error("Error loading applicant name:", error);
+        }
+      }
+    }
+  }, [formData.policy_holder_same_as_applicant, slug]);
+  
+  useEffect(() => {
     if (insuranceData) {
       console.log("📝 Populating form with existing data:", insuranceData);
 
@@ -148,15 +172,41 @@ export default function Insurance() {
     }));
   };
   const handleCheckboxChange = (checked) => {
+    let applicantName = "";
+    
+    if (checked) {
+      // Retrieve workstation data from localStorage
+      const workstationData = localStorage.getItem("workstationData");
+      
+      if (workstationData) {
+        try {
+          const parsedData = JSON.parse(workstationData);
+          
+          // Find the current applicant by slug
+          const currentApplicant = parsedData.find(
+            (item) => item.slug === slug
+          );
+          
+          if (currentApplicant && currentApplicant.name) {
+            applicantName = currentApplicant.name;
+          }
+        } catch (error) {
+          console.error("Error parsing workstation data:", error);
+          toast.error("Failed to retrieve applicant information");
+        }
+      }
+    }
+    
     setFormData((prev) => ({
       ...prev,
       policy_holder_same_as_applicant: checked,
       ...(checked && {
+        name: applicantName || "",
         type_of_ownership_id: null,
-        name: "Applicant Name",
       }),
     }));
   };
+  
   const handleSubmit = async (e) => {
     e.preventDefault();
     const isAddressFilled = (address) => {
