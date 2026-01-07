@@ -5,7 +5,7 @@ import { Navbar2 } from '@/components/navbar2';
 import NavbarItem from '@/components/navbar/navbar_item';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Download, Save, Plus } from 'lucide-react';
+import { Download, Save, Plus, Trash2 } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -173,7 +173,8 @@ const FinalSettlement = () => {
       ...newItem,
       item_slug: slug,
       expenditure: parseFloat(newItem.expenditure) || 0,
-      receipts: 0
+      receipts: 0,
+      is_deletable: true
     };
 
     setEditableRecords(prev => {
@@ -219,6 +220,42 @@ const FinalSettlement = () => {
 
     setIsAddDialogOpen(false);
     setNewItem({ particular: '', expenditure: '' });
+  };
+
+  const handleDeleteRow = (index) => {
+    setEditableRecords(prev => {
+      const updated = [...prev];
+      updated.splice(index, 1);
+
+      // Recalculate Balance Payout
+      const balancePayoutIndex = updated.findIndex(r => r.item_slug === 'balance_payout');
+      if (balancePayoutIndex !== -1) {
+        const totalExp = updated.reduce((sum, record) => {
+          if (record.item_slug === 'balance_payout') return sum;
+          return sum + (parseFloat(record.expenditure) || 0);
+        }, 0);
+
+        const receivedAmount = parseFloat(updated[0].receipts) || 0;
+        const balance = receivedAmount - totalExp;
+
+        if (balance >= 0) {
+          updated[balancePayoutIndex] = {
+            ...updated[balancePayoutIndex],
+            expenditure: balance.toFixed(2),
+            receipts: '',
+            particular: 'Balance payout after all the expenses – client name (auto fill)'
+          };
+        } else {
+          updated[balancePayoutIndex] = {
+            ...updated[balancePayoutIndex],
+            expenditure: '',
+            receipts: Math.abs(balance).toFixed(2),
+            particular: 'Cash Shortfall',
+          };
+        }
+      }
+      return updated;
+    });
   };
 
   // Save Mutation for final settlement
@@ -300,7 +337,7 @@ const FinalSettlement = () => {
       <Table className="border-collapse">
         <TableHeader>
           <TableRow className="bg-muted/40">
-            <TableHead className="font-semibold text-foreground py-4 px-6 w-[60%] border border-border">
+            <TableHead className="font-semibold text-foreground py-4 px-6 w-[55%] border border-border">
               <Typography variant="p" className="font-semibold">
                 Particulars/Description
               </Typography>
@@ -315,6 +352,7 @@ const FinalSettlement = () => {
                 Receipts
               </Typography>
             </TableHead>
+            <TableHead className="w-[50px] border border-border"></TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -375,6 +413,19 @@ const FinalSettlement = () => {
                   />
                 ) : null}
               </TableCell>
+              <TableCell className="py-3 px-6 border border-border text-center">
+                {record.is_deletable && (
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => handleDeleteRow(index)}
+                    className="h-8 w-8 text-destructive hover:text-destructive/90 hover:bg-destructive/10"
+                    title="Delete Row"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                )}
+              </TableCell>
             </TableRow>
           ))}
         </TableBody>
@@ -395,6 +446,7 @@ const FinalSettlement = () => {
                 {totalReceipts.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
               </Typography>
             </TableCell>
+            <TableCell className="border border-border"></TableCell>
           </TableRow>
         </TableFooter>
       </Table>
