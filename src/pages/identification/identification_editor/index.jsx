@@ -20,6 +20,7 @@ import {
   Eye,
   ChevronsUpDown,
   Check,
+  Download, // ✅ Add Download icon
 } from "lucide-react";
 import { toast } from "sonner";
 import { createIdentification } from "../helpers/createIdentification";
@@ -178,13 +179,11 @@ export default function Identification() {
   const createMutation = useMutation({
     mutationFn: createIdentification,
     onSuccess: (apiResponse) => {
-      // require Apistatus true in response
       const apiStatus =
         apiResponse?.response?.Apistatus ?? apiResponse?.Apistatus ?? false;
       if (apiStatus === true) {
         toast.success("Identification saved successfully!");
       } else {
-        // show errors if available
         const errors = apiResponse?.response?.errors ?? apiResponse?.errors;
         if (errors && typeof errors === "object") {
           const messages = [];
@@ -235,6 +234,7 @@ export default function Identification() {
     }
   }, [slug, navigate]);
 
+  // ✅ Backend se image URL load karna
   useEffect(() => {
     if (
       identificationData &&
@@ -253,8 +253,11 @@ export default function Identification() {
           identification_country: item.identification_country || "",
           identification_number: item.identification_number || "",
           file: null,
-          fileName: "",
-          filePreview: null,
+          // ✅ Backend se filename aur preview URL set karna
+          fileName: item.attachment
+            ? `${item.attachment.original_name}.${item.attachment.extension}`
+            : "",
+          filePreview: item.attachment?.path || null,
           isDragging: false,
           isUploading: false,
         }))
@@ -708,7 +711,7 @@ export default function Identification() {
                   <div className="space-y-2 md:col-span-2 lg:col-span-3">
                     <Label className="text-gray-700 font-medium">
                       Upload Document{" "}
-                      <span className="text-red-500">(Max 1M)</span>
+                      <span className="text-red-500">(Max 1MB)</span>
                       {identification.attachment_id && (
                         <span className="ml-2 text-xs text-green-600">
                           ✓ Uploaded (ID: {identification.attachment_id})
@@ -751,17 +754,43 @@ export default function Identification() {
                             </div>
                           )}
 
-                          <button
-                            type="button"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              removeFile(index);
-                            }}
-                            className="absolute top-6 right-6 z-10 w-8 h-8 bg-red-500 hover:bg-red-600 text-white rounded-full flex items-center justify-center transition-colors shadow-lg"
-                            disabled={identification.isUploading}
-                          >
-                            <X className="w-5 h-5" />
-                          </button>
+                          {/* ✅ Action Buttons - Download & Remove */}
+                          <div className="absolute top-6 right-6 z-10 flex gap-2">
+                            {/* Download Button */}
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                const link = document.createElement("a");
+                                link.href = identification.filePreview;
+                                link.download = identification.fileName || "document.png";
+                                link.target = "_blank";
+                                document.body.appendChild(link);
+                                link.click();
+                                document.body.removeChild(link);
+                                toast.success("Download started!");
+                              }}
+                              className="w-8 h-8 bg-blue-500 hover:bg-blue-600 text-white rounded-full flex items-center justify-center transition-colors shadow-lg"
+                              title="Download Document"
+                              disabled={identification.isUploading}
+                            >
+                              <Download className="w-4 h-4" />
+                            </button>
+
+                            {/* Remove Button */}
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                removeFile(index);
+                              }}
+                              className="w-8 h-8 bg-red-500 hover:bg-red-600 text-white rounded-full flex items-center justify-center transition-colors shadow-lg"
+                              title="Remove Document"
+                              disabled={identification.isUploading}
+                            >
+                              <X className="w-4 h-4" />
+                            </button>
+                          </div>
 
                           <div className="flex items-center gap-4">
                             <img
@@ -785,15 +814,6 @@ export default function Identification() {
                                 </p>
                               )}
                               <div className="flex gap-2 mt-2">
-                                {/* Download Button */}
-                                <a
-                                  href={identification.filePreview}
-                                  download={identification.fileName}
-                                  className="inline-flex items-center px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700 text-xs"
-                                  onClick={(e) => e.stopPropagation()}
-                                >
-                                  Download
-                                </a>
                                 {/* Preview Button */}
                                 <button
                                   type="button"
@@ -899,13 +919,23 @@ export default function Identification() {
                     alt="Full Preview"
                     className="max-w-full max-h-[70vh] object-contain rounded-lg"
                   />
-                  <a
-                    href={identifications[previewIndex].filePreview}
-                    download={identifications[previewIndex].fileName}
+        
+                  <button
+                    onClick={() => {
+                      const link = document.createElement("a");
+                      link.href = identifications[previewIndex].filePreview;
+                      link.download = identifications[previewIndex].fileName || "document.png";
+                      link.target = "_blank";
+                      document.body.appendChild(link);
+                      link.click();
+                      document.body.removeChild(link);
+                      // toast.success("Download started!");
+                    }}
                     className="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm inline-flex items-center gap-2"
                   >
+                    <Download className="w-4 h-4" />
                     Download {identifications[previewIndex].fileName}
-                  </a>
+                  </button>
                 </>
               )}
           </div>

@@ -43,19 +43,6 @@ import {
   CommandList,
 } from "@/components/ui/command";
 
-/**
- * Reusable ShadcnSelect that uses parent-managed popover state (popoverOpen object).
- *
- * Props:
- * - value
- * - onValueChange (fn)
- * - options
- * - placeholder
- * - label
- * - popoverKey
- * - popoverOpen
- * - setPopoverOpen
- */
 function ShadcnSelect({
   value,
   onValueChange,
@@ -171,7 +158,6 @@ export default function ApplicantInformation() {
   const uploadMutation = useMutation({
     mutationFn: uploadAttachment,
     onSuccess: (data) => {
-      console.log("✅ File uploaded:", data);
       const attachmentId = data?.response?.attachment_id;
       if (attachmentId) {
         setFormData((prev) => ({ ...prev, attachment_id: attachmentId }));
@@ -291,10 +277,7 @@ export default function ApplicantInformation() {
     children: [{ first_name: "", middle_number: "", last_name: "", dob: "" }],
     meeting_clients: [{ date: "" }],
   });
-
-  // parent-managed popover open states
   const [popoverOpen, setPopoverOpen] = useState({});
-
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
 
   useEffect(() => {
@@ -309,9 +292,10 @@ export default function ApplicantInformation() {
       "DEBUG reaches before submit:",
       JSON.stringify(formData.reaches, null, 2)
     );
+  }, [formData.reaches]);
 
+  useEffect(() => {
     if (applicantData) {
-      // populate form using correct response keys
       setFormData({
         gender_id: applicantData.gender_id ?? "",
         last_name: applicantData.last_name ?? "",
@@ -329,8 +313,11 @@ export default function ApplicantInformation() {
         email: applicantData.email ?? "",
         attachment_id: applicantData.attachment_id ?? null,
         file: null,
-        fileName: "",
-        filePreview: null,
+        fileName: applicantData.attachment
+          ? `${applicantData.attachment.original_name}.${applicantData.attachment.extension}`
+          : "",
+        filePreview: applicantData.attachment?.path || null,
+        
         social_media_facebook: applicantData.social_media_facebook ?? "",
         social_media_instagram: applicantData.social_media_instagram ?? "",
         social_media_tiktok: applicantData.social_media_tiktok ?? "",
@@ -341,7 +328,6 @@ export default function ApplicantInformation() {
           applicantData.reach && applicantData.reach.length > 0
             ? applicantData.reach.map((r) => ({
                 day_id: r.day_id ?? "",
-                // trim seconds from "HH:MM:SS" => "HH:MM"
                 time: r.time ? r.time.slice(0, 5) : "",
               }))
             : [{ day_id: "", time: "" }],
@@ -414,7 +400,7 @@ export default function ApplicantInformation() {
               }))
             : [{ date: "" }],
       });
-    } // end if applicantData
+    }
   }, [applicantData]);
 
   const handleChange = (e) => {
@@ -927,99 +913,139 @@ export default function ApplicantInformation() {
               </div>
             </div>
 
-            {/* Photo Upload (unchanged) */}
-            <div className="space-y-2">
-              <Label className="text-gray-700 font-medium">
-                Applicant Photo <span className="text-red-500">(Max 1MB)</span>
-              </Label>
-              <div
-                className={`relative border-2 border-dashed rounded-lg transition-all overflow-hidden ${
-                  formData.filePreview
-                    ? "border-green-500 bg-green-50/50 h-[200px]"
-                    : "border-gray-300 bg-gray-50 hover:border-gray-400 hover:bg-gray-100 h-[200px]"
-                }`}
-              >
-                <input
-                  id="applicant_photo"
-                  type="file"
-                  className="hidden"
-                  onChange={(e) => {
-                    const file = e.target.files?.[0];
-                    if (file) handleFileChange(file);
-                  }}
-                  accept="image/*"
-                />
+            {/* Photo Upload */}
 
-                {formData.filePreview ? (
-                  <div className="relative h-full flex flex-col items-center justify-center p-4">
-                    <button
-                      type="button"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        removeFile();
-                      }}
-                      className="absolute top-3 right-3 z-10 w-8 h-8 bg-red-500 hover:bg-red-600 text-white rounded-full flex items-center justify-center transition-colors shadow-md"
-                    >
-                      <X className="w-4 h-4" />
-                    </button>
+<div className="space-y-2">
+  <Label className="text-gray-700 font-medium">
+    Applicant Photo <span className="text-red-500">(Max 1MB)</span>
+  </Label>
+  <div
+    className={`relative border-2 border-dashed rounded-lg transition-all overflow-hidden ${
+      formData.filePreview
+        ? "border-green-500 bg-green-50/50 h-[200px]"
+        : "border-gray-300 bg-gray-50 hover:border-gray-400 hover:bg-gray-100 h-[200px]"
+    }`}
+  >
+    <input
+      id="applicant_photo"
+      type="file"
+      className="hidden"
+      onChange={(e) => {
+        const file = e.target.files?.[0];
+        if (file) handleFileChange(file);
+      }}
+      accept="image/*"
+    />
 
-                    <div
-                      className="flex flex-col items-center justify-center gap-3 cursor-pointer group"
-                      onClick={() => setIsPreviewOpen(true)}
-                    >
-                      <div className="relative">
-                        <img
-                          src={formData.filePreview}
-                          alt="Preview"
-                          className="w-28 h-28 object-cover rounded-xl border-2 border-green-500 shadow-md group-hover:shadow-lg transition-shadow"
-                        />
-                        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 rounded-xl transition-colors flex items-center justify-center">
-                          <Eye className="w-6 h-6 text-white opacity-0 group-hover:opacity-100 transition-opacity" />
-                        </div>
-                      </div>
-                      <div className="text-center">
-                        <p className="text-sm font-medium text-green-700">
-                          Photo Uploaded
-                        </p>
-                        <p className="text-xs text-gray-600 mt-1 max-w-[150px] truncate">
-                          {formData.fileName}
-                        </p>
-                        <p className="text-xs text-green-600 mt-1 flex items-center gap-1 justify-center">
-                          <Eye className="w-3 h-3" />
-                          Click to view
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                ) : (
-                  <div
-                    className="h-full flex flex-col items-center justify-center cursor-pointer p-6 group"
-                    onClick={() =>
-                      document.getElementById("applicant_photo").click()
-                    }
-                  >
-                    <div className="flex flex-col items-center gap-3">
-                      <div className="w-20 h-20 rounded-full bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center group-hover:from-blue-50 group-hover:to-blue-100 transition-all">
-                        <Upload className="w-9 h-9 text-gray-400 group-hover:text-blue-500 transition-colors" />
-                      </div>
-                      <div className="text-center">
-                        <p className="text-base font-semibold text-gray-700 group-hover:text-blue-600 transition-colors">
-                          Upload
-                        </p>
-                        <p className="text-xs text-gray-500 mt-1">
-                          Drag and drop or click
-                        </p>
-                        <p className="text-xs text-gray-400 mt-1">
-                          PNG, JPG (Max 1MB)
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                )}
-              </div>
+    {formData.filePreview ? (
+      <div className="relative h-full flex flex-col items-center justify-center p-4">
+        {/* Action Buttons - Remove & Download */}
+        <div className="absolute top-3 right-3 z-10 flex gap-2">
+          {/* Download Button */}
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              const link = document.createElement("a");
+              link.href = formData.filePreview;
+              link.download = formData.fileName || "applicant-photo.png";
+              link.target = "_blank";
+              document.body.appendChild(link);
+              link.click();
+              document.body.removeChild(link);
+              // toast.success("Photo download started!");
+            }}
+            className="w-8 h-8 bg-blue-500 hover:bg-blue-600 text-white rounded-full flex items-center justify-center transition-colors shadow-md"
+            title="Download Photo"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="w-4 h-4"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+              <polyline points="7 10 12 15 17 10" />
+              <line x1="12" y1="15" x2="12" y2="3" />
+            </svg>
+          </button>
+
+          {/* Remove Button */}
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              removeFile();
+            }}
+            className="w-8 h-8 bg-red-500 hover:bg-red-600 text-white rounded-full flex items-center justify-center transition-colors shadow-md"
+            title="Remove Photo"
+          >
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+
+        <div
+          className="flex flex-col items-center justify-center gap-3 cursor-pointer group"
+          onClick={() => setIsPreviewOpen(true)}
+        >
+          <div className="relative">
+            <img
+              src={formData.filePreview}
+              alt="Preview"
+              className="w-28 h-28 object-cover rounded-xl border-2 border-green-500 shadow-md group-hover:shadow-lg transition-shadow"
+            />
+            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 rounded-xl transition-colors flex items-center justify-center">
+              <Eye className="w-6 h-6 text-white opacity-0 group-hover:opacity-100 transition-opacity" />
             </div>
+          </div>
+          <div className="text-center">
+            <p className="text-sm font-medium text-green-700">
+              Photo Uploaded
+            </p>
+            <p className="text-xs text-gray-600 mt-1 max-w-[150px] truncate">
+              {formData.fileName}
+            </p>
+            <p className="text-xs text-green-600 mt-1 flex items-center gap-1 justify-center">
+              <Eye className="w-3 h-3" />
+              Click to view
+            </p>
+          </div>
+        </div>
+      </div>
+    ) : (
+      <div
+        className="h-full flex flex-col items-center justify-center cursor-pointer p-6 group"
+        onClick={() =>
+          document.getElementById("applicant_photo").click()
+        }
+      >
+        <div className="flex flex-col items-center gap-3">
+          <div className="w-20 h-20 rounded-full bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center group-hover:from-blue-50 group-hover:to-blue-100 transition-all">
+            <Upload className="w-9 h-9 text-gray-400 group-hover:text-blue-500 transition-colors" />
+          </div>
+          <div className="text-center">
+            <p className="text-base font-semibold text-gray-700 group-hover:text-blue-600 transition-colors">
+              Upload
+            </p>
+            <p className="text-xs text-gray-500 mt-1">
+              Drag and drop or click
+            </p>
+            <p className="text-xs text-gray-400 mt-1">
+              PNG, JPG (Max 1MB)
+            </p>
+          </div>
+        </div>
+      </div>
+    )}
+  </div>
+</div>
 
-            {/* Social Media */}
+
+
             <div className="space-y-6 pt-6 border-t">
               <h2 className="text-xl font-semibold text-gray-900">
                 Social Media
@@ -1148,10 +1174,7 @@ export default function ApplicantInformation() {
               </div>
 
               {formData.reaches.map((reach, index) => (
-                <div
-                  key={index}
-                  className="grid grid-cols-1 lg:grid-cols-3 gap-6"
-                >
+                <div key={index} className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                   <div className="space-y-2">
                     <Label className="text-gray-700 font-medium">Day</Label>
                     <ShadcnSelect
@@ -1287,6 +1310,7 @@ export default function ApplicantInformation() {
                     className="w-full h-9 bg-gray-50 border-gray-300"
                   />
                 </div>
+
                 <div className="space-y-2">
                   <Label className="text-gray-700 font-medium">
                     Street Number
@@ -1304,6 +1328,7 @@ export default function ApplicantInformation() {
                     className="w-full h-9 bg-gray-50 border-gray-300"
                   />
                 </div>
+
                 <div className="space-y-2">
                   <Label className="text-gray-700 font-medium">
                     Street Name
@@ -1321,6 +1346,7 @@ export default function ApplicantInformation() {
                     className="w-full h-9 bg-gray-50 border-gray-300"
                   />
                 </div>
+
                 <div className="space-y-2">
                   <Label className="text-gray-700 font-medium">City</Label>
                   <Input
@@ -1336,6 +1362,7 @@ export default function ApplicantInformation() {
                     className="w-full h-9 bg-gray-50 border-gray-300"
                   />
                 </div>
+
                 <div className="space-y-2">
                   <Label className="text-gray-700 font-medium">Province</Label>
                   <Input
@@ -1351,6 +1378,7 @@ export default function ApplicantInformation() {
                     className="w-full h-9 bg-gray-50 border-gray-300"
                   />
                 </div>
+
                 <div className="space-y-2">
                   <Label className="text-gray-700 font-medium">
                     Postal Code
@@ -1368,6 +1396,7 @@ export default function ApplicantInformation() {
                     className="w-full h-9 bg-gray-50 border-gray-300"
                   />
                 </div>
+
                 <div className="space-y-2">
                   <Label className="text-gray-700 font-medium">Country</Label>
                   <Input
@@ -1409,6 +1438,7 @@ export default function ApplicantInformation() {
                     className="w-full h-9 bg-gray-50 border-gray-300"
                   />
                 </div>
+
                 <div className="space-y-2">
                   <Label className="text-gray-700 font-medium">
                     Street Number
@@ -1426,6 +1456,7 @@ export default function ApplicantInformation() {
                     className="w-full h-9 bg-gray-50 border-gray-300"
                   />
                 </div>
+
                 <div className="space-y-2">
                   <Label className="text-gray-700 font-medium">
                     Street Name
@@ -1443,6 +1474,7 @@ export default function ApplicantInformation() {
                     className="w-full h-9 bg-gray-50 border-gray-300"
                   />
                 </div>
+
                 <div className="space-y-2">
                   <Label className="text-gray-700 font-medium">City</Label>
                   <Input
@@ -1458,6 +1490,7 @@ export default function ApplicantInformation() {
                     className="w-full h-9 bg-gray-50 border-gray-300"
                   />
                 </div>
+
                 <div className="space-y-2">
                   <Label className="text-gray-700 font-medium">Province</Label>
                   <Input
@@ -1473,6 +1506,7 @@ export default function ApplicantInformation() {
                     className="w-full h-9 bg-gray-50 border-gray-300"
                   />
                 </div>
+
                 <div className="space-y-2">
                   <Label className="text-gray-700 font-medium">
                     Postal Code
@@ -1490,6 +1524,7 @@ export default function ApplicantInformation() {
                     className="w-full h-9 bg-gray-50 border-gray-300"
                   />
                 </div>
+
                 <div className="space-y-2">
                   <Label className="text-gray-700 font-medium">Country</Label>
                   <Input
@@ -1530,6 +1565,7 @@ export default function ApplicantInformation() {
                     className="w-full h-9 bg-gray-50 border-gray-300"
                   />
                 </div>
+
                 <div className="space-y-2">
                   <Label
                     htmlFor="family_member_middle_name"
@@ -1546,6 +1582,7 @@ export default function ApplicantInformation() {
                     className="w-full h-9 bg-gray-50 border-gray-300"
                   />
                 </div>
+
                 <div className="space-y-2">
                   <Label
                     htmlFor="family_member_last_name"
@@ -1562,6 +1599,7 @@ export default function ApplicantInformation() {
                     className="w-full h-9 bg-gray-50 border-gray-300"
                   />
                 </div>
+
                 <div className="space-y-2">
                   <Label
                     htmlFor="family_member_dob"
@@ -1640,6 +1678,7 @@ export default function ApplicantInformation() {
                     className="w-full h-9 bg-gray-50 border-gray-300"
                   />
                 </div>
+
                 <div className="space-y-2">
                   <Label
                     htmlFor="family_member_telephone"
@@ -1656,6 +1695,7 @@ export default function ApplicantInformation() {
                     className="w-full h-9 bg-gray-50 border-gray-300"
                   />
                 </div>
+
                 <div className="space-y-2">
                   <Label
                     htmlFor="family_member_email"
@@ -1716,6 +1756,7 @@ export default function ApplicantInformation() {
                     className="w-full h-9 bg-gray-50 border-gray-300"
                   />
                 </div>
+
                 <div className="space-y-2">
                   <Label className="text-gray-700 font-medium">
                     Street Number
@@ -1733,6 +1774,7 @@ export default function ApplicantInformation() {
                     className="w-full h-9 bg-gray-50 border-gray-300"
                   />
                 </div>
+
                 <div className="space-y-2">
                   <Label className="text-gray-700 font-medium">
                     Street Name
@@ -1750,6 +1792,7 @@ export default function ApplicantInformation() {
                     className="w-full h-9 bg-gray-50 border-gray-300"
                   />
                 </div>
+
                 <div className="space-y-2">
                   <Label className="text-gray-700 font-medium">City</Label>
                   <Input
@@ -1765,6 +1808,7 @@ export default function ApplicantInformation() {
                     className="w-full h-9 bg-gray-50 border-gray-300"
                   />
                 </div>
+
                 <div className="space-y-2">
                   <Label className="text-gray-700 font-medium">Province</Label>
                   <Input
@@ -1780,6 +1824,7 @@ export default function ApplicantInformation() {
                     className="w-full h-9 bg-gray-50 border-gray-300"
                   />
                 </div>
+
                 <div className="space-y-2">
                   <Label className="text-gray-700 font-medium">
                     Postal Code
@@ -1797,6 +1842,7 @@ export default function ApplicantInformation() {
                     className="w-full h-9 bg-gray-50 border-gray-300"
                   />
                 </div>
+
                 <div className="space-y-2">
                   <Label className="text-gray-700 font-medium">Country</Label>
                   <Input
@@ -1878,6 +1924,7 @@ export default function ApplicantInformation() {
                         className="w-full h-9 bg-white border-gray-300"
                       />
                     </div>
+
                     <div className="space-y-2">
                       <Label className="text-gray-700 font-medium">
                         Middle Name
@@ -1896,6 +1943,7 @@ export default function ApplicantInformation() {
                         className="w-full h-9 bg-white border-gray-300"
                       />
                     </div>
+
                     <div className="space-y-2">
                       <Label className="text-gray-700 font-medium">
                         Last Name
@@ -1914,6 +1962,7 @@ export default function ApplicantInformation() {
                         className="w-full h-9 bg-white border-gray-300"
                       />
                     </div>
+
                     <div className="space-y-2">
                       <Label className="text-gray-700 font-medium">
                         Date of Birth
@@ -1954,10 +2003,7 @@ export default function ApplicantInformation() {
               </div>
 
               {formData.meeting_clients.map((meeting, index) => (
-                <div
-                  key={index}
-                  className="grid grid-cols-1 lg:grid-cols-3 gap-6"
-                >
+                <div key={index} className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                   <div className="space-y-2">
                     <Label className="text-gray-700 font-medium">
                       Meeting Date
@@ -2006,7 +2052,9 @@ export default function ApplicantInformation() {
               </Button>
               <Button
                 type="submit"
-                disabled={createMutation.isPending || uploadMutation.isPending}
+                disabled={
+                  createMutation.isPending || uploadMutation.isPending
+                }
                 size="lg"
               >
                 {createMutation.isPending || uploadMutation.isPending ? (
@@ -2023,6 +2071,7 @@ export default function ApplicantInformation() {
         </div>
       </div>
 
+      {/* Photo Preview Dialog */}
       <Dialog open={isPreviewOpen} onOpenChange={setIsPreviewOpen}>
         <DialogContent className="max-w-4xl">
           <DialogHeader>

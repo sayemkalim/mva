@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
-import { createMatter } from "../../helpers/createMatter";
+import { createMatter, updateMatter } from "../../helpers/createMatter";
 import {
   Popover,
   PopoverContent,
@@ -194,7 +194,7 @@ const AddMatterCard = ({
   const mutation = useMutation({
     mutationFn: (data) => {
       if (isEditMode) {
-        return createMatter(initialData.slug || initialData.id, data);
+        return updateMatter(initialData.slug, data);
       }
       return createMatter(data);
     },
@@ -205,8 +205,9 @@ const AddMatterCard = ({
           : "Matter created successfully"
       );
       queryClient.invalidateQueries(["matters"]);
-      if (isEditMode)
+      if (isEditMode) {
         queryClient.invalidateQueries(["matter", initialData.slug]);
+      }
       // navigate("/dashboard/workstation");
     },
     onError: (error) => {
@@ -217,6 +218,7 @@ const AddMatterCard = ({
       );
     },
   });
+  
 
   const handleSubmit = (e) => {
     e.preventDefault();

@@ -18,3 +18,20 @@ export const createMatter = async (matterData) => {
     throw error;
   }
 };
+export const updateMatter = async (slug, matterData) => {
+  try {
+    const apiResponse = await apiService({
+      endpoint: `${endpoints.createMatter}/${slug}`,
+      method: "POST",
+      data: matterData,
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    return apiResponse;
+  } catch (error) {
+    console.error("Error updating matter:", error);
+    throw error;
+  }
+};
