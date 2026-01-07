@@ -5,7 +5,17 @@ import { Navbar2 } from '@/components/navbar2';
 import NavbarItem from '@/components/navbar/navbar_item';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Download, Save } from 'lucide-react';
+import { Download, Save, Plus } from 'lucide-react';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+  DialogTrigger,
+} from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
 import {
   Table,
@@ -22,11 +32,14 @@ import Typography from '@/components/typography';
 import { fetchFinalSettlement } from './helpers/fetchFinalSettlement';
 import { saveFinalSettlement } from './helpers/saveFinalSettlement';
 import { fetchMeta } from '../bank_transcation/helper/fetchMeta';
+import { downloadSettlement } from './helpers/downloadSettlement';
 
 const FinalSettlement = () => {
   const { slug } = useParams();
   const queryClient = useQueryClient();
   const [editableRecords, setEditableRecords] = useState([]);
+  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  const [newItem, setNewItem] = useState({ particular: '', expenditure: '' });
 
   const breadcrumbs = [
     { title: "Workstation", isNavigation: false },
@@ -154,6 +167,60 @@ const FinalSettlement = () => {
     });
   };
 
+  const handleAddItem = () => {
+    const slug = newItem.particular.trim().toLowerCase().replace(/\s+/g, '_');
+    const newRecord = {
+      ...newItem,
+      item_slug: slug,
+      expenditure: parseFloat(newItem.expenditure) || 0,
+      receipts: 0
+    };
+
+    setEditableRecords(prev => {
+      const updated = [...prev];
+
+      // Insert before balance_payout if it exists
+      const balanceIndex = updated.findIndex(r => r.item_slug === 'balance_payout');
+      if (balanceIndex !== -1) {
+        updated.splice(balanceIndex, 0, newRecord);
+      } else {
+        updated.push(newRecord);
+      }
+
+      // Recalculate Balance Payout
+      const balancePayoutIndex = updated.findIndex(r => r.item_slug === 'balance_payout');
+      if (balancePayoutIndex !== -1) {
+        const totalExp = updated.reduce((sum, record) => {
+          if (record.item_slug === 'balance_payout') return sum;
+          return sum + (parseFloat(record.expenditure) || 0);
+        }, 0);
+
+        const receivedAmount = parseFloat(updated[0].receipts) || 0;
+        const balance = receivedAmount - totalExp;
+
+        if (balance >= 0) {
+          updated[balancePayoutIndex] = {
+            ...updated[balancePayoutIndex],
+            expenditure: balance.toFixed(2),
+            receipts: '',
+            particular: 'Balance payout after all the expenses – client name (auto fill)'
+          };
+        } else {
+          updated[balancePayoutIndex] = {
+            ...updated[balancePayoutIndex],
+            expenditure: '',
+            receipts: Math.abs(balance).toFixed(2),
+            particular: 'Cash Shortfall',
+          };
+        }
+      }
+      return updated;
+    });
+
+    setIsAddDialogOpen(false);
+    setNewItem({ particular: '', expenditure: '' });
+  };
+
   // Save Mutation for final settlement
   const saveMutation = useMutation({
     mutationFn: (data) => saveFinalSettlement(slug, data),
@@ -184,6 +251,21 @@ const FinalSettlement = () => {
       ]
     };
     saveMutation.mutate(payload);
+  };
+
+  const downloadMutation = useMutation({
+    mutationFn: () => downloadSettlement(slug),
+    onSuccess: () => {
+      toast.success("Settlement downloaded successfully");
+    },
+    onError: (error) => {
+      console.error(error);
+      toast.error("Failed to download settlement");
+    }
+  });
+
+  const handleDownload = () => {
+    downloadMutation.mutate();
   };
 
   const renderLoadingState = () => (
@@ -335,11 +417,56 @@ const FinalSettlement = () => {
             {saveMutation.isPending ? 'Saving...' : 'Save'}
           </Button>
           <Button
+            onClick={handleDownload}
             className="flex items-center gap-2 cursor-pointer"
+            disabled={downloadMutation.isPending}
           >
             <Download className="h-4 w-4" />
-            Download
+            {downloadMutation.isPending ? 'Downloading...' : 'Download'}
           </Button>
+          <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
+            <DialogTrigger asChild>
+              <Button className="flex items-center gap-2 cursor-pointer">
+                <Plus className="h-4 w-4" />
+                Add Item
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-[425px]">
+              <DialogHeader>
+                <DialogTitle>Add New Item</DialogTitle>
+              </DialogHeader>
+              <div className="grid gap-4 py-4">
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <Label htmlFor="particular" className="text-right">
+                    Particular
+                  </Label>
+                  <Input
+                    id="particular"
+                    value={newItem.particular}
+                    onChange={(e) => setNewItem({ ...newItem, particular: e.target.value })}
+                    className="col-span-3"
+                  />
+                </div>
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <Label htmlFor="expenditure" className="text-right">
+                    Expenditure
+                  </Label>
+                  <Input
+                    id="expenditure"
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    value={newItem.expenditure}
+                    onChange={(e) => setNewItem({ ...newItem, expenditure: e.target.value })}
+                    className="col-span-3"
+                  />
+                </div>
+              </div>
+              <DialogFooter>
+                <Button type="submit" onClick={handleAddItem}>Save changes</Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
         </div>
         {isLoading && renderLoadingState()}
         {error && renderErrorState()}
