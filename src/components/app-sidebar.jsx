@@ -30,7 +30,20 @@ export function AppSidebar({ ...props }) {
     return EDIT_MODE_PATHS.some((path) => location.pathname.includes(path));
   }, [location.pathname]);
 
-  const routeParam = slug || id;
+  // Persist file slug to localStorage when available
+  const routeParam = useMemo(() => {
+    // If we have a slug from URL params, use it and save to localStorage
+    if (slug) {
+      localStorage.setItem("currentFileSlug", slug);
+      return slug;
+    }
+    // If we have an id but no slug, try to get slug from localStorage
+    if (id && isEditMode) {
+      const savedSlug = localStorage.getItem("currentFileSlug");
+      return savedSlug || id;
+    }
+    return id;
+  }, [slug, id, isEditMode]);
 
   // Load permissions from localStorage
   useEffect(() => {

@@ -42,15 +42,36 @@ function RecursiveMenuItems({ items, depth = 1 }) {
     }
   };
 
+  // Map of sidebar URLs to their related add/edit paths
+  const relatedPaths = {
+    "/lat": ["/dashboard/lat/add/", "/dashboard/lat/edit/"],
+    "/section-33-list": ["/dashboard/section/add/", "/dashboard/section/"],
+    "/section-258-list": ["/dashboard/section258/add/", "/dashboard/section258/"],
+  };
+
+  const isItemActive = (url) => {
+    if (location.pathname === url) return true;
+    if (url) {
+      for (const [key, paths] of Object.entries(relatedPaths)) {
+        if (url.includes(key)) {
+          if (paths.some(path => location.pathname.includes(path))) {
+            return true;
+          }
+        }
+      }
+    }
+    return false;
+  };
+
   return (
     <>
       {items.map((subItem, index) => {
         const itemId = `${subItem.title}-${index}-${depth}`;
         const hasChildren = subItem.items && subItem.items.length > 0;
-        const isActive = location.pathname === subItem.url;
+        const isActive = isItemActive(subItem.url);
         const isLoading = loadingId === itemId;
         const hasActiveDescendant = subItem.items?.some(
-          (child) => location.pathname === child.url
+          (child) => isItemActive(child.url)
         );
 
         if (hasChildren) {

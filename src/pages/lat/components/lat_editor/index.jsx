@@ -82,8 +82,8 @@ const SearchableDropdown = ({
                     >
                       <Check
                         className={`mr-2 h-4 w-4 ${String(value) === String(opt.id)
-                            ? "opacity-100"
-                            : "opacity-0"
+                          ? "opacity-100"
+                          : "opacity-0"
                           }`}
                       />
                       {opt.name}
