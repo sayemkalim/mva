@@ -454,6 +454,7 @@ export default function LatEditor() {
       toast.success(
         id ? "LAT data updated successfully" : "LAT data saved successfully"
       );
+      navigate(-1); 
     },
     onError: (err) => {
       console.error("Mutation Error:", err);

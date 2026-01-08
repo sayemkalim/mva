@@ -293,25 +293,22 @@ export default function Employment() {
   const handleSelectChange = (name, value) => {
     setFormData((prev) => {
       const numeric = value === "" ? null : Number(value);
-      let next = { ...prev, [name]: numeric };
 
-      if (name === "employed_id") {
-        if (numeric) {
-          next.not_employed_id = null;
-          next.unemployed_and_id = null;
-        }
+      let next = {
+        ...prev,
+        [name]: numeric,
+      };
+      if (name === "employed_id" && numeric) {
+        next.not_employed_id = null;
+        next.unemployed_and_id = null;
       }
-
-      if (name === "not_employed_id") {
-        if (numeric) {
-          next.employed_id = null;
-        } else {
-          next.unemployed_and_id = null;
-        }
+      if (name === "not_employed_id" && !numeric) {
+        next.unemployed_and_id = null;
       }
       return next;
     });
   };
+
 
   const handleIncomeChange = (index, field, value) => {
     setFormData((prev) => ({
@@ -528,37 +525,33 @@ export default function Employment() {
                     label="Not Employed"
                   />
                 </div>
-                {formData.not_employed_id ? (
-                  <div className="space-y-2">
-                    <Label
-                      htmlFor="unemployed_and_id"
-                      className="text-foreground font-medium"
-                    >
-                      Unemployed And
-                    </Label>
-                    <SearchableDropdown
-                      popoverKey="unemployed_and"
-                      popoverOpen={popoverOpen}
-                      setPopoverOpen={setPopoverOpen}
-                      value={formData.unemployed_and_id?.toString() ?? ""}
-                      onValueChange={(value) =>
-                        handleSelectChange("unemployed_and_id", value)
-                      }
-                      options={metadata?.unemployed_and || []}
-                      placeholder="Select option"
-                      label="Unemployed And"
-                    />
-                  </div>
-                ) : (
-                  <div className="space-y-2 opacity-50 pointer-events-none">
-                    <Label className="text-gray-400 font-medium">
-                      Unemployed And
-                    </Label>
-                    <div className="h-11 bg-gray-100 border border-gray-200 rounded px-3 flex items-center text-sm text-gray-400">
-                      Select "Not Employed" to choose
+                {(() => {
+                  const selectedNotEmployed = metadata?.not_employed?.find(
+                    (o) => String(o.id) === String(formData.not_employed_id)
+                  );
+                  return selectedNotEmployed?.name === "Unemployed And";
+                })() && (
+                    <div className="space-y-2">
+                      <Label
+                        htmlFor="unemployed_and_id"
+                        className="text-foreground font-medium"
+                      >
+                        Unemployed And
+                      </Label>
+                      <SearchableDropdown
+                        popoverKey="unemployed_and"
+                        popoverOpen={popoverOpen}
+                        setPopoverOpen={setPopoverOpen}
+                        value={formData.unemployed_and_id?.toString() ?? ""}
+                        onValueChange={(value) =>
+                          handleSelectChange("unemployed_and_id", value)
+                        }
+                        options={metadata?.unemployed_and || []}
+                        placeholder="Select option"
+                        label="Unemployed And"
+                      />
                     </div>
-                  </div>
-                )}
+                  )}
               </div>
             </div>
 
