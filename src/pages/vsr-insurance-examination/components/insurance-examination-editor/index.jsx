@@ -237,17 +237,17 @@ export default function VSRAssessmentPage() {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen">
         <p className="text-red-500 text-lg">Failed to load metadata</p>
-        <p className="text-sm text-gray-600 mt-2">{metaError?.message}</p>
+        <p className="text-sm text-muted-foreground mt-2">{metaError?.message}</p>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-muted">
       <Navbar2 />
 
-      <header className="bg-white border-b px-6 py-3">
-        <div className="flex items-center justify-end gap-6 text-sm text-gray-700">
+      <header className="bg-card border-b px-6 py-3">
+        <div className="flex items-center justify-end gap-6 text-sm text-foreground">
           <div>
             Unpaid: <span className="font-semibold">$ 0</span>
           </div>
@@ -263,11 +263,11 @@ export default function VSRAssessmentPage() {
         </div>
       </header>
 
-      <nav className="bg-white border-b px-6 py-4 text-sm text-gray-600">
+      <nav className="bg-card border-b px-6 py-4 text-sm text-muted-foreground">
         <div className="flex items-center gap-2">
           <button
             onClick={() => navigate("/dashboard")}
-            className="hover:text-gray-900 transition"
+            className="hover:text-foreground transition"
             type="button"
           >
             Dashboard
@@ -275,36 +275,36 @@ export default function VSRAssessmentPage() {
           <ChevronRight className="w-4 h-4" />
           <button
             onClick={() => navigate("/dashboard/workstation")}
-            className="hover:text-gray-900 transition"
+            className="hover:text-foreground transition"
             type="button"
           >
             Workstation
           </button>
           <ChevronRight className="w-4 h-4" />
-          <span className="text-gray-900 font-medium">
+          <span className="text-foreground font-medium">
             {id ? "Edit VSR Assessment" : "Add VSR Assessment"}
           </span>
         </div>
       </nav>
 
       <main className="container mx-auto px-4 sm:px-6 py-6 sm:py-8 max-w-6xl">
-        <h1 className="text-2xl sm:text-3xl font-bold mb-6 text-gray-900">
+        <h1 className="text-2xl sm:text-3xl font-bold mb-6 text-foreground">
           {id ? "Edit VSR Assessment" : "Add VSR Assessment"}
         </h1>
 
         <form
-          className="bg-white rounded-lg shadow-sm border p-6 sm:p-8 space-y-6"
+          className="bg-card rounded-lg shadow-sm border p-6 sm:p-8 space-y-6"
           onSubmit={handleSubmit}
         >
           {/* Assessment Information */}
           <div>
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">
+            <h2 className="text-lg font-semibold text-foreground mb-4">
               Assessment Information
             </h2>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {/* Assessment Status */}
               <div className="space-y-2">
-                <Label className="text-gray-700 font-medium">
+                <Label className="text-foreground font-medium">
                   Assessment Status <span className="text-red-500">*</span>
                 </Label>
                 <Popover
@@ -368,7 +368,7 @@ export default function VSRAssessmentPage() {
 
               {/* Type of Assessment */}
               <div className="space-y-2">
-                <Label className="text-gray-700 font-medium">
+                <Label className="text-foreground font-medium">
                   Type of Assessment <span className="text-red-500">*</span>
                 </Label>
                 <Popover
@@ -432,7 +432,7 @@ export default function VSRAssessmentPage() {
 
               {/* Referral Partner */}
               <div className="space-y-2">
-                <Label className="text-gray-700 font-medium">
+                <Label className="text-foreground font-medium">
                   Referral Partner
                 </Label>
                 <Popover
@@ -496,7 +496,7 @@ export default function VSRAssessmentPage() {
 
               {/* Request for Assessment */}
               <div className="space-y-2">
-                <Label className="text-gray-700 font-medium">
+                <Label className="text-foreground font-medium">
                   Request for Assessment
                 </Label>
                 <Input
@@ -513,13 +513,13 @@ export default function VSRAssessmentPage() {
 
           {/* Follow-up Information */}
           <div className="pt-6 border-t">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">
+            <h2 className="text-lg font-semibold text-foreground mb-4">
               Follow-up Information
             </h2>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {/* Follow Up 1st */}
               <div className="space-y-2">
-                <Label className="text-gray-700 font-medium">
+                <Label className="text-foreground font-medium">
                   Follow Up (1st)
                 </Label>
                 <Input
@@ -534,7 +534,7 @@ export default function VSRAssessmentPage() {
 
               {/* Follow Up 2nd */}
               <div className="space-y-2">
-                <Label className="text-gray-700 font-medium">
+                <Label className="text-foreground font-medium">
                   Follow Up (2nd)
                 </Label>
                 <Input
@@ -549,7 +549,7 @@ export default function VSRAssessmentPage() {
 
               {/* Assessment Rescheduled */}
               <div className="space-y-2">
-                <Label className="text-gray-700 font-medium">
+                <Label className="text-foreground font-medium">
                   Assessment Rescheduled
                 </Label>
                 <Popover
@@ -612,13 +612,13 @@ export default function VSRAssessmentPage() {
 
           {/* Assessment Details */}
           <div className="pt-6 border-t">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">
+            <h2 className="text-lg font-semibold text-foreground mb-4">
               Assessment Details
             </h2>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {/* Date of Assessment */}
               <div className="space-y-2">
-                <Label className="text-gray-700 font-medium">
+                <Label className="text-foreground font-medium">
                   Date of Assessment <span className="text-red-500">*</span>
                 </Label>
                 <Input
@@ -634,7 +634,7 @@ export default function VSRAssessmentPage() {
 
               {/* Time */}
               <div className="space-y-2">
-                <Label className="text-gray-700 font-medium">Time</Label>
+                <Label className="text-foreground font-medium">Time</Label>
                 <div className="relative">
                   <Clock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-500" />
                   <Input
@@ -650,7 +650,7 @@ export default function VSRAssessmentPage() {
 
               {/* Location */}
               <div className="space-y-2">
-                <Label className="text-gray-700 font-medium">Location</Label>
+                <Label className="text-foreground font-medium">Location</Label>
                 <Input
                   name="location"
                   value={formData.location}
@@ -663,7 +663,7 @@ export default function VSRAssessmentPage() {
 
               {/* Assessor Name */}
               <div className="space-y-2">
-                <Label className="text-gray-700 font-medium">
+                <Label className="text-foreground font-medium">
                   Assessor Name
                 </Label>
                 <Input
@@ -678,7 +678,7 @@ export default function VSRAssessmentPage() {
 
               {/* Interpreter */}
               <div className="space-y-2">
-                <Label className="text-gray-700 font-medium">Interpreter</Label>
+                <Label className="text-foreground font-medium">Interpreter</Label>
                 <Input
                   name="interprator"
                   value={formData.interprator}
@@ -691,7 +691,7 @@ export default function VSRAssessmentPage() {
 
               {/* Transportation */}
               <div className="space-y-2">
-                <Label className="text-gray-700 font-medium">
+                <Label className="text-foreground font-medium">
                   Transportation
                 </Label>
                 <Input
@@ -708,13 +708,13 @@ export default function VSRAssessmentPage() {
 
           {/* Client Communication */}
           <div className="pt-6 border-t">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">
+            <h2 className="text-lg font-semibold text-foreground mb-4">
               Client Communication
             </h2>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {/* Informed to Client */}
               <div className="space-y-2">
-                <Label className="text-gray-700 font-medium">
+                <Label className="text-foreground font-medium">
                   Informed to Client
                 </Label>
                 <Popover
@@ -778,7 +778,7 @@ export default function VSRAssessmentPage() {
 
               {/* Reminder to Client */}
               <div className="space-y-2">
-                <Label className="text-gray-700 font-medium">
+                <Label className="text-foreground font-medium">
                   Reminder to Client
                 </Label>
                 <Popover
@@ -844,13 +844,13 @@ export default function VSRAssessmentPage() {
 
           {/* Report Information */}
           <div className="pt-6 border-t">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">
+            <h2 className="text-lg font-semibold text-foreground mb-4">
               Report Information
             </h2>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {/* Date of Report Received */}
               <div className="space-y-2">
-                <Label className="text-gray-700 font-medium">
+                <Label className="text-foreground font-medium">
                   Date of Report Received
                 </Label>
                 <Input
@@ -865,7 +865,7 @@ export default function VSRAssessmentPage() {
 
               {/* Report Reviewed Date */}
               <div className="space-y-2">
-                <Label className="text-gray-700 font-medium">
+                <Label className="text-foreground font-medium">
                   Report Reviewed Date
                 </Label>
                 <Input
@@ -880,7 +880,7 @@ export default function VSRAssessmentPage() {
 
               {/* Report Reviewed By */}
               <div className="space-y-2">
-                <Label className="text-gray-700 font-medium">
+                <Label className="text-foreground font-medium">
                   Report Reviewed By
                 </Label>
                 <Input
@@ -895,7 +895,7 @@ export default function VSRAssessmentPage() {
 
               {/* Report Fax or Email to Insurance */}
               <div className="space-y-2">
-                <Label className="text-gray-700 font-medium">
+                <Label className="text-foreground font-medium">
                   Report Fax/Email to Insurance
                 </Label>
                 <Input
@@ -910,7 +910,7 @@ export default function VSRAssessmentPage() {
 
               {/* Note */}
               <div className="space-y-2 lg:col-span-2">
-                <Label className="text-gray-700 font-medium">Note</Label>
+                <Label className="text-foreground font-medium">Note</Label>
                 <Textarea
                   name="note"
                   value={formData.note}

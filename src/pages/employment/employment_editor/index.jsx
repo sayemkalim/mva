@@ -19,6 +19,7 @@ import { getEmploymentMeta } from "../helpers/fetchIEmploymentMetadata";
 import { createEmployment } from "../helpers/createEmployment";
 import { fetchEmploymentyBySlug } from "../helpers/fetchEmploymentBySlug";
 import { Navbar2 } from "@/components/navbar2";
+import { formatPhoneNumber } from "@/lib/utils";
 
 import {
   Popover,
@@ -66,7 +67,7 @@ function SearchableDropdown({
         <Button
           variant="outline"
           role="combobox"
-          className="w-full justify-between font-normal bg-gray-50 h-11 text-sm"
+          className="w-full justify-between font-normal bg-muted h-11 text-sm"
           type="button"
         >
           {selected ? selected.name : placeholder}
@@ -89,11 +90,10 @@ function SearchableDropdown({
                 onSelect={() => handleSelect(opt.id)}
               >
                 <Check
-                  className={`mr-2 h-4 w-4 ${
-                    String(value) === String(opt.id)
-                      ? "opacity-100"
-                      : "opacity-0"
-                  }`}
+                  className={`mr-2 h-4 w-4 ${String(value) === String(opt.id)
+                    ? "opacity-100"
+                    : "opacity-0"
+                    }`}
                 />
                 {opt.name}
               </CommandItem>
@@ -166,8 +166,8 @@ export default function Employment() {
         } else {
           toast.error(
             apiResponse?.response?.message ||
-              apiResponse?.message ||
-              "Failed to save employment. Please try again."
+            apiResponse?.message ||
+            "Failed to save employment. Please try again."
           );
           console.error("Create employment response:", apiResponse);
         }
@@ -253,21 +253,21 @@ export default function Employment() {
         unemployed_and_id: employmentData.unemployed_and_id ?? null,
         other_income:
           employmentData.other_incomes &&
-          employmentData.other_incomes.length > 0
+            employmentData.other_incomes.length > 0
             ? employmentData.other_incomes.map((income) => ({
-                income_type_id: income.income_type_id ?? null,
-                income_period_id: income.income_period_id ?? null,
-                income: income.income ?? "",
-                description: income.description ?? "",
-              }))
+              income_type_id: income.income_type_id ?? null,
+              income_period_id: income.income_period_id ?? null,
+              income: income.income ?? "",
+              description: income.description ?? "",
+            }))
             : [
-                {
-                  income_type_id: null,
-                  income_period_id: null,
-                  income: "",
-                  description: "",
-                },
-              ],
+              {
+                income_type_id: null,
+                income_period_id: null,
+                income: "",
+                description: "",
+              },
+            ],
       };
     });
   }, [employmentData]);
@@ -416,7 +416,7 @@ export default function Employment() {
         <div className="text-red-500 text-xl font-semibold">
           Error loading form
         </div>
-        <p className="text-gray-600">
+        <p className="text-muted-foreground">
           {metadataError?.message || "Invalid response from server"}
         </p>
         <div className="flex gap-4">
@@ -437,61 +437,61 @@ export default function Employment() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-muted">
       <Navbar2 />
-      <div className="bg-white border-b px-6 py-3">
+      <div className="bg-card border-b px-6 py-3">
         <div className="flex items-center justify-end gap-6 text-sm">
-          <span className="text-gray-700">
+          <span className="text-foreground">
             Unpaid: <span className="font-semibold">$ 0</span>
           </span>
-          <span className="text-gray-700">
+          <span className="text-foreground">
             Unbilled: <span className="font-semibold">$ 0</span>
           </span>
-          <span className="text-gray-700">
+          <span className="text-foreground">
             Client Funds-Operating: <span className="font-semibold">$ 0</span>
           </span>
-          <span className="text-gray-700">
+          <span className="text-foreground">
             Client Funds-Trust: <span className="font-semibold">$ 0</span>
           </span>
         </div>
       </div>
 
-      <div className="bg-white border-b px-6 py-4">
-        <div className="flex items-center gap-2 text-sm text-gray-600">
+      <div className="bg-card border-b px-6 py-4">
+        <div className="flex items-center gap-2 text-sm text-muted-foreground">
           <button
             onClick={() => navigate("/dashboard")}
-            className="hover:text-gray-900 transition"
+            className="hover:text-foreground transition"
           >
             Dashboard
           </button>
           <ChevronRight className="w-4 h-4" />
           <button
             onClick={() => navigate("/dashboard/workstation")}
-            className="hover:text-gray-900 transition"
+            className="hover:text-foreground transition"
           >
             Workstation
           </button>
           <ChevronRight className="w-4 h-4" />
-          <span className="text-gray-900 font-medium">Employment</span>
+          <span className="text-foreground font-medium">Employment</span>
         </div>
       </div>
 
       <div className="container mx-auto px-6 py-8 max-w-7xl">
-        <div className="bg-white rounded-lg shadow-sm border p-8">
-          <h1 className="text-2xl font-bold mb-8 text-gray-900 uppercase">
+        <div className="bg-card rounded-lg shadow-sm border p-8">
+          <h1 className="text-2xl font-bold mb-8 text-foreground uppercase">
             Employment
           </h1>
 
           <form onSubmit={handleSubmit} className="space-y-8">
             <div className="space-y-6">
-              <h2 className="text-xl font-semibold text-gray-900">
+              <h2 className="text-xl font-semibold text-foreground">
                 Employment Status
               </h2>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div className="space-y-2">
                   <Label
                     htmlFor="employed_id"
-                    className="text-gray-700 font-medium"
+                    className="text-foreground font-medium"
                   >
                     Employed
                   </Label>
@@ -511,7 +511,7 @@ export default function Employment() {
                 <div className="space-y-2">
                   <Label
                     htmlFor="not_employed_id"
-                    className="text-gray-700 font-medium"
+                    className="text-foreground font-medium"
                   >
                     Not Employed
                   </Label>
@@ -532,7 +532,7 @@ export default function Employment() {
                   <div className="space-y-2">
                     <Label
                       htmlFor="unemployed_and_id"
-                      className="text-gray-700 font-medium"
+                      className="text-foreground font-medium"
                     >
                       Unemployed And
                     </Label>
@@ -563,14 +563,14 @@ export default function Employment() {
             </div>
 
             <div className="space-y-6 pt-6 border-t">
-              <h2 className="text-xl font-semibold text-gray-900">
+              <h2 className="text-xl font-semibold text-foreground">
                 Employer Information
               </h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2">
                   <Label
                     htmlFor="employer_name"
-                    className="text-gray-700 font-medium"
+                    className="text-foreground font-medium"
                   >
                     Employer Name
                   </Label>
@@ -580,13 +580,13 @@ export default function Employment() {
                     value={formData.employer_name}
                     onChange={handleChange}
                     placeholder="Employer name"
-                    className="bg-gray-50 border-gray-300"
+                    className="bg-muted border-input"
                   />
                 </div>
                 <div className="space-y-2">
                   <Label
                     htmlFor="telephone"
-                    className="text-gray-700 font-medium"
+                    className="text-foreground font-medium"
                   >
                     Telephone
                   </Label>
@@ -594,13 +594,13 @@ export default function Employment() {
                     id="telephone"
                     name="telephone"
                     value={formData.telephone}
-                    onChange={handleChange}
-                    placeholder="1234567890"
-                    className="bg-gray-50 border-gray-300"
+                    onChange={(e) => setFormData(prev => ({ ...prev, telephone: formatPhoneNumber(e.target.value) }))}
+                    placeholder="(888) 888-8888"
+                    className="bg-muted border-input"
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="ext" className="text-gray-700 font-medium">
+                  <Label htmlFor="ext" className="text-foreground font-medium">
                     Extension
                   </Label>
                   <Input
@@ -609,11 +609,11 @@ export default function Employment() {
                     value={formData.ext}
                     onChange={handleChange}
                     placeholder="101"
-                    className="bg-gray-50 border-gray-300"
+                    className="bg-muted border-input"
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="email" className="text-gray-700 font-medium">
+                  <Label htmlFor="email" className="text-foreground font-medium">
                     Email
                   </Label>
                   <Input
@@ -623,26 +623,26 @@ export default function Employment() {
                     value={formData.email}
                     onChange={handleChange}
                     placeholder="email@example.com"
-                    className="bg-gray-50 border-gray-300"
+                    className="bg-muted border-input"
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="fax" className="text-gray-700 font-medium">
+                  <Label htmlFor="fax" className="text-foreground font-medium">
                     Fax
                   </Label>
                   <Input
                     id="fax"
                     name="fax"
                     value={formData.fax}
-                    onChange={handleChange}
-                    placeholder="0987654321"
-                    className="bg-gray-50 border-gray-300"
+                    onChange={(e) => setFormData(prev => ({ ...prev, fax: formatPhoneNumber(e.target.value) }))}
+                    placeholder="(888) 888-8888"
+                    className="bg-muted border-input"
                   />
                 </div>
                 <div className="space-y-2">
                   <Label
                     htmlFor="job_period_from"
-                    className="text-gray-700 font-medium"
+                    className="text-foreground font-medium"
                   >
                     Job Period From
                   </Label>
@@ -652,13 +652,13 @@ export default function Employment() {
                     type="date"
                     value={formData.job_period_from}
                     onChange={handleChange}
-                    className="bg-gray-50 border-gray-300"
+                    className="bg-muted border-input"
                   />
                 </div>
                 <div className="space-y-2">
                   <Label
                     htmlFor="job_period_to"
-                    className="text-gray-700 font-medium"
+                    className="text-foreground font-medium"
                   >
                     Job Period To
                   </Label>
@@ -668,19 +668,19 @@ export default function Employment() {
                     type="date"
                     value={formData.job_period_to}
                     onChange={handleChange}
-                    className="bg-gray-50 border-gray-300"
+                    className="bg-muted border-input"
                   />
                 </div>
               </div>
             </div>
 
             <div className="space-y-6 pt-6 border-t">
-              <h2 className="text-xl font-semibold text-gray-900">
+              <h2 className="text-xl font-semibold text-foreground">
                 Employer Address
               </h2>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div className="space-y-2">
-                  <Label className="text-gray-700 font-medium">
+                  <Label className="text-foreground font-medium">
                     Unit Number
                   </Label>
                   <Input
@@ -689,11 +689,11 @@ export default function Employment() {
                       handleAddressChange("unit_number", e.target.value)
                     }
                     placeholder="Unit"
-                    className="bg-gray-50 border-gray-300"
+                    className="bg-muted border-input"
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label className="text-gray-700 font-medium">
+                  <Label className="text-foreground font-medium">
                     Street Number
                   </Label>
                   <Input
@@ -702,11 +702,11 @@ export default function Employment() {
                       handleAddressChange("street_number", e.target.value)
                     }
                     placeholder="221"
-                    className="bg-gray-50 border-gray-300"
+                    className="bg-muted border-input"
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label className="text-gray-700 font-medium">
+                  <Label className="text-foreground font-medium">
                     Street Name
                   </Label>
                   <Input
@@ -715,33 +715,33 @@ export default function Employment() {
                       handleAddressChange("street_name", e.target.value)
                     }
                     placeholder="Street name"
-                    className="bg-gray-50 border-gray-300"
+                    className="bg-muted border-input"
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label className="text-gray-700 font-medium">City</Label>
+                  <Label className="text-foreground font-medium">City</Label>
                   <Input
                     value={formData.address.city}
                     onChange={(e) =>
                       handleAddressChange("city", e.target.value)
                     }
                     placeholder="City"
-                    className="bg-gray-50 border-gray-300"
+                    className="bg-muted border-input"
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label className="text-gray-700 font-medium">Province</Label>
+                  <Label className="text-foreground font-medium">Province</Label>
                   <Input
                     value={formData.address.province}
                     onChange={(e) =>
                       handleAddressChange("province", e.target.value)
                     }
                     placeholder="Province"
-                    className="bg-gray-50 border-gray-300"
+                    className="bg-muted border-input"
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label className="text-gray-700 font-medium">
+                  <Label className="text-foreground font-medium">
                     Postal Code
                   </Label>
                   <Input
@@ -750,34 +750,34 @@ export default function Employment() {
                       handleAddressChange("postal_code", e.target.value)
                     }
                     placeholder="Postal"
-                    className="bg-gray-50 border-gray-300"
+                    className="bg-muted border-input"
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label className="text-gray-700 font-medium">Country</Label>
+                  <Label className="text-foreground font-medium">Country</Label>
                   <Input
                     value={formData.address.country}
                     onChange={(e) =>
                       handleAddressChange("country", e.target.value)
                     }
                     placeholder="Country"
-                    className="bg-gray-50 border-gray-300"
+                    className="bg-muted border-input"
                   />
                 </div>
               </div>
             </div>
 
             <div className="space-y-6 pt-6 border-t">
-              <h2 className="text-xl font-semibold text-gray-900">
+              <h2 className="text-xl font-semibold text-foreground">
                 Other Income
               </h2>
               {formData.other_income.map((income, index) => (
                 <div
                   key={index}
-                  className="border border-gray-200 p-6 rounded-lg space-y-4 bg-gray-50"
+                  className="border border-gray-200 p-6 rounded-lg space-y-4 bg-muted"
                 >
                   <div className="flex justify-between items-center">
-                    <h3 className="font-semibold text-gray-900">
+                    <h3 className="font-semibold text-foreground">
                       Income {index + 1}
                     </h3>
                     <Button
@@ -793,7 +793,7 @@ export default function Employment() {
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <Label className="text-gray-700 font-medium">
+                      <Label className="text-foreground font-medium">
                         Income Type
                       </Label>
                       <SearchableDropdown
@@ -814,7 +814,7 @@ export default function Employment() {
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label className="text-gray-700 font-medium">
+                      <Label className="text-foreground font-medium">
                         Income Period
                       </Label>
                       <SearchableDropdown
@@ -835,7 +835,7 @@ export default function Employment() {
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label className="text-gray-700 font-medium">
+                      <Label className="text-foreground font-medium">
                         Income Amount
                       </Label>
                       <Input
@@ -846,11 +846,11 @@ export default function Employment() {
                           handleIncomeChange(index, "income", e.target.value)
                         }
                         placeholder="500.00"
-                        className="bg-white border-gray-300"
+                        className="bg-card border-input"
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label className="text-gray-700 font-medium">
+                      <Label className="text-foreground font-medium">
                         Description
                       </Label>
                       <Textarea
@@ -864,7 +864,7 @@ export default function Employment() {
                         }
                         placeholder="Income description"
                         rows={1}
-                        className="bg-white border-gray-300"
+                        className="bg-card border-input"
                       />
                     </div>
                   </div>

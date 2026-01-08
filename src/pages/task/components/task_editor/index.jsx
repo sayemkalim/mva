@@ -107,7 +107,7 @@ const ContactSearch = ({ value, onChange, label, initialContactName }) => {
 
   return (
     <div className="space-y-2">
-      <Label className="text-gray-700 font-medium">{label}</Label>
+      <Label className="text-foreground font-medium">{label}</Label>
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
           <Button
@@ -206,7 +206,7 @@ const SearchableSelect = ({ label, options, value, onChange, placeholder }) => {
 
   return (
     <div className="space-y-2">
-      <Label className="text-gray-700 font-medium">{label}</Label>
+      <Label className="text-foreground font-medium">{label}</Label>
       <Popover>
         <PopoverTrigger asChild>
           <Button
@@ -261,7 +261,7 @@ const MultiSelect = ({ label, options, value, onChange, placeholder }) => {
 
   return (
     <div className="space-y-2">
-      <Label className="text-gray-700 font-medium">{label}</Label>
+      <Label className="text-foreground font-medium">{label}</Label>
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
           <Button
@@ -334,7 +334,7 @@ const DatePicker = ({ label, value, onChange }) => {
 
   return (
     <div className="space-y-2">
-      <Label className="text-gray-700 font-medium">{label}</Label>
+      <Label className="text-foreground font-medium">{label}</Label>
       <Popover>
         <PopoverTrigger asChild>
           <Button
@@ -377,7 +377,7 @@ const DateTimePicker = ({ label, value, onChange }) => {
 
   return (
     <div className="space-y-2">
-      <Label className="text-gray-700 font-medium">{label}</Label>
+      <Label className="text-foreground font-medium">{label}</Label>
       <Input
         type="datetime-local"
         value={dateTime}
@@ -499,7 +499,7 @@ const FileUploadBox = ({ files, onFilesChange, onUpload, onDelete }) => {
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center">
-        <Label className="text-lg font-semibold text-gray-900">
+        <Label className="text-lg font-semibold text-foreground">
           Attachments
         </Label>
         <div className="text-sm text-muted-foreground">
@@ -522,7 +522,7 @@ const FileUploadBox = ({ files, onFilesChange, onUpload, onDelete }) => {
         className={cn(
           "relative border-2 border-dashed rounded-lg p-6 transition-all",
           isDragging && "border-primary bg-primary/10 scale-[1.02]",
-          files.length > 0 ? "border-gray-300" : "border-gray-300"
+          files.length > 0 ? "border-input" : "border-input"
         )}
       >
         {files.length === 0 ? (
@@ -534,7 +534,7 @@ const FileUploadBox = ({ files, onFilesChange, onUpload, onDelete }) => {
               <Upload className="h-8 w-8 text-primary" />
             </div>
             <div>
-              <p className="text-base font-medium text-gray-900">
+              <p className="text-base font-medium text-foreground">
                 Click to upload or drag and drop
               </p>
               <p className="text-sm text-muted-foreground mt-1">
@@ -548,7 +548,7 @@ const FileUploadBox = ({ files, onFilesChange, onUpload, onDelete }) => {
               {files.map((file) => (
                 <div
                   key={file.tempId}
-                  className="relative bg-white border rounded-lg overflow-hidden hover:shadow-md transition-shadow group"
+                  className="relative bg-card border rounded-lg overflow-hidden hover:shadow-md transition-shadow group"
                 >
                   <button
                     type="button"
@@ -626,7 +626,7 @@ const FileUploadBox = ({ files, onFilesChange, onUpload, onDelete }) => {
             </div>
             <div
               onClick={handleBoxClick}
-              className="pt-2 border-t border-dashed border-gray-300 cursor-pointer hover:bg-primary/5 rounded transition-colors"
+              className="pt-2 border-t border-dashed border-input cursor-pointer hover:bg-primary/5 rounded transition-colors"
             >
               <p className="text-sm text-muted-foreground text-center py-2">
                 Click anywhere or drag files to add more attachments
@@ -1047,10 +1047,10 @@ export default function TaskPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-muted">
       <Navbar2 />
-      <header className="bg-white border-b px-6 py-3">
-        <div className="flex items-center justify-end gap-6 text-sm text-gray-700">
+      <header className="bg-card border-b px-6 py-3">
+        <div className="flex items-center justify-end gap-6 text-sm text-foreground">
           <div>
             Unpaid: <span className="font-semibold">$ 0</span>
           </div>
@@ -1066,11 +1066,11 @@ export default function TaskPage() {
         </div>
       </header>
 
-      <nav className="bg-white border-b px-6 py-4 text-sm text-gray-600">
+      <nav className="bg-card border-b px-6 py-4 text-sm text-muted-foreground">
         <div className="flex items-center gap-2">
           <button
             onClick={() => navigate("/dashboard")}
-            className="hover:text-gray-900 transition"
+            className="hover:text-foreground transition"
             type="button"
           >
             Dashboard
@@ -1078,25 +1078,25 @@ export default function TaskPage() {
           <ChevronRight className="w-4 h-4" />
           <button
             onClick={() => navigate("/dashboard/tasks")}
-            className="hover:text-gray-900 transition"
+            className="hover:text-foreground transition"
             type="button"
           >
             Tasks
           </button>
           <ChevronRight className="w-4 h-4" />
-          <span className="text-gray-900 font-medium">
+          <span className="text-foreground font-medium">
             {isEditMode ? "Edit Task" : "Add Task"}
           </span>
         </div>
       </nav>
 
       <main className="container mx-auto px-6 py-8 max-w-7xl">
-        <h1 className="text-2xl font-bold text-gray-900 mb-6">
+        <h1 className="text-2xl font-bold text-foreground mb-6">
           {isEditMode ? "Edit Task" : "Add New Task"}
         </h1>
 
         <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="bg-white rounded-lg shadow-sm border p-6 space-y-6">
+          <div className="bg-card rounded-lg shadow-sm border p-6 space-y-6">
             <div className="grid grid-cols-1 gap-6">
               <ContactSearch
                 label="Contact"
@@ -1116,7 +1116,7 @@ export default function TaskPage() {
               />
 
               <div className="space-y-2">
-                <Label className="text-gray-700 font-medium">Subject</Label>
+                <Label className="text-foreground font-medium">Subject</Label>
                 <Input
                   type="text"
                   value={formData.subject}
@@ -1135,7 +1135,7 @@ export default function TaskPage() {
 
             <div className="grid grid-cols-1 gap-6">
               <div className="space-y-2">
-                <Label className="text-gray-700 font-medium">Description</Label>
+                <Label className="text-foreground font-medium">Description</Label>
                 <Textarea
                   value={formData.description}
                   onChange={(e) =>
@@ -1186,7 +1186,7 @@ export default function TaskPage() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               <div className="space-y-2">
-                <Label className="text-gray-700 font-medium">Billable</Label>
+                <Label className="text-foreground font-medium">Billable</Label>
                 <div className="flex items-center space-x-2 h-11">
                   <Checkbox
                     id="billable"
@@ -1205,7 +1205,7 @@ export default function TaskPage() {
               </div>
 
               <div className="space-y-2">
-                <Label className="text-gray-700 font-medium">Notify Text</Label>
+                <Label className="text-foreground font-medium">Notify Text</Label>
                 <div className="flex items-center space-x-2 h-11">
                   <Checkbox
                     id="notify_text"
@@ -1224,7 +1224,7 @@ export default function TaskPage() {
               </div>
 
               <div className="space-y-2">
-                <Label className="text-gray-700 font-medium">
+                <Label className="text-foreground font-medium">
                   Calendar Event
                 </Label>
                 <div className="flex items-center space-x-2 h-11">
@@ -1245,7 +1245,7 @@ export default function TaskPage() {
               </div>
 
               <div className="space-y-2">
-                <Label className="text-gray-700 font-medium">Reminders</Label>
+                <Label className="text-foreground font-medium">Reminders</Label>
                 <div className="flex items-center space-x-2 h-11">
                   <Checkbox
                     id="trigger_appointment_reminders"
@@ -1269,7 +1269,7 @@ export default function TaskPage() {
 
             <div className="space-y-4">
               <div className="flex justify-between items-center">
-                <Label className="text-lg font-semibold text-gray-900">
+                <Label className="text-lg font-semibold text-foreground">
                   Reminders
                 </Label>
                 <Button
@@ -1286,10 +1286,10 @@ export default function TaskPage() {
               {formData.reminders.map((reminder, index) => (
                 <div
                   key={index}
-                  className="bg-gray-50 rounded-lg p-4 space-y-4 border"
+                  className="bg-muted rounded-lg p-4 space-y-4 border"
                 >
                   <div className="flex justify-between items-center">
-                    <h4 className="font-medium text-gray-900">
+                    <h4 className="font-medium text-foreground">
                       Reminder #{index + 1}
                     </h4>
                     <Button

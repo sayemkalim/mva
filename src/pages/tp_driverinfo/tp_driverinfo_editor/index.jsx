@@ -40,7 +40,7 @@ function SearchableDropdown({
 
   return (
     <div className="space-y-2">
-      {label && <label className="text-gray-700 font-medium">{label}</label>}
+      {label && <label className="text-foreground font-medium">{label}</label>}
 
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
@@ -72,11 +72,10 @@ function SearchableDropdown({
                     className="cursor-pointer"
                   >
                     <Check
-                      className={`mr-2 w-5 h-5 ${
-                        String(option.id) === String(value)
+                      className={`mr-2 w-5 h-5 ${String(option.id) === String(value)
                           ? "opacity-100"
                           : "opacity-0"
-                      }`}
+                        }`}
                     />
                     {option.name}
                   </CommandItem>
@@ -261,40 +260,55 @@ export default function DriverInfoForm() {
     );
   }
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-muted">
       <Navbar2 />
 
       {/* Breadcrumb */}
-      <div className="bg-white border-b px-6 py-4">
-        <div className="flex items-center gap-2 text-sm text-gray-600">
+      <div className="bg-card border-b px-6 py-4">
+        <div className="flex items-center gap-2 text-sm text-muted-foreground">
           <button
             onClick={() => navigate("/dashboard")}
-            className="hover:text-gray-900 transition"
+            className="hover:text-foreground transition"
           >
             Dashboard
           </button>
           <ChevronRight className="w-4 h-4" />
           <button
             onClick={() => navigate("/dashboard/workstation")}
-            className="hover:text-gray-900 transition"
+            className="hover:text-foreground transition"
           >
             Workstation
           </button>
           <ChevronRight className="w-4 h-4" />
-          <span className="text-gray-900 font-medium">Driver Information</span>
+          <span className="text-foreground font-medium">Driver Information</span>
         </div>
       </div>
-
+      <div className="bg-card border-b px-6 py-3">
+        <div className="flex items-center justify-end gap-6 text-sm">
+          <span className="text-foreground">
+            Unpaid: <span className="font-semibold">$ 0</span>
+          </span>
+          <span className="text-foreground">
+            Unbilled: <span className="font-semibold">$ 0</span>
+          </span>
+          <span className="text-foreground">
+            Client Funds-Operating: <span className="font-semibold">$ 0</span>
+          </span>
+          <span className="text-foreground">
+            Client Funds-Trust: <span className="font-semibold">$ 0</span>
+          </span>
+        </div>
+      </div>
       {/* Main Content */}
       <div className="container mx-auto px-6 py-8 max-w-7xl">
-        <div className="bg-white rounded-lg shadow-sm border p-8">
+        <div className="bg-card rounded-lg shadow-sm border p-8">
           <form onSubmit={handleSubmit} className="space-y-8">
-            <h2 className="text-3xl font-extrabold text-gray-900 mb-4">
+            <h2 className="text-3xl font-extrabold text-foreground mb-4">
               Driver Information
             </h2>
 
             {/* Policy holder same as applicant (checkbox) */}
-            <div className="border rounded-2xl p-6 bg-gray-50 space-y-4">
+            <div className="border rounded-2xl p-6 bg-muted space-y-4">
               <div className="flex items-center gap-3">
                 <input
                   id="policy_same_yes"
@@ -324,7 +338,7 @@ export default function DriverInfoForm() {
                       onChange={(e) =>
                         updateField("policy_holder_name", e.target.value)
                       }
-                      className="h-9 bg-gray-50 border-gray-300"
+                      className="h-9 bg-muted border-input"
                     />
                   </div>
                 )}
@@ -338,15 +352,15 @@ export default function DriverInfoForm() {
                     onChange={(e) =>
                       updateField("conflict_search", e.target.value)
                     }
-                    className="h-9 bg-gray-50 border-gray-300"
+                    className="h-9 bg-muted border-input"
                   />
                 </div>
               </div>
             </div>
 
             {/* Primary Address */}
-            <div className="border rounded-2xl p-6 bg-gray-50 space-y-4">
-              <h3 className="text-xl font-bold text-gray-800">
+            <div className="border rounded-2xl p-6 bg-muted space-y-4">
+              <h3 className="text-xl font-bold text-foreground">
                 Primary Address
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -362,7 +376,7 @@ export default function DriverInfoForm() {
                         e.target.value
                       )
                     }
-                    className="h-9 bg-gray-50 border-gray-300"
+                    className="h-9 bg-muted border-input"
                   />
                 </div>
                 <div className="space-y-2">
@@ -377,7 +391,7 @@ export default function DriverInfoForm() {
                         e.target.value
                       )
                     }
-                    className="h-9 bg-gray-50 border-gray-300"
+                    className="h-9 bg-muted border-input"
                   />
                 </div>
                 <div className="space-y-2">
@@ -392,7 +406,7 @@ export default function DriverInfoForm() {
                         e.target.value
                       )
                     }
-                    className="h-9 bg-gray-50 border-gray-300"
+                    className="h-9 bg-muted border-input"
                   />
                 </div>
                 <div className="space-y-2">
@@ -403,7 +417,7 @@ export default function DriverInfoForm() {
                     onChange={(e) =>
                       updateAddressField("address", "city", e.target.value)
                     }
-                    className="h-9 bg-gray-50 border-gray-300"
+                    className="h-9 bg-muted border-input"
                   />
                 </div>
                 <div className="space-y-2">
@@ -414,7 +428,7 @@ export default function DriverInfoForm() {
                     onChange={(e) =>
                       updateAddressField("address", "province", e.target.value)
                     }
-                    className="h-9 bg-gray-50 border-gray-300"
+                    className="h-9 bg-muted border-input"
                   />
                 </div>
                 <div className="space-y-2">
@@ -429,7 +443,7 @@ export default function DriverInfoForm() {
                         e.target.value
                       )
                     }
-                    className="h-9 bg-gray-50 border-gray-300"
+                    className="h-9 bg-muted border-input"
                   />
                 </div>
                 <div className="space-y-2">
@@ -440,15 +454,15 @@ export default function DriverInfoForm() {
                     onChange={(e) =>
                       updateAddressField("address", "country", e.target.value)
                     }
-                    className="h-9 bg-gray-50 border-gray-300"
+                    className="h-9 bg-muted border-input"
                   />
                 </div>
               </div>
             </div>
 
             {/* Licence + Driver location */}
-            <div className="border rounded-2xl p-6 bg-gray-50 space-y-4">
-              <h3 className="text-xl font-bold text-gray-800">
+            <div className="border rounded-2xl p-6 bg-muted space-y-4">
+              <h3 className="text-xl font-bold text-foreground">
                 Driver Licence & Location
               </h3>
 
@@ -463,7 +477,7 @@ export default function DriverInfoForm() {
                     onChange={(e) =>
                       updateField("drivers_licence_state", e.target.value)
                     }
-                    className="h-9 bg-gray-50 border-gray-300"
+                    className="h-9 bg-muted border-input"
                   />
                 </div>
 
@@ -477,7 +491,7 @@ export default function DriverInfoForm() {
                     onChange={(e) =>
                       updateField("drivers_licence_number", e.target.value)
                     }
-                    className="h-9 bg-gray-50 border-gray-300"
+                    className="h-9 bg-muted border-input"
                   />
                 </div>
 
@@ -492,7 +506,7 @@ export default function DriverInfoForm() {
                     onChange={(e) =>
                       updateField("drivers_licence_expiry_date", e.target.value)
                     }
-                    className="h-9 bg-gray-50 border-gray-300"
+                    className="h-9 bg-muted border-input"
                   />
                 </div>
 
@@ -513,14 +527,14 @@ export default function DriverInfoForm() {
                     onChange={(e) =>
                       updateField("dl_searched_date", e.target.value)
                     }
-                    className="h-9 bg-gray-50 border-gray-300"
+                    className="h-9 bg-muted border-input"
                   />
                 </div>
               </div>
             </div>
 
             {/* Mailing Address same as above */}
-            <div className="border rounded-2xl p-6 bg-gray-50 space-y-4">
+            <div className="border rounded-2xl p-6 bg-muted space-y-4">
               <div className="flex items-center gap-3">
                 <input
                   id="same_as_above"
@@ -538,7 +552,7 @@ export default function DriverInfoForm() {
 
               {!form.same_as_above && (
                 <>
-                  <h3 className="text-xl font-bold text-gray-800 mt-4">
+                  <h3 className="text-xl font-bold text-foreground mt-4">
                     Second Address
                   </h3>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -554,7 +568,7 @@ export default function DriverInfoForm() {
                             e.target.value
                           )
                         }
-                        className="h-9 bg-gray-50 border-gray-300"
+                        className="h-9 bg-muted border-input"
                       />
                     </div>
                     <div className="space-y-2">
@@ -569,7 +583,7 @@ export default function DriverInfoForm() {
                             e.target.value
                           )
                         }
-                        className="h-9 bg-gray-50 border-gray-300"
+                        className="h-9 bg-muted border-input"
                       />
                     </div>
                     <div className="space-y-2">
@@ -584,7 +598,7 @@ export default function DriverInfoForm() {
                             e.target.value
                           )
                         }
-                        className="h-9 bg-gray-50 border-gray-300"
+                        className="h-9 bg-muted border-input"
                       />
                     </div>
                     <div className="space-y-2">
@@ -599,7 +613,7 @@ export default function DriverInfoForm() {
                             e.target.value
                           )
                         }
-                        className="h-9 bg-gray-50 border-gray-300"
+                        className="h-9 bg-muted border-input"
                       />
                     </div>
                     <div className="space-y-2">
@@ -614,7 +628,7 @@ export default function DriverInfoForm() {
                             e.target.value
                           )
                         }
-                        className="h-9 bg-gray-50 border-gray-300"
+                        className="h-9 bg-muted border-input"
                       />
                     </div>
                     <div className="space-y-2">
@@ -629,7 +643,7 @@ export default function DriverInfoForm() {
                             e.target.value
                           )
                         }
-                        className="h-9 bg-gray-50 border-gray-300"
+                        className="h-9 bg-muted border-input"
                       />
                     </div>
                     <div className="space-y-2">
@@ -644,7 +658,7 @@ export default function DriverInfoForm() {
                             e.target.value
                           )
                         }
-                        className="h-9 bg-gray-50 border-gray-300"
+                        className="h-9 bg-muted border-input"
                       />
                     </div>
                   </div>

@@ -62,7 +62,7 @@ const MatterEditor = () => {
           <div className="flex justify-center items-center h-48">
             <div className="flex flex-col items-center gap-3">
               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900"></div>
-              <span className="text-gray-600">
+              <span className="text-muted-foreground">
                 {isMetadataLoading
                   ? "Loading form data..."
                   : "Loading matter details..."}

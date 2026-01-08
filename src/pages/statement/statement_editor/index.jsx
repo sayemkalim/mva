@@ -35,7 +35,7 @@ const SearchableSelect = ({ label, options, value, onChange, placeholder }) => {
 
   return (
     <div className="space-y-2">
-      <Label className="text-gray-700 font-medium">{label}</Label>
+      <Label className="text-foreground font-medium">{label}</Label>
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
           <Button
@@ -180,12 +180,12 @@ export default function StatementOfDefencePage() {
   const isReceivedSodNo = selectedOption?.name?.toLowerCase() === "no";
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-muted">
       <Navbar2 />
 
       {/* Financial Summary Header */}
-      <header className="bg-white border-b px-6 py-3">
-        <div className="flex items-center justify-end gap-6 text-sm text-gray-700">
+      <header className="bg-card border-b px-6 py-3">
+        <div className="flex items-center justify-end gap-6 text-sm text-foreground">
           <div>
             Unpaid: <span className="font-semibold">$ 0</span>
           </div>
@@ -202,11 +202,11 @@ export default function StatementOfDefencePage() {
       </header>
 
       {/* Breadcrumb Navigation */}
-      <nav className="bg-white border-b px-6 py-4 text-sm text-gray-600">
+      <nav className="bg-card border-b px-6 py-4 text-sm text-muted-foreground">
         <div className="flex items-center gap-2">
           <button
             onClick={() => navigate("/dashboard")}
-            className="hover:text-gray-900 transition"
+            className="hover:text-foreground transition"
             type="button"
           >
             Dashboard
@@ -214,13 +214,13 @@ export default function StatementOfDefencePage() {
           <ChevronRight className="w-4 h-4" />
           <button
             onClick={() => navigate("/dashboard/workstation")}
-            className="hover:text-gray-900 transition"
+            className="hover:text-foreground transition"
             type="button"
           >
             Workstation
           </button>
           <ChevronRight className="w-4 h-4" />
-          <span className="text-gray-900 font-medium">
+          <span className="text-foreground font-medium">
             Statement of Defence
           </span>
         </div>
@@ -228,17 +228,17 @@ export default function StatementOfDefencePage() {
 
       {/* Main Content */}
       <main className="container mx-auto px-4 sm:px-6 py-6 sm:py-8 max-w-6xl">
-        <h1 className="text-2xl sm:text-3xl font-bold mb-6 text-gray-900">
+        <h1 className="text-2xl sm:text-3xl font-bold mb-6 text-foreground">
           Statement of Defence (SOD)
         </h1>
 
         <form
-          className="bg-white rounded-lg shadow-sm border p-6 sm:p-8 space-y-6"
+          className="bg-card rounded-lg shadow-sm border p-6 sm:p-8 space-y-6"
           onSubmit={handleSubmit}
         >
           {/* Basic SOD Information */}
           <div>
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">
+            <h2 className="text-lg font-semibold text-foreground mb-4">
               Basic Information
             </h2>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -253,7 +253,7 @@ export default function StatementOfDefencePage() {
               {/* Conditional rendering based on Received SOD selection */}
               {isReceivedSodYes && (
                 <div className="space-y-2">
-                  <Label className="text-gray-700 font-medium">Date</Label>
+                  <Label className="text-foreground font-medium">Date</Label>
                   <Input
                     type="date"
                     name="sod_date"
@@ -266,7 +266,7 @@ export default function StatementOfDefencePage() {
 
               {isReceivedSodNo && (
                 <div className="space-y-2">
-                  <Label className="text-gray-700 font-medium">
+                  <Label className="text-foreground font-medium">
                     File Default Judgment
                   </Label>
                   <Input

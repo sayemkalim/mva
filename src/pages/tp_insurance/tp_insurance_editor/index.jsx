@@ -156,54 +156,54 @@ export default function TPInsurerForm() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-muted">
       <Navbar2 />
 
       {/* Top Stats Bar */}
-      <div className="bg-white border-b px-6 py-3">
+      <div className="bg-card border-b px-6 py-3">
         <div className="flex items-center justify-end gap-6 text-sm">
-          <span className="text-gray-700">
+          <span className="text-foreground">
             Unpaid: <span className="font-semibold">$ 0</span>
           </span>
-          <span className="text-gray-700">
+          <span className="text-foreground">
             Unbilled: <span className="font-semibold">$ 0</span>
           </span>
-          <span className="text-gray-700">
+          <span className="text-foreground">
             Client Funds-Operating: <span className="font-semibold">$ 0</span>
           </span>
-          <span className="text-gray-700">
+          <span className="text-foreground">
             Client Funds-Trust: <span className="font-semibold">$ 0</span>
           </span>
         </div>
       </div>
 
       {/* Breadcrumb */}
-      <div className="bg-white border-b px-6 py-4">
-        <div className="flex items-center gap-2 text-sm text-gray-600">
+      <div className="bg-card border-b px-6 py-4">
+        <div className="flex items-center gap-2 text-sm text-muted-foreground">
           <button
             onClick={() => navigate("/dashboard")}
-            className="hover:text-gray-900 transition"
+            className="hover:text-foreground transition"
           >
             Dashboard
           </button>
           <ChevronRight className="w-4 h-4" />
           <button
             onClick={() => navigate("/dashboard/workstation")}
-            className="hover:text-gray-900 transition"
+            className="hover:text-foreground transition"
           >
             Workstation
           </button>
           <ChevronRight className="w-4 h-4" />
-          <span className="text-gray-900 font-medium">TP Insurance</span>
+          <span className="text-foreground font-medium">TP Insurance</span>
         </div>
       </div>
 
       {/* Main Content */}
       <div className="container mx-auto px-6 py-8 max-w-7xl">
-        <div className="bg-white rounded-lg shadow-sm border p-8">
+        <div className="bg-card rounded-lg shadow-sm border p-8">
           <form onSubmit={handleSubmit} className="space-y-8">
             <div className="flex justify-between items-center">
-              <h2 className="text-3xl font-extrabold text-gray-900">
+              <h2 className="text-3xl font-extrabold text-foreground">
                 TP Insurer Records
               </h2>
 
@@ -222,7 +222,7 @@ export default function TPInsurerForm() {
             {records.map((rec, idx) => (
               <div
                 key={idx}
-                className="relative border border-gray-300 rounded-2xl p-8 bg-gray-50"
+                className="relative border border-input rounded-2xl p-8 bg-muted"
               >
                 {records.length > 1 && (
                   <Button
@@ -241,7 +241,7 @@ export default function TPInsurerForm() {
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
                   <div className="space-y-2">
                     <Label
-                      className="text-gray-700 font-medium cursor-pointer"
+                      className="text-foreground font-medium cursor-pointer"
                       htmlFor={`firm_name_${idx}`}
                     >
                       Firm Name
@@ -253,13 +253,13 @@ export default function TPInsurerForm() {
                         updateField(idx, "firm_name", e.target.value)
                       }
                       placeholder="Firm Name"
-                      className="h-9 bg-gray-50 border-gray-300"
+                      className="h-9 bg-muted border-input"
                     />
                   </div>
 
                   <div className="space-y-2">
                     <Label
-                      className="text-gray-700 font-medium cursor-pointer"
+                      className="text-foreground font-medium cursor-pointer"
                       htmlFor={`last_name_${idx}`}
                     >
                       Last Name
@@ -271,13 +271,13 @@ export default function TPInsurerForm() {
                         updateField(idx, "last_name", e.target.value)
                       }
                       placeholder="Last Name"
-                      className="h-9 bg-gray-50 border-gray-300"
+                      className="h-9 bg-muted border-input"
                     />
                   </div>
 
                   <div className="space-y-2">
                     <Label
-                      className="text-gray-700 font-medium cursor-pointer"
+                      className="text-foreground font-medium cursor-pointer"
                       htmlFor={`middle_name_${idx}`}
                     >
                       Middle Name
@@ -289,13 +289,13 @@ export default function TPInsurerForm() {
                         updateField(idx, "middle_name", e.target.value)
                       }
                       placeholder="Middle Name"
-                      className="h-9 bg-gray-50 border-gray-300"
+                      className="h-9 bg-muted border-input"
                     />
                   </div>
 
                   <div className="space-y-2">
                     <Label
-                      className="text-gray-700 font-medium cursor-pointer"
+                      className="text-foreground font-medium cursor-pointer"
                       htmlFor={`insurance_company_${idx}`}
                     >
                       Insurance Company
@@ -307,13 +307,13 @@ export default function TPInsurerForm() {
                         updateField(idx, "insurance_company", e.target.value)
                       }
                       placeholder="Insurance Company"
-                      className="h-9 bg-gray-50 border-gray-300"
+                      className="h-9 bg-muted border-input"
                     />
                   </div>
 
                   <div className="space-y-2">
                     <Label
-                      className="text-gray-700 font-medium cursor-pointer"
+                      className="text-foreground font-medium cursor-pointer"
                       htmlFor={`policy_no_${idx}`}
                     >
                       Policy Number
@@ -325,13 +325,13 @@ export default function TPInsurerForm() {
                         updateField(idx, "policy_no", e.target.value)
                       }
                       placeholder="Policy Number"
-                      className="h-9 bg-gray-50 border-gray-300"
+                      className="h-9 bg-muted border-input"
                     />
                   </div>
 
                   <div className="space-y-2">
                     <Label
-                      className="text-gray-700 font-medium cursor-pointer"
+                      className="text-foreground font-medium cursor-pointer"
                       htmlFor={`claim_no_${idx}`}
                     >
                       Claim Number
@@ -343,19 +343,19 @@ export default function TPInsurerForm() {
                         updateField(idx, "claim_no", e.target.value)
                       }
                       placeholder="Claim Number"
-                      className="h-9 bg-gray-50 border-gray-300"
+                      className="h-9 bg-muted border-input"
                     />
                   </div>
                 </div>
 
                 {/* Address Section */}
-                <h3 className="mt-4 mb-5 text-xl font-bold text-gray-800">
+                <h3 className="mt-4 mb-5 text-xl font-bold text-foreground">
                   Address
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                   <div className="space-y-2">
                     <Label
-                      className="text-gray-700 font-medium cursor-pointer"
+                      className="text-foreground font-medium cursor-pointer"
                       htmlFor={`street_${idx}`}
                     >
                       Street
@@ -367,13 +367,13 @@ export default function TPInsurerForm() {
                         updateAddressField(idx, "street", e.target.value)
                       }
                       placeholder="Street"
-                      className="h-9 bg-gray-50 border-gray-300"
+                      className="h-9 bg-muted border-input"
                     />
                   </div>
 
                   <div className="space-y-2">
                     <Label
-                      className="text-gray-700 font-medium cursor-pointer"
+                      className="text-foreground font-medium cursor-pointer"
                       htmlFor={`city_${idx}`}
                     >
                       City
@@ -385,13 +385,13 @@ export default function TPInsurerForm() {
                         updateAddressField(idx, "city", e.target.value)
                       }
                       placeholder="City"
-                      className="h-9 bg-gray-50 border-gray-300"
+                      className="h-9 bg-muted border-input"
                     />
                   </div>
 
                   <div className="space-y-2">
                     <Label
-                      className="text-gray-700 font-medium cursor-pointer"
+                      className="text-foreground font-medium cursor-pointer"
                       htmlFor={`province_${idx}`}
                     >
                       Province
@@ -403,13 +403,13 @@ export default function TPInsurerForm() {
                         updateAddressField(idx, "province", e.target.value)
                       }
                       placeholder="Province"
-                      className="h-9 bg-gray-50 border-gray-300"
+                      className="h-9 bg-muted border-input"
                     />
                   </div>
 
                   <div className="space-y-2">
                     <Label
-                      className="text-gray-700 font-medium cursor-pointer"
+                      className="text-foreground font-medium cursor-pointer"
                       htmlFor={`postal_code_${idx}`}
                     >
                       Postal Code
@@ -421,13 +421,13 @@ export default function TPInsurerForm() {
                         updateAddressField(idx, "postal_code", e.target.value)
                       }
                       placeholder="Postal Code"
-                      className="h-9 bg-gray-50 border-gray-300"
+                      className="h-9 bg-muted border-input"
                     />
                   </div>
 
                   <div className="space-y-2">
                     <Label
-                      className="text-gray-700 font-medium cursor-pointer"
+                      className="text-foreground font-medium cursor-pointer"
                       htmlFor={`country_${idx}`}
                     >
                       Country
@@ -439,7 +439,7 @@ export default function TPInsurerForm() {
                         updateAddressField(idx, "country", e.target.value)
                       }
                       placeholder="Country"
-                      className="h-9 bg-gray-50 border-gray-300"
+                      className="h-9 bg-muted border-input"
                     />
                   </div>
                 </div>

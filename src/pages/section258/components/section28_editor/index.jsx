@@ -50,7 +50,7 @@ const SearchableDropdown = ({
         <Button
           variant="outline"
           role="combobox"
-          className="w-full justify-between font-normal bg-gray-50"
+          className="w-full justify-between font-normal bg-muted"
           type="button"
         >
           {selectedOption ? selectedOption.name : placeholder}
@@ -588,13 +588,13 @@ export default function Section258Form() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-muted">
       <Navbar2 />
       <form
         onSubmit={handleSubmit}
         className="container mx-auto px-6 py-8 max-w-7xl"
       >
-        <div className="bg-white rounded-lg shadow-sm border p-8">
+        <div className="bg-card rounded-lg shadow-sm border p-8">
           {/* Main document fields */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-2">
             <div className="space-y-2">
@@ -622,7 +622,7 @@ export default function Section258Form() {
                     s33_req_received: e.target.value,
                   }))
                 }
-                className="h-9 bg-gray-50 border-gray-300"
+                className="h-9 bg-muted border-input"
               />
             </div>
           </div>
@@ -649,7 +649,7 @@ export default function Section258Form() {
                 onChange={(e) =>
                   setMainForm((p) => ({ ...p, from_date: e.target.value }))
                 }
-                className="h-9 bg-gray-50 border-gray-300"
+                className="h-9 bg-muted border-input"
               />
             </div>
             <div className="space-y-2">
@@ -661,7 +661,7 @@ export default function Section258Form() {
                 onChange={(e) =>
                   setMainForm((p) => ({ ...p, to_date: e.target.value }))
                 }
-                className="h-9 bg-gray-50 border-gray-300"
+                className="h-9 bg-muted border-input"
               />
             </div>
           </div>
@@ -684,7 +684,7 @@ export default function Section258Form() {
                         ambulance_cnr: e.target.value,
                       }))
                     }
-                    className="h-9 bg-gray-50 border-gray-300"
+                    className="h-9 bg-muted border-input"
                     placeholder="Reference Number"
                   />
                 </div>
@@ -698,7 +698,7 @@ export default function Section258Form() {
                         medical_clinic_name: e.target.value,
                       }))
                     }
-                    className="h-9 bg-gray-50 border-gray-300"
+                    className="h-9 bg-muted border-input"
                     placeholder="Clinic Name"
                   />
                 </div>
@@ -709,7 +709,7 @@ export default function Section258Form() {
                     onChange={(e) =>
                       setMainForm((p) => ({ ...p, phone: e.target.value }))
                     }
-                    className="h-9 bg-gray-50 border-gray-300"
+                    className="h-9 bg-muted border-input"
                     placeholder="Phone"
                   />
                 </div>
@@ -720,7 +720,7 @@ export default function Section258Form() {
                     onChange={(e) =>
                       setMainForm((p) => ({ ...p, fax: e.target.value }))
                     }
-                    className="h-9 bg-gray-50 border-gray-300"
+                    className="h-9 bg-muted border-input"
                     placeholder="Fax"
                   />
                 </div>
@@ -731,7 +731,7 @@ export default function Section258Form() {
                     onChange={(e) =>
                       setMainForm((p) => ({ ...p, email: e.target.value }))
                     }
-                    className="h-9 bg-gray-50 border-gray-300"
+                    className="h-9 bg-muted border-input"
                     placeholder="Email"
                   />
                 </div>
@@ -764,7 +764,7 @@ export default function Section258Form() {
                 {mainForm.communications.map((c, commIdx) => (
                   <div
                     key={commIdx}
-                    className="grid grid-cols-1 md:grid-cols-4 gap-4 bg-white p-4 mb-3 border rounded-lg relative"
+                    className="grid grid-cols-1 md:grid-cols-4 gap-4 bg-card p-4 mb-3 border rounded-lg relative"
                   >
                     <Button
                       type="button"
@@ -783,7 +783,7 @@ export default function Section258Form() {
                         onChange={(e) =>
                           handleMainCommChange(commIdx, "date", e.target.value)
                         }
-                        className="h-9 bg-gray-50 border-gray-300"
+                        className="h-9 bg-muted border-input"
                       />
                     </div>
                     <div className="space-y-2">
@@ -838,7 +838,7 @@ export default function Section258Form() {
                             e.target.value
                           )
                         }
-                        className="h-9 bg-gray-50 border-gray-300"
+                        className="h-9 bg-muted border-input"
                       />
                     </div>
                   </div>
@@ -872,7 +872,7 @@ export default function Section258Form() {
                 meta.insurance_documents_requested_by_the_insurer
               ) || "Ambulance CNR";
             return (
-              <div key={idx} className="mb-8 border rounded-lg p-6 bg-gray-50">
+              <div key={idx} className="mb-8 border rounded-lg p-6 bg-muted">
                 <div className="flex items-center justify-between mb-2">
                   <div className="font-bold">Document {idx + 2}</div>
                   <Button
@@ -910,7 +910,7 @@ export default function Section258Form() {
                       onChange={(e) =>
                         handleDocSearchSelect(idx, "from_date", e.target.value)
                       }
-                      className="h-9 bg-gray-50 border-gray-300"
+                      className="h-9 bg-muted border-input"
                     />
                   </div>
                   <div className="space-y-2">
@@ -921,7 +921,7 @@ export default function Section258Form() {
                       onChange={(e) =>
                         handleDocSearchSelect(idx, "to_date", e.target.value)
                       }
-                      className="h-9 bg-gray-50 border-gray-300"
+                      className="h-9 bg-muted border-input"
                     />
                   </div>
                 </div>
@@ -939,7 +939,7 @@ export default function Section258Form() {
                               e.target.value
                             )
                           }
-                          className="h-9 bg-gray-50 border-gray-300"
+                          className="h-9 bg-muted border-input"
                           placeholder={`${selectedDocLabel} Ref No`}
                         />
                       </div>
@@ -954,7 +954,7 @@ export default function Section258Form() {
                               e.target.value
                             )
                           }
-                          className="h-9 bg-gray-50 border-gray-300"
+                          className="h-9 bg-muted border-input"
                           placeholder="Clinic Name"
                         />
                       </div>
@@ -965,7 +965,7 @@ export default function Section258Form() {
                           onChange={(e) =>
                             handleDocSearchSelect(idx, "phone", e.target.value)
                           }
-                          className="h-9 bg-gray-50 border-gray-300"
+                          className="h-9 bg-muted border-input"
                           placeholder="Phone"
                         />
                       </div>
@@ -976,7 +976,7 @@ export default function Section258Form() {
                           onChange={(e) =>
                             handleDocSearchSelect(idx, "fax", e.target.value)
                           }
-                          className="h-9 bg-gray-50 border-gray-300"
+                          className="h-9 bg-muted border-input"
                           placeholder="Fax"
                         />
                       </div>
@@ -987,7 +987,7 @@ export default function Section258Form() {
                           onChange={(e) =>
                             handleDocSearchSelect(idx, "email", e.target.value)
                           }
-                          className="h-9 bg-gray-50 border-gray-300"
+                          className="h-9 bg-muted border-input"
                           placeholder="Email"
                         />
                       </div>
@@ -1022,7 +1022,7 @@ export default function Section258Form() {
                       {doc.communications.map((c, commIdx) => (
                         <div
                           key={commIdx}
-                          className="grid grid-cols-1 md:grid-cols-4 gap-4 bg-white p-4 mb-3 border rounded-lg relative"
+                          className="grid grid-cols-1 md:grid-cols-4 gap-4 bg-card p-4 mb-3 border rounded-lg relative"
                         >
                           <Button
                             type="button"
@@ -1046,7 +1046,7 @@ export default function Section258Form() {
                                   e.target.value
                                 )
                               }
-                              className="h-9 bg-gray-50 border-gray-300"
+                              className="h-9 bg-muted border-input"
                             />
                           </div>
                           <div className="space-y-2">
@@ -1104,7 +1104,7 @@ export default function Section258Form() {
                                   e.target.value
                                 )
                               }
-                              className="h-9 bg-gray-50 border-gray-300"
+                              className="h-9 bg-muted border-input"
                             />
                           </div>
                         </div>
@@ -1126,7 +1126,7 @@ export default function Section258Form() {
                 onChange={(e) =>
                   setMainForm((p) => ({ ...p, deadline: e.target.value }))
                 }
-                className="h-9 bg-gray-50 border-gray-300"
+                className="h-9 bg-muted border-input"
               />
             </div>
             <div className="space-y-2">
@@ -1141,7 +1141,7 @@ export default function Section258Form() {
                     response_to_insurance: e.target.value,
                   }))
                 }
-                className="h-9 bg-gray-50 border-gray-300"
+                className="h-9 bg-muted border-input"
               />
             </div>
             <div className="space-y-2">

@@ -108,22 +108,22 @@ export default function AddUser() {
       <NavbarItem title="Add User" breadcrumbs={breadcrumbs} />
 
       <div className="container mx-auto px-6 py-8 max-w-6xl">
-        <div className="bg-white rounded-lg shadow-sm border p-8">
-          <h1 className="text-2xl font-bold text-gray-900 mb-8">
+        <div className="bg-card rounded-lg shadow-sm border p-8">
+          <h1 className="text-2xl font-bold text-foreground mb-8">
             Add New User
           </h1>
 
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Role Selection */}
             <div className="space-y-2">
-              <Label className="text-gray-700 font-medium">
+              <Label className="text-foreground font-medium">
                 Role <span className="text-red-500">*</span>
               </Label>
               <Select
                 value={formData.role_id}
                 onValueChange={(value) => handleChange("role_id", value)}
               >
-                <SelectTrigger className="h-10 bg-white border-gray-300">
+                <SelectTrigger className="h-10 bg-card border-input">
                   <SelectValue placeholder="Select a role" />
                 </SelectTrigger>
                 <SelectContent>
@@ -138,36 +138,36 @@ export default function AddUser() {
 
             {/* Personal Information */}
             <div className="border-t pt-6">
-              <h3 className="font-semibold text-gray-900 mb-4">
+              <h3 className="font-semibold text-foreground mb-4">
                 Personal Information
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label className="text-gray-700 font-medium">
+                  <Label className="text-foreground font-medium">
                     First Name <span className="text-red-500">*</span>
                   </Label>
                   <Input
                     value={formData.first_name}
                     onChange={(e) => handleChange("first_name", e.target.value)}
                     placeholder="John"
-                    className="h-10 bg-white border-gray-300"
+                    className="h-10 bg-card border-input"
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label className="text-gray-700 font-medium">
+                  <Label className="text-foreground font-medium">
                     Last Name <span className="text-red-500">*</span>
                   </Label>
                   <Input
                     value={formData.last_name}
                     onChange={(e) => handleChange("last_name", e.target.value)}
                     placeholder="Doe"
-                    className="h-10 bg-white border-gray-300"
+                    className="h-10 bg-card border-input"
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label className="text-gray-700 font-medium">
+                  <Label className="text-foreground font-medium">
                     Email <span className="text-red-500">*</span>
                   </Label>
                   <Input
@@ -175,12 +175,12 @@ export default function AddUser() {
                     value={formData.email}
                     onChange={(e) => handleChange("email", e.target.value)}
                     placeholder="john@example.com"
-                    className="h-10 bg-white border-gray-300"
+                    className="h-10 bg-card border-input"
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label className="text-gray-700 font-medium">
+                  <Label className="text-foreground font-medium">
                     Phone Number
                   </Label>
                   <Input
@@ -189,7 +189,7 @@ export default function AddUser() {
                       handleChange("phone_number", e.target.value)
                     }
                     placeholder="+1234567890"
-                    className="h-10 bg-white border-gray-300"
+                    className="h-10 bg-card border-input"
                   />
                 </div>
               </div>
@@ -197,12 +197,12 @@ export default function AddUser() {
 
             {/* Address Information */}
             <div className="border-t pt-6">
-              <h3 className="font-semibold text-gray-900 mb-4">
+              <h3 className="font-semibold text-foreground mb-4">
                 Address Information
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div className="space-y-2">
-                  <Label className="text-gray-700 font-medium">
+                  <Label className="text-foreground font-medium">
                     Street Number
                   </Label>
                   <Input
@@ -211,12 +211,12 @@ export default function AddUser() {
                       handleChange("street_number", e.target.value)
                     }
                     placeholder="123"
-                    className="h-10 bg-white border-gray-300"
+                    className="h-10 bg-card border-input"
                   />
                 </div>
 
                 <div className="space-y-2 md:col-span-2">
-                  <Label className="text-gray-700 font-medium">
+                  <Label className="text-foreground font-medium">
                     Street Name
                   </Label>
                   <Input
@@ -225,12 +225,12 @@ export default function AddUser() {
                       handleChange("street_name", e.target.value)
                     }
                     placeholder="Main St"
-                    className="h-10 bg-white border-gray-300"
+                    className="h-10 bg-card border-input"
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label className="text-gray-700 font-medium">
+                  <Label className="text-foreground font-medium">
                     Unit Number
                   </Label>
                   <Input
@@ -239,32 +239,32 @@ export default function AddUser() {
                       handleChange("unit_number", e.target.value)
                     }
                     placeholder="4B"
-                    className="h-10 bg-white border-gray-300"
+                    className="h-10 bg-card border-input"
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label className="text-gray-700 font-medium">City</Label>
+                  <Label className="text-foreground font-medium">City</Label>
                   <Input
                     value={formData.city}
                     onChange={(e) => handleChange("city", e.target.value)}
                     placeholder="Toronto"
-                    className="h-10 bg-white border-gray-300"
+                    className="h-10 bg-card border-input"
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label className="text-gray-700 font-medium">Province</Label>
+                  <Label className="text-foreground font-medium">Province</Label>
                   <Input
                     value={formData.province}
                     onChange={(e) => handleChange("province", e.target.value)}
                     placeholder="Ontario"
-                    className="h-10 bg-white border-gray-300"
+                    className="h-10 bg-card border-input"
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label className="text-gray-700 font-medium">
+                  <Label className="text-foreground font-medium">
                     Postal Code
                   </Label>
                   <Input
@@ -273,17 +273,17 @@ export default function AddUser() {
                       handleChange("postal_code", e.target.value)
                     }
                     placeholder="M5V 2K7"
-                    className="h-10 bg-white border-gray-300"
+                    className="h-10 bg-card border-input"
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label className="text-gray-700 font-medium">Country</Label>
+                  <Label className="text-foreground font-medium">Country</Label>
                   <Input
                     value={formData.country}
                     onChange={(e) => handleChange("country", e.target.value)}
                     placeholder="Canada"
-                    className="h-10 bg-white border-gray-300"
+                    className="h-10 bg-card border-input"
                   />
                 </div>
               </div>
@@ -291,10 +291,10 @@ export default function AddUser() {
 
             {/* Password */}
             <div className="border-t pt-6">
-              <h3 className="font-semibold text-gray-900 mb-4">Password</h3>
+              <h3 className="font-semibold text-foreground mb-4">Password</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label className="text-gray-700 font-medium">
+                  <Label className="text-foreground font-medium">
                     Password <span className="text-red-500">*</span>
                   </Label>
                   <Input
@@ -302,12 +302,12 @@ export default function AddUser() {
                     value={formData.password}
                     onChange={(e) => handleChange("password", e.target.value)}
                     placeholder="••••••••"
-                    className="h-10 bg-white border-gray-300"
+                    className="h-10 bg-card border-input"
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label className="text-gray-700 font-medium">
+                  <Label className="text-foreground font-medium">
                     Confirm Password <span className="text-red-500">*</span>
                   </Label>
                   <Input
@@ -317,7 +317,7 @@ export default function AddUser() {
                       handleChange("password_confirmation", e.target.value)
                     }
                     placeholder="••••••••"
-                    className="h-10 bg-white border-gray-300"
+                    className="h-10 bg-card border-input"
                   />
                 </div>
               </div>

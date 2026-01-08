@@ -76,7 +76,7 @@ function SearchableDropdown({
         <Button
           variant="outline"
           role="combobox"
-          className="w-full justify-between font-normal bg-white h-11 text-sm"
+          className="w-full justify-between font-normal bg-card h-11 text-sm"
           type="button"
         >
           {selected ? selected.name : placeholder}
@@ -475,7 +475,7 @@ export default function Identification() {
         <div className="text-red-500 text-xl font-semibold">
           Error loading form
         </div>
-        <p className="text-gray-600">
+        <p className="text-muted-foreground">
           {metadataError?.message || "Invalid response from server"}
         </p>
         <div className="flex gap-4">
@@ -498,58 +498,58 @@ export default function Identification() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-muted">
       <Navbar2 />
-      <div className="bg-white border-b px-6 py-3">
+      <div className="bg-card border-b px-6 py-3">
         <div className="flex items-center justify-end gap-6 text-sm">
-          <span className="text-gray-700">
+          <span className="text-foreground">
             Unpaid: <span className="font-semibold">$ 0</span>
           </span>
-          <span className="text-gray-700">
+          <span className="text-foreground">
             Unbilled: <span className="font-semibold">$ 0</span>
           </span>
-          <span className="text-gray-700">
+          <span className="text-foreground">
             Client Funds-Operating: <span className="font-semibold">$ 0</span>
           </span>
-          <span className="text-gray-700">
+          <span className="text-foreground">
             Client Funds-Trust: <span className="font-semibold">$ 0</span>
           </span>
         </div>
       </div>
 
-      <div className="bg-white border-b px-6 py-4">
-        <div className="flex items-center gap-2 text-sm text-gray-600">
+      <div className="bg-card border-b px-6 py-4">
+        <div className="flex items-center gap-2 text-sm text-muted-foreground">
           <button
             onClick={() => navigate("/dashboard")}
-            className="hover:text-gray-900 transition"
+            className="hover:text-foreground transition"
           >
             Dashboard
           </button>
           <ChevronRight className="w-4 h-4" />
           <button
             onClick={() => navigate("/dashboard/workstation")}
-            className="hover:text-gray-900 transition"
+            className="hover:text-foreground transition"
           >
             Workstation
           </button>
           <ChevronRight className="w-4 h-4" />
-          <span className="text-gray-900 font-medium">Identification</span>
+          <span className="text-foreground font-medium">Identification</span>
         </div>
       </div>
 
       <div className="container mx-auto px-6 py-8 max-w-7xl">
-        <div className="bg-white rounded-lg shadow-sm border p-8">
-          <h1 className="text-2xl font-bold mb-8 text-gray-900 uppercase">
+        <div className="bg-card rounded-lg shadow-sm border p-8">
+          <h1 className="text-2xl font-bold mb-8 text-foreground uppercase">
             Identification
           </h1>
           <form onSubmit={handleSubmit} className="space-y-8">
             {identifications.map((identification, index) => (
               <div
                 key={index}
-                className="border border-gray-200 p-6 rounded-lg space-y-6 bg-gray-50"
+                className="border border-gray-200 p-6 rounded-lg space-y-6 bg-muted"
               >
                 <div className="flex justify-between items-center">
-                  <h3 className="font-semibold text-gray-900 text-lg">
+                  <h3 className="font-semibold text-foreground text-lg">
                     Identification {index + 1}
                   </h3>
                   <Button
@@ -569,7 +569,7 @@ export default function Identification() {
                   <div className="space-y-2">
                     <Label
                       htmlFor={`copy_in_file_id_${index}`}
-                      className="text-gray-700 font-medium"
+                      className="text-foreground font-medium"
                     >
                       Copy in File
                     </Label>
@@ -592,7 +592,7 @@ export default function Identification() {
                   <div className="space-y-2">
                     <Label
                       htmlFor={`id_verification_date_${index}`}
-                      className="text-gray-700 font-medium"
+                      className="text-foreground font-medium"
                     >
                       ID Verification Date
                     </Label>
@@ -607,7 +607,7 @@ export default function Identification() {
                           e.target.value
                         )
                       }
-                      className="w-full h-9 bg-white border-gray-300"
+                      className="w-full h-9 bg-card border-input"
                     />
                   </div>
 
@@ -615,7 +615,7 @@ export default function Identification() {
                   <div className="space-y-2">
                     <Label
                       htmlFor={`id_verification_by_${index}`}
-                      className="text-gray-700 font-medium"
+                      className="text-foreground font-medium"
                     >
                       ID Verification By
                     </Label>
@@ -630,7 +630,7 @@ export default function Identification() {
                         )
                       }
                       placeholder="John Doe"
-                      className="w-full h-9 bg-white border-gray-300"
+                      className="w-full h-9 bg-card border-input"
                     />
                   </div>
 
@@ -638,7 +638,7 @@ export default function Identification() {
                   <div className="space-y-2">
                     <Label
                       htmlFor={`identification_type_${index}`}
-                      className="text-gray-700 font-medium"
+                      className="text-foreground font-medium"
                     >
                       Identification Type
                     </Label>
@@ -665,7 +665,7 @@ export default function Identification() {
                   <div className="space-y-2">
                     <Label
                       htmlFor={`identification_country_${index}`}
-                      className="text-gray-700 font-medium"
+                      className="text-foreground font-medium"
                     >
                       Country
                     </Label>
@@ -680,7 +680,7 @@ export default function Identification() {
                         )
                       }
                       placeholder="USA"
-                      className="w-full h-9 bg-white border-gray-300"
+                      className="w-full h-9 bg-card border-input"
                     />
                   </div>
 
@@ -688,7 +688,7 @@ export default function Identification() {
                   <div className="space-y-2">
                     <Label
                       htmlFor={`identification_number_${index}`}
-                      className="text-gray-700 font-medium"
+                      className="text-foreground font-medium"
                     >
                       Identification Number
                     </Label>
@@ -703,13 +703,13 @@ export default function Identification() {
                         )
                       }
                       placeholder="A12345678"
-                      className="w-full h-9 bg-white border-gray-300"
+                      className="w-full h-9 bg-card border-input"
                     />
                   </div>
 
                   {/* File Upload with Preview and Download */}
                   <div className="space-y-2 md:col-span-2 lg:col-span-3">
-                    <Label className="text-gray-700 font-medium">
+                    <Label className="text-foreground font-medium">
                       Upload Document{" "}
                       <span className="text-red-500">(Max 1MB)</span>
                       {identification.attachment_id && (
@@ -726,7 +726,7 @@ export default function Identification() {
                           ? "border-blue-500 bg-blue-50"
                           : identification.filePreview
                           ? "border-green-500 bg-green-50/50"
-                          : "border-gray-300 bg-white hover:border-gray-400"
+                          : "border-input bg-card hover:border-gray-400"
                       }`}
                     >
                       <input
@@ -744,10 +744,10 @@ export default function Identification() {
                       {identification.filePreview ? (
                         <div className="relative p-4">
                           {identification.isUploading && (
-                            <div className="absolute inset-0 bg-white/80 flex items-center justify-center z-20 rounded-lg">
+                            <div className="absolute inset-0 bg-card/80 flex items-center justify-center z-20 rounded-lg">
                               <div className="flex flex-col items-center gap-2">
                                 <Loader2 className="w-8 h-8 animate-spin text-blue-500" />
-                                <p className="text-sm text-gray-600">
+                                <p className="text-sm text-muted-foreground">
                                   Uploading...
                                 </p>
                               </div>
@@ -800,7 +800,7 @@ export default function Identification() {
                               onClick={() => setPreviewIndex(index)}
                             />
                             <div className="flex-1">
-                              <p className="font-medium text-sm text-gray-900">
+                              <p className="font-medium text-sm text-foreground">
                                 {identification.fileName}
                               </p>
                               <p className="text-xs text-gray-500 mt-1">
@@ -843,7 +843,7 @@ export default function Identification() {
                               <Upload className="w-8 h-8 text-gray-400" />
                             </div>
                             <div className="text-center">
-                              <p className="font-medium text-sm text-gray-900">
+                              <p className="font-medium text-sm text-foreground">
                                 UPLOAD
                               </p>
                               <p className="text-xs text-gray-500 mt-1">

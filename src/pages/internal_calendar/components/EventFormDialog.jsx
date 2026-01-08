@@ -156,7 +156,7 @@ const AttachmentUploader = ({ files, onFilesChange, onUpload, onDelete }) => {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between border-b pb-2">
-        <h3 className="font-semibold text-sm text-gray-700">Attachments</h3>
+        <h3 className="font-semibold text-sm text-foreground">Attachments</h3>
         <div className="text-sm text-muted-foreground">
           {files.length} file{files.length !== 1 ? "s" : ""}
         </div>
@@ -177,7 +177,7 @@ const AttachmentUploader = ({ files, onFilesChange, onUpload, onDelete }) => {
         className={cn(
           "relative border-2 border-dashed rounded-lg p-4 transition-all",
           isDragging && "border-primary bg-primary/10 scale-[1.02]",
-          "border-gray-300"
+          "border-input"
         )}
       >
         {files.length === 0 ? (
@@ -189,7 +189,7 @@ const AttachmentUploader = ({ files, onFilesChange, onUpload, onDelete }) => {
               <Upload className="h-6 w-6 text-primary" />
             </div>
             <div className="text-center">
-              <p className="text-sm font-medium text-gray-900">
+              <p className="text-sm font-medium text-foreground">
                 Click to upload or drag and drop
               </p>
               <p className="text-xs text-muted-foreground mt-1">
@@ -203,7 +203,7 @@ const AttachmentUploader = ({ files, onFilesChange, onUpload, onDelete }) => {
               {files.map((file) => (
                 <div
                   key={file.tempId}
-                  className="relative bg-white border rounded-lg overflow-hidden hover:shadow-md transition-shadow group"
+                  className="relative bg-card border rounded-lg overflow-hidden hover:shadow-md transition-shadow group"
                 >
                   <button
                     type="button"
@@ -294,7 +294,7 @@ const ReadOnlyContactDisplay = ({ contactName, contactEmail, isLoading }) => {
   if (isLoading) {
     return (
       <div className="space-y-2">
-        <Label className="text-gray-700 font-medium flex items-center gap-2">
+        <Label className="text-foreground font-medium flex items-center gap-2">
           Contact
           <Lock className="h-3 w-3 text-muted-foreground" />
         </Label>
@@ -308,7 +308,7 @@ const ReadOnlyContactDisplay = ({ contactName, contactEmail, isLoading }) => {
 
   return (
     <div className="space-y-2">
-      <Label className="text-gray-700 font-medium flex items-center gap-2">
+      <Label className="text-foreground font-medium flex items-center gap-2">
         Contact
         <Lock className="h-3 w-3 text-muted-foreground" />
       </Label>
@@ -317,7 +317,7 @@ const ReadOnlyContactDisplay = ({ contactName, contactEmail, isLoading }) => {
           <Check className="h-4 w-4" />
         </div>
         <div className="flex-1">
-          <div className="font-semibold text-sm text-gray-800">
+          <div className="font-semibold text-sm text-foreground">
             {contactName || "No Contact Selected"}
           </div>
           {contactEmail && (
@@ -755,7 +755,7 @@ const EventFormDialog = ({ open, onClose, event, slotInfo, onDelete, contactSlug
           <div className="h-[calc(90vh-140px)] overflow-x-hidden">
             <form onSubmit={handleSubmit} className="space-y-6 px-6 pb-6 overflow-y-auto">
               <div className="space-y-4">
-                <h3 className="font-semibold text-sm text-gray-700 border-b pb-2">
+                <h3 className="font-semibold text-sm text-foreground border-b pb-2">
                   Basic Information
                 </h3>
 
@@ -839,7 +839,7 @@ const EventFormDialog = ({ open, onClose, event, slotInfo, onDelete, contactSlug
               </div>
 
               <div className="space-y-4">
-                <h3 className="font-semibold text-sm text-gray-700 border-b pb-2">
+                <h3 className="font-semibold text-sm text-foreground border-b pb-2">
                   Event Details
                 </h3>
 
@@ -929,7 +929,7 @@ const EventFormDialog = ({ open, onClose, event, slotInfo, onDelete, contactSlug
 
               <div className="space-y-4">
                 <div className="flex items-center justify-between border-b pb-2">
-                  <h3 className="font-semibold text-sm text-gray-700">Reminders</h3>
+                  <h3 className="font-semibold text-sm text-foreground">Reminders</h3>
                   <Button
                     type="button"
                     variant="outline"
@@ -945,7 +945,7 @@ const EventFormDialog = ({ open, onClose, event, slotInfo, onDelete, contactSlug
                 {reminders.map((reminder, index) => (
                   <div
                     key={index}
-                    className="p-3 bg-gray-50 rounded-lg space-y-3"
+                    className="p-3 bg-muted rounded-lg space-y-3"
                   >
                     <div className="grid grid-cols-4 gap-2">
                       <div className="space-y-1">
@@ -1046,7 +1046,7 @@ const EventFormDialog = ({ open, onClose, event, slotInfo, onDelete, contactSlug
 
               <div className="space-y-4">
                 <div className="flex items-center justify-between border-b pb-2">
-                  <h3 className="font-semibold text-sm text-gray-700">
+                  <h3 className="font-semibold text-sm text-foreground">
                     Participants
                   </h3>
                   <Button
@@ -1064,7 +1064,7 @@ const EventFormDialog = ({ open, onClose, event, slotInfo, onDelete, contactSlug
                 {participants.map((participant, index) => (
                   <div
                     key={index}
-                    className="p-3 bg-gray-50 rounded-lg space-y-3"
+                    className="p-3 bg-muted rounded-lg space-y-3"
                   >
                     <div className="grid grid-cols-2 gap-2">
                       <div className="space-y-1">

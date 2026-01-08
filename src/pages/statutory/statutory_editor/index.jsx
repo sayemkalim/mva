@@ -32,7 +32,7 @@ const SearchableSelect = ({ label, options, value, onChange, placeholder }) => {
 
   return (
     <div className="space-y-2">
-      <Label className="text-gray-700 font-medium">{label}</Label>
+      <Label className="text-foreground font-medium">{label}</Label>
       <Popover>
         <PopoverTrigger asChild>
           <Button
@@ -87,7 +87,7 @@ const DatePicker = ({ label, value, onChange }) => {
 
   return (
     <div className="space-y-2">
-      <Label className="text-gray-700 font-medium">{label}</Label>
+      <Label className="text-foreground font-medium">{label}</Label>
       <Popover>
         <PopoverTrigger asChild>
           <Button
@@ -223,10 +223,10 @@ export default function StatutoryPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-muted">
       <Navbar2 />
-      <header className="bg-white border-b px-6 py-3">
-        <div className="flex items-center justify-end gap-6 text-sm text-gray-700">
+      <header className="bg-card border-b px-6 py-3">
+        <div className="flex items-center justify-end gap-6 text-sm text-foreground">
           <div>
             Unpaid: <span className="font-semibold">$ 0</span>
           </div>
@@ -243,11 +243,11 @@ export default function StatutoryPage() {
       </header>
 
       {/* Breadcrumb */}
-      <nav className="bg-white border-b px-6 py-4 text-sm text-gray-600">
+      <nav className="bg-card border-b px-6 py-4 text-sm text-muted-foreground">
         <div className="flex items-center gap-2">
           <button
             onClick={() => navigate("/dashboard")}
-            className="hover:text-gray-900 transition"
+            className="hover:text-foreground transition"
             type="button"
           >
             Dashboard
@@ -255,28 +255,28 @@ export default function StatutoryPage() {
           <ChevronRight className="w-4 h-4" />
           <button
             onClick={() => navigate("/dashboard/workstation")}
-            className="hover:text-gray-900 transition"
+            className="hover:text-foreground transition"
             type="button"
           >
             Workstation
           </button>
           <ChevronRight className="w-4 h-4" />
-          <span className="text-gray-900 font-medium">
+          <span className="text-foreground font-medium">
             Statutory Declaration
           </span>
         </div>
       </nav>
 
       <main className="container mx-auto px-6 py-8 max-w-7xl">
-        <h1 className="text-2xl font-bold text-gray-900 mb-6">
+        <h1 className="text-2xl font-bold text-foreground mb-6">
           Statutory Declaration
         </h1>
 
         <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="bg-white rounded-lg shadow-sm border p-6 space-y-6">
+          <div className="bg-card rounded-lg shadow-sm border p-6 space-y-6">
             {/* Section 1 */}
             <div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">
+              <h3 className="text-lg font-semibold text-foreground mb-4">
                 Declaration Set 1
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -306,7 +306,7 @@ export default function StatutoryPage() {
 
             {/* Section 2 */}
             <div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">
+              <h3 className="text-lg font-semibold text-foreground mb-4">
                 Declaration Set 2
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -338,7 +338,7 @@ export default function StatutoryPage() {
 
             {/* Section 3 */}
             <div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">
+              <h3 className="text-lg font-semibold text-foreground mb-4">
                 Declaration Set 3
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -370,12 +370,12 @@ export default function StatutoryPage() {
 
             {/* SOC Section 1 */}
             <div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">
+              <h3 className="text-lg font-semibold text-foreground mb-4">
                 SOC Details 1
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 <div className="space-y-2">
-                  <Label className="text-gray-700 font-medium">
+                  <Label className="text-foreground font-medium">
                     SOC Status
                   </Label>
                   <Input
@@ -399,12 +399,12 @@ export default function StatutoryPage() {
 
             {/* SOC Section 2 */}
             <div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">
+              <h3 className="text-lg font-semibold text-foreground mb-4">
                 SOC Details 2
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 <div className="space-y-2">
-                  <Label className="text-gray-700 font-medium">
+                  <Label className="text-foreground font-medium">
                     SOC Status
                   </Label>
                   <Input

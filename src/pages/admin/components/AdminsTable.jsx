@@ -82,7 +82,7 @@ const AdminsTable = ({ setadminsLength, params, setParams }) => {
       label: "Email",
       render: (value, row) => (
         <div className="flex flex-col gap-1">
-          <Typography variant="p" className="text-gray-600 dark:text-white">
+          <Typography variant="p" className="text-muted-foreground dark:text-white">
             {row.email}
           </Typography>
         </div>
@@ -99,7 +99,7 @@ const AdminsTable = ({ setadminsLength, params, setParams }) => {
     //           <Typography
     //             key={service._id}
     //             variant="p"
-    //             className="text-gray-600 dark:text-white"
+    //             className="text-muted-foreground dark:text-white"
     //           >
     //             {service.name}
     //           </Typography>

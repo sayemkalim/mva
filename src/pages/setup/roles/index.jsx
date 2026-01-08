@@ -61,7 +61,7 @@ const Permissions = () => {
       <NavbarItem title="Roles Management" breadcrumbs={breadcrumbs} />
       
       <div className="px-4">
-        <Typography variant="p" className="text-gray-600 mb-4">
+        <Typography variant="p" className="text-muted-foreground mb-4">
           Manage user roles and permissions
         </Typography>
 

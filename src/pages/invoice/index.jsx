@@ -248,7 +248,7 @@ const Invoice = () => {
       partial: "bg-yellow-100 text-yellow-800",
     };
     return (
-      <Badge className={statusColors[status] || "bg-gray-100 text-gray-800"}>
+      <Badge className={statusColors[status] || "bg-gray-100 text-foreground"}>
         {status?.charAt(0).toUpperCase() + status?.slice(1) || "Unknown"}
       </Badge>
     );
@@ -264,7 +264,7 @@ const Invoice = () => {
       sectionType?.replace("-", " ").replace(/\b\w/g, (c) => c.toUpperCase()) ||
       "Unknown";
     return (
-      <Badge className={typeColors[sectionType] || "bg-gray-100 text-gray-800"}>
+      <Badge className={typeColors[sectionType] || "bg-gray-100 text-foreground"}>
         {label}
       </Badge>
     );
@@ -1006,8 +1006,8 @@ const Invoice = () => {
   return (
     <div className="min-h-screen bg-background">
       <Navbar2 />
-      <header className="bg-white border-b px-6 py-3">
-        <div className="flex items-center justify-end gap-6 text-sm text-gray-700">
+      <header className="bg-card border-b px-6 py-3">
+        <div className="flex items-center justify-end gap-6 text-sm text-foreground">
           <div>
             Unpaid:{" "}
             <span className="font-semibold">{formatCurrency(unpaid)}</span>
@@ -1031,11 +1031,11 @@ const Invoice = () => {
         </div>
       </header>
 
-      <nav className="bg-white border-b px-6 py-4 text-sm text-gray-600">
+      <nav className="bg-card border-b px-6 py-4 text-sm text-muted-foreground">
         <div className="flex items-center gap-2">
           <button
             onClick={() => navigate("/dashboard")}
-            className="hover:text-gray-900 transition"
+            className="hover:text-foreground transition"
             type="button"
           >
             Dashboard
@@ -1043,13 +1043,13 @@ const Invoice = () => {
           <ChevronRight className="w-4 h-4" />
           <button
             onClick={() => navigate("/dashboard/workstation")}
-            className="hover:text-gray-900 transition"
+            className="hover:text-foreground transition"
             type="button"
           >
             Workstation
           </button>
           <ChevronRight className="w-4 h-4" />
-          <span className="text-gray-900 font-medium">Invoice</span>
+          <span className="text-foreground font-medium">Invoice</span>
         </div>
       </nav>
 
@@ -1064,10 +1064,10 @@ const Invoice = () => {
       </div>
 
       {/* Table */}
-      <div className="bg-white rounded-lg border border-border overflow-hidden mx-6 mb-6">
+      <div className="bg-card rounded-lg border border-border overflow-hidden mx-6 mb-6">
         <Table>
           <TableHeader>
-            <TableRow className="bg-gray-50">
+            <TableRow className="bg-muted">
               <TableHead>Invoice #</TableHead>
               <TableHead>Invoice Date</TableHead>
               <TableHead>Due Date</TableHead>
@@ -1100,7 +1100,7 @@ const Invoice = () => {
               </TableRow>
             ) : (
               invoices.map((item) => (
-                <TableRow key={item.id} className="hover:bg-gray-50">
+                <TableRow key={item.id} className="hover:bg-muted">
                   <TableCell className="font-medium">
                     {item.invoice_number || "-"}
                   </TableCell>
@@ -1281,7 +1281,7 @@ const Invoice = () => {
               <div className="border rounded-lg overflow-hidden">
                 <Table>
                   <TableHeader>
-                    <TableRow className="bg-gray-50">
+                    <TableRow className="bg-muted">
                       <TableHead className="w-12">
                         <Checkbox
                           checked={
@@ -1460,7 +1460,7 @@ const Invoice = () => {
               <div className="border rounded-lg overflow-hidden">
                 <Table>
                   <TableHeader>
-                    <TableRow className="bg-gray-50">
+                    <TableRow className="bg-muted">
                       <TableHead className="w-12">
                         <Checkbox
                           checked={
@@ -1524,7 +1524,7 @@ const Invoice = () => {
                               className={
                                 item.is_attached
                                   ? "bg-green-100 text-green-800"
-                                  : "bg-gray-100 text-gray-800"
+                                  : "bg-gray-100 text-foreground"
                               }
                             >
                               {item.is_attached ? "Attached" : "Available"}
@@ -1752,7 +1752,7 @@ const Invoice = () => {
                 <div className="border rounded-lg overflow-hidden">
                   <Table>
                     <TableHeader>
-                      <TableRow className="bg-gray-50">
+                      <TableRow className="bg-muted">
                         <TableHead className="w-12"></TableHead>
                         <TableHead>Invoice #</TableHead>
                         <TableHead>Invoice Date</TableHead>
@@ -1928,7 +1928,7 @@ const Invoice = () => {
                 <div className="border rounded-lg overflow-hidden">
                   <Table>
                     <TableHeader>
-                      <TableRow className="bg-gray-50">
+                      <TableRow className="bg-muted">
                         <TableHead className="w-12"></TableHead>
                         <TableHead>Invoice #</TableHead>
                         <TableHead>Invoice Date</TableHead>
@@ -2048,7 +2048,7 @@ const Invoice = () => {
               <div className="border rounded-lg overflow-hidden">
                 <Table>
                   <TableHeader>
-                    <TableRow className="bg-gray-50">
+                    <TableRow className="bg-muted">
                       <TableHead>Payment ID</TableHead>
                       <TableHead>Bank Type</TableHead>
                       <TableHead>Applied Credit</TableHead>
@@ -2415,7 +2415,7 @@ const Invoice = () => {
               <div className="border rounded-lg overflow-hidden">
                 <Table>
                   <TableHeader>
-                    <TableRow className="bg-gray-50">
+                    <TableRow className="bg-muted">
                       <TableHead>Date</TableHead>
                       <TableHead>Invoice #</TableHead>
                       <TableHead>Fee Change</TableHead>

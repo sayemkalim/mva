@@ -378,7 +378,7 @@ export default function Vehicle() {
         <div className="text-red-500 text-xl font-semibold">
           Error loading form
         </div>
-        <p className="text-gray-600">
+        <p className="text-muted-foreground">
           {metadataError?.message || "Invalid response from server"}
         </p>
         <div className="flex gap-4">
@@ -422,7 +422,7 @@ export default function Vehicle() {
           <Button
             variant="outline"
             role="combobox"
-            className="w-full justify-between font-normal bg-gray-50"
+            className="w-full justify-between font-normal bg-muted"
             type="button"
           >
             {selectedOption ? selectedOption.name : placeholder}
@@ -464,16 +464,16 @@ export default function Vehicle() {
   // ✅ Image Upload Box Component
   const ImageUploadBox = ({ side, label }) => (
     <div className="space-y-2">
-      <Label className="text-gray-700 font-medium">{label}</Label>
-      <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 bg-gray-50 relative">
+      <Label className="text-foreground font-medium">{label}</Label>
+      <div className="border-2 border-dashed border-input rounded-lg p-4 bg-muted relative">
         {imagePreviews[side] ? (
           <div className="relative">
             {/* ✅ Uploading Overlay */}
             {uploadingImages[side] && (
-              <div className="absolute inset-0 bg-white/90 flex items-center justify-center z-20 rounded-lg">
+              <div className="absolute inset-0 bg-card/90 flex items-center justify-center z-20 rounded-lg">
                 <div className="flex flex-col items-center gap-2">
                   <Loader2 className="w-8 h-8 animate-spin text-blue-500" />
-                  <p className="text-sm text-gray-600 font-medium">
+                  <p className="text-sm text-muted-foreground font-medium">
                     Uploading...
                   </p>
                 </div>
@@ -560,49 +560,49 @@ export default function Vehicle() {
   );
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-muted">
       <Navbar2 />
-      <div className="bg-white border-b px-6 py-3">
+      <div className="bg-card border-b px-6 py-3">
         <div className="flex items-center justify-end gap-6 text-sm">
-          <span className="text-gray-700">
+          <span className="text-foreground">
             Unpaid: <span className="font-semibold">$ 0</span>
           </span>
-          <span className="text-gray-700">
+          <span className="text-foreground">
             Unbilled: <span className="font-semibold">$ 0</span>
           </span>
-          <span className="text-gray-700">
+          <span className="text-foreground">
             Client Funds-Operating: <span className="font-semibold">$ 0</span>
           </span>
-          <span className="text-gray-700">
+          <span className="text-foreground">
             Client Funds-Trust: <span className="font-semibold">$ 0</span>
           </span>
         </div>
       </div>
 
-      <div className="bg-white border-b px-6 py-4">
-        <div className="flex items-center gap-2 text-sm text-gray-600">
+      <div className="bg-card border-b px-6 py-4">
+        <div className="flex items-center gap-2 text-sm text-muted-foreground">
           <button
             onClick={() => navigate("/dashboard")}
-            className="hover:text-gray-900 transition"
+            className="hover:text-foreground transition"
           >
             Dashboard
           </button>
           <ChevronRight className="w-4 h-4" />
           <button
             onClick={() => navigate("/dashboard/workstation")}
-            className="hover:text-gray-900 transition"
+            className="hover:text-foreground transition"
           >
             Workstation
           </button>
           <ChevronRight className="w-4 h-4" />
-          <span className="text-gray-900 font-medium">Vehicle</span>
+          <span className="text-foreground font-medium">Vehicle</span>
         </div>
       </div>
 
       <div className="container mx-auto px-6 py-8 max-w-7xl">
-        <div className="bg-white rounded-lg shadow-sm border p-8">
+        <div className="bg-card rounded-lg shadow-sm border p-8">
           <div className="flex items-center justify-between mb-8">
-            <h1 className="text-2xl font-bold text-gray-900 uppercase">
+            <h1 className="text-2xl font-bold text-foreground uppercase">
               Vehicle Information
             </h1>
           </div>
@@ -610,7 +610,7 @@ export default function Vehicle() {
           <form onSubmit={handleSubmit} className="space-y-8">
             {/* Vehicle Details Section */}
             <div className="space-y-6">
-              <h2 className="text-xl font-semibold text-gray-900">
+              <h2 className="text-xl font-semibold text-foreground">
                 Vehicle Details
               </h2>
 
@@ -619,7 +619,7 @@ export default function Vehicle() {
                 <div className="space-y-2">
                   <Label
                     htmlFor="plate_no"
-                    className="text-gray-700 font-medium"
+                    className="text-foreground font-medium"
                   >
                     Plate Number
                   </Label>
@@ -630,13 +630,13 @@ export default function Vehicle() {
                     value={formData.plate_no}
                     onChange={handleChange}
                     placeholder="ABCD-123"
-                    className="h-9 bg-gray-50 border-gray-300"
+                    className="h-9 bg-muted border-input"
                   />
                 </div>
 
                 {/* Vehicle Name */}
                 <div className="space-y-2">
-                  <Label htmlFor="name" className="text-gray-700 font-medium">
+                  <Label htmlFor="name" className="text-foreground font-medium">
                     Vehicle Name
                   </Label>
                   <Input
@@ -646,7 +646,7 @@ export default function Vehicle() {
                     value={formData.name}
                     onChange={handleChange}
                     placeholder="Honda Civic Car"
-                    className="h-9 bg-gray-50 border-gray-300"
+                    className="h-9 bg-muted border-input"
                   />
                 </div>
 
@@ -654,7 +654,7 @@ export default function Vehicle() {
                 <div className="space-y-2">
                   <Label
                     htmlFor="province"
-                    className="text-gray-700 font-medium"
+                    className="text-foreground font-medium"
                   >
                     Province
                   </Label>
@@ -665,7 +665,7 @@ export default function Vehicle() {
                     value={formData.province}
                     onChange={handleChange}
                     placeholder="Ontario"
-                    className="h-9 bg-gray-50 border-gray-300"
+                    className="h-9 bg-muted border-input"
                   />
                 </div>
 
@@ -673,7 +673,7 @@ export default function Vehicle() {
                 <div className="space-y-2">
                   <Label
                     htmlFor="vehicle_year"
-                    className="text-gray-700 font-medium"
+                    className="text-foreground font-medium"
                   >
                     Year
                   </Label>
@@ -684,7 +684,7 @@ export default function Vehicle() {
                     value={formData.vehicle_year}
                     onChange={handleChange}
                     placeholder="2022"
-                    className="h-9 bg-gray-50 border-gray-300"
+                    className="h-9 bg-muted border-input"
                     maxLength={4}
                     pattern="[0-9]*"
                   />
@@ -694,7 +694,7 @@ export default function Vehicle() {
                 <div className="space-y-2">
                   <Label
                     htmlFor="vehicle_make"
-                    className="text-gray-700 font-medium"
+                    className="text-foreground font-medium"
                   >
                     Make
                   </Label>
@@ -705,7 +705,7 @@ export default function Vehicle() {
                     value={formData.vehicle_make}
                     onChange={handleChange}
                     placeholder="Honda"
-                    className="h-9 bg-gray-50 border-gray-300"
+                    className="h-9 bg-muted border-input"
                   />
                 </div>
 
@@ -713,7 +713,7 @@ export default function Vehicle() {
                 <div className="space-y-2">
                   <Label
                     htmlFor="vehicle_model"
-                    className="text-gray-700 font-medium"
+                    className="text-foreground font-medium"
                   >
                     Model
                   </Label>
@@ -724,7 +724,7 @@ export default function Vehicle() {
                     value={formData.vehicle_model}
                     onChange={handleChange}
                     placeholder="Civic"
-                    className="h-9 bg-gray-50 border-gray-300"
+                    className="h-9 bg-muted border-input"
                   />
                 </div>
 
@@ -732,7 +732,7 @@ export default function Vehicle() {
                 <div className="space-y-2">
                   <Label
                     htmlFor="vehicle_color"
-                    className="text-gray-700 font-medium"
+                    className="text-foreground font-medium"
                   >
                     Color
                   </Label>
@@ -743,7 +743,7 @@ export default function Vehicle() {
                     value={formData.vehicle_color}
                     onChange={handleChange}
                     placeholder="Blue"
-                    className="h-9 bg-gray-50 border-gray-300"
+                    className="h-9 bg-muted border-input"
                   />
                 </div>
 
@@ -751,7 +751,7 @@ export default function Vehicle() {
                 <div className="space-y-2">
                   <Label
                     htmlFor="driver_licence_same_as_applicant_id"
-                    className="text-gray-700 font-medium"
+                    className="text-foreground font-medium"
                   >
                     Driver Licence Same as Applicant
                   </Label>
@@ -774,7 +774,7 @@ export default function Vehicle() {
 
             {/* Vehicle Images Section */}
             <div className="space-y-6 pt-6 border-t">
-              <h2 className="text-xl font-semibold text-gray-900">
+              <h2 className="text-xl font-semibold text-foreground">
                 Vehicle Images
               </h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

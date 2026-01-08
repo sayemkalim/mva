@@ -63,10 +63,10 @@ const ExportAdjustersOnFiles = () => {
   };
 
   return (
-    <div className="flex flex-col h-screen bg-white">
+    <div className="flex flex-col h-screen bg-card">
       <Navbar2 />
 
-      <nav className="bg-white border-b px-6 py-4 text-sm text-gray-600">
+      <nav className="bg-card border-b px-6 py-4 text-sm text-muted-foreground">
         <div className="flex items-center gap-2">
           <button onClick={() => navigate("/dashboard")}>Dashboard</button>
           <ChevronRight className="w-4 h-4" />
@@ -74,23 +74,23 @@ const ExportAdjustersOnFiles = () => {
             Workstation
           </button>
           <ChevronRight className="w-4 h-4" />
-          <span className="text-gray-900 font-medium">Adjusters on Files</span>
+          <span className="text-foreground font-medium">Adjusters on Files</span>
         </div>
       </nav>
 
-      <div className="flex-1 overflow-auto bg-gray-50">
+      <div className="flex-1 overflow-auto bg-muted">
         <div className="container mx-auto px-6 py-8 max-w-6xl">
-          <h1 className="text-2xl font-bold mb-6 text-gray-900">EXPORT DATA</h1>
+          <h1 className="text-2xl font-bold mb-6 text-foreground">EXPORT DATA</h1>
 
           <form
             onSubmit={handleExport}
-            className="bg-white rounded-lg shadow-sm border p-6 sm:p-8"
+            className="bg-card rounded-lg shadow-sm border p-6 sm:p-8"
           >
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
               <div className="space-y-6">
                 {/* Type Dropdown */}
                 <div className="space-y-2">
-                  <Label className="text-gray-700 font-medium">Type</Label>
+                  <Label className="text-foreground font-medium">Type</Label>
                   <Select
                     value={formData.type}
                     onValueChange={(value) =>

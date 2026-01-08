@@ -275,14 +275,14 @@ const CalendarView = () => {
 
   if (isMetaLoading) {
     return (
-      <div className="bg-white rounded-lg shadow-sm border p-8 text-center">
+      <div className="bg-card rounded-lg shadow-sm border p-8 text-center">
         <p className="text-gray-500">Loading calendar...</p>
       </div>
     );
   }
 
   return (
-    <div className="bg-white rounded-lg shadow-sm border">
+    <div className="bg-card rounded-lg shadow-sm border">
       <CustomToolbar />
 
       <div
@@ -319,14 +319,14 @@ const CalendarView = () => {
       </div>
 
       <div className="flex items-center gap-4 p-4 border-t">
-        <span className="text-sm font-medium text-gray-600">Priority:</span>
+        <span className="text-sm font-medium text-muted-foreground">Priority:</span>
         {Object.entries(PRIORITY_COLORS).map(([priority, color]) => (
           <div key={priority} className="flex items-center gap-1">
             <div
               className="w-3 h-3 rounded"
               style={{ backgroundColor: color }}
             />
-            <span className="text-sm text-gray-600">{priority}</span>
+            <span className="text-sm text-muted-foreground">{priority}</span>
           </div>
         ))}
       </div>

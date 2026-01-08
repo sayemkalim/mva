@@ -31,6 +31,8 @@ const Section33Table = ({ slug, setBlogsLength }) => {
 
   const [openDelete, setOpenDelete] = useState(false);
   const [selectedSection, setSelectedSection] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const perPage = 10;
 
   const onOpenDialog = (row) => {
     setOpenDelete(true);
@@ -67,6 +69,13 @@ const Section33Table = ({ slug, setBlogsLength }) => {
   useEffect(() => {
     setBlogsLength(sections.length);
   }, [sections, setBlogsLength]);
+
+  // Pagination calculations
+  const totalPages = Math.ceil(sections.length / perPage);
+  const paginatedData = sections.slice(
+    (currentPage - 1) * perPage,
+    currentPage * perPage
+  );
 
   const onNavigateToEdit = (section) => {
     if (!section?.id) {
@@ -174,10 +183,14 @@ const Section33Table = ({ slug, setBlogsLength }) => {
     <>
       <CustomTable
         columns={columns}
-        data={sections}
+        data={paginatedData}
         isLoading={isLoading}
         error={error}
         onRowClick={onNavigateToEdit}
+        totalPages={totalPages}
+        currentPage={currentPage}
+        perPage={perPage}
+        onPageChange={setCurrentPage}
       />
       <CustomDialog
         onOpen={openDelete}

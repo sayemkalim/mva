@@ -24,6 +24,7 @@ import { getRepresentativeReferralMeta } from "../helpers/fetchIRepresentativeRe
 import { fetchRepresentReferralBySlug } from "../helpers/fetchRepresentativeReferralBySlug";
 import { createRepresentativeReferral } from "../helpers/createRepresentativeReferral";
 import { Navbar2 } from "@/components/navbar2";
+import { formatPhoneNumber } from "@/lib/utils";
 
 const SearchableDropdown = ({
   value,
@@ -48,7 +49,7 @@ const SearchableDropdown = ({
         <Button
           variant="outline"
           role="combobox"
-          className="w-full justify-between font-normal bg-gray-50"
+          className="w-full justify-between font-normal bg-muted"
           type="button"
         >
           {selectedOption ? selectedOption.name : placeholder}
@@ -72,9 +73,8 @@ const SearchableDropdown = ({
                   className="cursor-pointer flex items-center"
                 >
                   <Check
-                    className={`mr-2 h-4 w-4 ${
-                      value === opt.id ? "opacity-100" : "opacity-0"
-                    }`}
+                    className={`mr-2 h-4 w-4 ${value === opt.id ? "opacity-100" : "opacity-0"
+                      }`}
                   />
                   {opt.name}
                 </CommandItem>
@@ -326,7 +326,7 @@ export default function RepresentativeReferral() {
         <div className="text-red-500 text-xl font-semibold">
           Error loading form
         </div>
-        <p className="text-gray-600">
+        <p className="text-muted-foreground">
           {metadataError?.message || "Invalid response from server"}
         </p>
         <div className="flex gap-4">
@@ -349,57 +349,57 @@ export default function RepresentativeReferral() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-muted">
       <Navbar2 />
-      <div className="bg-white border-b px-6 py-3">
+      <div className="bg-card border-b px-6 py-3">
         <div className="flex items-center justify-end gap-6 text-sm">
-          <span className="text-gray-700">
+          <span className="text-foreground">
             Unpaid: <span className="font-semibold">$ 0</span>
           </span>
-          <span className="text-gray-700">
+          <span className="text-foreground">
             Unbilled: <span className="font-semibold">$ 0</span>
           </span>
-          <span className="text-gray-700">
+          <span className="text-foreground">
             Client Funds-Operating: <span className="font-semibold">$ 0</span>
           </span>
-          <span className="text-gray-700">
+          <span className="text-foreground">
             Client Funds-Trust: <span className="font-semibold">$ 0</span>
           </span>
         </div>
       </div>
 
-      <div className="bg-white border-b px-6 py-4">
-        <div className="flex items-center gap-2 text-sm text-gray-600">
+      <div className="bg-card border-b px-6 py-4">
+        <div className="flex items-center gap-2 text-sm text-muted-foreground">
           <button
             onClick={() => navigate("/dashboard")}
-            className="hover:text-gray-900 transition"
+            className="hover:text-foreground transition"
           >
             Dashboard
           </button>
           <ChevronRight className="w-4 h-4" />
           <button
             onClick={() => navigate("/dashboard/workstation")}
-            className="hover:text-gray-900 transition"
+            className="hover:text-foreground transition"
           >
             Workstation
           </button>
           <ChevronRight className="w-4 h-4" />
-          <span className="text-gray-900 font-medium">
+          <span className="text-foreground font-medium">
             Representative & Referral
           </span>
         </div>
       </div>
 
       <div className="container mx-auto px-6 py-8 max-w-7xl">
-        <div className="bg-white rounded-lg shadow-sm border p-8">
-          <h1 className="text-2xl font-bold mb-8 text-gray-900 uppercase">
+        <div className="bg-card rounded-lg shadow-sm border p-8">
+          <h1 className="text-2xl font-bold mb-8 text-foreground uppercase">
             Representative & Referral Information
           </h1>
 
           <form onSubmit={handleSubmit} className="space-y-8">
             {/* Representative Information */}
             <div className="space-y-6">
-              <h2 className="text-xl font-semibold text-gray-900">
+              <h2 className="text-xl font-semibold text-foreground">
                 Representative Information
               </h2>
 
@@ -409,7 +409,7 @@ export default function RepresentativeReferral() {
                 <div className="space-y-2">
                   <Label
                     htmlFor="last_name"
-                    className="text-gray-700 font-medium"
+                    className="text-foreground font-medium"
                   >
                     Last Name
                   </Label>
@@ -419,7 +419,7 @@ export default function RepresentativeReferral() {
                     value={formData.last_name}
                     onChange={handleChange}
                     placeholder="Harvard"
-                    className="bg-gray-50 border-gray-300"
+                    className="bg-muted border-input"
                   />
                 </div>
 
@@ -427,7 +427,7 @@ export default function RepresentativeReferral() {
                 <div className="space-y-2">
                   <Label
                     htmlFor="first_name"
-                    className="text-gray-700 font-medium"
+                    className="text-foreground font-medium"
                   >
                     First Name
                   </Label>
@@ -437,7 +437,7 @@ export default function RepresentativeReferral() {
                     value={formData.first_name}
                     onChange={handleChange}
                     placeholder="Harvard"
-                    className="bg-gray-50 border-gray-300"
+                    className="bg-muted border-input"
                   />
                 </div>
 
@@ -445,7 +445,7 @@ export default function RepresentativeReferral() {
                 <div className="space-y-2">
                   <Label
                     htmlFor="middle_name"
-                    className="text-gray-700 font-medium"
+                    className="text-foreground font-medium"
                   >
                     Middle Name
                   </Label>
@@ -455,7 +455,7 @@ export default function RepresentativeReferral() {
                     value={formData.middle_name}
                     onChange={handleChange}
                     placeholder="middle name"
-                    className="bg-gray-50 border-gray-300"
+                    className="bg-muted border-input"
                   />
                 </div>
 
@@ -463,7 +463,7 @@ export default function RepresentativeReferral() {
                 <div className="space-y-2">
                   <Label
                     htmlFor="initial"
-                    className="text-gray-700 font-medium"
+                    className="text-foreground font-medium"
                   >
                     Initial
                   </Label>
@@ -474,7 +474,7 @@ export default function RepresentativeReferral() {
                     onChange={handleChange}
                     placeholder="M"
                     maxLength={1}
-                    className="bg-gray-50 border-gray-300"
+                    className="bg-muted border-input"
                   />
                 </div>
 
@@ -482,7 +482,7 @@ export default function RepresentativeReferral() {
                 <div className="space-y-2">
                   <Label
                     htmlFor="relationship_applicant_id"
-                    className="text-gray-700 font-medium"
+                    className="text-foreground font-medium"
                   >
                     Relationship to Applicant
                   </Label>
@@ -503,7 +503,7 @@ export default function RepresentativeReferral() {
                 <div className="space-y-2">
                   <Label
                     htmlFor="telephone"
-                    className="text-gray-700 font-medium"
+                    className="text-foreground font-medium"
                   >
                     Telephone
                   </Label>
@@ -511,15 +511,15 @@ export default function RepresentativeReferral() {
                     id="telephone"
                     name="telephone"
                     value={formData.telephone}
-                    onChange={handleChange}
-                    placeholder="(000)-000-0000"
-                    className="bg-gray-50 border-gray-300"
+                    onChange={(e) => setFormData(prev => ({ ...prev, telephone: formatPhoneNumber(e.target.value) }))}
+                    placeholder="(888) 888-8888"
+                    className="bg-muted border-input"
                   />
                 </div>
 
                 {/* Extension */}
                 <div className="space-y-2">
-                  <Label htmlFor="ext" className="text-gray-700 font-medium">
+                  <Label htmlFor="ext" className="text-foreground font-medium">
                     Extension
                   </Label>
                   <Input
@@ -528,28 +528,28 @@ export default function RepresentativeReferral() {
                     value={formData.ext}
                     onChange={handleChange}
                     placeholder="1"
-                    className="bg-gray-50 border-gray-300"
+                    className="bg-muted border-input"
                   />
                 </div>
 
                 {/* Fax */}
                 <div className="space-y-2">
-                  <Label htmlFor="fax" className="text-gray-700 font-medium">
+                  <Label htmlFor="fax" className="text-foreground font-medium">
                     Fax
                   </Label>
                   <Input
                     id="fax"
                     name="fax"
                     value={formData.fax}
-                    onChange={handleChange}
-                    placeholder="(000)-000-0000"
-                    className="bg-gray-50 border-gray-300"
+                    onChange={(e) => setFormData(prev => ({ ...prev, fax: formatPhoneNumber(e.target.value) }))}
+                    placeholder="(888) 888-8888"
+                    className="bg-muted border-input"
                   />
                 </div>
 
                 {/* Email */}
                 <div className="space-y-2 lg:col-span-2">
-                  <Label htmlFor="email" className="text-gray-700 font-medium">
+                  <Label htmlFor="email" className="text-foreground font-medium">
                     Email
                   </Label>
                   <Input
@@ -559,7 +559,7 @@ export default function RepresentativeReferral() {
                     value={formData.email}
                     onChange={handleChange}
                     placeholder="admin@gmail.com"
-                    className="bg-gray-50 border-gray-300"
+                    className="bg-muted border-input"
                   />
                 </div>
               </div>
@@ -567,14 +567,14 @@ export default function RepresentativeReferral() {
 
             {/* Representative Address */}
             <div className="space-y-6 pt-6 border-t">
-              <h2 className="text-xl font-semibold text-gray-900">
+              <h2 className="text-xl font-semibold text-foreground">
                 Representative Address
               </h2>
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 {/* Unit Number */}
                 <div className="space-y-2">
-                  <Label className="text-gray-700 font-medium">
+                  <Label className="text-foreground font-medium">
                     Unit Number
                   </Label>
                   <Input
@@ -587,13 +587,13 @@ export default function RepresentativeReferral() {
                       )
                     }
                     placeholder="5B"
-                    className="bg-gray-50 border-gray-300"
+                    className="bg-muted border-input"
                   />
                 </div>
 
                 {/* Street Number */}
                 <div className="space-y-2">
-                  <Label className="text-gray-700 font-medium">
+                  <Label className="text-foreground font-medium">
                     Street Number
                   </Label>
                   <Input
@@ -606,13 +606,13 @@ export default function RepresentativeReferral() {
                       )
                     }
                     placeholder="221"
-                    className="bg-gray-50 border-gray-300"
+                    className="bg-muted border-input"
                   />
                 </div>
 
                 {/* Street Name */}
                 <div className="space-y-2">
-                  <Label className="text-gray-700 font-medium">
+                  <Label className="text-foreground font-medium">
                     Street Name
                   </Label>
                   <Input
@@ -625,13 +625,13 @@ export default function RepresentativeReferral() {
                       )
                     }
                     placeholder="King Street West"
-                    className="bg-gray-50 border-gray-300"
+                    className="bg-muted border-input"
                   />
                 </div>
 
                 {/* City */}
                 <div className="space-y-2">
-                  <Label className="text-gray-700 font-medium">City</Label>
+                  <Label className="text-foreground font-medium">City</Label>
                   <Input
                     value={formData.representative_address.city}
                     onChange={(e) =>
@@ -642,13 +642,13 @@ export default function RepresentativeReferral() {
                       )
                     }
                     placeholder="Toronto"
-                    className="bg-gray-50 border-gray-300"
+                    className="bg-muted border-input"
                   />
                 </div>
 
                 {/* Province */}
                 <div className="space-y-2">
-                  <Label className="text-gray-700 font-medium">Province</Label>
+                  <Label className="text-foreground font-medium">Province</Label>
                   <Input
                     value={formData.representative_address.province}
                     onChange={(e) =>
@@ -659,13 +659,13 @@ export default function RepresentativeReferral() {
                       )
                     }
                     placeholder="Ontario"
-                    className="bg-gray-50 border-gray-300"
+                    className="bg-muted border-input"
                   />
                 </div>
 
                 {/* Postal Code */}
                 <div className="space-y-2">
-                  <Label className="text-gray-700 font-medium">
+                  <Label className="text-foreground font-medium">
                     Postal Code
                   </Label>
                   <Input
@@ -678,13 +678,13 @@ export default function RepresentativeReferral() {
                       )
                     }
                     placeholder="M5H 1K5"
-                    className="bg-gray-50 border-gray-300"
+                    className="bg-muted border-input"
                   />
                 </div>
 
                 {/* Country */}
                 <div className="space-y-2">
-                  <Label className="text-gray-700 font-medium">Country</Label>
+                  <Label className="text-foreground font-medium">Country</Label>
                   <Input
                     value={formData.representative_address.country}
                     onChange={(e) =>
@@ -695,7 +695,7 @@ export default function RepresentativeReferral() {
                       )
                     }
                     placeholder="Canada"
-                    className="bg-gray-50 border-gray-300"
+                    className="bg-muted border-input"
                   />
                 </div>
               </div>
@@ -703,7 +703,7 @@ export default function RepresentativeReferral() {
 
             {/* Referral Information */}
             <div className="space-y-6 pt-6 border-t">
-              <h2 className="text-xl font-semibold text-gray-900">
+              <h2 className="text-xl font-semibold text-foreground">
                 Referral Information
               </h2>
 
@@ -712,7 +712,7 @@ export default function RepresentativeReferral() {
                 <div className="space-y-2">
                   <Label
                     htmlFor="referral_type_id"
-                    className="text-gray-700 font-medium"
+                    className="text-foreground font-medium"
                   >
                     Referral Type
                   </Label>
@@ -733,7 +733,7 @@ export default function RepresentativeReferral() {
                 <div className="space-y-2">
                   <Label
                     htmlFor="referral_name"
-                    className="text-gray-700 font-medium"
+                    className="text-foreground font-medium"
                   >
                     Referral Name
                   </Label>
@@ -743,7 +743,7 @@ export default function RepresentativeReferral() {
                     value={formData.referral_name}
                     onChange={handleChange}
                     placeholder="name"
-                    className="bg-gray-50 border-gray-300"
+                    className="bg-muted border-input"
                   />
                 </div>
 
@@ -751,7 +751,7 @@ export default function RepresentativeReferral() {
                 <div className="space-y-2">
                   <Label
                     htmlFor="referral_telephone"
-                    className="text-gray-700 font-medium"
+                    className="text-foreground font-medium"
                   >
                     Telephone
                   </Label>
@@ -759,9 +759,9 @@ export default function RepresentativeReferral() {
                     id="referral_telephone"
                     name="referral_telephone"
                     value={formData.referral_telephone}
-                    onChange={handleChange}
-                    placeholder="(000)-000-0000"
-                    className="bg-gray-50 border-gray-300"
+                    onChange={(e) => setFormData(prev => ({ ...prev, referral_telephone: formatPhoneNumber(e.target.value) }))}
+                    placeholder="(888) 888-8888"
+                    className="bg-muted border-input"
                   />
                 </div>
 
@@ -769,7 +769,7 @@ export default function RepresentativeReferral() {
                 <div className="space-y-2">
                   <Label
                     htmlFor="referral_ext"
-                    className="text-gray-700 font-medium"
+                    className="text-foreground font-medium"
                   >
                     Extension
                   </Label>
@@ -779,7 +779,7 @@ export default function RepresentativeReferral() {
                     value={formData.referral_ext}
                     onChange={handleChange}
                     placeholder="1"
-                    className="bg-gray-50 border-gray-300"
+                    className="bg-muted border-input"
                   />
                 </div>
 
@@ -787,7 +787,7 @@ export default function RepresentativeReferral() {
                 <div className="space-y-2">
                   <Label
                     htmlFor="referral_fax"
-                    className="text-gray-700 font-medium"
+                    className="text-foreground font-medium"
                   >
                     Fax
                   </Label>
@@ -795,9 +795,9 @@ export default function RepresentativeReferral() {
                     id="referral_fax"
                     name="referral_fax"
                     value={formData.referral_fax}
-                    onChange={handleChange}
-                    placeholder="(000)-000-0000"
-                    className="bg-gray-50 border-gray-300"
+                    onChange={(e) => setFormData(prev => ({ ...prev, referral_fax: formatPhoneNumber(e.target.value) }))}
+                    placeholder="(888) 888-8888"
+                    className="bg-muted border-input"
                   />
                 </div>
 
@@ -805,7 +805,7 @@ export default function RepresentativeReferral() {
                 <div className="space-y-2">
                   <Label
                     htmlFor="referral_email"
-                    className="text-gray-700 font-medium"
+                    className="text-foreground font-medium"
                   >
                     Email
                   </Label>
@@ -816,7 +816,7 @@ export default function RepresentativeReferral() {
                     value={formData.referral_email}
                     onChange={handleChange}
                     placeholder="admin@gmail.com"
-                    className="bg-gray-50 border-gray-300"
+                    className="bg-muted border-input"
                   />
                 </div>
               </div>
@@ -824,13 +824,13 @@ export default function RepresentativeReferral() {
 
             {/* Referral Address */}
             <div className="space-y-6 pt-6 border-t">
-              <h2 className="text-xl font-semibold text-gray-900">
+              <h2 className="text-xl font-semibold text-foreground">
                 Referral Address
               </h2>
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div className="space-y-2">
-                  <Label className="text-gray-700 font-medium">
+                  <Label className="text-foreground font-medium">
                     Unit Number
                   </Label>
                   <Input
@@ -843,12 +843,12 @@ export default function RepresentativeReferral() {
                       )
                     }
                     placeholder="5B"
-                    className="bg-gray-50 border-gray-300"
+                    className="bg-muted border-input"
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label className="text-gray-700 font-medium">
+                  <Label className="text-foreground font-medium">
                     Street Number
                   </Label>
                   <Input
@@ -861,12 +861,12 @@ export default function RepresentativeReferral() {
                       )
                     }
                     placeholder="221"
-                    className="bg-gray-50 border-gray-300"
+                    className="bg-muted border-input"
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label className="text-gray-700 font-medium">
+                  <Label className="text-foreground font-medium">
                     Street Name
                   </Label>
                   <Input
@@ -879,12 +879,12 @@ export default function RepresentativeReferral() {
                       )
                     }
                     placeholder="King Street West"
-                    className="bg-gray-50 border-gray-300"
+                    className="bg-muted border-input"
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label className="text-gray-700 font-medium">City</Label>
+                  <Label className="text-foreground font-medium">City</Label>
                   <Input
                     value={formData.referral_address.city}
                     onChange={(e) =>
@@ -895,12 +895,12 @@ export default function RepresentativeReferral() {
                       )
                     }
                     placeholder="Toronto"
-                    className="bg-gray-50 border-gray-300"
+                    className="bg-muted border-input"
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label className="text-gray-700 font-medium">Province</Label>
+                  <Label className="text-foreground font-medium">Province</Label>
                   <Input
                     value={formData.referral_address.province}
                     onChange={(e) =>
@@ -911,12 +911,12 @@ export default function RepresentativeReferral() {
                       )
                     }
                     placeholder="Ontario"
-                    className="bg-gray-50 border-gray-300"
+                    className="bg-muted border-input"
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label className="text-gray-700 font-medium">
+                  <Label className="text-foreground font-medium">
                     Postal Code
                   </Label>
                   <Input
@@ -929,12 +929,12 @@ export default function RepresentativeReferral() {
                       )
                     }
                     placeholder="M5H 1K5"
-                    className="bg-gray-50 border-gray-300"
+                    className="bg-muted border-input"
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label className="text-gray-700 font-medium">Country</Label>
+                  <Label className="text-foreground font-medium">Country</Label>
                   <Input
                     value={formData.referral_address.country}
                     onChange={(e) =>
@@ -945,7 +945,7 @@ export default function RepresentativeReferral() {
                       )
                     }
                     placeholder="Canada"
-                    className="bg-gray-50 border-gray-300"
+                    className="bg-muted border-input"
                   />
                 </div>
               </div>

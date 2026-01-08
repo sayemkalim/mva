@@ -421,11 +421,11 @@ export default function OCFProdPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-muted">
       <Navbar2 />
 
-      <header className="bg-white border-b px-6 py-3">
-        <div className="flex items-center justify-end gap-6 text-sm text-gray-700">
+      <header className="bg-card border-b px-6 py-3">
+        <div className="flex items-center justify-end gap-6 text-sm text-foreground">
           <div>
             Unpaid: <span className="font-semibold">$ 0</span>
           </div>
@@ -441,11 +441,11 @@ export default function OCFProdPage() {
         </div>
       </header>
 
-      <nav className="bg-white border-b px-6 py-4 text-sm text-gray-600">
+      <nav className="bg-card border-b px-6 py-4 text-sm text-muted-foreground">
         <div className="flex items-center gap-2">
           <button
             onClick={() => navigate("/dashboard")}
-            className="hover:text-gray-900 transition"
+            className="hover:text-foreground transition"
             type="button"
           >
             Dashboard
@@ -453,23 +453,23 @@ export default function OCFProdPage() {
           <ChevronRight className="w-4 h-4" />
           <button
             onClick={() => navigate("/dashboard/workstation")}
-            className="hover:text-gray-900 transition"
+            className="hover:text-foreground transition"
             type="button"
           >
             Workstation
           </button>
           <ChevronRight className="w-4 h-4" />
-          <span className="text-gray-900 font-medium">OCF-PROD</span>
+          <span className="text-foreground font-medium">OCF-PROD</span>
         </div>
       </nav>
 
       <main className="container mx-auto px-6 py-8 max-w-7xl">
-        <h1 className="text-3xl font-bold text-gray-900 mb-6">OCF-PROD Form</h1>
+        <h1 className="text-3xl font-bold text-foreground mb-6">OCF-PROD Form</h1>
 
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* SECTION 1: Basic Information */}
-          <div className="bg-white rounded-lg shadow-sm border p-6 space-y-6">
-            <h2 className="text-xl font-semibold text-gray-900 border-b pb-3">
+          <div className="bg-card rounded-lg shadow-sm border p-6 space-y-6">
+            <h2 className="text-xl font-semibold text-foreground border-b pb-3">
               Basic Information
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -519,8 +519,8 @@ export default function OCFProdPage() {
           </div>
 
           {/* SECTION 2: Applicant Information */}
-          <div className="bg-white rounded-lg shadow-sm border p-6 space-y-6">
-            <h2 className="text-xl font-semibold text-gray-900 border-b pb-3">
+          <div className="bg-card rounded-lg shadow-sm border p-6 space-y-6">
+            <h2 className="text-xl font-semibold text-foreground border-b pb-3">
               Applicant Information
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -713,8 +713,8 @@ export default function OCFProdPage() {
           </div>
 
           {/* SECTION 3: Patient Representative */}
-          <div className="bg-white rounded-lg shadow-sm border p-6 space-y-6">
-            <h2 className="text-xl font-semibold text-gray-900 border-b pb-3">
+          <div className="bg-card rounded-lg shadow-sm border p-6 space-y-6">
+            <h2 className="text-xl font-semibold text-foreground border-b pb-3">
               Patient Representative
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -875,8 +875,8 @@ export default function OCFProdPage() {
           </div>
 
           {/* SECTION 4: Insurance Company */}
-          <div className="bg-white rounded-lg shadow-sm border p-6 space-y-6">
-            <h2 className="text-xl font-semibold text-gray-900 border-b pb-3">
+          <div className="bg-card rounded-lg shadow-sm border p-6 space-y-6">
+            <h2 className="text-xl font-semibold text-foreground border-b pb-3">
               Insurance Company
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -937,8 +937,8 @@ export default function OCFProdPage() {
           </div>
 
           {/* SECTION 5: Accident Details */}
-          <div className="bg-white rounded-lg shadow-sm border p-6 space-y-6">
-            <h2 className="text-xl font-semibold text-gray-900 border-b pb-3">
+          <div className="bg-card rounded-lg shadow-sm border p-6 space-y-6">
+            <h2 className="text-xl font-semibold text-foreground border-b pb-3">
               Accident Details
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -1165,8 +1165,8 @@ export default function OCFProdPage() {
           </div>
 
           {/* SECTION 6: Police Report */}
-          <div className="bg-white rounded-lg shadow-sm border p-6 space-y-6">
-            <h2 className="text-xl font-semibold text-gray-900 border-b pb-3">
+          <div className="bg-card rounded-lg shadow-sm border p-6 space-y-6">
+            <h2 className="text-xl font-semibold text-foreground border-b pb-3">
               Police Report
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -1259,8 +1259,8 @@ export default function OCFProdPage() {
           </div>
 
           {/* SECTION 7: Health Information */}
-          <div className="bg-white rounded-lg shadow-sm border p-6 space-y-6">
-            <h2 className="text-xl font-semibold text-gray-900 border-b pb-3">
+          <div className="bg-card rounded-lg shadow-sm border p-6 space-y-6">
+            <h2 className="text-xl font-semibold text-foreground border-b pb-3">
               Health Information
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -1358,8 +1358,8 @@ export default function OCFProdPage() {
           </div>
 
           {/* SECTION 8: Insurance Policy Details */}
-          <div className="bg-white rounded-lg shadow-sm border p-6 space-y-6">
-            <h2 className="text-xl font-semibold text-gray-900 border-b pb-3">
+          <div className="bg-card rounded-lg shadow-sm border p-6 space-y-6">
+            <h2 className="text-xl font-semibold text-foreground border-b pb-3">
               Insurance Policy Details
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -1436,8 +1436,8 @@ export default function OCFProdPage() {
           </div>
 
           {/* SECTION 9: Vehicle Information */}
-          <div className="bg-white rounded-lg shadow-sm border p-6 space-y-6">
-            <h2 className="text-xl font-semibold text-gray-900 border-b pb-3">
+          <div className="bg-card rounded-lg shadow-sm border p-6 space-y-6">
+            <h2 className="text-xl font-semibold text-foreground border-b pb-3">
               Vehicle Information
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -1518,8 +1518,8 @@ export default function OCFProdPage() {
           </div>
 
           {/* SECTION 10: Employment Status */}
-          <div className="bg-white rounded-lg shadow-sm border p-6 space-y-6">
-            <h2 className="text-xl font-semibold text-gray-900 border-b pb-3">
+          <div className="bg-card rounded-lg shadow-sm border p-6 space-y-6">
+            <h2 className="text-xl font-semibold text-foreground border-b pb-3">
               Employment Status
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -1557,8 +1557,8 @@ export default function OCFProdPage() {
           </div>
 
           {/* SECTION 11: School Information */}
-          <div className="bg-white rounded-lg shadow-sm border p-6 space-y-6">
-            <h2 className="text-xl font-semibold text-gray-900 border-b pb-3">
+          <div className="bg-card rounded-lg shadow-sm border p-6 space-y-6">
+            <h2 className="text-xl font-semibold text-foreground border-b pb-3">
               School Information
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -1758,8 +1758,8 @@ export default function OCFProdPage() {
           </div>
 
           {/* SECTION 12: Caregiver Information */}
-          <div className="bg-white rounded-lg shadow-sm border p-6 space-y-6">
-            <h2 className="text-xl font-semibold text-gray-900 border-b pb-3">
+          <div className="bg-card rounded-lg shadow-sm border p-6 space-y-6">
+            <h2 className="text-xl font-semibold text-foreground border-b pb-3">
               Caregiver Information
             </h2>
 
@@ -1801,9 +1801,9 @@ export default function OCFProdPage() {
             {[0, 1, 2, 3, 4].map((index) => (
               <div
                 key={index}
-                className="bg-gray-50 rounded-lg p-4 space-y-4 border"
+                className="bg-muted rounded-lg p-4 space-y-4 border"
               >
-                <h3 className="font-medium text-gray-900">
+                <h3 className="font-medium text-foreground">
                   Caregiver #{index + 1}
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -1933,17 +1933,17 @@ export default function OCFProdPage() {
           </div>
 
           {/* SECTION 13: Employment Information */}
-          <div className="bg-white rounded-lg shadow-sm border p-6 space-y-6">
-            <h2 className="text-xl font-semibold text-gray-900 border-b pb-3">
+          <div className="bg-card rounded-lg shadow-sm border p-6 space-y-6">
+            <h2 className="text-xl font-semibold text-foreground border-b pb-3">
               Employment Information
             </h2>
 
             {[0, 1, 2, 3, 4].map((index) => (
               <div
                 key={index}
-                className="bg-gray-50 rounded-lg p-4 space-y-4 border"
+                className="bg-muted rounded-lg p-4 space-y-4 border"
               >
-                <h3 className="font-medium text-gray-900">
+                <h3 className="font-medium text-foreground">
                   Employment #{index + 1}
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -2115,8 +2115,8 @@ export default function OCFProdPage() {
           </div>
 
           {/* SECTION 14: Other Insurance & Benefits */}
-          <div className="bg-white rounded-lg shadow-sm border p-6 space-y-6">
-            <h2 className="text-xl font-semibold text-gray-900 border-b pb-3">
+          <div className="bg-card rounded-lg shadow-sm border p-6 space-y-6">
+            <h2 className="text-xl font-semibold text-foreground border-b pb-3">
               Other Insurance & Benefits
             </h2>
 
@@ -2139,9 +2139,9 @@ export default function OCFProdPage() {
             {[0, 1].map((index) => (
               <div
                 key={index}
-                className="bg-gray-50 rounded-lg p-4 space-y-4 border"
+                className="bg-muted rounded-lg p-4 space-y-4 border"
               >
-                <h3 className="font-medium text-gray-900">
+                <h3 className="font-medium text-foreground">
                   Benefit #{index + 1}
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -2325,8 +2325,8 @@ export default function OCFProdPage() {
           </div>
 
           {/* SECTION 15: Applicant Signature */}
-          <div className="bg-white rounded-lg shadow-sm border p-6 space-y-6">
-            <h2 className="text-xl font-semibold text-gray-900 border-b pb-3">
+          <div className="bg-card rounded-lg shadow-sm border p-6 space-y-6">
+            <h2 className="text-xl font-semibold text-foreground border-b pb-3">
               Applicant Signature
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

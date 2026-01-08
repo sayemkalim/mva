@@ -140,7 +140,7 @@ function CustomTable({
               onClick={() => onRowClick && onRowClick(row.original)}
               className={
                 onRowClick
-                  ? "cursor-pointer hover:bg-gray-50 transition-colors"
+                  ? "cursor-pointer hover:bg-muted transition-colors"
                   : ""
               }
             >

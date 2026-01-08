@@ -601,7 +601,7 @@ export default function MvaPage() {
 
   if (isEditMode && isLoading) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-gray-50">
+      <div className="flex items-center justify-center min-h-screen bg-muted">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
         <span className="ml-2 text-lg">Loading MVA...</span>
       </div>
@@ -613,15 +613,15 @@ export default function MvaPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-muted">
       <Navbar2 />
 
-      <nav className="bg-white border-b px-6 py-4 text-sm text-gray-600">
+      <nav className="bg-card border-b px-6 py-4 text-sm text-muted-foreground">
         <div className="flex items-center gap-2">
           <button
             type="button"
             onClick={() => navigate("/dashboard")}
-            className="hover:text-gray-900 transition-colors"
+            className="hover:text-foreground transition-colors"
           >
             Dashboard
           </button>
@@ -629,12 +629,12 @@ export default function MvaPage() {
           <button
             type="button"
             onClick={() => navigate("/dashboard/workstation")}
-            className="hover:text-gray-900 transition-colors"
+            className="hover:text-foreground transition-colors"
           >
             Workstation
           </button>
           <ChevronRight className="w-4 h-4" />
-          <span className="text-gray-900 font-medium">
+          <span className="text-foreground font-medium">
             {isEditMode ? "Edit" : "New"} MVA Intake
           </span>
         </div>
@@ -642,7 +642,7 @@ export default function MvaPage() {
 
       <main className="container mx-auto px-6 py-8 max-w-6xl">
         <div className="flex items-center justify-between mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">
+          <h1 className="text-3xl font-bold text-foreground">
             {isEditMode ? "Edit MVA" : "New MVA"}
           </h1>
           {/* <div className="text-sm text-gray-500">{isEditMode.toString()}</div> */}
@@ -1050,8 +1050,8 @@ export default function MvaPage() {
 
 function Section({ title, children }) {
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8 space-y-6">
-      <h2 className="text-2xl font-semibold text-gray-900 border-b border-gray-200 pb-4">
+    <div className="bg-card rounded-xl shadow-sm border border-gray-200 p-8 space-y-6">
+      <h2 className="text-2xl font-semibold text-foreground border-b border-gray-200 pb-4">
         {title}
       </h2>
       {children}
@@ -1070,7 +1070,7 @@ function Grid({ children }) {
 function Field({ label, value, onChange, type = "text", required = false }) {
   return (
     <div className="space-y-2">
-      <Label className="text-sm font-semibold text-gray-900">
+      <Label className="text-sm font-semibold text-foreground">
         {label}
         {required && <span className="text-red-500 ml-1">*</span>}
       </Label>
@@ -1078,7 +1078,7 @@ function Field({ label, value, onChange, type = "text", required = false }) {
         type={type}
         value={value || ""}
         onChange={(e) => onChange(e.target.value)}
-        className="h-12 px-4 border-gray-300 focus:ring-2 focus:ring-primary focus:border-primary transition-all"
+        className="h-12 px-4 border-input focus:ring-2 focus:ring-primary focus:border-primary transition-all"
         placeholder={label}
       />
     </div>
@@ -1088,12 +1088,12 @@ function Field({ label, value, onChange, type = "text", required = false }) {
 function TextField({ label, value, onChange }) {
   return (
     <div className="space-y-2 md:col-span-full">
-      <Label className="text-sm font-semibold text-gray-900">{label}</Label>
+      <Label className="text-sm font-semibold text-foreground">{label}</Label>
       <Textarea
         value={value || ""}
         onChange={(e) => onChange(e.target.value)}
         rows={4}
-        className="min-h-[100px] border-gray-300 focus:ring-2 focus:ring-primary focus:border-primary transition-all resize-vertical"
+        className="min-h-[100px] border-input focus:ring-2 focus:ring-primary focus:border-primary transition-all resize-vertical"
         placeholder={`Enter ${label.toLowerCase()}...`}
       />
     </div>

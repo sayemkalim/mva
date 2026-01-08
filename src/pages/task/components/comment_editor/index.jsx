@@ -239,7 +239,7 @@ const CommentPage = () => {
   return (
     <div className="flex flex-col h-screen bg-gradient-to-b from-slate-50 to-white dark:from-slate-950 dark:to-slate-900">
       {/* Modern Header with Glass Effect */}
-      <header className="flex-shrink-0 bg-white/70 dark:bg-slate-900/70 backdrop-blur-xl border-b border-slate-200/60 dark:border-slate-800/60 sticky top-0 z-10 shadow-sm">
+      <header className="flex-shrink-0 bg-card/70 dark:bg-slate-900/70 backdrop-blur-xl border-b border-slate-200/60 dark:border-slate-800/60 sticky top-0 z-10 shadow-sm">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 py-4 flex items-center gap-3">
           <Button
             variant="ghost"
@@ -434,7 +434,7 @@ const CommentPage = () => {
                                     href={attachment.path}
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    className="flex items-center gap-2.5 p-3 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 hover:border-blue-400 hover:shadow-md transition-all group/file"
+                                    className="flex items-center gap-2.5 p-3 bg-card dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 hover:border-blue-400 hover:shadow-md transition-all group/file"
                                   >
                                     <div className="flex-shrink-0 w-10 h-10 rounded-lg bg-blue-50 dark:bg-blue-950/20 flex items-center justify-center">
                                       <FileText className="h-5 w-5 text-blue-600 dark:text-blue-400" />
@@ -468,7 +468,7 @@ const CommentPage = () => {
       </ScrollArea>
 
       {/* Modern Input Area */}
-      <div className="flex-shrink-0 bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl border-t border-slate-200/60 dark:border-slate-800/60 shadow-2xl sticky bottom-0 z-20">
+      <div className="flex-shrink-0 bg-card/95 dark:bg-slate-900/95 backdrop-blur-xl border-t border-slate-200/60 dark:border-slate-800/60 shadow-2xl sticky bottom-0 z-20">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 py-4">
           <form onSubmit={handleSubmit} className="space-y-3">
             {/* Upload Progress */}
@@ -561,7 +561,7 @@ const CommentPage = () => {
                 <Upload className="h-5 w-5" />
               </Button>
 
-              <div className="flex-1 relative bg-slate-100 dark:bg-slate-800/50 rounded-2xl border-2 border-transparent focus-within:border-blue-400 focus-within:bg-white dark:focus-within:bg-slate-800 transition-all">
+              <div className="flex-1 relative bg-slate-100 dark:bg-slate-800/50 rounded-2xl border-2 border-transparent focus-within:border-blue-400 focus-within:bg-card dark:focus-within:bg-slate-800 transition-all">
                 <Textarea
                   ref={textareaRef}
                   value={comment}

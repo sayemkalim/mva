@@ -94,7 +94,7 @@ const ContactSearch = ({
 
   return (
     <div className="space-y-2" ref={containerRef}>
-      <Label className="text-gray-700 font-medium">{label}</Label>
+      <Label className="text-foreground font-medium">{label}</Label>
       <div className="relative">
         <div className="relative">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -121,7 +121,7 @@ const ContactSearch = ({
         </div>
 
         {isOpen && (
-          <div className="absolute z-50 w-full mt-1 bg-white border rounded-md shadow-lg max-h-60 overflow-auto">
+          <div className="absolute z-50 w-full mt-1 bg-card border rounded-md shadow-lg max-h-60 overflow-auto">
             {isSearching && (
               <div className="flex items-center justify-center py-6">
                 <Loader2 className="h-4 w-4 animate-spin mr-2" />
@@ -149,7 +149,7 @@ const ContactSearch = ({
                     onClick={() => handleSelect(contact)}
                     className={cn(
                       "px-3 py-2 cursor-pointer hover:bg-gray-100 flex items-center justify-between",
-                      selectedContact?.id === contact.id && "bg-gray-50"
+                      selectedContact?.id === contact.id && "bg-muted"
                     )}
                   >
                     <div className="flex flex-col gap-0.5">
@@ -172,12 +172,12 @@ const ContactSearch = ({
       </div>
 
       {selectedContact && (
-        <div className="flex items-center gap-2 mt-2 p-2 rounded-md bg-gray-50 border border-gray-200 shadow-sm transition">
+        <div className="flex items-center gap-2 mt-2 p-2 rounded-md bg-muted border border-gray-200 shadow-sm transition">
           <div className="flex items-center justify-center bg-primary/10 text-primary rounded-full h-7 w-7">
             <Check className="h-4 w-4" />
           </div>
           <div>
-            <div className="font-semibold text-sm text-gray-800">
+            <div className="font-semibold text-sm text-foreground">
               {selectedContact.contact_name}
             </div>
             {selectedContact.primary_email && (

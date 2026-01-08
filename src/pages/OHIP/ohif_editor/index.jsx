@@ -42,7 +42,7 @@ const SearchableSelect = ({ label, options, value, onChange, placeholder }) => {
 
   return (
     <div className="space-y-2">
-      <Label className="text-gray-700 font-medium">{label}</Label>
+      <Label className="text-foreground font-medium">{label}</Label>
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
           <Button
@@ -102,7 +102,7 @@ const DatePicker = ({ label, value, onChange }) => {
 
   return (
     <div className="space-y-2">
-      <Label className="text-gray-700 font-medium">{label}</Label>
+      <Label className="text-foreground font-medium">{label}</Label>
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
           <Button
@@ -281,10 +281,10 @@ export default function OhipPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-muted">
       <Navbar2 />
-      <header className="bg-white border-b px-6 py-3">
-        <div className="flex items-center justify-end gap-6 text-sm text-gray-700">
+      <header className="bg-card border-b px-6 py-3">
+        <div className="flex items-center justify-end gap-6 text-sm text-foreground">
           <div>
             Unpaid: <span className="font-semibold">$ 0</span>
           </div>
@@ -301,11 +301,11 @@ export default function OhipPage() {
       </header>
 
       {/* Breadcrumb */}
-      <nav className="bg-white border-b px-6 py-4 text-sm text-gray-600">
+      <nav className="bg-card border-b px-6 py-4 text-sm text-muted-foreground">
         <div className="flex items-center gap-2">
           <button
             onClick={() => navigate("/dashboard")}
-            className="hover:text-gray-900 transition"
+            className="hover:text-foreground transition"
             type="button"
           >
             Dashboard
@@ -313,13 +313,13 @@ export default function OhipPage() {
           <ChevronRight className="w-4 h-4" />
           <button
             onClick={() => navigate("/dashboard/workstation")}
-            className="hover:text-gray-900 transition"
+            className="hover:text-foreground transition"
             type="button"
           >
             Workstation
           </button>
           <ChevronRight className="w-4 h-4" />
-          <span className="text-gray-900 font-medium">
+          <span className="text-foreground font-medium">
             OHIP Decoded Summary
           </span>
         </div>
@@ -327,7 +327,7 @@ export default function OhipPage() {
 
       <main className="container mx-auto px-6 py-8 max-w-7xl">
         <div className="flex justify-between items-center mb-6">
-          <h1 className="text-2xl font-bold text-gray-900">
+          <h1 className="text-2xl font-bold text-foreground">
             OHIP Decoded Summary
           </h1>
           <Button
@@ -344,10 +344,10 @@ export default function OhipPage() {
           {records.map((record, index) => (
             <div
               key={index}
-              className="bg-white rounded-lg shadow-sm border p-6 space-y-6"
+              className="bg-card rounded-lg shadow-sm border p-6 space-y-6"
             >
               <div className="flex justify-between items-center mb-4">
-                <h3 className="text-lg font-semibold text-gray-900">
+                <h3 className="text-lg font-semibold text-foreground">
                   Record #{index + 1}
                 </h3>
                 {records.length > 1 && (
@@ -456,7 +456,7 @@ export default function OhipPage() {
               {/* Row 4 */}
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 <div className="space-y-2">
-                  <Label className="text-gray-700 font-medium">
+                  <Label className="text-foreground font-medium">
                     Invoice Amount
                   </Label>
                   <Input
@@ -488,7 +488,7 @@ export default function OhipPage() {
 
               {/* Note */}
               <div className="space-y-2">
-                <Label className="text-gray-700 font-medium">Note</Label>
+                <Label className="text-foreground font-medium">Note</Label>
                 <Textarea
                   value={record.note}
                   onChange={(e) =>

@@ -27,6 +27,7 @@ import { getApplicantMeta } from "../helpers/fetchApplicantInfoMetadata";
 import { fetchApplicantInfoBySlug } from "../helpers/fetchApplicantInfoBySlug";
 import { uploadAttachment } from "../helpers/uploadAttachment";
 import { Navbar2 } from "@/components/navbar2";
+import { formatPhoneNumber } from "@/lib/utils";
 
 /* shadcn-style components for searchable select */
 import {
@@ -75,7 +76,7 @@ function ShadcnSelect({
         <Button
           variant="outline"
           role="combobox"
-          className="w-full justify-between font-normal bg-gray-50"
+          className="w-full justify-between font-normal bg-muted"
           type="button"
         >
           {selected ? selected.name : placeholder}
@@ -98,11 +99,10 @@ function ShadcnSelect({
                 onSelect={() => handleSelect(opt.id)}
               >
                 <Check
-                  className={`mr-2 h-4 w-4 ${
-                    String(value) === String(opt.id)
-                      ? "opacity-100"
-                      : "opacity-0"
-                  }`}
+                  className={`mr-2 h-4 w-4 ${String(value) === String(opt.id)
+                    ? "opacity-100"
+                    : "opacity-0"
+                    }`}
                 />
                 {opt.name}
               </CommandItem>
@@ -195,8 +195,8 @@ export default function ApplicantInformation() {
         } else {
           toast.error(
             data?.message ||
-              data?.response?.message ||
-              "Submission failed. Please try again."
+            data?.response?.message ||
+            "Submission failed. Please try again."
           );
           console.error("Create mutation returned:", data);
         }
@@ -317,7 +317,7 @@ export default function ApplicantInformation() {
           ? `${applicantData.attachment.original_name}.${applicantData.attachment.extension}`
           : "",
         filePreview: applicantData.attachment?.path || null,
-        
+
         social_media_facebook: applicantData.social_media_facebook ?? "",
         social_media_instagram: applicantData.social_media_instagram ?? "",
         social_media_tiktok: applicantData.social_media_tiktok ?? "",
@@ -327,9 +327,9 @@ export default function ApplicantInformation() {
         reaches:
           applicantData.reach && applicantData.reach.length > 0
             ? applicantData.reach.map((r) => ({
-                day_id: r.day_id ?? "",
-                time: r.time ? r.time.slice(0, 5) : "",
-              }))
+              day_id: r.day_id ?? "",
+              time: r.time ? r.time.slice(0, 5) : "",
+            }))
             : [{ day_id: "", time: "" }],
         client_availability_away_id:
           applicantData.client_availability_away_id ?? "",
@@ -386,18 +386,18 @@ export default function ApplicantInformation() {
         children:
           applicantData.children && applicantData.children.length > 0
             ? applicantData.children.map((c) => ({
-                first_name: c.first_name ?? "",
-                middle_number: c.middle_number ?? "",
-                last_name: c.last_name ?? "",
-                dob: c.dob ? c.dob.split("T")[0] : "",
-              }))
+              first_name: c.first_name ?? "",
+              middle_number: c.middle_number ?? "",
+              last_name: c.last_name ?? "",
+              dob: c.dob ? c.dob.split("T")[0] : "",
+            }))
             : [{ first_name: "", middle_number: "", last_name: "", dob: "" }],
         meeting_clients:
           applicantData.meeting_client &&
-          applicantData.meeting_client.length > 0
+            applicantData.meeting_client.length > 0
             ? applicantData.meeting_client.map((m) => ({
-                date: m.date ? m.date.split("T")[0] : "",
-              }))
+              date: m.date ? m.date.split("T")[0] : "",
+            }))
             : [{ date: "" }],
       });
     }
@@ -587,7 +587,7 @@ export default function ApplicantInformation() {
         <div className="text-red-500 text-xl font-semibold">
           Error loading form
         </div>
-        <p className="text-gray-600">
+        <p className="text-muted-foreground">
           {metadataError?.message || "Invalid response from server"}
         </p>
         <div className="flex gap-4">
@@ -608,50 +608,50 @@ export default function ApplicantInformation() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-muted">
       <Navbar2 />
-      <div className="bg-white border-b px-6 py-3">
+      <div className="bg-card border-b px-6 py-3">
         <div className="flex items-center justify-end gap-6 text-sm">
-          <span className="text-gray-700">
+          <span className="text-foreground">
             Unpaid: <span className="font-semibold">$ 0</span>
           </span>
-          <span className="text-gray-700">
+          <span className="text-foreground">
             Unbilled: <span className="font-semibold">$ 0</span>
           </span>
-          <span className="text-gray-700">
+          <span className="text-foreground">
             Client Funds-Operating: <span className="font-semibold">$ 0</span>
           </span>
-          <span className="text-gray-700">
+          <span className="text-foreground">
             Client Funds-Trust: <span className="font-semibold">$ 0</span>
           </span>
         </div>
       </div>
 
-      <div className="bg-white border-b px-6 py-4">
-        <div className="flex items-center gap-2 text-sm text-gray-600">
+      <div className="bg-card border-b px-6 py-4">
+        <div className="flex items-center gap-2 text-sm text-muted-foreground">
           <button
             onClick={() => navigate("/dashboard")}
-            className="hover:text-gray-900 transition"
+            className="hover:text-foreground transition"
           >
             Dashboard
           </button>
           <ChevronRight className="w-4 h-4" />
           <button
             onClick={() => navigate("/dashboard/workstation")}
-            className="hover:text-gray-900 transition"
+            className="hover:text-foreground transition"
           >
             Workstation
           </button>
           <ChevronRight className="w-4 h-4" />
-          <span className="text-gray-900 font-medium">
+          <span className="text-foreground font-medium">
             Applicant Information
           </span>
         </div>
       </div>
 
       <div className="container mx-auto px-6 py-8 max-w-7xl">
-        <div className="bg-white rounded-lg shadow-sm border p-8">
-          <h1 className="text-2xl font-bold mb-8 text-gray-900 uppercase">
+        <div className="bg-card rounded-lg shadow-sm border p-8">
+          <h1 className="text-2xl font-bold mb-8 text-foreground uppercase">
             Applicant Information
           </h1>
 
@@ -661,7 +661,7 @@ export default function ApplicantInformation() {
               <div className="space-y-2">
                 <Label
                   htmlFor="gender_id"
-                  className="text-gray-700 font-medium"
+                  className="text-foreground font-medium"
                 >
                   Gender
                 </Label>
@@ -680,7 +680,7 @@ export default function ApplicantInformation() {
               <div className="space-y-2">
                 <Label
                   htmlFor="last_name"
-                  className="text-gray-700 font-medium"
+                  className="text-foreground font-medium"
                 >
                   Last Name
                 </Label>
@@ -690,14 +690,14 @@ export default function ApplicantInformation() {
                   value={formData.last_name}
                   onChange={handleChange}
                   placeholder="Doe"
-                  className="w-full h-9 bg-gray-50 border-gray-300"
+                  className="w-full h-9 bg-muted border-input"
                 />
               </div>
 
               <div className="space-y-2">
                 <Label
                   htmlFor="first_name"
-                  className="text-gray-700 font-medium"
+                  className="text-foreground font-medium"
                 >
                   First Name
                 </Label>
@@ -707,12 +707,12 @@ export default function ApplicantInformation() {
                   value={formData.first_name}
                   onChange={handleChange}
                   placeholder="John"
-                  className="w-full h-9 bg-gray-50 border-gray-300"
+                  className="w-full h-9 bg-muted border-input"
                 />
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="email" className="text-gray-700 font-medium">
+                <Label htmlFor="email" className="text-foreground font-medium">
                   Email
                 </Label>
                 <Input
@@ -722,7 +722,7 @@ export default function ApplicantInformation() {
                   value={formData.email}
                   onChange={handleChange}
                   placeholder="john.doe@example.com"
-                  className="w-full h-9 bg-gray-50 border-gray-300"
+                  className="w-full h-9 bg-muted border-input"
                 />
               </div>
             </div>
@@ -732,7 +732,7 @@ export default function ApplicantInformation() {
               <div className="space-y-2">
                 <Label
                   htmlFor="middle_name"
-                  className="text-gray-700 font-medium"
+                  className="text-foreground font-medium"
                 >
                   Middle Name
                 </Label>
@@ -742,14 +742,14 @@ export default function ApplicantInformation() {
                   value={formData.middle_name}
                   onChange={handleChange}
                   placeholder="Michael"
-                  className="w-full h-9 bg-gray-50 border-gray-300"
+                  className="w-full h-9 bg-muted border-input"
                 />
               </div>
 
               <div className="space-y-2">
                 <Label
                   htmlFor="marital_status_id"
-                  className="text-gray-700 font-medium"
+                  className="text-foreground font-medium"
                 >
                   Marital Status
                 </Label>
@@ -768,7 +768,7 @@ export default function ApplicantInformation() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="dob" className="text-gray-700 font-medium">
+                <Label htmlFor="dob" className="text-foreground font-medium">
                   DOB
                 </Label>
                 <Input
@@ -777,7 +777,7 @@ export default function ApplicantInformation() {
                   type="date"
                   value={formData.dob}
                   onChange={handleChange}
-                  className="w-full h-9 bg-gray-50 border-gray-300"
+                  className="w-full h-9 bg-muted border-input"
                 />
               </div>
             </div>
@@ -787,7 +787,7 @@ export default function ApplicantInformation() {
               <div className="space-y-2">
                 <Label
                   htmlFor="canadian_resident_id"
-                  className="text-gray-700 font-medium"
+                  className="text-foreground font-medium"
                 >
                   Canadian Resident
                 </Label>
@@ -808,7 +808,7 @@ export default function ApplicantInformation() {
               <div className="space-y-2">
                 <Label
                   htmlFor="resident_status_id"
-                  className="text-gray-700 font-medium"
+                  className="text-foreground font-medium"
                 >
                   Resident Status
                 </Label>
@@ -829,7 +829,7 @@ export default function ApplicantInformation() {
               <div className="space-y-2">
                 <Label
                   htmlFor="language_spoken"
-                  className="text-gray-700 font-medium"
+                  className="text-foreground font-medium"
                 >
                   Language Spoken
                 </Label>
@@ -839,7 +839,7 @@ export default function ApplicantInformation() {
                   value={formData.language_spoken}
                   onChange={handleChange}
                   placeholder="English"
-                  className="w-full h-9 bg-gray-50 border-gray-300"
+                  className="w-full h-9 bg-muted border-input"
                 />
               </div>
             </div>
@@ -849,7 +849,7 @@ export default function ApplicantInformation() {
               <div className="space-y-2">
                 <Label
                   htmlFor="contact_method_id"
-                  className="text-gray-700 font-medium"
+                  className="text-foreground font-medium"
                 >
                   Contact Method
                 </Label>
@@ -870,7 +870,7 @@ export default function ApplicantInformation() {
               <div className="space-y-2">
                 <Label
                   htmlFor="telephone"
-                  className="text-gray-700 font-medium"
+                  className="text-foreground font-medium"
                 >
                   Telephone
                 </Label>
@@ -878,14 +878,14 @@ export default function ApplicantInformation() {
                   id="telephone"
                   name="telephone"
                   value={formData.telephone}
-                  onChange={handleChange}
-                  placeholder="1234567890"
-                  className="w-full h-9 bg-gray-50 border-gray-300"
+                  onChange={(e) => setFormData(prev => ({ ...prev, telephone: formatPhoneNumber(e.target.value) }))}
+                  placeholder="(888) 888-8888"
+                  className="w-full h-9 bg-muted border-input"
                 />
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="ext" className="text-gray-700 font-medium">
+                <Label htmlFor="ext" className="text-foreground font-medium">
                   Ext
                 </Label>
                 <Input
@@ -894,167 +894,166 @@ export default function ApplicantInformation() {
                   value={formData.ext}
                   onChange={handleChange}
                   placeholder="2"
-                  className="w-full h-9 bg-gray-50 border-gray-300"
+                  className="w-full h-9 bg-muted border-input"
                 />
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="fax" className="text-gray-700 font-medium">
+                <Label htmlFor="fax" className="text-foreground font-medium">
                   Fax
                 </Label>
                 <Input
                   id="fax"
                   name="fax"
                   value={formData.fax}
-                  onChange={handleChange}
-                  placeholder="2"
-                  className="w-full h-9 bg-gray-50 border-gray-300"
+                  onChange={(e) => setFormData(prev => ({ ...prev, fax: formatPhoneNumber(e.target.value) }))}
+                  placeholder="(888) 888-8888"
+                  className="w-full h-9 bg-muted border-input"
                 />
               </div>
             </div>
 
             {/* Photo Upload */}
 
-<div className="space-y-2">
-  <Label className="text-gray-700 font-medium">
-    Applicant Photo <span className="text-red-500">(Max 1MB)</span>
-  </Label>
-  <div
-    className={`relative border-2 border-dashed rounded-lg transition-all overflow-hidden ${
-      formData.filePreview
-        ? "border-green-500 bg-green-50/50 h-[200px]"
-        : "border-gray-300 bg-gray-50 hover:border-gray-400 hover:bg-gray-100 h-[200px]"
-    }`}
-  >
-    <input
-      id="applicant_photo"
-      type="file"
-      className="hidden"
-      onChange={(e) => {
-        const file = e.target.files?.[0];
-        if (file) handleFileChange(file);
-      }}
-      accept="image/*"
-    />
+            <div className="space-y-2">
+              <Label className="text-foreground font-medium">
+                Applicant Photo <span className="text-red-500">(Max 1MB)</span>
+              </Label>
+              <div
+                className={`relative border-2 border-dashed rounded-lg transition-all overflow-hidden ${formData.filePreview
+                  ? "border-green-500 bg-green-50/50 h-[200px]"
+                  : "border-input bg-muted hover:border-gray-400 hover:bg-gray-100 h-[200px]"
+                  }`}
+              >
+                <input
+                  id="applicant_photo"
+                  type="file"
+                  className="hidden"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) handleFileChange(file);
+                  }}
+                  accept="image/*"
+                />
 
-    {formData.filePreview ? (
-      <div className="relative h-full flex flex-col items-center justify-center p-4">
-        {/* Action Buttons - Remove & Download */}
-        <div className="absolute top-3 right-3 z-10 flex gap-2">
-          {/* Download Button */}
-          <button
-            type="button"
-            onClick={(e) => {
-              e.stopPropagation();
-              const link = document.createElement("a");
-              link.href = formData.filePreview;
-              link.download = formData.fileName || "applicant-photo.png";
-              link.target = "_blank";
-              document.body.appendChild(link);
-              link.click();
-              document.body.removeChild(link);
-              // toast.success("Photo download started!");
-            }}
-            className="w-8 h-8 bg-blue-500 hover:bg-blue-600 text-white rounded-full flex items-center justify-center transition-colors shadow-md"
-            title="Download Photo"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="w-4 h-4"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-              <polyline points="7 10 12 15 17 10" />
-              <line x1="12" y1="15" x2="12" y2="3" />
-            </svg>
-          </button>
+                {formData.filePreview ? (
+                  <div className="relative h-full flex flex-col items-center justify-center p-4">
+                    {/* Action Buttons - Remove & Download */}
+                    <div className="absolute top-3 right-3 z-10 flex gap-2">
+                      {/* Download Button */}
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          const link = document.createElement("a");
+                          link.href = formData.filePreview;
+                          link.download = formData.fileName || "applicant-photo.png";
+                          link.target = "_blank";
+                          document.body.appendChild(link);
+                          link.click();
+                          document.body.removeChild(link);
+                          // toast.success("Photo download started!");
+                        }}
+                        className="w-8 h-8 bg-blue-500 hover:bg-blue-600 text-white rounded-full flex items-center justify-center transition-colors shadow-md"
+                        title="Download Photo"
+                      >
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          className="w-4 h-4"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        >
+                          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                          <polyline points="7 10 12 15 17 10" />
+                          <line x1="12" y1="15" x2="12" y2="3" />
+                        </svg>
+                      </button>
 
-          {/* Remove Button */}
-          <button
-            type="button"
-            onClick={(e) => {
-              e.stopPropagation();
-              removeFile();
-            }}
-            className="w-8 h-8 bg-red-500 hover:bg-red-600 text-white rounded-full flex items-center justify-center transition-colors shadow-md"
-            title="Remove Photo"
-          >
-            <X className="w-4 h-4" />
-          </button>
-        </div>
+                      {/* Remove Button */}
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          removeFile();
+                        }}
+                        className="w-8 h-8 bg-red-500 hover:bg-red-600 text-white rounded-full flex items-center justify-center transition-colors shadow-md"
+                        title="Remove Photo"
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
+                    </div>
 
-        <div
-          className="flex flex-col items-center justify-center gap-3 cursor-pointer group"
-          onClick={() => setIsPreviewOpen(true)}
-        >
-          <div className="relative">
-            <img
-              src={formData.filePreview}
-              alt="Preview"
-              className="w-28 h-28 object-cover rounded-xl border-2 border-green-500 shadow-md group-hover:shadow-lg transition-shadow"
-            />
-            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 rounded-xl transition-colors flex items-center justify-center">
-              <Eye className="w-6 h-6 text-white opacity-0 group-hover:opacity-100 transition-opacity" />
+                    <div
+                      className="flex flex-col items-center justify-center gap-3 cursor-pointer group"
+                      onClick={() => setIsPreviewOpen(true)}
+                    >
+                      <div className="relative">
+                        <img
+                          src={formData.filePreview}
+                          alt="Preview"
+                          className="w-28 h-28 object-cover rounded-xl border-2 border-green-500 shadow-md group-hover:shadow-lg transition-shadow"
+                        />
+                        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 rounded-xl transition-colors flex items-center justify-center">
+                          <Eye className="w-6 h-6 text-white opacity-0 group-hover:opacity-100 transition-opacity" />
+                        </div>
+                      </div>
+                      <div className="text-center">
+                        <p className="text-sm font-medium text-green-700">
+                          Photo Uploaded
+                        </p>
+                        <p className="text-xs text-muted-foreground mt-1 max-w-[150px] truncate">
+                          {formData.fileName}
+                        </p>
+                        <p className="text-xs text-green-600 mt-1 flex items-center gap-1 justify-center">
+                          <Eye className="w-3 h-3" />
+                          Click to view
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  <div
+                    className="h-full flex flex-col items-center justify-center cursor-pointer p-6 group"
+                    onClick={() =>
+                      document.getElementById("applicant_photo").click()
+                    }
+                  >
+                    <div className="flex flex-col items-center gap-3">
+                      <div className="w-20 h-20 rounded-full bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center group-hover:from-blue-50 group-hover:to-blue-100 transition-all">
+                        <Upload className="w-9 h-9 text-gray-400 group-hover:text-blue-500 transition-colors" />
+                      </div>
+                      <div className="text-center">
+                        <p className="text-base font-semibold text-foreground group-hover:text-blue-600 transition-colors">
+                          Upload
+                        </p>
+                        <p className="text-xs text-gray-500 mt-1">
+                          Drag and drop or click
+                        </p>
+                        <p className="text-xs text-gray-400 mt-1">
+                          PNG, JPG (Max 1MB)
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
-          </div>
-          <div className="text-center">
-            <p className="text-sm font-medium text-green-700">
-              Photo Uploaded
-            </p>
-            <p className="text-xs text-gray-600 mt-1 max-w-[150px] truncate">
-              {formData.fileName}
-            </p>
-            <p className="text-xs text-green-600 mt-1 flex items-center gap-1 justify-center">
-              <Eye className="w-3 h-3" />
-              Click to view
-            </p>
-          </div>
-        </div>
-      </div>
-    ) : (
-      <div
-        className="h-full flex flex-col items-center justify-center cursor-pointer p-6 group"
-        onClick={() =>
-          document.getElementById("applicant_photo").click()
-        }
-      >
-        <div className="flex flex-col items-center gap-3">
-          <div className="w-20 h-20 rounded-full bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center group-hover:from-blue-50 group-hover:to-blue-100 transition-all">
-            <Upload className="w-9 h-9 text-gray-400 group-hover:text-blue-500 transition-colors" />
-          </div>
-          <div className="text-center">
-            <p className="text-base font-semibold text-gray-700 group-hover:text-blue-600 transition-colors">
-              Upload
-            </p>
-            <p className="text-xs text-gray-500 mt-1">
-              Drag and drop or click
-            </p>
-            <p className="text-xs text-gray-400 mt-1">
-              PNG, JPG (Max 1MB)
-            </p>
-          </div>
-        </div>
-      </div>
-    )}
-  </div>
-</div>
 
 
 
             <div className="space-y-6 pt-6 border-t">
-              <h2 className="text-xl font-semibold text-gray-900">
+              <h2 className="text-xl font-semibold text-foreground">
                 Social Media
               </h2>
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <div className="space-y-2">
                   <Label
                     htmlFor="social_media_facebook"
-                    className="text-gray-700 font-medium"
+                    className="text-foreground font-medium"
                   >
                     Facebook
                   </Label>
@@ -1064,14 +1063,14 @@ export default function ApplicantInformation() {
                     value={formData.social_media_facebook}
                     onChange={handleChange}
                     placeholder="https://facebook.com/john.doe"
-                    className="w-full h-9 bg-gray-50 border-gray-300"
+                    className="w-full h-9 bg-muted border-input"
                   />
                 </div>
 
                 <div className="space-y-2">
                   <Label
                     htmlFor="social_media_instagram"
-                    className="text-gray-700 font-medium"
+                    className="text-foreground font-medium"
                   >
                     Instagram
                   </Label>
@@ -1081,14 +1080,14 @@ export default function ApplicantInformation() {
                     value={formData.social_media_instagram}
                     onChange={handleChange}
                     placeholder="https://instagram.com/johndoe"
-                    className="w-full h-9 bg-gray-50 border-gray-300"
+                    className="w-full h-9 bg-muted border-input"
                   />
                 </div>
 
                 <div className="space-y-2">
                   <Label
                     htmlFor="social_media_tiktok"
-                    className="text-gray-700 font-medium"
+                    className="text-foreground font-medium"
                   >
                     TikTok
                   </Label>
@@ -1098,14 +1097,14 @@ export default function ApplicantInformation() {
                     value={formData.social_media_tiktok}
                     onChange={handleChange}
                     placeholder="@johndoe"
-                    className="w-full h-9 bg-gray-50 border-gray-300"
+                    className="w-full h-9 bg-muted border-input"
                   />
                 </div>
 
                 <div className="space-y-2">
                   <Label
                     htmlFor="social_media_x"
-                    className="text-gray-700 font-medium"
+                    className="text-foreground font-medium"
                   >
                     X (Twitter)
                   </Label>
@@ -1115,14 +1114,14 @@ export default function ApplicantInformation() {
                     value={formData.social_media_x}
                     onChange={handleChange}
                     placeholder="@john_doe"
-                    className="w-full h-9 bg-gray-50 border-gray-300"
+                    className="w-full h-9 bg-muted border-input"
                   />
                 </div>
 
                 <div className="space-y-2">
                   <Label
                     htmlFor="social_media_snapchat"
-                    className="text-gray-700 font-medium"
+                    className="text-foreground font-medium"
                   >
                     Snapchat
                   </Label>
@@ -1132,14 +1131,14 @@ export default function ApplicantInformation() {
                     value={formData.social_media_snapchat}
                     onChange={handleChange}
                     placeholder="john_snap"
-                    className="w-full h-9 bg-gray-50 border-gray-300"
+                    className="w-full h-9 bg-muted border-input"
                   />
                 </div>
 
                 <div className="space-y-2">
                   <Label
                     htmlFor="social_media_linkedin"
-                    className="text-gray-700 font-medium"
+                    className="text-foreground font-medium"
                   >
                     LinkedIn
                   </Label>
@@ -1149,7 +1148,7 @@ export default function ApplicantInformation() {
                     value={formData.social_media_linkedin}
                     onChange={handleChange}
                     placeholder="https://linkedin.com/in/john-doe"
-                    className="w-full h-9 bg-gray-50 border-gray-300"
+                    className="w-full h-9 bg-muted border-input"
                   />
                 </div>
               </div>
@@ -1158,7 +1157,7 @@ export default function ApplicantInformation() {
             {/* Best Times to Reach */}
             <div className="space-y-6 pt-6 border-t">
               <div className="flex items-center justify-between">
-                <h2 className="text-xl font-semibold text-gray-900">
+                <h2 className="text-xl font-semibold text-foreground">
                   Best Times to Reach
                 </h2>
                 <Button
@@ -1176,7 +1175,7 @@ export default function ApplicantInformation() {
               {formData.reaches.map((reach, index) => (
                 <div key={index} className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                   <div className="space-y-2">
-                    <Label className="text-gray-700 font-medium">Day</Label>
+                    <Label className="text-foreground font-medium">Day</Label>
                     <ShadcnSelect
                       popoverKey={`reaches-${index}-day`}
                       popoverOpen={popoverOpen}
@@ -1192,7 +1191,7 @@ export default function ApplicantInformation() {
                   </div>
 
                   <div className="space-y-2">
-                    <Label className="text-gray-700 font-medium">Time</Label>
+                    <Label className="text-foreground font-medium">Time</Label>
                     <Input
                       type="time"
                       value={reach.time}
@@ -1204,7 +1203,7 @@ export default function ApplicantInformation() {
                           e.target.value
                         )
                       }
-                      className="w-full h-9 bg-gray-50 border-gray-300"
+                      className="w-full h-9 bg-muted border-input"
                     />
                   </div>
 
@@ -1226,14 +1225,14 @@ export default function ApplicantInformation() {
 
             {/* Client Availability */}
             <div className="space-y-6 pt-6 border-t">
-              <h2 className="text-xl font-semibold text-gray-900">
+              <h2 className="text-xl font-semibold text-foreground">
                 Client Availability
               </h2>
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <div className="space-y-2">
                   <Label
                     htmlFor="client_availability_away_id"
-                    className="text-gray-700 font-medium"
+                    className="text-foreground font-medium"
                   >
                     Away Status
                   </Label>
@@ -1254,7 +1253,7 @@ export default function ApplicantInformation() {
                 <div className="space-y-2">
                   <Label
                     htmlFor="client_availability_from"
-                    className="text-gray-700 font-medium"
+                    className="text-foreground font-medium"
                   >
                     From Date
                   </Label>
@@ -1264,14 +1263,14 @@ export default function ApplicantInformation() {
                     type="date"
                     value={formData.client_availability_from}
                     onChange={handleChange}
-                    className="w-full h-9 bg-gray-50 border-gray-300"
+                    className="w-full h-9 bg-muted border-input"
                   />
                 </div>
 
                 <div className="space-y-2">
                   <Label
                     htmlFor="client_availability_to"
-                    className="text-gray-700 font-medium"
+                    className="text-foreground font-medium"
                   >
                     To Date
                   </Label>
@@ -1281,7 +1280,7 @@ export default function ApplicantInformation() {
                     type="date"
                     value={formData.client_availability_to}
                     onChange={handleChange}
-                    className="w-full h-9 bg-gray-50 border-gray-300"
+                    className="w-full h-9 bg-muted border-input"
                   />
                 </div>
               </div>
@@ -1289,12 +1288,12 @@ export default function ApplicantInformation() {
 
             {/* Current Address */}
             <div className="space-y-6 pt-6 border-t">
-              <h2 className="text-xl font-semibold text-gray-900">
+              <h2 className="text-xl font-semibold text-foreground">
                 Current Address
               </h2>
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <div className="space-y-2">
-                  <Label className="text-gray-700 font-medium">
+                  <Label className="text-foreground font-medium">
                     Unit Number
                   </Label>
                   <Input
@@ -1307,12 +1306,12 @@ export default function ApplicantInformation() {
                       )
                     }
                     placeholder="5B"
-                    className="w-full h-9 bg-gray-50 border-gray-300"
+                    className="w-full h-9 bg-muted border-input"
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label className="text-gray-700 font-medium">
+                  <Label className="text-foreground font-medium">
                     Street Number
                   </Label>
                   <Input
@@ -1325,12 +1324,12 @@ export default function ApplicantInformation() {
                       )
                     }
                     placeholder="221"
-                    className="w-full h-9 bg-gray-50 border-gray-300"
+                    className="w-full h-9 bg-muted border-input"
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label className="text-gray-700 font-medium">
+                  <Label className="text-foreground font-medium">
                     Street Name
                   </Label>
                   <Input
@@ -1343,12 +1342,12 @@ export default function ApplicantInformation() {
                       )
                     }
                     placeholder="King Street West"
-                    className="w-full h-9 bg-gray-50 border-gray-300"
+                    className="w-full h-9 bg-muted border-input"
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label className="text-gray-700 font-medium">City</Label>
+                  <Label className="text-foreground font-medium">City</Label>
                   <Input
                     value={formData.current_address.city}
                     onChange={(e) =>
@@ -1359,12 +1358,12 @@ export default function ApplicantInformation() {
                       )
                     }
                     placeholder="Toronto"
-                    className="w-full h-9 bg-gray-50 border-gray-300"
+                    className="w-full h-9 bg-muted border-input"
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label className="text-gray-700 font-medium">Province</Label>
+                  <Label className="text-foreground font-medium">Province</Label>
                   <Input
                     value={formData.current_address.province}
                     onChange={(e) =>
@@ -1375,12 +1374,12 @@ export default function ApplicantInformation() {
                       )
                     }
                     placeholder="Ontario"
-                    className="w-full h-9 bg-gray-50 border-gray-300"
+                    className="w-full h-9 bg-muted border-input"
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label className="text-gray-700 font-medium">
+                  <Label className="text-foreground font-medium">
                     Postal Code
                   </Label>
                   <Input
@@ -1393,12 +1392,12 @@ export default function ApplicantInformation() {
                       )
                     }
                     placeholder="M5H 1K5"
-                    className="w-full h-9 bg-gray-50 border-gray-300"
+                    className="w-full h-9 bg-muted border-input"
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label className="text-gray-700 font-medium">Country</Label>
+                  <Label className="text-foreground font-medium">Country</Label>
                   <Input
                     value={formData.current_address.country}
                     onChange={(e) =>
@@ -1409,7 +1408,7 @@ export default function ApplicantInformation() {
                       )
                     }
                     placeholder="Canada"
-                    className="w-full h-9 bg-gray-50 border-gray-300"
+                    className="w-full h-9 bg-muted border-input"
                   />
                 </div>
               </div>
@@ -1417,12 +1416,12 @@ export default function ApplicantInformation() {
 
             {/* Mailing Address */}
             <div className="space-y-6 pt-6 border-t">
-              <h2 className="text-xl font-semibold text-gray-900">
+              <h2 className="text-xl font-semibold text-foreground">
                 Mailing Address
               </h2>
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <div className="space-y-2">
-                  <Label className="text-gray-700 font-medium">
+                  <Label className="text-foreground font-medium">
                     Unit Number
                   </Label>
                   <Input
@@ -1435,12 +1434,12 @@ export default function ApplicantInformation() {
                       )
                     }
                     placeholder="5B"
-                    className="w-full h-9 bg-gray-50 border-gray-300"
+                    className="w-full h-9 bg-muted border-input"
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label className="text-gray-700 font-medium">
+                  <Label className="text-foreground font-medium">
                     Street Number
                   </Label>
                   <Input
@@ -1453,12 +1452,12 @@ export default function ApplicantInformation() {
                       )
                     }
                     placeholder="221"
-                    className="w-full h-9 bg-gray-50 border-gray-300"
+                    className="w-full h-9 bg-muted border-input"
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label className="text-gray-700 font-medium">
+                  <Label className="text-foreground font-medium">
                     Street Name
                   </Label>
                   <Input
@@ -1471,12 +1470,12 @@ export default function ApplicantInformation() {
                       )
                     }
                     placeholder="King Street West"
-                    className="w-full h-9 bg-gray-50 border-gray-300"
+                    className="w-full h-9 bg-muted border-input"
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label className="text-gray-700 font-medium">City</Label>
+                  <Label className="text-foreground font-medium">City</Label>
                   <Input
                     value={formData.mailing_address.city}
                     onChange={(e) =>
@@ -1487,12 +1486,12 @@ export default function ApplicantInformation() {
                       )
                     }
                     placeholder="Toronto"
-                    className="w-full h-9 bg-gray-50 border-gray-300"
+                    className="w-full h-9 bg-muted border-input"
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label className="text-gray-700 font-medium">Province</Label>
+                  <Label className="text-foreground font-medium">Province</Label>
                   <Input
                     value={formData.mailing_address.province}
                     onChange={(e) =>
@@ -1503,12 +1502,12 @@ export default function ApplicantInformation() {
                       )
                     }
                     placeholder="Ontario"
-                    className="w-full h-9 bg-gray-50 border-gray-300"
+                    className="w-full h-9 bg-muted border-input"
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label className="text-gray-700 font-medium">
+                  <Label className="text-foreground font-medium">
                     Postal Code
                   </Label>
                   <Input
@@ -1521,12 +1520,12 @@ export default function ApplicantInformation() {
                       )
                     }
                     placeholder="M5H 1K5"
-                    className="w-full h-9 bg-gray-50 border-gray-300"
+                    className="w-full h-9 bg-muted border-input"
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label className="text-gray-700 font-medium">Country</Label>
+                  <Label className="text-foreground font-medium">Country</Label>
                   <Input
                     value={formData.mailing_address.country}
                     onChange={(e) =>
@@ -1537,7 +1536,7 @@ export default function ApplicantInformation() {
                       )
                     }
                     placeholder="Canada"
-                    className="w-full h-9 bg-gray-50 border-gray-300"
+                    className="w-full h-9 bg-muted border-input"
                   />
                 </div>
               </div>
@@ -1545,14 +1544,14 @@ export default function ApplicantInformation() {
 
             {/* Family Member Information */}
             <div className="space-y-6 pt-6 border-t">
-              <h2 className="text-xl font-semibold text-gray-900">
+              <h2 className="text-xl font-semibold text-foreground">
                 Family Member Information
               </h2>
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <div className="space-y-2">
                   <Label
                     htmlFor="family_member_first_name"
-                    className="text-gray-700 font-medium"
+                    className="text-foreground font-medium"
                   >
                     First Name
                   </Label>
@@ -1562,14 +1561,14 @@ export default function ApplicantInformation() {
                     value={formData.family_member_first_name}
                     onChange={handleChange}
                     placeholder="Jane"
-                    className="w-full h-9 bg-gray-50 border-gray-300"
+                    className="w-full h-9 bg-muted border-input"
                   />
                 </div>
 
                 <div className="space-y-2">
                   <Label
                     htmlFor="family_member_middle_name"
-                    className="text-gray-700 font-medium"
+                    className="text-foreground font-medium"
                   >
                     Middle Name
                   </Label>
@@ -1579,14 +1578,14 @@ export default function ApplicantInformation() {
                     value={formData.family_member_middle_name}
                     onChange={handleChange}
                     placeholder="K"
-                    className="w-full h-9 bg-gray-50 border-gray-300"
+                    className="w-full h-9 bg-muted border-input"
                   />
                 </div>
 
                 <div className="space-y-2">
                   <Label
                     htmlFor="family_member_last_name"
-                    className="text-gray-700 font-medium"
+                    className="text-foreground font-medium"
                   >
                     Last Name
                   </Label>
@@ -1596,14 +1595,14 @@ export default function ApplicantInformation() {
                     value={formData.family_member_last_name}
                     onChange={handleChange}
                     placeholder="Doe"
-                    className="w-full h-9 bg-gray-50 border-gray-300"
+                    className="w-full h-9 bg-muted border-input"
                   />
                 </div>
 
                 <div className="space-y-2">
                   <Label
                     htmlFor="family_member_dob"
-                    className="text-gray-700 font-medium"
+                    className="text-foreground font-medium"
                   >
                     Date of Birth
                   </Label>
@@ -1613,14 +1612,14 @@ export default function ApplicantInformation() {
                     type="date"
                     value={formData.family_member_dob}
                     onChange={handleChange}
-                    className="w-full h-9 bg-gray-50 border-gray-300"
+                    className="w-full h-9 bg-muted border-input"
                   />
                 </div>
 
                 <div className="space-y-2">
                   <Label
                     htmlFor="family_member_spouse_status_id"
-                    className="text-gray-700 font-medium"
+                    className="text-foreground font-medium"
                   >
                     Spouse Status
                   </Label>
@@ -1641,7 +1640,7 @@ export default function ApplicantInformation() {
                 <div className="space-y-2">
                   <Label
                     htmlFor="family_member_employment_status_id"
-                    className="text-gray-700 font-medium"
+                    className="text-foreground font-medium"
                   >
                     Employment Status
                   </Label>
@@ -1665,7 +1664,7 @@ export default function ApplicantInformation() {
                 <div className="space-y-2">
                   <Label
                     htmlFor="family_member_annual_income"
-                    className="text-gray-700 font-medium"
+                    className="text-foreground font-medium"
                   >
                     Annual Income
                   </Label>
@@ -1675,14 +1674,14 @@ export default function ApplicantInformation() {
                     value={formData.family_member_annual_income}
                     onChange={handleChange}
                     placeholder="85000"
-                    className="w-full h-9 bg-gray-50 border-gray-300"
+                    className="w-full h-9 bg-muted border-input"
                   />
                 </div>
 
                 <div className="space-y-2">
                   <Label
                     htmlFor="family_member_telephone"
-                    className="text-gray-700 font-medium"
+                    className="text-foreground font-medium"
                   >
                     Telephone
                   </Label>
@@ -1690,16 +1689,16 @@ export default function ApplicantInformation() {
                     id="family_member_telephone"
                     name="family_member_telephone"
                     value={formData.family_member_telephone}
-                    onChange={handleChange}
-                    placeholder="1231231234"
-                    className="w-full h-9 bg-gray-50 border-gray-300"
+                    onChange={(e) => setFormData(prev => ({ ...prev, family_member_telephone: formatPhoneNumber(e.target.value) }))}
+                    placeholder="(888) 888-8888"
+                    className="w-full h-9 bg-muted border-input"
                   />
                 </div>
 
                 <div className="space-y-2">
                   <Label
                     htmlFor="family_member_email"
-                    className="text-gray-700 font-medium"
+                    className="text-foreground font-medium"
                   >
                     Email
                   </Label>
@@ -1710,14 +1709,14 @@ export default function ApplicantInformation() {
                     value={formData.family_member_email}
                     onChange={handleChange}
                     placeholder="jane.doe@example.com"
-                    className="w-full h-9 bg-gray-50 border-gray-300"
+                    className="w-full h-9 bg-muted border-input"
                   />
                 </div>
 
                 <div className="space-y-2 lg:col-span-3">
                   <Label
                     htmlFor="family_member_note"
-                    className="text-gray-700 font-medium"
+                    className="text-foreground font-medium"
                   >
                     Note
                   </Label>
@@ -1727,7 +1726,7 @@ export default function ApplicantInformation() {
                     value={formData.family_member_note}
                     onChange={handleChange}
                     placeholder="Available on weekends"
-                    className="w-full bg-gray-50 border-gray-300 min-h-[100px]"
+                    className="w-full bg-muted border-input min-h-[100px]"
                   />
                 </div>
               </div>
@@ -1735,12 +1734,12 @@ export default function ApplicantInformation() {
 
             {/* Family Member Address */}
             <div className="space-y-6 pt-6 border-t">
-              <h2 className="text-xl font-semibold text-gray-900">
+              <h2 className="text-xl font-semibold text-foreground">
                 Family Member Address
               </h2>
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <div className="space-y-2">
-                  <Label className="text-gray-700 font-medium">
+                  <Label className="text-foreground font-medium">
                     Unit Number
                   </Label>
                   <Input
@@ -1753,12 +1752,12 @@ export default function ApplicantInformation() {
                       )
                     }
                     placeholder="5B"
-                    className="w-full h-9 bg-gray-50 border-gray-300"
+                    className="w-full h-9 bg-muted border-input"
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label className="text-gray-700 font-medium">
+                  <Label className="text-foreground font-medium">
                     Street Number
                   </Label>
                   <Input
@@ -1771,12 +1770,12 @@ export default function ApplicantInformation() {
                       )
                     }
                     placeholder="221"
-                    className="w-full h-9 bg-gray-50 border-gray-300"
+                    className="w-full h-9 bg-muted border-input"
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label className="text-gray-700 font-medium">
+                  <Label className="text-foreground font-medium">
                     Street Name
                   </Label>
                   <Input
@@ -1789,12 +1788,12 @@ export default function ApplicantInformation() {
                       )
                     }
                     placeholder="King Street West"
-                    className="w-full h-9 bg-gray-50 border-gray-300"
+                    className="w-full h-9 bg-muted border-input"
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label className="text-gray-700 font-medium">City</Label>
+                  <Label className="text-foreground font-medium">City</Label>
                   <Input
                     value={formData.family_member_address.city}
                     onChange={(e) =>
@@ -1805,12 +1804,12 @@ export default function ApplicantInformation() {
                       )
                     }
                     placeholder="Toronto"
-                    className="w-full h-9 bg-gray-50 border-gray-300"
+                    className="w-full h-9 bg-muted border-input"
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label className="text-gray-700 font-medium">Province</Label>
+                  <Label className="text-foreground font-medium">Province</Label>
                   <Input
                     value={formData.family_member_address.province}
                     onChange={(e) =>
@@ -1821,12 +1820,12 @@ export default function ApplicantInformation() {
                       )
                     }
                     placeholder="Ontario"
-                    className="w-full h-9 bg-gray-50 border-gray-300"
+                    className="w-full h-9 bg-muted border-input"
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label className="text-gray-700 font-medium">
+                  <Label className="text-foreground font-medium">
                     Postal Code
                   </Label>
                   <Input
@@ -1839,12 +1838,12 @@ export default function ApplicantInformation() {
                       )
                     }
                     placeholder="M5H 1K5"
-                    className="w-full h-9 bg-gray-50 border-gray-300"
+                    className="w-full h-9 bg-muted border-input"
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label className="text-gray-700 font-medium">Country</Label>
+                  <Label className="text-foreground font-medium">Country</Label>
                   <Input
                     value={formData.family_member_address.country}
                     onChange={(e) =>
@@ -1855,7 +1854,7 @@ export default function ApplicantInformation() {
                       )
                     }
                     placeholder="Canada"
-                    className="w-full h-9 bg-gray-50 border-gray-300"
+                    className="w-full h-9 bg-muted border-input"
                   />
                 </div>
               </div>
@@ -1864,7 +1863,7 @@ export default function ApplicantInformation() {
             {/* Children */}
             <div className="space-y-6 pt-6 border-t">
               <div className="flex items-center justify-between">
-                <h2 className="text-xl font-semibold text-gray-900">
+                <h2 className="text-xl font-semibold text-foreground">
                   Children
                 </h2>
                 <Button
@@ -1887,10 +1886,10 @@ export default function ApplicantInformation() {
               {formData.children.map((child, index) => (
                 <div
                   key={index}
-                  className="space-y-6 p-6 border rounded-lg bg-gray-50"
+                  className="space-y-6 p-6 border rounded-lg bg-muted"
                 >
                   <div className="flex justify-between items-center">
-                    <h3 className="font-medium text-gray-900">
+                    <h3 className="font-medium text-foreground">
                       Child {index + 1}
                     </h3>
                     <Button
@@ -1907,7 +1906,7 @@ export default function ApplicantInformation() {
 
                   <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
                     <div className="space-y-2">
-                      <Label className="text-gray-700 font-medium">
+                      <Label className="text-foreground font-medium">
                         First Name
                       </Label>
                       <Input
@@ -1921,12 +1920,12 @@ export default function ApplicantInformation() {
                           )
                         }
                         placeholder="Anna"
-                        className="w-full h-9 bg-white border-gray-300"
+                        className="w-full h-9 bg-card border-input"
                       />
                     </div>
 
                     <div className="space-y-2">
-                      <Label className="text-gray-700 font-medium">
+                      <Label className="text-foreground font-medium">
                         Middle Name
                       </Label>
                       <Input
@@ -1940,12 +1939,12 @@ export default function ApplicantInformation() {
                           )
                         }
                         placeholder="M"
-                        className="w-full h-9 bg-white border-gray-300"
+                        className="w-full h-9 bg-card border-input"
                       />
                     </div>
 
                     <div className="space-y-2">
-                      <Label className="text-gray-700 font-medium">
+                      <Label className="text-foreground font-medium">
                         Last Name
                       </Label>
                       <Input
@@ -1959,12 +1958,12 @@ export default function ApplicantInformation() {
                           )
                         }
                         placeholder="Doe"
-                        className="w-full h-9 bg-white border-gray-300"
+                        className="w-full h-9 bg-card border-input"
                       />
                     </div>
 
                     <div className="space-y-2">
-                      <Label className="text-gray-700 font-medium">
+                      <Label className="text-foreground font-medium">
                         Date of Birth
                       </Label>
                       <Input
@@ -1978,7 +1977,7 @@ export default function ApplicantInformation() {
                             e.target.value
                           )
                         }
-                        className="w-full h-9 bg-white border-gray-300"
+                        className="w-full h-9 bg-card border-input"
                       />
                     </div>
                   </div>
@@ -1989,7 +1988,7 @@ export default function ApplicantInformation() {
             {/* Meeting Clients */}
             <div className="space-y-6 pt-6 border-t">
               <div className="flex items-center justify-between">
-                <h2 className="text-xl font-semibold text-gray-900">
+                <h2 className="text-xl font-semibold text-foreground">
                   Meeting Dates with Clients
                 </h2>
                 <Button
@@ -2005,7 +2004,7 @@ export default function ApplicantInformation() {
               {formData.meeting_clients.map((meeting, index) => (
                 <div key={index} className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                   <div className="space-y-2">
-                    <Label className="text-gray-700 font-medium">
+                    <Label className="text-foreground font-medium">
                       Meeting Date
                     </Label>
                     <Input
@@ -2019,7 +2018,7 @@ export default function ApplicantInformation() {
                           e.target.value
                         )
                       }
-                      className="w-full h-9 bg-gray-50 border-gray-300"
+                      className="w-full h-9 bg-muted border-input"
                     />
                   </div>
 

@@ -213,12 +213,12 @@ export default function InsuranceDocPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-muted">
       <Navbar2 />
 
       {/* Financial Summary Header */}
-      <header className="bg-white border-b px-6 py-3">
-        <div className="flex items-center justify-end gap-6 text-sm text-gray-700">
+      <header className="bg-card border-b px-6 py-3">
+        <div className="flex items-center justify-end gap-6 text-sm text-foreground">
           <div>
             Unpaid: <span className="font-semibold">$ 0</span>
           </div>
@@ -235,11 +235,11 @@ export default function InsuranceDocPage() {
       </header>
 
       {/* Breadcrumb Navigation */}
-      <nav className="bg-white border-b px-6 py-4 text-sm text-gray-600">
+      <nav className="bg-card border-b px-6 py-4 text-sm text-muted-foreground">
         <div className="flex items-center gap-2">
           <button
             onClick={() => navigate("/dashboard")}
-            className="hover:text-gray-900 transition"
+            className="hover:text-foreground transition"
             type="button"
           >
             Dashboard
@@ -247,13 +247,13 @@ export default function InsuranceDocPage() {
           <ChevronRight className="w-4 h-4" />
           <button
             onClick={() => navigate("/dashboard/workstation")}
-            className="hover:text-gray-900 transition"
+            className="hover:text-foreground transition"
             type="button"
           >
             Workstation
           </button>
           <ChevronRight className="w-4 h-4" />
-          <span className="text-gray-900 font-medium">
+          <span className="text-foreground font-medium">
             {id ? "Edit Insurance Ownership" : "Insurance Ownership"}
           </span>
         </div>
@@ -261,22 +261,22 @@ export default function InsuranceDocPage() {
 
       {/* Main Content */}
       <main className="container mx-auto px-4 sm:px-6 py-6 sm:py-8 max-w-6xl">
-        <h1 className="text-2xl sm:text-3xl font-bold mb-6 text-gray-900">
+        <h1 className="text-2xl sm:text-3xl font-bold mb-6 text-foreground">
           {id ? "Edit Insurance Ownership" : "Insurance Ownership"}
         </h1>
 
         <form
-          className="bg-white rounded-lg shadow-sm border p-6 sm:p-8 space-y-6"
+          className="bg-card rounded-lg shadow-sm border p-6 sm:p-8 space-y-6"
           onSubmit={handleSubmit}
         >
           {/* Basic Information */}
           <div>
-            {/* <h2 className="text-lg font-semibold text-gray-900 mb-4">
+            {/* <h2 className="text-lg font-semibold text-foreground mb-4">
               Search Information
             </h2> */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <div className="space-y-2">
-                <Label className="text-gray-700 font-medium">Name</Label>
+                <Label className="text-foreground font-medium">Name</Label>
                 <Input
                   name="name"
                   value={formData.name}
@@ -289,7 +289,7 @@ export default function InsuranceDocPage() {
               </div>
 
               <div className="space-y-2">
-                <Label className="text-gray-700 font-medium">Date</Label>
+                <Label className="text-foreground font-medium">Date</Label>
                 <Input
                   type="date"
                   name="date"
@@ -304,18 +304,18 @@ export default function InsuranceDocPage() {
 
           {/* File Upload */}
           <div className="pt-6 border-t">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">
+            <h2 className="text-lg font-semibold text-foreground mb-4">
               Attachment
             </h2>
             <div className="space-y-2">
-              <Label className="text-gray-700 font-medium">
+              <Label className="text-foreground font-medium">
                 Upload File <span className="text-red-500">(Max 10MB)</span>
               </Label>
               <div
                 className={`relative border-2 border-dashed rounded-lg transition-all overflow-hidden ${
                   filePreview
                     ? "border-green-500 bg-green-50/50"
-                    : "border-gray-300 bg-gray-50 hover:border-gray-400 hover:bg-gray-100"
+                    : "border-input bg-muted hover:border-gray-400 hover:bg-gray-100"
                 } ${
                   uploadMutation.isLoading
                     ? "pointer-events-none opacity-70"
@@ -364,7 +364,7 @@ export default function InsuranceDocPage() {
                           <p className="text-sm font-medium text-green-700">
                             Image Uploaded
                           </p>
-                          <p className="text-xs text-gray-600 mt-1 max-w-[200px] truncate">
+                          <p className="text-xs text-muted-foreground mt-1 max-w-[200px] truncate">
                             {fileName}
                           </p>
                           {uploadMutation.isLoading && (
@@ -388,7 +388,7 @@ export default function InsuranceDocPage() {
                           <p className="text-sm font-medium text-green-700">
                             File Uploaded
                           </p>
-                          <p className="text-xs text-gray-600 mt-1 max-w-[200px] truncate">
+                          <p className="text-xs text-muted-foreground mt-1 max-w-[200px] truncate">
                             {fileName}
                           </p>
                           {uploadMutation.isLoading && (
@@ -416,7 +416,7 @@ export default function InsuranceDocPage() {
                       </div>
 
                       <div className="text-center">
-                        <p className="text-base font-semibold text-gray-700 group-hover:text-blue-600 transition-colors">
+                        <p className="text-base font-semibold text-foreground group-hover:text-blue-600 transition-colors">
                           Upload File
                         </p>
                         <p className="text-xs text-gray-500 mt-1">
@@ -435,9 +435,9 @@ export default function InsuranceDocPage() {
 
           {/* Memo */}
           <div className="pt-6 border-t">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">Memo</h2>
+            <h2 className="text-lg font-semibold text-foreground mb-4">Memo</h2>
             <div className="space-y-2">
-              <Label className="text-gray-700 font-medium">Memo</Label>
+              <Label className="text-foreground font-medium">Memo</Label>
               <Textarea
                 name="memo"
                 value={formData.memo}

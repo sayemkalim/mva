@@ -7,15 +7,14 @@ import { Label } from "@/components/ui/label";
 import { ChevronRight, Loader2, Plus, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { Navbar2 } from "@/components/navbar2";
-
-// ✅ API helpers (paths apne project ke hisaab se adjust kar lena)
+import { formatPhoneNumber } from "@/lib/utils";
 import { fetchTpAdjusterBySlug } from "../helpers/fetchTpAdjusterBySlug";
 import { createTpAdjuster } from "../helpers/createTpAdjuster";
 import { deleteTpAdjuster } from "../helpers/deleteTpAdjuster";
 
 const emptyRecord = {
-  id: null, // null → create, id → update
-  current: false, // ek hi record true hoga
+  id: null,
+  current: false,
   adjuster_company: "",
   adjuster_claim_no: "",
   first_name: "",
@@ -73,7 +72,7 @@ export default function TPAdjusterForm() {
     mutationFn: (data) => createTpAdjuster({ slug, data }),
     onSuccess: () => {
       toast.success("TP Adjuster data saved successfully!");
-      navigate("/dashboard/workstation");
+      // navigate("/dashboard/workstation");
     },
     onError: (error) => {
       toast.error(error?.message || "Failed to save adjuster data");
@@ -162,36 +161,51 @@ export default function TPAdjusterForm() {
     );
   }
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-muted">
       <Navbar2 />
-
+      <div className="bg-card border-b px-6 py-3">
+        <div className="flex items-center justify-end gap-6 text-sm">
+          <span className="text-foreground">
+            Unpaid: <span className="font-semibold">$ 0</span>
+          </span>
+          <span className="text-foreground">
+            Unbilled: <span className="font-semibold">$ 0</span>
+          </span>
+          <span className="text-foreground">
+            Client Funds-Operating: <span className="font-semibold">$ 0</span>
+          </span>
+          <span className="text-foreground">
+            Client Funds-Trust: <span className="font-semibold">$ 0</span>
+          </span>
+        </div>
+      </div>
       {/* Breadcrumb */}
-      <div className="bg-white border-b px-6 py-4">
-        <div className="flex items-center gap-2 text-sm text-gray-600">
+      <div className="bg-card border-b px-6 py-4">
+        <div className="flex items-center gap-2 text-sm text-muted-foreground">
           <button
             onClick={() => navigate("/dashboard")}
-            className="hover:text-gray-900 transition"
+            className="hover:text-foreground transition"
           >
             Dashboard
           </button>
           <ChevronRight className="w-4 h-4" />
           <button
             onClick={() => navigate("/dashboard/workstation")}
-            className="hover:text-gray-900 transition"
+            className="hover:text-foreground transition"
           >
             Workstation
           </button>
           <ChevronRight className="w-4 h-4" />
-          <span className="text-gray-900 font-medium">TP Adjuster</span>
+          <span className="text-foreground font-medium">TP Adjuster</span>
         </div>
       </div>
 
       {/* Main Content */}
       <div className="container mx-auto px-6 py-8 max-w-7xl">
-        <div className="bg-white rounded-lg shadow-sm border p-8">
+        <div className="bg-card rounded-lg shadow-sm border p-8">
           <form onSubmit={handleSubmit} className="space-y-8">
             <div className="flex justify-between items-center">
-              <h2 className="text-3xl font-extrabold text-gray-900">
+              <h2 className="text-3xl font-extrabold text-foreground">
                 TP Adjuster Records
               </h2>
 
@@ -209,7 +223,7 @@ export default function TPAdjusterForm() {
             {records.map((rec, idx) => (
               <div
                 key={idx}
-                className="relative border border-gray-300 rounded-2xl p-8 bg-gray-50"
+                className="relative border border-input rounded-2xl p-8 bg-muted"
               >
                 {records.length > 1 && (
                   <Button
@@ -234,7 +248,7 @@ export default function TPAdjusterForm() {
                     onChange={() => setCurrentRecord(idx)}
                     className="h-4 w-4"
                   />
-                  <Label htmlFor={`current_${idx}`} className="text-gray-800">
+                  <Label htmlFor={`current_${idx}`} className="text-foreground">
                     Mark as current adjuster
                   </Label>
                 </div>
@@ -244,7 +258,7 @@ export default function TPAdjusterForm() {
                   <div className="space-y-2">
                     <Label
                       htmlFor={`adjuster_company_${idx}`}
-                      className="text-gray-700 font-medium cursor-pointer"
+                      className="text-foreground font-medium cursor-pointer"
                     >
                       Adjuster Company
                     </Label>
@@ -255,14 +269,14 @@ export default function TPAdjusterForm() {
                         updateField(idx, "adjuster_company", e.target.value)
                       }
                       placeholder="ABC Insurance"
-                      className="h-9 bg-gray-50 border-gray-300"
+                      className="h-9 bg-muted border-input"
                     />
                   </div>
 
                   <div className="space-y-2">
                     <Label
                       htmlFor={`adjuster_claim_no_${idx}`}
-                      className="text-gray-700 font-medium cursor-pointer"
+                      className="text-foreground font-medium cursor-pointer"
                     >
                       Adjuster Claim No
                     </Label>
@@ -273,14 +287,14 @@ export default function TPAdjusterForm() {
                         updateField(idx, "adjuster_claim_no", e.target.value)
                       }
                       placeholder="CLM-12345"
-                      className="h-9 bg-gray-50 border-gray-300"
+                      className="h-9 bg-muted border-input"
                     />
                   </div>
 
                   <div className="space-y-2">
                     <Label
                       htmlFor={`first_name_${idx}`}
-                      className="text-gray-700 font-medium cursor-pointer"
+                      className="text-foreground font-medium cursor-pointer"
                     >
                       First Name
                     </Label>
@@ -291,14 +305,14 @@ export default function TPAdjusterForm() {
                         updateField(idx, "first_name", e.target.value)
                       }
                       placeholder="John"
-                      className="h-9 bg-gray-50 border-gray-300"
+                      className="h-9 bg-muted border-input"
                     />
                   </div>
 
                   <div className="space-y-2">
                     <Label
                       htmlFor={`last_name_${idx}`}
-                      className="text-gray-700 font-medium cursor-pointer"
+                      className="text-foreground font-medium cursor-pointer"
                     >
                       Last Name
                     </Label>
@@ -309,14 +323,14 @@ export default function TPAdjusterForm() {
                         updateField(idx, "last_name", e.target.value)
                       }
                       placeholder="Doe"
-                      className="h-9 bg-gray-50 border-gray-300"
+                      className="h-9 bg-muted border-input"
                     />
                   </div>
 
                   <div className="space-y-2">
                     <Label
                       htmlFor={`toll_free_no_${idx}`}
-                      className="text-gray-700 font-medium cursor-pointer"
+                      className="text-foreground font-medium cursor-pointer"
                     >
                       Toll Free No
                     </Label>
@@ -324,17 +338,17 @@ export default function TPAdjusterForm() {
                       id={`toll_free_no_${idx}`}
                       value={rec.toll_free_no}
                       onChange={(e) =>
-                        updateField(idx, "toll_free_no", e.target.value)
+                        updateField(idx, "toll_free_no", formatPhoneNumber(e.target.value))
                       }
-                      placeholder="1800123456"
-                      className="h-9 bg-gray-50 border-gray-300"
+                      placeholder="(888) 888-8888"
+                      className="h-9 bg-muted border-input"
                     />
                   </div>
 
                   <div className="space-y-2">
                     <Label
                       htmlFor={`telephone_${idx}`}
-                      className="text-gray-700 font-medium cursor-pointer"
+                      className="text-foreground font-medium cursor-pointer"
                     >
                       Telephone
                     </Label>
@@ -342,17 +356,17 @@ export default function TPAdjusterForm() {
                       id={`telephone_${idx}`}
                       value={rec.telephone}
                       onChange={(e) =>
-                        updateField(idx, "telephone", e.target.value)
+                        updateField(idx, "telephone", formatPhoneNumber(e.target.value))
                       }
-                      placeholder="4161234567"
-                      className="h-9 bg-gray-50 border-gray-300"
+                      placeholder="(888) 888-8888"
+                      className="h-9 bg-muted border-input"
                     />
                   </div>
 
                   <div className="space-y-2">
                     <Label
                       htmlFor={`ext_${idx}`}
-                      className="text-gray-700 font-medium cursor-pointer"
+                      className="text-foreground font-medium cursor-pointer"
                     >
                       Ext
                     </Label>
@@ -361,30 +375,30 @@ export default function TPAdjusterForm() {
                       value={rec.ext}
                       onChange={(e) => updateField(idx, "ext", e.target.value)}
                       placeholder="101"
-                      className="h-9 bg-gray-50 border-gray-300"
+                      className="h-9 bg-muted border-input"
                     />
                   </div>
 
                   <div className="space-y-2">
                     <Label
                       htmlFor={`fax_${idx}`}
-                      className="text-gray-700 font-medium cursor-pointer"
+                      className="text-foreground font-medium cursor-pointer"
                     >
                       Fax
                     </Label>
                     <Input
                       id={`fax_${idx}`}
                       value={rec.fax}
-                      onChange={(e) => updateField(idx, "fax", e.target.value)}
-                      placeholder="4169998888"
-                      className="h-9 bg-gray-50 border-gray-300"
+                      onChange={(e) => updateField(idx, "fax", formatPhoneNumber(e.target.value))}
+                      placeholder="(888) 888-8888"
+                      className="h-9 bg-muted border-input"
                     />
                   </div>
 
                   <div className="space-y-2">
                     <Label
                       htmlFor={`email_${idx}`}
-                      className="text-gray-700 font-medium cursor-pointer"
+                      className="text-foreground font-medium cursor-pointer"
                     >
                       Email
                     </Label>
@@ -395,7 +409,7 @@ export default function TPAdjusterForm() {
                         updateField(idx, "email", e.target.value)
                       }
                       placeholder="john@example.com"
-                      className="h-9 bg-gray-50 border-gray-300"
+                      className="h-9 bg-muted border-input"
                     />
                   </div>
                 </div>
@@ -403,7 +417,7 @@ export default function TPAdjusterForm() {
                 <div className="space-y-2 mt-4">
                   <Label
                     htmlFor={`note_${idx}`}
-                    className="text-gray-700 font-medium cursor-pointer"
+                    className="text-foreground font-medium cursor-pointer"
                   >
                     Note
                   </Label>
@@ -412,7 +426,7 @@ export default function TPAdjusterForm() {
                     value={rec.note}
                     onChange={(e) => updateField(idx, "note", e.target.value)}
                     placeholder="Primary adjuster"
-                    className="h-9 bg-gray-50 border-gray-300"
+                    className="h-9 bg-muted border-input"
                   />
                 </div>
               </div>

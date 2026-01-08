@@ -80,7 +80,7 @@ function NotificationItem({
 
   return (
     <div
-      className={`bg-white shadow-xl rounded-lg border-l-4 ${getTypeColor(
+      className={`bg-card shadow-xl rounded-lg border-l-4 ${getTypeColor(
         n.type
       )} overflow-hidden transition-all duration-300 ${
         isExiting
@@ -102,14 +102,14 @@ function NotificationItem({
           <div className="flex-1 min-w-0">
             {/* Header with name and time */}
             <div className="flex items-start justify-between gap-2 mb-1">
-              <h4 className="font-semibold text-gray-900 text-sm">{n.name}</h4>
+              <h4 className="font-semibold text-foreground text-sm">{n.name}</h4>
               <span className="text-xs text-gray-500 flex-shrink-0">
                 {formatTime(n.time || n.receivedAt)}
               </span>
             </div>
 
             {/* Message */}
-            <p className="text-sm text-gray-700 mb-2">{n.message}</p>
+            <p className="text-sm text-foreground mb-2">{n.message}</p>
 
             {/* Action buttons for type "action" */}
             {n.type === "action" && (
@@ -156,7 +156,7 @@ function NotificationItem({
           {/* Close button */}
           <button
             onClick={handleDismiss}
-            className="text-gray-400 hover:text-gray-600 transition-colors flex-shrink-0"
+            className="text-gray-400 hover:text-muted-foreground transition-colors flex-shrink-0"
             aria-label="Dismiss"
           >
             <X className="h-4 w-4" />

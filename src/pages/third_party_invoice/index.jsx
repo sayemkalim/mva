@@ -166,7 +166,7 @@ const AttachmentUploader = ({ files, onFilesChange, onUpload, onDelete }) => {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between border-b pb-2">
-        <h3 className="font-semibold text-sm text-gray-700">Attachments</h3>
+        <h3 className="font-semibold text-sm text-foreground">Attachments</h3>
         <div className="text-sm text-muted-foreground">
           {files.length} file{files.length !== 1 ? "s" : ""}
         </div>
@@ -187,7 +187,7 @@ const AttachmentUploader = ({ files, onFilesChange, onUpload, onDelete }) => {
         className={cn(
           "relative border-2 border-dashed rounded-lg p-4 transition-all",
           isDragging && "border-primary bg-primary/10 scale-[1.02]",
-          "border-gray-300"
+          "border-input"
         )}
       >
         {files.length === 0 ? (
@@ -199,7 +199,7 @@ const AttachmentUploader = ({ files, onFilesChange, onUpload, onDelete }) => {
               <Upload className="h-6 w-6 text-primary" />
             </div>
             <div className="text-center">
-              <p className="text-sm font-medium text-gray-900">
+              <p className="text-sm font-medium text-foreground">
                 Click to upload or drag and drop
               </p>
               <p className="text-xs text-muted-foreground mt-1">
@@ -213,7 +213,7 @@ const AttachmentUploader = ({ files, onFilesChange, onUpload, onDelete }) => {
               {files.map((file) => (
                 <div
                   key={file.tempId}
-                  className="relative bg-white border rounded-lg overflow-hidden hover:shadow-md transition-shadow group"
+                  className="relative bg-card border rounded-lg overflow-hidden hover:shadow-md transition-shadow group"
                 >
                   <button
                     type="button"
@@ -836,7 +836,7 @@ const ThirdPartyInvoice = () => {
       partial: "bg-yellow-100 text-yellow-800",
     };
     return (
-      <Badge className={statusColors[status] || "bg-gray-100 text-gray-800"}>
+      <Badge className={statusColors[status] || "bg-gray-100 text-foreground"}>
         {status?.charAt(0).toUpperCase() + status?.slice(1) || "Unknown"}
       </Badge>
     );
@@ -845,8 +845,8 @@ const ThirdPartyInvoice = () => {
   return (
     <div className="min-h-screen bg-background">
       <Navbar2 />
-      <header className="bg-white border-b px-6 py-3">
-        <div className="flex items-center justify-end gap-6 text-sm text-gray-700">
+      <header className="bg-card border-b px-6 py-3">
+        <div className="flex items-center justify-end gap-6 text-sm text-foreground">
           <div>
             Unpaid:{" "}
             <span className="font-semibold">{formatCurrency(unpaid)}</span>
@@ -870,11 +870,11 @@ const ThirdPartyInvoice = () => {
         </div>
       </header>
 
-      <nav className="bg-white border-b px-6 py-4 text-sm text-gray-600">
+      <nav className="bg-card border-b px-6 py-4 text-sm text-muted-foreground">
         <div className="flex items-center gap-2">
           <button
             onClick={() => navigate("/dashboard")}
-            className="hover:text-gray-900 transition"
+            className="hover:text-foreground transition"
             type="button"
           >
             Dashboard
@@ -882,13 +882,13 @@ const ThirdPartyInvoice = () => {
           <ChevronRight className="w-4 h-4" />
           <button
             onClick={() => navigate("/dashboard/workstation")}
-            className="hover:text-gray-900 transition"
+            className="hover:text-foreground transition"
             type="button"
           >
             Workstation
           </button>
           <ChevronRight className="w-4 h-4" />
-          <span className="text-gray-900 font-medium">Third Party Invoice</span>
+          <span className="text-foreground font-medium">Third Party Invoice</span>
         </div>
       </nav>
 
@@ -903,10 +903,10 @@ const ThirdPartyInvoice = () => {
       </div>
 
       {/* Table */}
-      <div className="bg-white rounded-lg border border-border overflow-hidden mx-6 mb-6">
+      <div className="bg-card rounded-lg border border-border overflow-hidden mx-6 mb-6">
         <Table>
           <TableHeader>
-            <TableRow className="bg-gray-50">
+            <TableRow className="bg-muted">
               <TableHead>#</TableHead>
               <TableHead>Client</TableHead>
               <TableHead>Matter</TableHead>
@@ -941,7 +941,7 @@ const ThirdPartyInvoice = () => {
               </TableRow>
             ) : (
               invoices.map((item) => (
-                <TableRow key={item.id} className="hover:bg-gray-50">
+                <TableRow key={item.id} className="hover:bg-muted">
                   <TableCell>{item.index}</TableCell>
                   <TableCell>{item.client || "-"}</TableCell>
                   <TableCell>{item.matter || "-"}</TableCell>
@@ -1619,7 +1619,7 @@ const ThirdPartyInvoice = () => {
             <div className="border rounded-lg overflow-hidden">
               <Table>
                 <TableHeader>
-                  <TableRow className="bg-gray-50">
+                  <TableRow className="bg-muted">
                     <TableHead className="w-10">
                       <Checkbox />
                     </TableHead>

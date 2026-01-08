@@ -11,11 +11,11 @@ const Signup = () => {
 
       {/* Login - Top Right */}
       <div className="absolute top-6 right-6 md:top-10 md:right-10">
-        <p className="text-sm text-gray-700">
+        <p className="text-sm text-foreground">
           Already have an account?{" "}
           <Link
             to="/login"
-            className="font-medium text-gray-900 hover:underline inline-flex items-center gap-1"
+            className="font-medium text-foreground hover:underline inline-flex items-center gap-1"
           >
             Login
           </Link>

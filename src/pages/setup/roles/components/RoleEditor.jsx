@@ -282,7 +282,7 @@ const RoleEditor = ({ open, onClose, roleData = null }) => {
         <form onSubmit={submit} className="space-y-6">
           {/* Role Name Section */}
           <div className="space-y-2">
-            <Label className="text-gray-700 font-medium">
+            <Label className="text-foreground font-medium">
               Role Name <span className="text-red-500">*</span>
             </Label>
             <Input
@@ -291,7 +291,7 @@ const RoleEditor = ({ open, onClose, roleData = null }) => {
                 setFormData({ ...formData, name: e.target.value })
               }
               placeholder="Enter role name"
-              className="h-10 bg-white border-gray-300"
+              className="h-10 bg-card border-input"
             />
           </div>
 
@@ -300,7 +300,7 @@ const RoleEditor = ({ open, onClose, roleData = null }) => {
             <div className="space-y-2">
               <div className="flex justify-between items-center mb-4">
                 <div>
-                  <h3 className="font-semibold text-gray-900">Permissions</h3>
+                  <h3 className="font-semibold text-foreground">Permissions</h3>
                   <p className="text-sm text-muted-foreground">
                     {formData.permissions.length} selected
                   </p>
@@ -330,7 +330,7 @@ const RoleEditor = ({ open, onClose, roleData = null }) => {
               <div className="relative">
                 <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                 <Input
-                  className="pl-10 h-10 bg-white border-gray-300"
+                  className="pl-10 h-10 bg-card border-input"
                   placeholder="Search permissions..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
@@ -342,7 +342,7 @@ const RoleEditor = ({ open, onClose, roleData = null }) => {
                   <Loader2 className="h-8 w-8 animate-spin text-primary" />
                 </div>
               ) : (
-                <div className="border rounded-lg bg-white shadow-sm">
+                <div className="border rounded-lg bg-card shadow-sm">
                   {Object.entries(filteredGroupedPermissions).map(
                     ([category, perms]) => {
                       const ids = perms.map((p) => String(p.id));
@@ -352,9 +352,9 @@ const RoleEditor = ({ open, onClose, roleData = null }) => {
 
                       return (
                         <div key={category} className="border-b last:border-b-0">
-                          <div className="flex justify-between items-center px-4 py-3 bg-gray-50">
+                          <div className="flex justify-between items-center px-4 py-3 bg-muted">
                             <div className="flex items-center gap-2">
-                              <Typography className="font-semibold text-gray-900">
+                              <Typography className="font-semibold text-foreground">
                                 {category}
                               </Typography>
                               <Badge variant="outline" className="ml-2">
@@ -387,7 +387,7 @@ const RoleEditor = ({ open, onClose, roleData = null }) => {
                             {perms.map((p) => (
                               <div 
                                 key={p.id} 
-                                className="flex items-start gap-3 p-2 rounded-md hover:bg-gray-50 transition-colors"
+                                className="flex items-start gap-3 p-2 rounded-md hover:bg-muted transition-colors"
                               >
                                 <Checkbox
                                   checked={formData.permissions.includes(
@@ -397,7 +397,7 @@ const RoleEditor = ({ open, onClose, roleData = null }) => {
                                   className="mt-0.5"
                                 />
                                 <div className="flex-1">
-                                  <div className="text-sm font-medium text-gray-900">
+                                  <div className="text-sm font-medium text-foreground">
                                     {formatPermissionName(p.name)}
                                   </div>
                                   <small className="text-xs text-muted-foreground">

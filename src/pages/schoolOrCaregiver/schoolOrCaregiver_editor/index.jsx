@@ -64,7 +64,7 @@ function SearchableDropdown({
         <Button
           variant="outline"
           role="combobox"
-          className="w-full justify-between font-normal bg-gray-50 h-11 text-sm"
+          className="w-full justify-between font-normal bg-muted h-11 text-sm"
           type="button"
         >
           {selected ? selected.name : placeholder}
@@ -377,7 +377,7 @@ export default function SchoolCaregiver() {
         <div className="text-red-500 text-xl font-semibold">
           Error loading form
         </div>
-        <p className="text-gray-600">
+        <p className="text-muted-foreground">
           {metadataError?.message || "Invalid response from server"}
         </p>
         <div className="flex gap-4">
@@ -403,57 +403,57 @@ export default function SchoolCaregiver() {
   const yesNoOptions = metadata?.yes_no_option || [];
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-muted">
       <Navbar2 />
-      <div className="bg-white border-b px-6 py-3">
+      <div className="bg-card border-b px-6 py-3">
         <div className="flex items-center justify-end gap-6 text-sm">
-          <span className="text-gray-700">
+          <span className="text-foreground">
             Unpaid: <span className="font-semibold">$ 0</span>
           </span>
-          <span className="text-gray-700">
+          <span className="text-foreground">
             Unbilled: <span className="font-semibold">$ 0</span>
           </span>
-          <span className="text-gray-700">
+          <span className="text-foreground">
             Client Funds-Operating: <span className="font-semibold">$ 0</span>
           </span>
-          <span className="text-gray-700">
+          <span className="text-foreground">
             Client Funds-Trust: <span className="font-semibold">$ 0</span>
           </span>
         </div>
       </div>
 
       {/* Breadcrumb */}
-      <div className="bg-white border-b px-6 py-4">
-        <div className="flex items-center gap-2 text-sm text-gray-600">
+      <div className="bg-card border-b px-6 py-4">
+        <div className="flex items-center gap-2 text-sm text-muted-foreground">
           <button
             onClick={() => navigate("/dashboard")}
-            className="hover:text-gray-900 transition"
+            className="hover:text-foreground transition"
           >
             Dashboard
           </button>
           <ChevronRight className="w-4 h-4" />
           <button
             onClick={() => navigate("/dashboard/workstation")}
-            className="hover:text-gray-900 transition"
+            className="hover:text-foreground transition"
           >
             Workstation
           </button>
           <ChevronRight className="w-4 h-4" />
-          <span className="text-gray-900 font-medium">School or Caregiver</span>
+          <span className="text-foreground font-medium">School or Caregiver</span>
         </div>
       </div>
 
       {/* Main Content */}
       <div className="container mx-auto px-6 py-8 max-w-7xl">
-        <div className="bg-white rounded-lg shadow-sm border p-8">
-          <h1 className="text-2xl font-bold mb-8 text-gray-900 uppercase">
+        <div className="bg-card rounded-lg shadow-sm border p-8">
+          <h1 className="text-2xl font-bold mb-8 text-foreground uppercase">
             School or Caregiver Information
           </h1>
 
           <form onSubmit={handleSubmit} className="space-y-8">
             {/* School Information Section */}
             <div className="space-y-6">
-              <h2 className="text-xl font-semibold text-gray-900">
+              <h2 className="text-xl font-semibold text-foreground">
                 School Information
               </h2>
 
@@ -462,7 +462,7 @@ export default function SchoolCaregiver() {
                 <div className="space-y-2">
                   <Label
                     htmlFor="was_full_time_student_id"
-                    className="text-gray-700 font-medium"
+                    className="text-foreground font-medium"
                   >
                     Was Full Time Student
                   </Label>
@@ -484,7 +484,7 @@ export default function SchoolCaregiver() {
                 <div className="space-y-2">
                   <Label
                     htmlFor="school_name"
-                    className="text-gray-700 font-medium"
+                    className="text-foreground font-medium"
                   >
                     School Name
                   </Label>
@@ -494,7 +494,7 @@ export default function SchoolCaregiver() {
                     value={formData.school_name}
                     onChange={handleChange}
                     placeholder="Harvard University"
-                    className="bg-gray-50 border-gray-300"
+                    className="bg-muted border-input"
                   />
                 </div>
 
@@ -502,7 +502,7 @@ export default function SchoolCaregiver() {
                 <div className="space-y-2">
                   <Label
                     htmlFor="date_last_attended"
-                    className="text-gray-700 font-medium"
+                    className="text-foreground font-medium"
                   >
                     Date Last Attended
                   </Label>
@@ -512,7 +512,7 @@ export default function SchoolCaregiver() {
                     type="date"
                     value={formData.date_last_attended}
                     onChange={handleChange}
-                    className="bg-gray-50 border-gray-300"
+                    className="bg-muted border-input"
                   />
                 </div>
 
@@ -520,7 +520,7 @@ export default function SchoolCaregiver() {
                 <div className="space-y-2">
                   <Label
                     htmlFor="program_and_level"
-                    className="text-gray-700 font-medium"
+                    className="text-foreground font-medium"
                   >
                     Program and Level
                   </Label>
@@ -530,7 +530,7 @@ export default function SchoolCaregiver() {
                     value={formData.program_and_level}
                     onChange={handleChange}
                     placeholder="Bachelor of Science in Computer Science"
-                    className="bg-gray-50 border-gray-300"
+                    className="bg-muted border-input"
                   />
                 </div>
 
@@ -538,7 +538,7 @@ export default function SchoolCaregiver() {
                 <div className="space-y-2">
                   <Label
                     htmlFor="projected_completion_date"
-                    className="text-gray-700 font-medium"
+                    className="text-foreground font-medium"
                   >
                     Projected Completion Date
                   </Label>
@@ -548,7 +548,7 @@ export default function SchoolCaregiver() {
                     type="date"
                     value={formData.projected_completion_date}
                     onChange={handleChange}
-                    className="bg-gray-50 border-gray-300"
+                    className="bg-muted border-input"
                   />
                 </div>
 
@@ -556,7 +556,7 @@ export default function SchoolCaregiver() {
                 <div className="space-y-2">
                   <Label
                     htmlFor="currently_attending_id"
-                    className="text-gray-700 font-medium"
+                    className="text-foreground font-medium"
                   >
                     Currently Attending
                   </Label>
@@ -578,7 +578,7 @@ export default function SchoolCaregiver() {
                 <div className="space-y-2">
                   <Label
                     htmlFor="returned_to_school_id"
-                    className="text-gray-700 font-medium"
+                    className="text-foreground font-medium"
                   >
                     Returned to School
                   </Label>
@@ -600,13 +600,13 @@ export default function SchoolCaregiver() {
 
             {/* School Address Section */}
             <div className="space-y-6 pt-6 border-t">
-              <h2 className="text-xl font-semibold text-gray-900">
+              <h2 className="text-xl font-semibold text-foreground">
                 School Address
               </h2>
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div className="space-y-2">
-                  <Label className="text-gray-700 font-medium">
+                  <Label className="text-foreground font-medium">
                     Unit Number
                   </Label>
                   <Input
@@ -615,12 +615,12 @@ export default function SchoolCaregiver() {
                       handleAddressChange("unit_number", e.target.value)
                     }
                     placeholder="5B"
-                    className="bg-gray-50 border-gray-300"
+                    className="bg-muted border-input"
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label className="text-gray-700 font-medium">
+                  <Label className="text-foreground font-medium">
                     Street Number
                   </Label>
                   <Input
@@ -629,12 +629,12 @@ export default function SchoolCaregiver() {
                       handleAddressChange("street_number", e.target.value)
                     }
                     placeholder="221"
-                    className="bg-gray-50 border-gray-300"
+                    className="bg-muted border-input"
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label className="text-gray-700 font-medium">
+                  <Label className="text-foreground font-medium">
                     Street Name
                   </Label>
                   <Input
@@ -643,36 +643,36 @@ export default function SchoolCaregiver() {
                       handleAddressChange("street_name", e.target.value)
                     }
                     placeholder="King Street West"
-                    className="bg-gray-50 border-gray-300"
+                    className="bg-muted border-input"
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label className="text-gray-700 font-medium">City</Label>
+                  <Label className="text-foreground font-medium">City</Label>
                   <Input
                     value={formData.address.city}
                     onChange={(e) =>
                       handleAddressChange("city", e.target.value)
                     }
                     placeholder="Toronto"
-                    className="bg-gray-50 border-gray-300"
+                    className="bg-muted border-input"
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label className="text-gray-700 font-medium">Province</Label>
+                  <Label className="text-foreground font-medium">Province</Label>
                   <Input
                     value={formData.address.province}
                     onChange={(e) =>
                       handleAddressChange("province", e.target.value)
                     }
                     placeholder="Ontario"
-                    className="bg-gray-50 border-gray-300"
+                    className="bg-muted border-input"
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label className="text-gray-700 font-medium">
+                  <Label className="text-foreground font-medium">
                     Postal Code
                   </Label>
                   <Input
@@ -681,19 +681,19 @@ export default function SchoolCaregiver() {
                       handleAddressChange("postal_code", e.target.value)
                     }
                     placeholder="M5H 1K5"
-                    className="bg-gray-50 border-gray-300"
+                    className="bg-muted border-input"
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label className="text-gray-700 font-medium">Country</Label>
+                  <Label className="text-foreground font-medium">Country</Label>
                   <Input
                     value={formData.address.country}
                     onChange={(e) =>
                       handleAddressChange("country", e.target.value)
                     }
                     placeholder="Canada"
-                    className="bg-gray-50 border-gray-300"
+                    className="bg-muted border-input"
                   />
                 </div>
               </div>
@@ -701,7 +701,7 @@ export default function SchoolCaregiver() {
 
             {/* Caregiving Information Section */}
             <div className="space-y-6 pt-6 border-t">
-              <h2 className="text-xl font-semibold text-gray-900">
+              <h2 className="text-xl font-semibold text-foreground">
                 Caregiving Information
               </h2>
 
@@ -710,7 +710,7 @@ export default function SchoolCaregiver() {
                 <div className="space-y-2">
                   <Label
                     htmlFor="injuries_prevented_caregiving_id"
-                    className="text-gray-700 font-medium"
+                    className="text-foreground font-medium"
                   >
                     Injuries Prevented Caregiving
                   </Label>
@@ -738,7 +738,7 @@ export default function SchoolCaregiver() {
                 <div className="space-y-2">
                   <Label
                     htmlFor="returned_to_caregiving_id"
-                    className="text-gray-700 font-medium"
+                    className="text-foreground font-medium"
                   >
                     Returned to Caregiving
                   </Label>
@@ -760,7 +760,7 @@ export default function SchoolCaregiver() {
                 <div className="space-y-2 md:col-span-2">
                   <Label
                     htmlFor="caregiving_description"
-                    className="text-gray-700 font-medium"
+                    className="text-foreground font-medium"
                   >
                     Caregiving Description
                   </Label>
@@ -771,7 +771,7 @@ export default function SchoolCaregiver() {
                     onChange={handleChange}
                     placeholder="I provided daily care to my grandmother before the accident."
                     rows={3}
-                    className="bg-gray-50 border-gray-300"
+                    className="bg-muted border-input"
                   />
                 </div>
               </div>
@@ -779,35 +779,35 @@ export default function SchoolCaregiver() {
 
             {/* Caregivers Section */}
             <div className="space-y-6 pt-6 border-t">
-              <h2 className="text-xl font-semibold text-gray-900">
+              <h2 className="text-xl font-semibold text-foreground">
                 Caregivers
               </h2>
 
               {[1, 2, 3, 4, 5].map((num) => (
                 <div
                   key={num}
-                  className="border border-gray-200 p-6 rounded-lg space-y-4 bg-gray-50"
+                  className="border border-gray-200 p-6 rounded-lg space-y-4 bg-muted"
                 >
-                  <h3 className="font-semibold text-gray-900">
+                  <h3 className="font-semibold text-foreground">
                     Caregiver {num}
                   </h3>
 
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     {/* Caregiver Name */}
                     <div className="space-y-2">
-                      <Label className="text-gray-700 font-medium">Name</Label>
+                      <Label className="text-foreground font-medium">Name</Label>
                       <Input
                         name={`caregiver_name_${num}`}
                         value={formData[`caregiver_name_${num}`]}
                         onChange={handleChange}
                         placeholder="John Doe"
-                        className="bg-white border-gray-300"
+                        className="bg-card border-input"
                       />
                     </div>
 
                     {/* Caregiver DOB */}
                     <div className="space-y-2">
-                      <Label className="text-gray-700 font-medium">
+                      <Label className="text-foreground font-medium">
                         Date of Birth
                       </Label>
                       <Input
@@ -815,13 +815,13 @@ export default function SchoolCaregiver() {
                         name={`caregiver_dob_${num}`}
                         value={formData[`caregiver_dob_${num}`]}
                         onChange={handleChange}
-                        className="bg-white border-gray-300"
+                        className="bg-card border-input"
                       />
                     </div>
 
                     {/* Caregiver Disabled */}
                     <div className="space-y-2">
-                      <Label className="text-gray-700 font-medium">
+                      <Label className="text-foreground font-medium">
                         Disabled
                       </Label>
                       <SearchableDropdown

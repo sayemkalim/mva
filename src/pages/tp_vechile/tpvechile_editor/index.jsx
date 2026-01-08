@@ -41,7 +41,7 @@ function SearchableDropdown({
 
   return (
     <div className="space-y-2">
-      {label && <label className="text-gray-700 font-medium">{label}</label>}
+      {label && <label className="text-foreground font-medium">{label}</label>}
 
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
@@ -211,32 +211,32 @@ export default function VehicleInfoForm() {
 
   // Form UI
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-muted">
       <Navbar2 />
-      <div className="bg-white border-b px-6 py-4">
-        <div className="flex items-center gap-2 text-sm text-gray-600">
+      <div className="bg-card border-b px-6 py-4">
+        <div className="flex items-center gap-2 text-sm text-muted-foreground">
           <button
             onClick={() => navigate("/dashboard")}
-            className="hover:text-gray-900 transition"
+            className="hover:text-foreground transition"
           >
             Dashboard
           </button>
           <ChevronRight className="w-4 h-4" />
           <button
             onClick={() => navigate("/dashboard/workstation")}
-            className="hover:text-gray-900 transition"
+            className="hover:text-foreground transition"
           >
             Workstation
           </button>
           <ChevronRight className="w-4 h-4" />
-          <span className="text-gray-900 font-medium">Vehicle Information</span>
+          <span className="text-foreground font-medium">Vehicle Information</span>
         </div>
       </div>
 
       <div className="container mx-auto px-6 py-8 max-w-7xl">
-        <div className="bg-white rounded-lg shadow-sm border p-8">
+        <div className="bg-card rounded-lg shadow-sm border p-8">
           <form onSubmit={handleSubmit} className="space-y-8">
-            <h2 className="text-3xl font-extrabold text-gray-900 mb-4">
+            <h2 className="text-3xl font-extrabold text-foreground mb-4">
               Vehicle Information
             </h2>
 
@@ -246,7 +246,7 @@ export default function VehicleInfoForm() {
                 <Input
                   value={form.plate_no}
                   onChange={(e) => updateField("plate_no", e.target.value)}
-                  className="h-9 bg-white border-gray-300"
+                  className="h-9 bg-card border-input"
                 />
               </div>
 
@@ -255,7 +255,7 @@ export default function VehicleInfoForm() {
                 <Input
                   value={form.province}
                   onChange={(e) => updateField("province", e.target.value)}
-                  className="h-9 bg-white border-gray-300"
+                  className="h-9 bg-card border-input"
                 />
               </div>
 
@@ -264,7 +264,7 @@ export default function VehicleInfoForm() {
                 <Input
                   value={form.vehicle_year}
                   onChange={(e) => updateField("vehicle_year", e.target.value)}
-                  className="h-9 bg-white border-gray-300"
+                  className="h-9 bg-card border-input"
                 />
               </div>
 
@@ -273,7 +273,7 @@ export default function VehicleInfoForm() {
                 <Input
                   value={form.vehicle_make}
                   onChange={(e) => updateField("vehicle_make", e.target.value)}
-                  className="h-9 bg-white border-gray-300"
+                  className="h-9 bg-card border-input"
                 />
               </div>
 
@@ -282,7 +282,7 @@ export default function VehicleInfoForm() {
                 <Input
                   value={form.vehicle_model}
                   onChange={(e) => updateField("vehicle_model", e.target.value)}
-                  className="h-9 bg-white border-gray-300"
+                  className="h-9 bg-card border-input"
                 />
               </div>
 
@@ -291,7 +291,7 @@ export default function VehicleInfoForm() {
                 <Input
                   value={form.vehicle_color}
                   onChange={(e) => updateField("vehicle_color", e.target.value)}
-                  className="h-9 bg-white border-gray-300"
+                  className="h-9 bg-card border-input"
                 />
               </div>
 
@@ -300,7 +300,7 @@ export default function VehicleInfoForm() {
                 <Input
                   value={form.name}
                   onChange={(e) => updateField("name", e.target.value)}
-                  className="h-9 bg-white border-gray-300"
+                  className="h-9 bg-card border-input"
                 />
               </div>
 
@@ -311,7 +311,7 @@ export default function VehicleInfoForm() {
                   onChange={(e) =>
                     updateField("driver_licence_state", e.target.value)
                   }
-                  className="h-9 bg-white border-gray-300"
+                  className="h-9 bg-card border-input"
                 />
               </div>
 
@@ -322,7 +322,7 @@ export default function VehicleInfoForm() {
                   onChange={(e) =>
                     updateField("driver_licence_number", e.target.value)
                   }
-                  className="h-9 bg-white border-gray-300"
+                  className="h-9 bg-card border-input"
                 />
               </div>
 
@@ -334,7 +334,7 @@ export default function VehicleInfoForm() {
                   onChange={(e) =>
                     updateField("driver_licence_expiry_date", e.target.value)
                   }
-                  className="h-9 bg-white border-gray-300"
+                  className="h-9 bg-card border-input"
                 />
               </div>
 
@@ -354,7 +354,7 @@ export default function VehicleInfoForm() {
                   onChange={(e) =>
                     updateField("plate_searched_date", e.target.value)
                   }
-                  className="h-9 bg-white border-gray-300"
+                  className="h-9 bg-card border-input"
                 />
               </div>
             </div>

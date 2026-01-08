@@ -330,17 +330,17 @@ export default function CorrespondencePage() {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen">
         <p className="text-red-500 text-lg">Failed to load metadata</p>
-        <p className="text-sm text-gray-600 mt-2">{metaError?.message}</p>
+        <p className="text-sm text-muted-foreground mt-2">{metaError?.message}</p>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-muted">
       <Navbar2 />
 
-      <header className="bg-white border-b px-6 py-3">
-        <div className="flex items-center justify-end gap-6 text-sm text-gray-700">
+      <header className="bg-card border-b px-6 py-3">
+        <div className="flex items-center justify-end gap-6 text-sm text-foreground">
           <div>
             Unpaid: <span className="font-semibold">$ 0</span>
           </div>
@@ -356,11 +356,11 @@ export default function CorrespondencePage() {
         </div>
       </header>
 
-      <nav className="bg-white border-b px-6 py-4 text-sm text-gray-600">
+      <nav className="bg-card border-b px-6 py-4 text-sm text-muted-foreground">
         <div className="flex items-center gap-2">
           <button
             onClick={() => navigate("/dashboard")}
-            className="hover:text-gray-900 transition"
+            className="hover:text-foreground transition"
             type="button"
           >
             Dashboard
@@ -368,34 +368,34 @@ export default function CorrespondencePage() {
           <ChevronRight className="w-4 h-4" />
           <button
             onClick={() => navigate("/dashboard/workstation")}
-            className="hover:text-gray-900 transition"
+            className="hover:text-foreground transition"
             type="button"
           >
             Workstation
           </button>
           <ChevronRight className="w-4 h-4" />
-          <span className="text-gray-900 font-medium">
+          <span className="text-foreground font-medium">
             {id ? "Edit Correspondence" : "Add Correspondence"}
           </span>
         </div>
       </nav>
 
       <main className="container mx-auto px-4 sm:px-6 py-6 sm:py-8 max-w-6xl">
-        <h1 className="text-2xl sm:text-3xl font-bold mb-6 text-gray-900">
+        <h1 className="text-2xl sm:text-3xl font-bold mb-6 text-foreground">
           {id ? "Edit Correspondence" : "Add Correspondence"}
         </h1>
 
         <form
-          className="bg-white rounded-lg shadow-sm border p-6 sm:p-8 space-y-6"
+          className="bg-card rounded-lg shadow-sm border p-6 sm:p-8 space-y-6"
           onSubmit={handleSubmit}
         >
           <div>
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">
+            <h2 className="text-lg font-semibold text-foreground mb-4">
               Correspondence Details
             </h2>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <div className="space-y-2">
-                <Label className="text-gray-700 font-medium">
+                <Label className="text-foreground font-medium">
                   Serial Number
                 </Label>
                 <Input
@@ -409,7 +409,7 @@ export default function CorrespondencePage() {
               </div>
 
               <div className="space-y-2">
-                <Label className="text-gray-700 font-medium">
+                <Label className="text-foreground font-medium">
                   Matter <span className="text-red-500">*</span>
                 </Label>
                 <Input
@@ -424,7 +424,7 @@ export default function CorrespondencePage() {
               </div>
 
               <div className="space-y-2">
-                <Label className="text-gray-700 font-medium">Date</Label>
+                <Label className="text-foreground font-medium">Date</Label>
                 <Input
                   type="date"
                   name="date"
@@ -436,7 +436,7 @@ export default function CorrespondencePage() {
               </div>
 
               <div className="space-y-2">
-                <Label className="text-gray-700 font-medium">
+                <Label className="text-foreground font-medium">
                   Type <span className="text-red-500">*</span>
                 </Label>
                 <Popover open={openType} onOpenChange={setOpenType}>
@@ -490,7 +490,7 @@ export default function CorrespondencePage() {
 
               {/* Action Performed By Combobox */}
               <div className="space-y-2">
-                <Label className="text-gray-700 font-medium">
+                <Label className="text-foreground font-medium">
                   Action Performed By <span className="text-red-500">*</span>
                 </Label>
                 <Popover open={openAction} onOpenChange={setOpenAction}>
@@ -545,7 +545,7 @@ export default function CorrespondencePage() {
 
               {/* Status Combobox */}
               <div className="space-y-2">
-                <Label className="text-gray-700 font-medium">
+                <Label className="text-foreground font-medium">
                   Status <span className="text-red-500">*</span>
                 </Label>
                 <Popover open={openStatus} onOpenChange={setOpenStatus}>
@@ -599,7 +599,7 @@ export default function CorrespondencePage() {
 
               {/* Minutes Input with Time Icon - FIXED */}
               <div className="space-y-2">
-                <Label className="text-gray-700 font-medium">
+                <Label className="text-foreground font-medium">
                   Time (Hours:Minutes)
                 </Label>
                 <div className="relative">
@@ -622,7 +622,7 @@ export default function CorrespondencePage() {
 
               {/* Rate Input with $ prefix */}
               <div className="space-y-2">
-                <Label className="text-gray-700 font-medium">Rate</Label>
+                <Label className="text-foreground font-medium">Rate</Label>
                 <div className="relative">
                   <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 font-medium">
                     $
@@ -644,11 +644,11 @@ export default function CorrespondencePage() {
           </div>
 
           <div className="pt-6 border-t">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">
+            <h2 className="text-lg font-semibold text-foreground mb-4">
               Description
             </h2>
             <div className="space-y-2">
-              <Label className="text-gray-700 font-medium">Description</Label>
+              <Label className="text-foreground font-medium">Description</Label>
               <Textarea
                 name="description"
                 value={formData.description}
@@ -662,18 +662,18 @@ export default function CorrespondencePage() {
           </div>
 
           <div className="pt-6 border-t">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">
+            <h2 className="text-lg font-semibold text-foreground mb-4">
               Attachment
             </h2>
             <div className="space-y-2">
-              <Label className="text-gray-700 font-medium">
+              <Label className="text-foreground font-medium">
                 Upload File <span className="text-red-500">(Max 10MB)</span>
               </Label>
               <div
                 className={`relative border-2 border-dashed rounded-lg transition-all overflow-hidden ${
                   filePreview
                     ? "border-green-500 bg-green-50/50"
-                    : "border-gray-300 bg-gray-50 hover:border-gray-400 hover:bg-gray-100"
+                    : "border-input bg-muted hover:border-gray-400 hover:bg-gray-100"
                 } ${
                   uploadMutation.isLoading
                     ? "pointer-events-none opacity-70"
@@ -721,7 +721,7 @@ export default function CorrespondencePage() {
                           <p className="text-sm font-medium text-green-700">
                             Image Uploaded
                           </p>
-                          <p className="text-xs text-gray-600 mt-1 max-w-[200px] truncate">
+                          <p className="text-xs text-muted-foreground mt-1 max-w-[200px] truncate">
                             {fileName}
                           </p>
                           {uploadMutation.isLoading && (
@@ -744,7 +744,7 @@ export default function CorrespondencePage() {
                           <p className="text-sm font-medium text-green-700">
                             File Uploaded
                           </p>
-                          <p className="text-xs text-gray-600 mt-1 max-w-[200px] truncate">
+                          <p className="text-xs text-muted-foreground mt-1 max-w-[200px] truncate">
                             {fileName}
                           </p>
                           {uploadMutation.isLoading && (
@@ -772,7 +772,7 @@ export default function CorrespondencePage() {
                       </div>
 
                       <div className="text-center">
-                        <p className="text-base font-semibold text-gray-700 group-hover:text-blue-600 transition-colors">
+                        <p className="text-base font-semibold text-foreground group-hover:text-blue-600 transition-colors">
                           Upload File
                         </p>
                         <p className="text-xs text-gray-500 mt-1">

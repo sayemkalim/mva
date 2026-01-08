@@ -50,7 +50,7 @@ const SearchableDropdown = ({
         <Button
           variant="outline"
           role="combobox"
-          className="w-full justify-between font-normal bg-gray-50"
+          className="w-full justify-between font-normal bg-muted"
           type="button"
         >
           {selectedOption ? selectedOption.name : placeholder}
@@ -301,7 +301,7 @@ export default function AccidentalInformation() {
         <div className="text-red-500 text-xl font-semibold">
           Error loading form
         </div>
-        <p className="text-gray-600">
+        <p className="text-muted-foreground">
           {metadataError?.message || "Invalid response from server"}
         </p>
         <div className="flex gap-4">
@@ -324,43 +324,43 @@ export default function AccidentalInformation() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-muted">
       <Navbar2 />
-      <div className="bg-white border-b px-6 py-3">
+      <div className="bg-card border-b px-6 py-3">
         <div className="flex items-center justify-end gap-6 text-sm">
-          <span className="text-gray-700">
+          <span className="text-foreground">
             Unpaid: <span className="font-semibold">$ 0</span>
           </span>
-          <span className="text-gray-700">
+          <span className="text-foreground">
             Unbilled: <span className="font-semibold">$ 0</span>
           </span>
-          <span className="text-gray-700">
+          <span className="text-foreground">
             Client Funds-Operating: <span className="font-semibold">$ 0</span>
           </span>
-          <span className="text-gray-700">
+          <span className="text-foreground">
             Client Funds-Trust: <span className="font-semibold">$ 0</span>
           </span>
         </div>
       </div>
 
       {/* Breadcrumb */}
-      <div className="bg-white border-b px-6 py-4">
-        <div className="flex items-center gap-2 text-sm text-gray-600">
+      <div className="bg-card border-b px-6 py-4">
+        <div className="flex items-center gap-2 text-sm text-muted-foreground">
           <button
             onClick={() => navigate("/dashboard")}
-            className="hover:text-gray-900 transition"
+            className="hover:text-foreground transition"
           >
             Dashboard
           </button>
           <ChevronRight className="w-4 h-4" />
           <button
             onClick={() => navigate("/dashboard/workstation")}
-            className="hover:text-gray-900 transition"
+            className="hover:text-foreground transition"
           >
             Workstation
           </button>
           <ChevronRight className="w-4 h-4" />
-          <span className="text-gray-900 font-medium">
+          <span className="text-foreground font-medium">
             Accidental Information
           </span>
         </div>
@@ -368,15 +368,15 @@ export default function AccidentalInformation() {
 
       {/* Main Content */}
       <div className="container mx-auto px-6 py-8 max-w-7xl">
-        <div className="bg-white rounded-lg shadow-sm border p-8">
-          <h1 className="text-2xl font-bold mb-8 text-gray-900 uppercase">
+        <div className="bg-card rounded-lg shadow-sm border p-8">
+          <h1 className="text-2xl font-bold mb-8 text-foreground uppercase">
             Accidental Information
           </h1>
 
           <form onSubmit={handleSubmit} className="space-y-8">
             {/* Accident Details Section */}
             <div className="space-y-6">
-              <h2 className="text-xl font-semibold text-gray-900">
+              <h2 className="text-xl font-semibold text-foreground">
                 Accident Details
               </h2>
 
@@ -385,7 +385,7 @@ export default function AccidentalInformation() {
                 <div className="space-y-2">
                   <Label
                     htmlFor="date_of_accident"
-                    className="text-gray-700 font-medium"
+                    className="text-foreground font-medium"
                   >
                     Date of Accident
                   </Label>
@@ -395,7 +395,7 @@ export default function AccidentalInformation() {
                     type="date"
                     value={formData.date_of_accident}
                     onChange={handleChange}
-                    className="bg-gray-50 border-gray-300"
+                    className="bg-muted border-input"
                   />
                 </div>
 
@@ -403,7 +403,7 @@ export default function AccidentalInformation() {
                 <div className="space-y-2">
                   <Label
                     htmlFor="day_of_accident_id"
-                    className="text-gray-700 font-medium"
+                    className="text-foreground font-medium"
                   >
                     Day of Accident
                   </Label>
@@ -423,7 +423,7 @@ export default function AccidentalInformation() {
                 <div className="space-y-2">
                   <Label
                     htmlFor="time_of_accident"
-                    className="text-gray-700 font-medium"
+                    className="text-foreground font-medium"
                   >
                     Time of Accident
                   </Label>
@@ -433,7 +433,7 @@ export default function AccidentalInformation() {
                     type="time"
                     value={formData.time_of_accident}
                     onChange={handleChange}
-                    className="bg-gray-50 border-gray-300"
+                    className="bg-muted border-input"
                   />
                 </div>
 
@@ -441,7 +441,7 @@ export default function AccidentalInformation() {
                 <div className="space-y-2">
                   <Label
                     htmlFor="applicant_werea_id"
-                    className="text-gray-700 font-medium"
+                    className="text-foreground font-medium"
                   >
                     Applicant Were A
                   </Label>
@@ -461,7 +461,7 @@ export default function AccidentalInformation() {
                 <div className="space-y-2">
                   <Label
                     htmlFor="accident_location"
-                    className="text-gray-700 font-medium"
+                    className="text-foreground font-medium"
                   >
                     Accident Location
                   </Label>
@@ -471,13 +471,13 @@ export default function AccidentalInformation() {
                     value={formData.accident_location}
                     onChange={handleChange}
                     placeholder="Enter accident location"
-                    className="bg-gray-50 border-gray-300"
+                    className="bg-muted border-input"
                   />
                 </div>
 
                 {/* City */}
                 <div className="space-y-2">
-                  <Label htmlFor="city" className="text-gray-700 font-medium">
+                  <Label htmlFor="city" className="text-foreground font-medium">
                     City
                   </Label>
                   <Input
@@ -486,7 +486,7 @@ export default function AccidentalInformation() {
                     value={formData.city}
                     onChange={handleChange}
                     placeholder="Toronto"
-                    className="bg-gray-50 border-gray-300"
+                    className="bg-muted border-input"
                   />
                 </div>
 
@@ -494,7 +494,7 @@ export default function AccidentalInformation() {
                 <div className="space-y-2">
                   <Label
                     htmlFor="province"
-                    className="text-gray-700 font-medium"
+                    className="text-foreground font-medium"
                   >
                     Province
                   </Label>
@@ -504,7 +504,7 @@ export default function AccidentalInformation() {
                     value={formData.province}
                     onChange={handleChange}
                     placeholder="Ontario"
-                    className="bg-gray-50 border-gray-300"
+                    className="bg-muted border-input"
                   />
                 </div>
 
@@ -512,7 +512,7 @@ export default function AccidentalInformation() {
                 <div className="space-y-2 md:col-span-3">
                   <Label
                     htmlFor="description_of_the_accident"
-                    className="text-gray-700 font-medium"
+                    className="text-foreground font-medium"
                   >
                     Description of the Accident
                   </Label>
@@ -523,7 +523,7 @@ export default function AccidentalInformation() {
                     onChange={handleChange}
                     placeholder="Describe what happened..."
                     rows={4}
-                    className="bg-gray-50 border-gray-300"
+                    className="bg-muted border-input"
                   />
                 </div>
               </div>
@@ -531,7 +531,7 @@ export default function AccidentalInformation() {
 
             {/* Accident Circumstances Section */}
             <div className="space-y-6 pt-6 border-t">
-              <h2 className="text-xl font-semibold text-gray-900">
+              <h2 className="text-xl font-semibold text-foreground">
                 Accident Circumstances
               </h2>
 
@@ -540,7 +540,7 @@ export default function AccidentalInformation() {
                 <div className="space-y-2">
                   <Label
                     htmlFor="accident_occur_while_you_were_id"
-                    className="text-gray-700 font-medium"
+                    className="text-foreground font-medium"
                   >
                     Accident Occur While You Were
                   </Label>
@@ -560,7 +560,7 @@ export default function AccidentalInformation() {
                 <div className="space-y-2">
                   <Label
                     htmlFor="workplace_safety_and_insurance_board_id"
-                    className="text-gray-700 font-medium"
+                    className="text-foreground font-medium"
                   >
                     Workplace Safety & Insurance Board
                   </Label>
@@ -580,7 +580,7 @@ export default function AccidentalInformation() {
                 <div className="space-y-2">
                   <Label
                     htmlFor="reported_to_police"
-                    className="text-gray-700 font-medium"
+                    className="text-foreground font-medium"
                   >
                     Reported to Police
                   </Label>
@@ -600,7 +600,7 @@ export default function AccidentalInformation() {
                 <div className="space-y-2">
                   <Label
                     htmlFor="Seatbelted_id"
-                    className="text-gray-700 font-medium"
+                    className="text-foreground font-medium"
                   >
                     Seatbelted
                   </Label>
@@ -620,7 +620,7 @@ export default function AccidentalInformation() {
                 <div className="space-y-2">
                   <Label
                     htmlFor="seating_arrangement"
-                    className="text-gray-700 font-medium"
+                    className="text-foreground font-medium"
                   >
                     Seating Arrangement
                   </Label>
@@ -630,13 +630,13 @@ export default function AccidentalInformation() {
                     value={formData.seating_arrangement}
                     onChange={handleChange}
                     placeholder="Enter seating arrangement"
-                    className="bg-gray-50 border-gray-300"
+                    className="bg-muted border-input"
                   />
                 </div>
 
                 {/* Agency */}
                 <div className="space-y-2">
-                  <Label htmlFor="agency" className="text-gray-700 font-medium">
+                  <Label htmlFor="agency" className="text-foreground font-medium">
                     Agency
                   </Label>
                   <Input
@@ -645,7 +645,7 @@ export default function AccidentalInformation() {
                     value={formData.agency}
                     onChange={handleChange}
                     placeholder="Enter agency name"
-                    className="bg-gray-50 border-gray-300"
+                    className="bg-muted border-input"
                   />
                 </div>
               </div>
@@ -653,7 +653,7 @@ export default function AccidentalInformation() {
 
             {/* Fault and Charges Section */}
             <div className="space-y-6 pt-6 border-t">
-              <h2 className="text-xl font-semibold text-gray-900">
+              <h2 className="text-xl font-semibold text-foreground">
                 Fault & Charges
               </h2>
 
@@ -662,7 +662,7 @@ export default function AccidentalInformation() {
                 <div className="space-y-2">
                   <Label
                     htmlFor="client_at_fault_id"
-                    className="text-gray-700 font-medium"
+                    className="text-foreground font-medium"
                   >
                     Client at Fault
                   </Label>
@@ -682,7 +682,7 @@ export default function AccidentalInformation() {
                 <div className="space-y-2">
                   <Label
                     htmlFor="ticket_wlsb_id"
-                    className="text-gray-700 font-medium"
+                    className="text-foreground font-medium"
                   >
                     Ticket WLSB
                   </Label>
@@ -702,7 +702,7 @@ export default function AccidentalInformation() {
                 <div className="space-y-2">
                   <Label
                     htmlFor="tparty_charge_id"
-                    className="text-gray-700 font-medium"
+                    className="text-foreground font-medium"
                   >
                     Third Party Charge
                   </Label>
@@ -722,7 +722,7 @@ export default function AccidentalInformation() {
                 <div className="space-y-2">
                   <Label
                     htmlFor="property_damage"
-                    className="text-gray-700 font-medium"
+                    className="text-foreground font-medium"
                   >
                     Property Damage
                   </Label>
@@ -732,7 +732,7 @@ export default function AccidentalInformation() {
                     value={formData.property_damage}
                     onChange={handleChange}
                     placeholder="Describe property damage"
-                    className="bg-gray-50 border-gray-300"
+                    className="bg-muted border-input"
                   />
                 </div>
               </div>
@@ -740,7 +740,7 @@ export default function AccidentalInformation() {
 
             {/* Police Information Section */}
             <div className="space-y-6 pt-6 border-t">
-              <h2 className="text-xl font-semibold text-gray-900">
+              <h2 className="text-xl font-semibold text-foreground">
                 Police Information
               </h2>
 
@@ -749,7 +749,7 @@ export default function AccidentalInformation() {
                 <div className="space-y-2">
                   <Label
                     htmlFor="police_department"
-                    className="text-gray-700 font-medium"
+                    className="text-foreground font-medium"
                   >
                     Police Department
                   </Label>
@@ -759,7 +759,7 @@ export default function AccidentalInformation() {
                     value={formData.police_department}
                     onChange={handleChange}
                     placeholder="Enter police department"
-                    className="bg-gray-50 border-gray-300"
+                    className="bg-muted border-input"
                   />
                 </div>
 
@@ -767,7 +767,7 @@ export default function AccidentalInformation() {
                 <div className="space-y-2">
                   <Label
                     htmlFor="officer_name"
-                    className="text-gray-700 font-medium"
+                    className="text-foreground font-medium"
                   >
                     Officer Name
                   </Label>
@@ -777,7 +777,7 @@ export default function AccidentalInformation() {
                     value={formData.officer_name}
                     onChange={handleChange}
                     placeholder="Enter officer name"
-                    className="bg-gray-50 border-gray-300"
+                    className="bg-muted border-input"
                   />
                 </div>
 
@@ -785,7 +785,7 @@ export default function AccidentalInformation() {
                 <div className="space-y-2">
                   <Label
                     htmlFor="badge_no"
-                    className="text-gray-700 font-medium"
+                    className="text-foreground font-medium"
                   >
                     Badge Number
                   </Label>
@@ -795,7 +795,7 @@ export default function AccidentalInformation() {
                     value={formData.badge_no}
                     onChange={handleChange}
                     placeholder="Enter badge number"
-                    className="bg-gray-50 border-gray-300"
+                    className="bg-muted border-input"
                   />
                 </div>
 
@@ -803,7 +803,7 @@ export default function AccidentalInformation() {
                 <div className="space-y-2">
                   <Label
                     htmlFor="date_accident_reported_to_the_police"
-                    className="text-gray-700 font-medium"
+                    className="text-foreground font-medium"
                   >
                     Date Reported to Police
                   </Label>
@@ -813,7 +813,7 @@ export default function AccidentalInformation() {
                     type="date"
                     value={formData.date_accident_reported_to_the_police}
                     onChange={handleChange}
-                    className="bg-gray-50 border-gray-300"
+                    className="bg-muted border-input"
                   />
                 </div>
               </div>

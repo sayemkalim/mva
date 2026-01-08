@@ -6,7 +6,7 @@ const ROWS_OPTIONS = [25, 50, 75, 100];
 const SelectRowsPerPage = ({ onRowsPerPageChange, rowsPerPage }) => {
   return (
     <div className="flex items-center gap-2 ml-2">
-      <Typography className="text-sm text-gray-600 dark:text-white whitespace-nowrap">Rows per page:</Typography>
+      <Typography className="text-sm text-muted-foreground dark:text-white whitespace-nowrap">Rows per page:</Typography>
       <Select
         value={String(rowsPerPage)}
         onValueChange={(val) => {

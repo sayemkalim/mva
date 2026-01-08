@@ -36,7 +36,7 @@ const SearchableSelect = ({ label, options, value, onChange, placeholder }) => {
 
   return (
     <div className="space-y-2">
-      <Label className="text-gray-700 font-medium">{label}</Label>
+      <Label className="text-foreground font-medium">{label}</Label>
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
           <Button
@@ -249,12 +249,12 @@ export default function MedicalCentrePage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-muted">
       <Navbar2 />
 
       {/* Financial Summary Header */}
-      <header className="bg-white border-b px-6 py-3">
-        <div className="flex items-center justify-end gap-6 text-sm text-gray-700">
+      <header className="bg-card border-b px-6 py-3">
+        <div className="flex items-center justify-end gap-6 text-sm text-foreground">
           <div>
             Unpaid: <span className="font-semibold">$ 0</span>
           </div>
@@ -271,11 +271,11 @@ export default function MedicalCentrePage() {
       </header>
 
       {/* Breadcrumb Navigation */}
-      <nav className="bg-white border-b px-6 py-4 text-sm text-gray-600">
+      <nav className="bg-card border-b px-6 py-4 text-sm text-muted-foreground">
         <div className="flex items-center gap-2">
           <button
             onClick={() => navigate("/dashboard")}
-            className="hover:text-gray-900 transition"
+            className="hover:text-foreground transition"
             type="button"
           >
             Dashboard
@@ -283,19 +283,19 @@ export default function MedicalCentrePage() {
           <ChevronRight className="w-4 h-4" />
           <button
             onClick={() => navigate("/dashboard/workstation")}
-            className="hover:text-gray-900 transition"
+            className="hover:text-foreground transition"
             type="button"
           >
             Workstation
           </button>
           <ChevronRight className="w-4 h-4" />
-          <span className="text-gray-900 font-medium">Medical Centre</span>
+          <span className="text-foreground font-medium">Medical Centre</span>
         </div>
       </nav>
 
       {/* Main Content */}
       <main className="container mx-auto px-4 sm:px-6 py-6 sm:py-8 max-w-6xl">
-        <h1 className="text-2xl sm:text-3xl font-bold mb-6 text-gray-900">
+        <h1 className="text-2xl sm:text-3xl font-bold mb-6 text-foreground">
           Medical Centre & Clinic
         </h1>
 
@@ -303,7 +303,7 @@ export default function MedicalCentrePage() {
           {/* Medical Centre Section */}
           <div className="space-y-6">
             <div className="flex justify-between items-center">
-              <h2 className="text-xl font-semibold text-gray-900">
+              <h2 className="text-xl font-semibold text-foreground">
                 Medical Centre
               </h2>
               <Button
@@ -320,7 +320,7 @@ export default function MedicalCentrePage() {
             {medicalCentres.map((centre, idx) => (
               <div
                 key={idx}
-                className="relative bg-white rounded-lg shadow-sm border p-6 space-y-6"
+                className="relative bg-card rounded-lg shadow-sm border p-6 space-y-6"
               >
                 {medicalCentres.length > 1 && (
                   <Button
@@ -350,7 +350,7 @@ export default function MedicalCentrePage() {
                   />
 
                   <div className="space-y-2">
-                    <Label className="text-gray-700 font-medium">
+                    <Label className="text-foreground font-medium">
                       Hospital Name
                     </Label>
                     <Input
@@ -364,7 +364,7 @@ export default function MedicalCentrePage() {
                   </div>
 
                   <div className="space-y-2">
-                    <Label className="text-gray-700 font-medium">Address</Label>
+                    <Label className="text-foreground font-medium">Address</Label>
                     <Input
                       value={centre.address}
                       onChange={(e) =>
@@ -376,7 +376,7 @@ export default function MedicalCentrePage() {
                   </div>
 
                   <div className="space-y-2">
-                    <Label className="text-gray-700 font-medium">Tel</Label>
+                    <Label className="text-foreground font-medium">Tel</Label>
                     <Input
                       value={centre.tel}
                       onChange={(e) =>
@@ -388,7 +388,7 @@ export default function MedicalCentrePage() {
                   </div>
 
                   <div className="space-y-2">
-                    <Label className="text-gray-700 font-medium">Fax</Label>
+                    <Label className="text-foreground font-medium">Fax</Label>
                     <Input
                       value={centre.fax}
                       onChange={(e) =>
@@ -400,7 +400,7 @@ export default function MedicalCentrePage() {
                   </div>
 
                   <div className="space-y-2">
-                    <Label className="text-gray-700 font-medium">Email</Label>
+                    <Label className="text-foreground font-medium">Email</Label>
                     <Input
                       type="email"
                       value={centre.email}
@@ -413,7 +413,7 @@ export default function MedicalCentrePage() {
                   </div>
 
                   <div className="space-y-2">
-                    <Label className="text-gray-700 font-medium">From</Label>
+                    <Label className="text-foreground font-medium">From</Label>
                     <Input
                       type="date"
                       value={centre.from_date}
@@ -425,7 +425,7 @@ export default function MedicalCentrePage() {
                   </div>
 
                   <div className="space-y-2">
-                    <Label className="text-gray-700 font-medium">To</Label>
+                    <Label className="text-foreground font-medium">To</Label>
                     <Input
                       type="date"
                       value={centre.to_date}
@@ -437,7 +437,7 @@ export default function MedicalCentrePage() {
                   </div>
 
                   <div className="space-y-2">
-                    <Label className="text-gray-700 font-medium">Date</Label>
+                    <Label className="text-foreground font-medium">Date</Label>
                     <Input
                       type="date"
                       value={centre.date}
@@ -449,7 +449,7 @@ export default function MedicalCentrePage() {
                   </div>
 
                   <div className="space-y-2 lg:col-span-3">
-                    <Label className="text-gray-700 font-medium">Notes</Label>
+                    <Label className="text-foreground font-medium">Notes</Label>
                     <Textarea
                       value={centre.notes}
                       onChange={(e) =>
@@ -468,7 +468,7 @@ export default function MedicalCentrePage() {
           {/* Medical Clinic Section */}
           <div className="space-y-6 pt-6">
             <div className="flex justify-between items-center">
-              <h2 className="text-xl font-semibold text-gray-900">
+              <h2 className="text-xl font-semibold text-foreground">
                 Medical Clinic
               </h2>
               <Button
@@ -485,7 +485,7 @@ export default function MedicalCentrePage() {
             {medicalClinics.map((clinic, idx) => (
               <div
                 key={idx}
-                className="relative bg-white rounded-lg shadow-sm border p-6 space-y-6"
+                className="relative bg-card rounded-lg shadow-sm border p-6 space-y-6"
               >
                 {medicalClinics.length > 1 && (
                   <Button
@@ -501,7 +501,7 @@ export default function MedicalCentrePage() {
 
                 <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
                   <div className="space-y-2">
-                    <Label className="text-gray-700 font-medium">
+                    <Label className="text-foreground font-medium">
                       Clinic Name
                     </Label>
                     <Input
@@ -515,7 +515,7 @@ export default function MedicalCentrePage() {
                   </div>
 
                   <div className="space-y-2">
-                    <Label className="text-gray-700 font-medium">
+                    <Label className="text-foreground font-medium">
                       Dr. Name
                     </Label>
                     <Input
@@ -529,7 +529,7 @@ export default function MedicalCentrePage() {
                   </div>
 
                   <div className="space-y-2">
-                    <Label className="text-gray-700 font-medium">Address</Label>
+                    <Label className="text-foreground font-medium">Address</Label>
                     <Input
                       value={clinic.address}
                       onChange={(e) =>
@@ -541,7 +541,7 @@ export default function MedicalCentrePage() {
                   </div>
 
                   <div className="space-y-2">
-                    <Label className="text-gray-700 font-medium">Tel</Label>
+                    <Label className="text-foreground font-medium">Tel</Label>
                     <Input
                       value={clinic.tel}
                       onChange={(e) =>
@@ -553,7 +553,7 @@ export default function MedicalCentrePage() {
                   </div>
 
                   <div className="space-y-2">
-                    <Label className="text-gray-700 font-medium">Fax</Label>
+                    <Label className="text-foreground font-medium">Fax</Label>
                     <Input
                       value={clinic.fax}
                       onChange={(e) =>
@@ -565,7 +565,7 @@ export default function MedicalCentrePage() {
                   </div>
 
                   <div className="space-y-2">
-                    <Label className="text-gray-700 font-medium">Email</Label>
+                    <Label className="text-foreground font-medium">Email</Label>
                     <Input
                       type="email"
                       value={clinic.email}
@@ -578,7 +578,7 @@ export default function MedicalCentrePage() {
                   </div>
 
                   <div className="space-y-2">
-                    <Label className="text-gray-700 font-medium">From</Label>
+                    <Label className="text-foreground font-medium">From</Label>
                     <Input
                       type="date"
                       value={clinic.from_date}
@@ -590,7 +590,7 @@ export default function MedicalCentrePage() {
                   </div>
 
                   <div className="space-y-2">
-                    <Label className="text-gray-700 font-medium">To</Label>
+                    <Label className="text-foreground font-medium">To</Label>
                     <Input
                       type="date"
                       value={clinic.to_date}
@@ -602,7 +602,7 @@ export default function MedicalCentrePage() {
                   </div>
 
                   <div className="space-y-2 lg:col-span-4">
-                    <Label className="text-gray-700 font-medium">Notes</Label>
+                    <Label className="text-foreground font-medium">Notes</Label>
                     <Textarea
                       value={clinic.notes}
                       onChange={(e) =>

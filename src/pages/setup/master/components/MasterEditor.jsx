@@ -103,24 +103,24 @@ const MasterEditor = ({ open, onClose, slug, masterData = null }) => {
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="space-y-2">
-            <Label className="text-gray-700 font-medium">
+            <Label className="text-foreground font-medium">
               Name <span className="text-red-500">*</span>
             </Label>
             <Input
               value={formData.name}
               onChange={(e) => handleChange("name", e.target.value)}
               placeholder="Enter name"
-              className="h-10 bg-white border-gray-300"
+              className="h-10 bg-card border-input"
             />
           </div>
 
           <div className="space-y-2">
-            <Label className="text-gray-700 font-medium">Description</Label>
+            <Label className="text-foreground font-medium">Description</Label>
             <Textarea
               value={formData.description}
               onChange={(e) => handleChange("description", e.target.value)}
               placeholder="Enter description"
-              className="bg-white border-gray-300 min-h-[100px]"
+              className="bg-card border-input min-h-[100px]"
             />
           </div>
 
@@ -129,7 +129,7 @@ const MasterEditor = ({ open, onClose, slug, masterData = null }) => {
               checked={formData.is_active}
               onCheckedChange={(checked) => handleChange("is_active", checked)}
             />
-            <Label className="text-gray-700 font-medium cursor-pointer">
+            <Label className="text-foreground font-medium cursor-pointer">
               Active Status
             </Label>
           </div>

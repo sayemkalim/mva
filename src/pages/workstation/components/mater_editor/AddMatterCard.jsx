@@ -31,6 +31,7 @@ import {
   ChevronRight,
 } from "lucide-react";
 import { Navbar2 } from "@/components/navbar2";
+import { formatPhoneNumber } from "@/lib/utils";
 
 const AddMatterCard = ({
   metadata,
@@ -213,12 +214,12 @@ const AddMatterCard = ({
     onError: (error) => {
       toast.error(
         error?.response?.data?.message ||
-          error?.message ||
-          (isEditMode ? "Failed to update matter" : "Failed to create matter")
+        error?.message ||
+        (isEditMode ? "Failed to update matter" : "Failed to create matter")
       );
     },
   });
-  
+
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -256,7 +257,7 @@ const AddMatterCard = ({
           <Button
             variant="outline"
             role="combobox"
-            className="w-full justify-between font-normal bg-gray-50"
+            className="w-full justify-between font-normal bg-muted"
             type="button"
           >
             {selectedOption ? selectedOption.name : placeholder}
@@ -279,9 +280,8 @@ const AddMatterCard = ({
                     onSelect={() => onSelect(fieldName, opt.id, popoverKey)}
                   >
                     <Check
-                      className={`mr-2 h-4 w-4 ${
-                        value === opt.id ? "opacity-100" : "opacity-0"
-                      }`}
+                      className={`mr-2 h-4 w-4 ${value === opt.id ? "opacity-100" : "opacity-0"
+                        }`}
                     />
                     {opt.name}
                   </CommandItem>
@@ -312,7 +312,7 @@ const AddMatterCard = ({
         <PopoverTrigger asChild>
           <Button
             variant="outline"
-            className="w-full justify-start text-left font-normal min-h-10 bg-gray-50"
+            className="w-full justify-start text-left font-normal min-h-10 bg-muted"
             type="button"
           >
             {selected.length > 0 ? (
@@ -379,58 +379,58 @@ const AddMatterCard = ({
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-muted">
       <Navbar2 />
 
-      <div className="bg-white border-b px-6 py-3">
+      <div className="bg-card border-b px-6 py-3">
         <div className="flex items-center justify-end gap-6 text-sm">
-          <span className="text-gray-700">
+          <span className="text-foreground">
             Unpaid: <span className="font-semibold">$ 0</span>
           </span>
-          <span className="text-gray-700">
+          <span className="text-foreground">
             Unbilled: <span className="font-semibold">$ 0</span>
           </span>
-          <span className="text-gray-700">
+          <span className="text-foreground">
             Client Funds-Operating: <span className="font-semibold">$ 0</span>
           </span>
-          <span className="text-gray-700">
+          <span className="text-foreground">
             Client Funds-Trust: <span className="font-semibold">$ 0</span>
           </span>
         </div>
       </div>
 
-      <div className="bg-white border-b px-6 py-4">
-        <div className="flex items-center gap-2 text-sm text-gray-600">
+      <div className="bg-card border-b px-6 py-4">
+        <div className="flex items-center gap-2 text-sm text-muted-foreground">
           <button
             onClick={() => navigate("/dashboard")}
-            className="hover:text-gray-900 transition"
+            className="hover:text-foreground transition"
           >
             Dashboard
           </button>
           <ChevronRight className="w-4 h-4" />
           <button
             onClick={() => navigate("/dashboard/workstation")}
-            className="hover:text-gray-900 transition"
+            className="hover:text-foreground transition"
           >
             Workstation
           </button>
           <ChevronRight className="w-4 h-4" />
-          <span className="text-gray-900 font-medium">
+          <span className="text-foreground font-medium">
             {isEditMode ? "Edit Matter" : "Add Matter"}
           </span>
         </div>
       </div>
 
       <div className="container mx-auto px-6 py-8 max-w-7xl">
-        <div className="bg-white rounded-lg shadow-sm border p-8">
-          <h1 className="text-2xl font-bold mb-8 text-gray-900">
+        <div className="bg-card rounded-lg shadow-sm border p-8">
+          <h1 className="text-2xl font-bold mb-8 text-foreground">
             {isEditMode ? "Edit Matter" : "Add New Matter"}
           </h1>
 
           <form className="space-y-12" onSubmit={handleSubmit} noValidate>
             {/* ===== FILE DETAILS SECTION ===== */}
             <section>
-              <h2 className="font-semibold text-xl mb-6 border-b pb-2 uppercase text-gray-800">
+              <h2 className="font-semibold text-xl mb-6 border-b pb-2 uppercase text-foreground">
                 File Details
               </h2>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -438,7 +438,7 @@ const AddMatterCard = ({
                 <div>
                   <label
                     htmlFor="file_no"
-                    className="block font-medium mb-2 text-gray-700"
+                    className="block font-medium mb-2 text-foreground"
                   >
                     File Number <span className="text-red-600">*</span>
                   </label>
@@ -450,7 +450,7 @@ const AddMatterCard = ({
                     maxLength={200}
                     placeholder="Enter file number"
                     required
-                    className="bg-gray-50"
+                    className="bg-muted"
                   />
                 </div>
 
@@ -458,7 +458,7 @@ const AddMatterCard = ({
                 <div>
                   <label
                     htmlFor="intake_date"
-                    className="block font-medium mb-2 text-gray-700"
+                    className="block font-medium mb-2 text-foreground"
                   >
                     Intake Date
                   </label>
@@ -468,7 +468,7 @@ const AddMatterCard = ({
                     name="intake_date"
                     value={formData.intake_date}
                     onChange={handleInputChange}
-                    className="bg-gray-50"
+                    className="bg-muted"
                   />
                 </div>
 
@@ -476,7 +476,7 @@ const AddMatterCard = ({
                 <div>
                   <label
                     htmlFor="conflict_search_date"
-                    className="block font-medium mb-2 text-gray-700"
+                    className="block font-medium mb-2 text-foreground"
                   >
                     Conflict Search Date
                   </label>
@@ -486,13 +486,13 @@ const AddMatterCard = ({
                     name="conflict_search_date"
                     value={formData.conflict_search_date}
                     onChange={handleInputChange}
-                    className="bg-gray-50"
+                    className="bg-muted"
                   />
                 </div>
 
                 {/* File Status */}
                 <div>
-                  <label className="block font-medium mb-2 text-gray-700">
+                  <label className="block font-medium mb-2 text-foreground">
                     File Status
                   </label>
                   <SearchableDropdown
@@ -507,7 +507,7 @@ const AddMatterCard = ({
 
                 {/* Claim Status */}
                 <div>
-                  <label className="block font-medium mb-2 text-gray-700">
+                  <label className="block font-medium mb-2 text-foreground">
                     Claim Status
                   </label>
                   <SearchableDropdown
@@ -522,7 +522,7 @@ const AddMatterCard = ({
 
                 {/* Non Engagement Issued (Multi-select) */}
                 <div>
-                  <label className="block font-medium mb-2 text-gray-700">
+                  <label className="block font-medium mb-2 text-foreground">
                     Non Engagement Issued
                   </label>
                   <MultiSelectDropdown
@@ -539,7 +539,7 @@ const AddMatterCard = ({
                 <div>
                   <label
                     htmlFor="non_engagement_date"
-                    className="block font-medium mb-2 text-gray-700"
+                    className="block font-medium mb-2 text-foreground"
                   >
                     Non Engagement Date
                   </label>
@@ -549,13 +549,13 @@ const AddMatterCard = ({
                     name="non_engagement_date"
                     value={formData.non_engagement_date}
                     onChange={handleInputChange}
-                    className="bg-gray-50"
+                    className="bg-muted"
                   />
                 </div>
 
                 {/* Claim Type (Multi-select) */}
                 <div>
-                  <label className="block font-medium mb-2 text-gray-700">
+                  <label className="block font-medium mb-2 text-foreground">
                     Claim Type
                   </label>
                   <MultiSelectDropdown
@@ -570,7 +570,7 @@ const AddMatterCard = ({
 
                 {/* MIG Status */}
                 <div>
-                  <label className="block font-medium mb-2 text-gray-700">
+                  <label className="block font-medium mb-2 text-foreground">
                     MIG Status
                   </label>
                   <SearchableDropdown
@@ -585,7 +585,7 @@ const AddMatterCard = ({
 
                 {/* AB Claim Settlement Approx. */}
                 <div>
-                  <label className="block font-medium mb-2 text-gray-700">
+                  <label className="block font-medium mb-2 text-foreground">
                     AB Claim Settlement Approx.
                   </label>
                   <SearchableDropdown
@@ -600,7 +600,7 @@ const AddMatterCard = ({
 
                 {/* Tort Claim Settlement Approx. */}
                 <div>
-                  <label className="block font-medium mb-2 text-gray-700">
+                  <label className="block font-medium mb-2 text-foreground">
                     Tort Claim Settlement Approx.
                   </label>
                   <SearchableDropdown
@@ -615,7 +615,7 @@ const AddMatterCard = ({
 
                 {/* LTD Claim Settlement Approx. */}
                 <div>
-                  <label className="block font-medium mb-2 text-gray-700">
+                  <label className="block font-medium mb-2 text-foreground">
                     LTD Claim Settlement Approx.
                   </label>
                   <SearchableDropdown
@@ -630,7 +630,7 @@ const AddMatterCard = ({
 
                 {/* Property Damage Claim Settlement Approx. */}
                 <div>
-                  <label className="block font-medium mb-2 text-gray-700">
+                  <label className="block font-medium mb-2 text-foreground">
                     Property Damage Claim Settlement Approx.
                   </label>
                   <SearchableDropdown
@@ -645,7 +645,7 @@ const AddMatterCard = ({
 
                 {/* At Fault */}
                 <div>
-                  <label className="block font-medium mb-2 text-gray-700">
+                  <label className="block font-medium mb-2 text-foreground">
                     At Fault
                   </label>
                   <SearchableDropdown
@@ -660,7 +660,7 @@ const AddMatterCard = ({
 
                 {/* Category */}
                 <div>
-                  <label className="block font-medium mb-2 text-gray-700">
+                  <label className="block font-medium mb-2 text-foreground">
                     Category
                   </label>
                   <SearchableDropdown
@@ -677,7 +677,7 @@ const AddMatterCard = ({
                 <div>
                   <label
                     htmlFor="file_location"
-                    className="block font-medium mb-2 text-gray-700"
+                    className="block font-medium mb-2 text-foreground"
                   >
                     File Location
                   </label>
@@ -688,13 +688,13 @@ const AddMatterCard = ({
                     onChange={handleInputChange}
                     maxLength={200}
                     placeholder="Enter file location"
-                    className="bg-gray-50"
+                    className="bg-muted"
                   />
                 </div>
 
                 {/* First Party Status */}
                 <div>
-                  <label className="block font-medium mb-2 text-gray-700">
+                  <label className="block font-medium mb-2 text-foreground">
                     First Party Status
                   </label>
                   <SearchableDropdown
@@ -709,7 +709,7 @@ const AddMatterCard = ({
 
                 {/* Third Party Status */}
                 <div>
-                  <label className="block font-medium mb-2 text-gray-700">
+                  <label className="block font-medium mb-2 text-foreground">
                     Third Party Status
                   </label>
                   <SearchableDropdown
@@ -726,7 +726,7 @@ const AddMatterCard = ({
 
             {/* ===== INTERVIEW INFORMATION SECTION ===== */}
             <section>
-              <h2 className="font-semibold text-xl mb-6 border-b pb-2 uppercase text-gray-800">
+              <h2 className="font-semibold text-xl mb-6 border-b pb-2 uppercase text-foreground">
                 Interview Information
               </h2>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -734,7 +734,7 @@ const AddMatterCard = ({
                 <div>
                   <label
                     htmlFor="date_of_interview"
-                    className="block font-medium mb-2 text-gray-700"
+                    className="block font-medium mb-2 text-foreground"
                   >
                     Date of Interview
                   </label>
@@ -744,13 +744,13 @@ const AddMatterCard = ({
                     name="date_of_interview"
                     value={formData.date_of_interview}
                     onChange={handleInputChange}
-                    className="bg-gray-50"
+                    className="bg-muted"
                   />
                 </div>
 
                 {/* Interviewed By */}
                 <div>
-                  <label className="block font-medium mb-2 text-gray-700">
+                  <label className="block font-medium mb-2 text-foreground">
                     Interviewed By
                   </label>
                   <SearchableDropdown
@@ -767,7 +767,7 @@ const AddMatterCard = ({
                 <div>
                   <label
                     htmlFor="companion_file"
-                    className="block font-medium mb-2 text-gray-700"
+                    className="block font-medium mb-2 text-foreground"
                   >
                     Companion File
                   </label>
@@ -778,7 +778,7 @@ const AddMatterCard = ({
                     onChange={handleInputChange}
                     maxLength={255}
                     placeholder="Enter companion file"
-                    className="bg-gray-50"
+                    className="bg-muted"
                   />
                 </div>
               </div>
@@ -787,7 +787,7 @@ const AddMatterCard = ({
             {/* ===== OTHER MVAs SECTION ===== */}
             <section>
               <div className="flex justify-between items-center mb-6">
-                <h2 className="font-semibold text-xl uppercase text-gray-800">
+                <h2 className="font-semibold text-xl uppercase text-foreground">
                   Other MVAs
                 </h2>
                 <Button
@@ -810,10 +810,10 @@ const AddMatterCard = ({
               {formData.other_mvas.map((item, idx) => (
                 <div
                   key={idx}
-                  className="border border-gray-200 rounded-lg p-6 mb-4 bg-gray-50"
+                  className="border border-gray-200 rounded-lg p-6 mb-4 bg-muted"
                 >
                   <div className="flex justify-between items-center mb-4">
-                    <h3 className="font-semibold text-gray-900">
+                    <h3 className="font-semibold text-foreground">
                       MVA #{idx + 1}
                     </h3>
                     <Button
@@ -828,7 +828,7 @@ const AddMatterCard = ({
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                     {/* MVA Date */}
                     <div>
-                      <label className="block font-medium mb-2 text-gray-700">
+                      <label className="block font-medium mb-2 text-foreground">
                         MVA Date
                       </label>
                       <Input
@@ -837,13 +837,13 @@ const AddMatterCard = ({
                         onChange={(e) =>
                           handleMVAChange(idx, "mva_date", e.target.value)
                         }
-                        className="bg-white"
+                        className="bg-card"
                       />
                     </div>
 
                     {/* File Number */}
                     <div>
-                      <label className="block font-medium mb-2 text-gray-700">
+                      <label className="block font-medium mb-2 text-foreground">
                         File Number
                       </label>
                       <Input
@@ -853,13 +853,13 @@ const AddMatterCard = ({
                         }
                         maxLength={255}
                         placeholder="Enter file number"
-                        className="bg-white"
+                        className="bg-card"
                       />
                     </div>
 
                     {/* Note */}
                     <div>
-                      <label className="block font-medium mb-2 text-gray-700">
+                      <label className="block font-medium mb-2 text-foreground">
                         Note
                       </label>
                       <Textarea
@@ -870,7 +870,7 @@ const AddMatterCard = ({
                         maxLength={500}
                         placeholder="Enter notes"
                         rows={3}
-                        className="bg-white"
+                        className="bg-card"
                       />
                     </div>
                   </div>
@@ -880,13 +880,13 @@ const AddMatterCard = ({
 
             {/* ===== FILE PROCESSING INFORMATION SECTION ===== */}
             <section>
-              <h2 className="font-semibold text-xl mb-6 border-b pb-2 uppercase text-gray-800">
+              <h2 className="font-semibold text-xl mb-6 border-b pb-2 uppercase text-foreground">
                 File Processing Information
               </h2>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 {/* AB Package Done */}
                 <div>
-                  <label className="block font-medium mb-2 text-gray-700">
+                  <label className="block font-medium mb-2 text-foreground">
                     AB Package Done
                   </label>
                   <SearchableDropdown
@@ -903,7 +903,7 @@ const AddMatterCard = ({
                 <div>
                   <label
                     htmlFor="date"
-                    className="block font-medium mb-2 text-gray-700"
+                    className="block font-medium mb-2 text-foreground"
                   >
                     Date
                   </label>
@@ -913,7 +913,7 @@ const AddMatterCard = ({
                     name="date"
                     value={formData.date}
                     onChange={handleInputChange}
-                    className="bg-gray-50"
+                    className="bg-muted"
                   />
                 </div>
 
@@ -921,7 +921,7 @@ const AddMatterCard = ({
                 <div>
                   <label
                     htmlFor="by"
-                    className="block font-medium mb-2 text-gray-700"
+                    className="block font-medium mb-2 text-foreground"
                   >
                     By
                   </label>
@@ -932,13 +932,13 @@ const AddMatterCard = ({
                     onChange={handleInputChange}
                     maxLength={255}
                     placeholder="Enter name"
-                    className="bg-gray-50"
+                    className="bg-muted"
                   />
                 </div>
 
                 {/* Initial Meeting */}
                 <div>
-                  <label className="block font-medium mb-2 text-gray-700">
+                  <label className="block font-medium mb-2 text-foreground">
                     Initial Meeting
                   </label>
                   <SearchableDropdown
@@ -955,7 +955,7 @@ const AddMatterCard = ({
                 <div>
                   <label
                     htmlFor="date_2nd"
-                    className="block font-medium mb-2 text-gray-700"
+                    className="block font-medium mb-2 text-foreground"
                   >
                     Date
                   </label>
@@ -965,7 +965,7 @@ const AddMatterCard = ({
                     name="date_2nd"
                     value={formData.date_2nd}
                     onChange={handleInputChange}
-                    className="bg-gray-50"
+                    className="bg-muted"
                   />
                 </div>
 
@@ -973,7 +973,7 @@ const AddMatterCard = ({
                 <div>
                   <label
                     htmlFor="by_2nd"
-                    className="block font-medium mb-2 text-gray-700"
+                    className="block font-medium mb-2 text-foreground"
                   >
                     By
                   </label>
@@ -984,13 +984,13 @@ const AddMatterCard = ({
                     onChange={handleInputChange}
                     maxLength={255}
                     placeholder="Enter name"
-                    className="bg-gray-50"
+                    className="bg-muted"
                   />
                 </div>
 
                 {/* Memo Review */}
                 <div>
-                  <label className="block font-medium mb-2 text-gray-700">
+                  <label className="block font-medium mb-2 text-foreground">
                     Memo Review
                   </label>
                   <SearchableDropdown
@@ -1007,7 +1007,7 @@ const AddMatterCard = ({
                 <div>
                   <label
                     htmlFor="date_3rd"
-                    className="block font-medium mb-2 text-gray-700"
+                    className="block font-medium mb-2 text-foreground"
                   >
                     Date
                   </label>
@@ -1017,7 +1017,7 @@ const AddMatterCard = ({
                     name="date_3rd"
                     value={formData.date_3rd}
                     onChange={handleInputChange}
-                    className="bg-gray-50"
+                    className="bg-muted"
                   />
                 </div>
               </div>
@@ -1025,12 +1025,12 @@ const AddMatterCard = ({
 
             {/* ===== LEGAL FILE INFORMATION SECTION ===== */}
             <section>
-              <h2 className="font-semibold text-xl mb-6 border-b pb-2 uppercase text-gray-800">
+              <h2 className="font-semibold text-xl mb-6 border-b pb-2 uppercase text-foreground">
                 Legal File Information
               </h2>
 
               {/* File Opening Info */}
-              <h3 className="font-semibold text-lg mb-4 text-gray-800">
+              <h3 className="font-semibold text-lg mb-4 text-foreground">
                 File Opening Info
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
@@ -1038,7 +1038,7 @@ const AddMatterCard = ({
                 <div>
                   <label
                     htmlFor="file_created"
-                    className="block font-medium mb-2 text-gray-700"
+                    className="block font-medium mb-2 text-foreground"
                   >
                     File Created
                   </label>
@@ -1048,13 +1048,13 @@ const AddMatterCard = ({
                     name="file_created"
                     value={formData.file_created}
                     onChange={handleInputChange}
-                    className="bg-gray-50"
+                    className="bg-muted"
                   />
                 </div>
 
                 {/* File Opened By */}
                 <div>
-                  <label className="block font-medium mb-2 text-gray-700">
+                  <label className="block font-medium mb-2 text-foreground">
                     File Opened By
                   </label>
                   <SearchableDropdown
@@ -1069,7 +1069,7 @@ const AddMatterCard = ({
               </div>
 
               {/* Assigned to Info */}
-              <h3 className="font-semibold text-lg mb-4 text-gray-800">
+              <h3 className="font-semibold text-lg mb-4 text-foreground">
                 Assigned to Info
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
@@ -1077,7 +1077,7 @@ const AddMatterCard = ({
                 <div>
                   <label
                     htmlFor="assigned_date"
-                    className="block font-medium mb-2 text-gray-700"
+                    className="block font-medium mb-2 text-foreground"
                   >
                     Assigned Date
                   </label>
@@ -1087,13 +1087,13 @@ const AddMatterCard = ({
                     name="assigned_date"
                     value={formData.assigned_date}
                     onChange={handleInputChange}
-                    className="bg-gray-50"
+                    className="bg-muted"
                   />
                 </div>
 
                 {/* Assigned To */}
                 <div>
-                  <label className="block font-medium mb-2 text-gray-700">
+                  <label className="block font-medium mb-2 text-foreground">
                     Assigned To
                   </label>
                   <SearchableDropdown
@@ -1108,7 +1108,7 @@ const AddMatterCard = ({
 
                 {/* Assigned to Review */}
                 <div>
-                  <label className="block font-medium mb-2 text-gray-700">
+                  <label className="block font-medium mb-2 text-foreground">
                     Assigned to Review
                   </label>
                   <SearchableDropdown
@@ -1125,7 +1125,7 @@ const AddMatterCard = ({
                 <div>
                   <label
                     htmlFor="assigned_to_paralegal"
-                    className="block font-medium mb-2 text-gray-700"
+                    className="block font-medium mb-2 text-foreground"
                   >
                     Assigned to Paralegal
                   </label>
@@ -1136,13 +1136,13 @@ const AddMatterCard = ({
                     onChange={handleInputChange}
                     maxLength={255}
                     placeholder="Enter paralegal name"
-                    className="bg-gray-50"
+                    className="bg-muted"
                   />
                 </div>
 
                 {/* Assigned to Legal Counsel */}
                 <div>
-                  <label className="block font-medium mb-2 text-gray-700">
+                  <label className="block font-medium mb-2 text-foreground">
                     Assigned to Legal Counsel
                   </label>
                   <SearchableDropdown
@@ -1157,7 +1157,7 @@ const AddMatterCard = ({
 
                 {/* Legal Assistant */}
                 <div>
-                  <label className="block font-medium mb-2 text-gray-700">
+                  <label className="block font-medium mb-2 text-foreground">
                     Legal Assistant
                   </label>
                   <SearchableDropdown
@@ -1172,7 +1172,7 @@ const AddMatterCard = ({
 
                 {/* Previous Legal Representative */}
                 <div>
-                  <label className="block font-medium mb-2 text-gray-700">
+                  <label className="block font-medium mb-2 text-foreground">
                     Previous Legal Representative
                   </label>
                   <SearchableDropdown
@@ -1189,7 +1189,7 @@ const AddMatterCard = ({
                 <div className="md:col-span-3">
                   <label
                     htmlFor="history"
-                    className="block font-medium mb-2 text-gray-700"
+                    className="block font-medium mb-2 text-foreground"
                   >
                     History
                   </label>
@@ -1201,13 +1201,13 @@ const AddMatterCard = ({
                     maxLength={1000}
                     placeholder="Enter history notes"
                     rows={4}
-                    className="bg-gray-50"
+                    className="bg-muted"
                   />
                 </div>
               </div>
 
               {/* File Closing Info */}
-              <h3 className="font-semibold text-lg mb-4 text-gray-800">
+              <h3 className="font-semibold text-lg mb-4 text-foreground">
                 File Closing Info
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
@@ -1215,7 +1215,7 @@ const AddMatterCard = ({
                 <div>
                   <label
                     htmlFor="file_closed"
-                    className="block font-medium mb-2 text-gray-700"
+                    className="block font-medium mb-2 text-foreground"
                   >
                     File Closed
                   </label>
@@ -1225,13 +1225,13 @@ const AddMatterCard = ({
                     name="file_closed"
                     value={formData.file_closed}
                     onChange={handleInputChange}
-                    className="bg-gray-50"
+                    className="bg-muted"
                   />
                 </div>
 
                 {/* File Closed By */}
                 <div>
-                  <label className="block font-medium mb-2 text-gray-700">
+                  <label className="block font-medium mb-2 text-foreground">
                     File Closed By
                   </label>
                   <SearchableDropdown
@@ -1246,7 +1246,7 @@ const AddMatterCard = ({
               </div>
 
               {/* Folder to Storage */}
-              <h3 className="font-semibold text-lg mb-4 text-gray-800">
+              <h3 className="font-semibold text-lg mb-4 text-foreground">
                 Folder to Storage
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
@@ -1254,7 +1254,7 @@ const AddMatterCard = ({
                 <div>
                   <label
                     htmlFor="storage_date"
-                    className="block font-medium mb-2 text-gray-700"
+                    className="block font-medium mb-2 text-foreground"
                   >
                     Storage Date
                   </label>
@@ -1264,13 +1264,13 @@ const AddMatterCard = ({
                     name="storage_date"
                     value={formData.storage_date}
                     onChange={handleInputChange}
-                    className="bg-gray-50"
+                    className="bg-muted"
                   />
                 </div>
 
                 {/* Sent By */}
                 <div>
-                  <label className="block font-medium mb-2 text-gray-700">
+                  <label className="block font-medium mb-2 text-foreground">
                     Sent By
                   </label>
                   <SearchableDropdown
@@ -1285,7 +1285,7 @@ const AddMatterCard = ({
               </div>
 
               {/* File Shredded */}
-              <h3 className="font-semibold text-lg mb-4 text-gray-800">
+              <h3 className="font-semibold text-lg mb-4 text-foreground">
                 File Shredded
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
@@ -1293,7 +1293,7 @@ const AddMatterCard = ({
                 <div>
                   <label
                     htmlFor="shredded_date"
-                    className="block font-medium mb-2 text-gray-700"
+                    className="block font-medium mb-2 text-foreground"
                   >
                     Shredded Date
                   </label>
@@ -1303,13 +1303,13 @@ const AddMatterCard = ({
                     name="shredded_date"
                     value={formData.shredded_date}
                     onChange={handleInputChange}
-                    className="bg-gray-50"
+                    className="bg-muted"
                   />
                 </div>
 
                 {/* Shredded By */}
                 <div>
-                  <label className="block font-medium mb-2 text-gray-700">
+                  <label className="block font-medium mb-2 text-foreground">
                     Shredded By
                   </label>
                   <SearchableDropdown
@@ -1326,7 +1326,7 @@ const AddMatterCard = ({
 
             {/* ===== PREVIOUS COUNSEL SECTION ===== */}
             <section>
-              <h2 className="font-semibold text-xl mb-6 border-b pb-2 uppercase text-gray-800">
+              <h2 className="font-semibold text-xl mb-6 border-b pb-2 uppercase text-foreground">
                 Previous Counsel
               </h2>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -1334,7 +1334,7 @@ const AddMatterCard = ({
                 <div>
                   <label
                     htmlFor="paralegal_name"
-                    className="block font-medium mb-2 text-gray-700"
+                    className="block font-medium mb-2 text-foreground"
                   >
                     Paralegal Name
                   </label>
@@ -1345,7 +1345,7 @@ const AddMatterCard = ({
                     onChange={handleInputChange}
                     maxLength={255}
                     placeholder="Enter paralegal name"
-                    className="bg-gray-50"
+                    className="bg-muted"
                   />
                 </div>
 
@@ -1353,7 +1353,7 @@ const AddMatterCard = ({
                 <div>
                   <label
                     htmlFor="firm_name"
-                    className="block font-medium mb-2 text-gray-700"
+                    className="block font-medium mb-2 text-foreground"
                   >
                     Firm Name
                   </label>
@@ -1364,7 +1364,7 @@ const AddMatterCard = ({
                     onChange={handleInputChange}
                     maxLength={255}
                     placeholder="Enter firm name"
-                    className="bg-gray-50"
+                    className="bg-muted"
                   />
                 </div>
 
@@ -1372,7 +1372,7 @@ const AddMatterCard = ({
                 <div>
                   <label
                     htmlFor="counsel_name"
-                    className="block font-medium mb-2 text-gray-700"
+                    className="block font-medium mb-2 text-foreground"
                   >
                     Counsel Name
                   </label>
@@ -1383,7 +1383,7 @@ const AddMatterCard = ({
                     onChange={handleInputChange}
                     maxLength={255}
                     placeholder="Enter counsel name"
-                    className="bg-gray-50"
+                    className="bg-muted"
                   />
                 </div>
 
@@ -1391,7 +1391,7 @@ const AddMatterCard = ({
                 <div>
                   <label
                     htmlFor="file_number"
-                    className="block font-medium mb-2 text-gray-700"
+                    className="block font-medium mb-2 text-foreground"
                   >
                     File Number
                   </label>
@@ -1402,7 +1402,7 @@ const AddMatterCard = ({
                     onChange={handleInputChange}
                     maxLength={255}
                     placeholder="Enter file number"
-                    className="bg-gray-50"
+                    className="bg-muted"
                   />
                 </div>
 
@@ -1410,7 +1410,7 @@ const AddMatterCard = ({
                 <div>
                   <label
                     htmlFor="work_telephone"
-                    className="block font-medium mb-2 text-gray-700"
+                    className="block font-medium mb-2 text-foreground"
                   >
                     Work Telephone
                   </label>
@@ -1418,10 +1418,10 @@ const AddMatterCard = ({
                     id="work_telephone"
                     name="work_telephone"
                     value={formData.work_telephone}
-                    onChange={handleInputChange}
+                    onChange={(e) => setFormData(p => ({ ...p, work_telephone: formatPhoneNumber(e.target.value) }))}
                     maxLength={255}
-                    placeholder="(xxx) xxx-xxxx"
-                    className="bg-gray-50"
+                    placeholder="(888) 888-8888"
+                    className="bg-muted"
                   />
                 </div>
 
@@ -1429,7 +1429,7 @@ const AddMatterCard = ({
                 <div>
                   <label
                     htmlFor="telephone"
-                    className="block font-medium mb-2 text-gray-700"
+                    className="block font-medium mb-2 text-foreground"
                   >
                     Telephone
                   </label>
@@ -1437,10 +1437,10 @@ const AddMatterCard = ({
                     id="telephone"
                     name="telephone"
                     value={formData.telephone}
-                    onChange={handleInputChange}
+                    onChange={(e) => setFormData(p => ({ ...p, telephone: formatPhoneNumber(e.target.value) }))}
                     maxLength={255}
-                    placeholder="(xxx) xxx-xxxx"
-                    className="bg-gray-50"
+                    placeholder="(888) 888-8888"
+                    className="bg-muted"
                   />
                 </div>
 
@@ -1448,7 +1448,7 @@ const AddMatterCard = ({
                 <div>
                   <label
                     htmlFor="ext"
-                    className="block font-medium mb-2 text-gray-700"
+                    className="block font-medium mb-2 text-foreground"
                   >
                     Ext
                   </label>
@@ -1459,7 +1459,7 @@ const AddMatterCard = ({
                     onChange={handleInputChange}
                     maxLength={255}
                     placeholder="Extension"
-                    className="bg-gray-50"
+                    className="bg-muted"
                   />
                 </div>
 
@@ -1467,7 +1467,7 @@ const AddMatterCard = ({
                 <div>
                   <label
                     htmlFor="fax"
-                    className="block font-medium mb-2 text-gray-700"
+                    className="block font-medium mb-2 text-foreground"
                   >
                     Fax
                   </label>
@@ -1475,10 +1475,10 @@ const AddMatterCard = ({
                     id="fax"
                     name="fax"
                     value={formData.fax}
-                    onChange={handleInputChange}
+                    onChange={(e) => setFormData(p => ({ ...p, fax: formatPhoneNumber(e.target.value) }))}
                     maxLength={255}
-                    placeholder="(xxx) xxx-xxxx"
-                    className="bg-gray-50"
+                    placeholder="(888) 888-8888"
+                    className="bg-muted"
                   />
                 </div>
 
@@ -1486,7 +1486,7 @@ const AddMatterCard = ({
                 <div>
                   <label
                     htmlFor="email"
-                    className="block font-medium mb-2 text-gray-700"
+                    className="block font-medium mb-2 text-foreground"
                   >
                     Email
                   </label>
@@ -1498,7 +1498,7 @@ const AddMatterCard = ({
                     onChange={handleInputChange}
                     maxLength={255}
                     placeholder="email@example.com"
-                    className="bg-gray-50"
+                    className="bg-muted"
                   />
                 </div>
 
@@ -1506,7 +1506,7 @@ const AddMatterCard = ({
                 <div>
                   <label
                     htmlFor="lawyer_name"
-                    className="block font-medium mb-2 text-gray-700"
+                    className="block font-medium mb-2 text-foreground"
                   >
                     Lawyer Name
                   </label>
@@ -1517,7 +1517,7 @@ const AddMatterCard = ({
                     onChange={handleInputChange}
                     maxLength={255}
                     placeholder="Enter lawyer name"
-                    className="bg-gray-50"
+                    className="bg-muted"
                   />
                 </div>
               </div>
@@ -1525,7 +1525,7 @@ const AddMatterCard = ({
 
             {/* ===== ADDRESS SECTION ===== */}
             <section>
-              <h2 className="font-semibold text-xl mb-6 border-b pb-2 uppercase text-gray-800">
+              <h2 className="font-semibold text-xl mb-6 border-b pb-2 uppercase text-foreground">
                 Address
               </h2>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -1533,7 +1533,7 @@ const AddMatterCard = ({
                 <div>
                   <label
                     htmlFor="unit_number"
-                    className="block font-medium mb-2 text-gray-700"
+                    className="block font-medium mb-2 text-foreground"
                   >
                     Unit Number
                   </label>
@@ -1544,7 +1544,7 @@ const AddMatterCard = ({
                     onChange={handleInputChange}
                     maxLength={50}
                     placeholder="Enter unit number"
-                    className="bg-gray-50"
+                    className="bg-muted"
                   />
                 </div>
 
@@ -1552,7 +1552,7 @@ const AddMatterCard = ({
                 <div>
                   <label
                     htmlFor="street_number"
-                    className="block font-medium mb-2 text-gray-700"
+                    className="block font-medium mb-2 text-foreground"
                   >
                     Street Number
                   </label>
@@ -1563,7 +1563,7 @@ const AddMatterCard = ({
                     onChange={handleInputChange}
                     maxLength={100}
                     placeholder="Enter street number"
-                    className="bg-gray-50"
+                    className="bg-muted"
                   />
                 </div>
 
@@ -1571,7 +1571,7 @@ const AddMatterCard = ({
                 <div>
                   <label
                     htmlFor="street_name"
-                    className="block font-medium mb-2 text-gray-700"
+                    className="block font-medium mb-2 text-foreground"
                   >
                     Street Name
                   </label>
@@ -1582,7 +1582,7 @@ const AddMatterCard = ({
                     onChange={handleInputChange}
                     maxLength={100}
                     placeholder="Enter street name"
-                    className="bg-gray-50"
+                    className="bg-muted"
                   />
                 </div>
 
@@ -1590,7 +1590,7 @@ const AddMatterCard = ({
                 <div>
                   <label
                     htmlFor="city"
-                    className="block font-medium mb-2 text-gray-700"
+                    className="block font-medium mb-2 text-foreground"
                   >
                     City
                   </label>
@@ -1601,7 +1601,7 @@ const AddMatterCard = ({
                     onChange={handleInputChange}
                     maxLength={100}
                     placeholder="Enter city"
-                    className="bg-gray-50"
+                    className="bg-muted"
                   />
                 </div>
 
@@ -1609,7 +1609,7 @@ const AddMatterCard = ({
                 <div>
                   <label
                     htmlFor="province"
-                    className="block font-medium mb-2 text-gray-700"
+                    className="block font-medium mb-2 text-foreground"
                   >
                     Province
                   </label>
@@ -1620,7 +1620,7 @@ const AddMatterCard = ({
                     onChange={handleInputChange}
                     maxLength={100}
                     placeholder="Enter province"
-                    className="bg-gray-50"
+                    className="bg-muted"
                   />
                 </div>
 
@@ -1628,7 +1628,7 @@ const AddMatterCard = ({
                 <div>
                   <label
                     htmlFor="postal_code"
-                    className="block font-medium mb-2 text-gray-700"
+                    className="block font-medium mb-2 text-foreground"
                   >
                     Postal Code
                   </label>
@@ -1639,7 +1639,7 @@ const AddMatterCard = ({
                     onChange={handleInputChange}
                     maxLength={50}
                     placeholder="Enter postal code"
-                    className="bg-gray-50"
+                    className="bg-muted"
                   />
                 </div>
               </div>

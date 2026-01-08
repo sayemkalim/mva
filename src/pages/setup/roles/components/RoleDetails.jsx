@@ -334,7 +334,7 @@ const RoleDetails = () => {
         {/* Permissions Section */}
         <div>
           <div className="flex items-center gap-3 mb-4">
-            <Users className="h-6 w-6 text-gray-700" />
+            <Users className="h-6 w-6 text-foreground" />
             <Typography variant="h3" className="text-xl font-semibold">
               Permissions
             </Typography>
@@ -349,7 +349,7 @@ const RoleDetails = () => {
                 <Card key={category}>
                   <CardContent className="p-6">
                     <div className="flex items-center justify-between mb-4 pb-3 border-b">
-                      <Typography variant="h4" className="text-lg font-semibold text-gray-900">
+                      <Typography variant="h4" className="text-lg font-semibold text-foreground">
                         {category}
                       </Typography>
                       <Badge variant="secondary">

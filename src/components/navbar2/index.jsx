@@ -287,7 +287,7 @@ export function Navbar2() {
       </div>
 
       {/* Center: Timer Controls */}
-      <div className="flex items-center gap-2 bg-white rounded px-2 py-1 shadow">
+      <div className="flex items-center gap-2 bg-card rounded px-2 py-1 shadow">
         <Button
           onClick={
             !isActive ? handleStart : isPaused ? handleResume : handlePause
@@ -363,7 +363,7 @@ export function Navbar2() {
                       size="sm"
                       onClick={clearAll}
                       disabled={deleteAllMutation.isPending}
-                      className="text-xs text-gray-500 hover:text-gray-700"
+                      className="text-xs text-gray-500 hover:text-foreground"
                     >
                       {deleteAllMutation.isPending ? "..." : "Clear All"}
                     </Button>
@@ -427,9 +427,9 @@ export function Navbar2() {
                         setSelectedIds([]);
                       }
                     }}
-                    className="h-4 w-4 rounded border-gray-300"
+                    className="h-4 w-4 rounded border-input"
                   />
-                  <span className="text-xs text-gray-600">
+                  <span className="text-xs text-muted-foreground">
                     {selectedIds.length > 0
                       ? `${selectedIds.length} selected`
                       : "Select all unread"}
@@ -476,7 +476,7 @@ export function Navbar2() {
                     key={n.notificationId || n.id}
                     className={`p-3 rounded-lg border transition-colors ${
                       n.is_read
-                        ? "bg-gray-50 border-gray-200"
+                        ? "bg-muted border-gray-200"
                         : "bg-blue-50 border-blue-200"
                     } hover:bg-gray-100`}
                   >
@@ -498,7 +498,7 @@ export function Navbar2() {
                               );
                             }
                           }}
-                          className="h-4 w-4 rounded border-gray-300 mt-1 flex-shrink-0"
+                          className="h-4 w-4 rounded border-input mt-1 flex-shrink-0"
                         />
                       )}
                       {n.profile && (
@@ -510,14 +510,14 @@ export function Navbar2() {
                       )}
                       <div className="flex-1 min-w-0">
                         <div className="flex items-start justify-between gap-2">
-                          <h4 className="font-semibold text-gray-900 text-sm">
+                          <h4 className="font-semibold text-foreground text-sm">
                             {n.name}
                           </h4>
                           <span className="text-xs text-gray-500 flex-shrink-0">
                             {formatTime(n.time || n.receivedAt)}
                           </span>
                         </div>
-                        <p className="text-sm text-gray-700 mt-1">
+                        <p className="text-sm text-foreground mt-1">
                           {n.message}
                         </p>
 
@@ -583,7 +583,7 @@ export function Navbar2() {
                         onClick={() =>
                           clearNotification(n.id || n.notificationId)
                         }
-                        className="text-gray-400 hover:text-gray-600 flex-shrink-0"
+                        className="text-gray-400 hover:text-muted-foreground flex-shrink-0"
                       >
                         <X className="h-4 w-4" />
                       </button>

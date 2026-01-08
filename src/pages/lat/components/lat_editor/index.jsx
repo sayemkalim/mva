@@ -43,7 +43,7 @@ const SearchableDropdown = ({
 
   return (
     <div className="space-y-2">
-      <Label className="text-gray-700 font-medium">{label}</Label>
+      <Label className="text-foreground font-medium">{label}</Label>
       <Popover
         open={popoverOpen[popoverKey]}
         onOpenChange={(open) =>
@@ -54,9 +54,8 @@ const SearchableDropdown = ({
           <Button
             variant="outline"
             role="combobox"
-            className={`w-full justify-between font-normal bg-gray-50 h-11 ${
-              disabled ? "cursor-not-allowed opacity-60" : ""
-            }`}
+            className={`w-full justify-between font-normal bg-muted h-11 ${disabled ? "cursor-not-allowed opacity-60" : ""
+              }`}
             type="button"
             disabled={disabled}
           >
@@ -82,11 +81,10 @@ const SearchableDropdown = ({
                       className="cursor-pointer flex items-center"
                     >
                       <Check
-                        className={`mr-2 h-4 w-4 ${
-                          String(value) === String(opt.id)
+                        className={`mr-2 h-4 w-4 ${String(value) === String(opt.id)
                             ? "opacity-100"
                             : "opacity-0"
-                        }`}
+                          }`}
                       />
                       {opt.name}
                     </CommandItem>
@@ -461,7 +459,7 @@ export default function LatEditor() {
       console.error("Mutation Error:", err);
       toast.error(
         err.message ||
-          (id ? "Failed to update LAT data" : "Failed to save LAT data")
+        (id ? "Failed to update LAT data" : "Failed to save LAT data")
       );
     },
   });
@@ -546,29 +544,29 @@ export default function LatEditor() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-muted">
       <Navbar2 />
-      <div className="bg-white border-b px-6 py-4">
-        <div className="flex items-center gap-2 text-sm text-gray-600">
+      <div className="bg-card border-b px-6 py-4">
+        <div className="flex items-center gap-2 text-sm text-muted-foreground">
           <button
             onClick={() => navigate("/dashboard")}
-            className="hover:text-gray-900 transition"
+            className="hover:text-foreground transition"
           >
             Dashboard
           </button>
           <ChevronRight className="w-4 h-4" />
           <button
-            onClick={() => navigate(`/dashboard/workstation/edit/${slug}/lat`)}
-            className="hover:text-gray-900 transition"
+            onClick={() => navigate(-1)}
+            className="hover:text-foreground transition"
           >
             Lat List
           </button>
           <ChevronRight className="w-4 h-4" />
-          <span className="text-gray-900 font-medium">LAT </span>
+          <span className="text-foreground font-medium">LAT </span>
         </div>
       </div>
       <form
-        className="container mx-auto px-6 py-8 max-w-7xl bg-white rounded-lg shadow-sm border p-8"
+        className="container mx-auto px-6 py-8 max-w-7xl bg-card rounded-lg shadow-sm border p-8"
         onSubmit={handleSubmit}
       >
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6">

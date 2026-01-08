@@ -48,7 +48,7 @@ function SearchableDropdown({
 
   return (
     <div className="space-y-2">
-      {label && <label className="text-gray-700 font-medium">{label}</label>}
+      {label && <label className="text-foreground font-medium">{label}</label>}
 
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
@@ -408,40 +408,40 @@ export default function OwnerInfoForm() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-muted">
       <Navbar2 />
 
-      <div className="bg-white border-b px-6 py-4">
-        <div className="flex items-center gap-2 text-sm text-gray-600">
+      <div className="bg-card border-b px-6 py-4">
+        <div className="flex items-center gap-2 text-sm text-muted-foreground">
           <button
             onClick={() => navigate("/dashboard")}
-            className="hover:text-gray-900 transition"
+            className="hover:text-foreground transition"
           >
             Dashboard
           </button>
           <ChevronRight className="w-4 h-4" />
           <button
             onClick={() => navigate("/dashboard/workstation")}
-            className="hover:text-gray-900 transition"
+            className="hover:text-foreground transition"
           >
             Workstation
           </button>
           <ChevronRight className="w-4 h-4" />
-          <span className="text-gray-900 font-medium">Owner Information</span>
+          <span className="text-foreground font-medium">Owner Information</span>
         </div>
       </div>
 
       <div className="container mx-auto px-6 py-8 max-w-7xl">
-        <div className="bg-white rounded-lg shadow-sm border p-8">
+        <div className="bg-card rounded-lg shadow-sm border p-8">
           <form onSubmit={handleSubmit} className="space-y-8">
-            <h2 className="text-3xl font-extrabold text-gray-900 mb-4">
+            <h2 className="text-3xl font-extrabold text-foreground mb-4">
               Owner Information
             </h2>
 
             {/* OWNER INFORMATION */}
             <div className="space-y-6">
               <div className="flex items-center justify-between">
-                <h3 className="text-2xl font-bold text-gray-800">Owners</h3>
+                <h3 className="text-2xl font-bold text-foreground">Owners</h3>
                 <Button
                   type="button"
                   onClick={addOwner}
@@ -457,7 +457,7 @@ export default function OwnerInfoForm() {
                 {form.OwnerInformation.map((owner, index) => (
                   <div
                     key={owner.id ?? index}
-                    className="border rounded-2xl p-6 bg-gray-50 space-y-4 relative"
+                    className="border rounded-2xl p-6 bg-muted space-y-4 relative"
                   >
                     <div className="flex items-center justify-between mb-4">
                       <h4 className="text-lg font-semibold">
@@ -494,7 +494,7 @@ export default function OwnerInfoForm() {
                           onChange={(e) =>
                             updateOwner(index, "name", e.target.value)
                           }
-                          className="h-9 bg-white border-gray-300"
+                          className="h-9 bg-card border-input"
                         />
                       </div>
 
@@ -510,7 +510,7 @@ export default function OwnerInfoForm() {
                               e.target.value
                             )
                           }
-                          className="h-9 bg-white border-gray-300"
+                          className="h-9 bg-card border-input"
                         />
                       </div>
 
@@ -525,7 +525,7 @@ export default function OwnerInfoForm() {
                               e.target.value
                             )
                           }
-                          className="h-9 bg-white border-gray-300"
+                          className="h-9 bg-card border-input"
                         />
                       </div>
                       <div className="space-y-2">
@@ -539,7 +539,7 @@ export default function OwnerInfoForm() {
                               e.target.value
                             )
                           }
-                          className="h-9 bg-white border-gray-300"
+                          className="h-9 bg-card border-input"
                         />
                       </div>
                       <div className="space-y-2">
@@ -553,7 +553,7 @@ export default function OwnerInfoForm() {
                               e.target.value
                             )
                           }
-                          className="h-9 bg-white border-gray-300"
+                          className="h-9 bg-card border-input"
                         />
                       </div>
                       <div className="space-y-2">
@@ -563,7 +563,7 @@ export default function OwnerInfoForm() {
                           onChange={(e) =>
                             updateOwnerAddress(index, "city", e.target.value)
                           }
-                          className="h-9 bg-white border-gray-300"
+                          className="h-9 bg-card border-input"
                         />
                       </div>
                       <div className="space-y-2">
@@ -577,7 +577,7 @@ export default function OwnerInfoForm() {
                               e.target.value
                             )
                           }
-                          className="h-9 bg-white border-gray-300"
+                          className="h-9 bg-card border-input"
                         />
                       </div>
                       <div className="space-y-2">
@@ -591,7 +591,7 @@ export default function OwnerInfoForm() {
                               e.target.value
                             )
                           }
-                          className="h-9 bg-white border-gray-300"
+                          className="h-9 bg-card border-input"
                         />
                       </div>
                       <div className="space-y-2">
@@ -601,7 +601,7 @@ export default function OwnerInfoForm() {
                           onChange={(e) =>
                             updateOwnerAddress(index, "country", e.target.value)
                           }
-                          className="h-9 bg-white border-gray-300"
+                          className="h-9 bg-card border-input"
                         />
                       </div>
 
@@ -616,7 +616,7 @@ export default function OwnerInfoForm() {
                               e.target.value
                             )
                           }
-                          className="h-9 bg-white border-gray-300"
+                          className="h-9 bg-card border-input"
                         />
                       </div>
                       <div className="space-y-2">
@@ -630,7 +630,7 @@ export default function OwnerInfoForm() {
                               e.target.value
                             )
                           }
-                          className="h-9 bg-white border-gray-300"
+                          className="h-9 bg-card border-input"
                         />
                       </div>
                       <div className="space-y-2">
@@ -645,7 +645,7 @@ export default function OwnerInfoForm() {
                               e.target.value
                             )
                           }
-                          className="h-9 bg-white border-gray-300"
+                          className="h-9 bg-card border-input"
                         />
                       </div>
 
@@ -673,7 +673,7 @@ export default function OwnerInfoForm() {
                               e.target.value
                             )
                           }
-                          className="h-9 bg-white border-gray-300"
+                          className="h-9 bg-card border-input"
                         />
                       </div>
                     </div>
@@ -685,7 +685,7 @@ export default function OwnerInfoForm() {
             {/* DIRECTOR INFORMATION */}
             <div className="space-y-6">
               <div className="flex items-center justify-between">
-                <h3 className="text-2xl font-bold text-gray-800">Directors</h3>
+                <h3 className="text-2xl font-bold text-foreground">Directors</h3>
                 <Button
                   type="button"
                   onClick={addDirector}
@@ -701,7 +701,7 @@ export default function OwnerInfoForm() {
                 {form.DirectorInformation.map((director, index) => (
                   <div
                     key={director.id ?? index}
-                    className="border rounded-2xl p-6 bg-gray-50 space-y-4 relative"
+                    className="border rounded-2xl p-6 bg-muted space-y-4 relative"
                   >
                     <div className="flex items-center justify-between mb-4">
                       <h4 className="text-lg font-semibold">
@@ -726,7 +726,7 @@ export default function OwnerInfoForm() {
                           onChange={(e) =>
                             updateDirector(index, "first_name", e.target.value)
                           }
-                          className="h-9 bg-white border-gray-300"
+                          className="h-9 bg-card border-input"
                         />
                       </div>
                       <div className="space-y-2">
@@ -736,7 +736,7 @@ export default function OwnerInfoForm() {
                           onChange={(e) =>
                             updateDirector(index, "last_name", e.target.value)
                           }
-                          className="h-9 bg-white border-gray-300"
+                          className="h-9 bg-card border-input"
                         />
                       </div>
 
@@ -751,7 +751,7 @@ export default function OwnerInfoForm() {
                               e.target.value
                             )
                           }
-                          className="h-9 bg-white border-gray-300"
+                          className="h-9 bg-card border-input"
                         />
                       </div>
                       <div className="space-y-2">
@@ -765,7 +765,7 @@ export default function OwnerInfoForm() {
                               e.target.value
                             )
                           }
-                          className="h-9 bg-white border-gray-300"
+                          className="h-9 bg-card border-input"
                         />
                       </div>
                       <div className="space-y-2">
@@ -779,7 +779,7 @@ export default function OwnerInfoForm() {
                               e.target.value
                             )
                           }
-                          className="h-9 bg-white border-gray-300"
+                          className="h-9 bg-card border-input"
                         />
                       </div>
                       <div className="space-y-2">
@@ -789,7 +789,7 @@ export default function OwnerInfoForm() {
                           onChange={(e) =>
                             updateDirectorAddress(index, "city", e.target.value)
                           }
-                          className="h-9 bg-white border-gray-300"
+                          className="h-9 bg-card border-input"
                         />
                       </div>
                       <div className="space-y-2">
@@ -803,7 +803,7 @@ export default function OwnerInfoForm() {
                               e.target.value
                             )
                           }
-                          className="h-9 bg-white border-gray-300"
+                          className="h-9 bg-card border-input"
                         />
                       </div>
                       <div className="space-y-2">
@@ -817,7 +817,7 @@ export default function OwnerInfoForm() {
                               e.target.value
                             )
                           }
-                          className="h-9 bg-white border-gray-300"
+                          className="h-9 bg-card border-input"
                         />
                       </div>
                       <div className="space-y-2">
@@ -831,7 +831,7 @@ export default function OwnerInfoForm() {
                               e.target.value
                             )
                           }
-                          className="h-9 bg-white border-gray-300"
+                          className="h-9 bg-card border-input"
                         />
                       </div>
                     </div>

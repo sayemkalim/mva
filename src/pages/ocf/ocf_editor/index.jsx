@@ -27,7 +27,7 @@ const SearchableSelect = ({ label, options, value, onChange, placeholder }) => {
   const selected = options.find((opt) => String(opt.id) === String(value));
   return (
     <div className="space-y-2">
-      <Label className="text-gray-700 font-medium">{label}</Label>
+      <Label className="text-foreground font-medium">{label}</Label>
       <Popover>
         <PopoverTrigger asChild>
           <Button
@@ -148,10 +148,10 @@ export default function OcfPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-muted">
       <Navbar2 />
-      <header className="bg-white border-b px-6 py-3">
-        <div className="flex items-center justify-end gap-6 text-sm text-gray-700">
+      <header className="bg-card border-b px-6 py-3">
+        <div className="flex items-center justify-end gap-6 text-sm text-foreground">
           <div>
             Unpaid: <span className="font-semibold">$ 0</span>
           </div>
@@ -168,11 +168,11 @@ export default function OcfPage() {
       </header>
 
       {/* Breadcrumb */}
-      <nav className="bg-white border-b px-6 py-4 text-sm text-gray-600">
+      <nav className="bg-card border-b px-6 py-4 text-sm text-muted-foreground">
         <div className="flex items-center gap-2">
           <button
             onClick={() => navigate("/dashboard")}
-            className="hover:text-gray-900 transition"
+            className="hover:text-foreground transition"
             type="button"
           >
             Dashboard
@@ -180,22 +180,22 @@ export default function OcfPage() {
           <ChevronRight className="w-4 h-4" />
           <button
             onClick={() => navigate("/dashboard/workstation")}
-            className="hover:text-gray-900 transition"
+            className="hover:text-foreground transition"
             type="button"
           >
             Workstation
           </button>
           <ChevronRight className="w-4 h-4" />
-          <span className="text-gray-900 font-medium">OCF Tracking</span>
+          <span className="text-foreground font-medium">OCF Tracking</span>
         </div>
       </nav>
 
       <main className="container mx-auto px-6 py-8 max-w-7xl">
-        <h1 className="text-2xl font-bold mb-6 text-gray-900">
+        <h1 className="text-2xl font-bold mb-6 text-foreground">
           OCF Tracking Form
         </h1>
         <form
-          className="bg-white rounded-lg shadow-sm border p-8 space-y-8"
+          className="bg-card rounded-lg shadow-sm border p-8 space-y-8"
           onSubmit={handleSubmit}
         >
           {/* Grid with 3 columns: 1 on mobile, 2 on tablet, 3 on desktop */}

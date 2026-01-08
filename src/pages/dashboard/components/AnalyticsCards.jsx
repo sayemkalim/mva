@@ -125,23 +125,23 @@ const AnalyticsCards = () => {
 export default AnalyticsCards;
 function CaseItem({ label, value, icon: Icon, color }) {
   return (
-    <div className="flex items-center justify-between p-2 bg-gray-50 rounded-lg hover:bg-gray-100 transition">
+    <div className="flex items-center justify-between p-2 bg-muted rounded-lg hover:bg-gray-100 transition">
       <div className="flex items-center gap-2">
         <Icon className={`w-4 h-4 ${color}`} />
-        <span className="text-xs font-medium text-gray-700">{label}</span>
+        <span className="text-xs font-medium text-foreground">{label}</span>
       </div>
-      <span className="text-base font-bold text-gray-900">{value}</span>
+      <span className="text-base font-bold text-foreground">{value}</span>
     </div>
   );
 }
 function TaskItem({ label, value, icon: Icon, color }) {
   return (
-    <div className="flex items-center justify-between p-2 bg-gray-50 rounded-lg hover:bg-gray-100 transition">
+    <div className="flex items-center justify-between p-2 bg-muted rounded-lg hover:bg-gray-100 transition">
       <div className="flex items-center gap-2">
         <Icon className={`w-4 h-4 ${color}`} />
-        <span className="text-xs font-medium text-gray-700">{label}</span>
+        <span className="text-xs font-medium text-foreground">{label}</span>
       </div>
-      <span className="text-base font-bold text-gray-900">{value}</span>
+      <span className="text-base font-bold text-foreground">{value}</span>
     </div>
   );
 }

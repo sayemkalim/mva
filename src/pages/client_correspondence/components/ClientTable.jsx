@@ -137,7 +137,7 @@ const ClientTable = ({ slug, setBlogsLength }) => {
           Billable:
             "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300",
           "Non-Billable":
-            "bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-300",
+            "bg-gray-100 text-foreground dark:bg-gray-800 dark:text-gray-300",
           Pending:
             "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300",
         };
@@ -145,7 +145,7 @@ const ClientTable = ({ slug, setBlogsLength }) => {
         return (
           <span
             className={`px-2 py-1 rounded-full text-xs font-medium ${
-              statusColors[value] || "bg-gray-100 text-gray-800"
+              statusColors[value] || "bg-gray-100 text-foreground"
             }`}
           >
             {value || "-"}

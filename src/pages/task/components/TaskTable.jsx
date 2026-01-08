@@ -282,7 +282,7 @@ const TaskTable = ({ setTasksLength }) => {
               handleStatusChange(row.id, Number(e.target.value));
             }}
             onClick={(e) => e.stopPropagation()}
-            className="px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white min-w-[150px]"
+            className="px-3 py-2 border border-input rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-card min-w-[150px]"
           >
             <option value="">Select Status</option>
             {taskStatuses.map((status) => (
@@ -372,7 +372,7 @@ const TaskTable = ({ setTasksLength }) => {
             e.stopPropagation();
             navigate(`/dashboard/tasks/comments/${row.id}`);
           }}
-          className="relative p-1 text-gray-500 hover:text-gray-700 transition-colors"
+          className="relative p-1 text-gray-500 hover:text-foreground transition-colors"
         >
           <MessageSquare className="w-4 h-4" />
           {row.unread_comments_count > 0 && (
@@ -462,7 +462,7 @@ const TaskTable = ({ setTasksLength }) => {
                     setFilters((prev) => ({ ...prev, applicant_name: value }))
                   }
                 >
-                  <SelectTrigger className="h-12 bg-gray-50 w-full">
+                  <SelectTrigger className="h-12 bg-muted w-full">
                     <SelectValue placeholder="All clients" />
                   </SelectTrigger>
                   <SelectContent>
@@ -492,7 +492,7 @@ const TaskTable = ({ setTasksLength }) => {
                     setFilters((prev) => ({ ...prev, priority_id: value }))
                   }
                 >
-                  <SelectTrigger className="h-12 bg-gray-50 w-full">
+                  <SelectTrigger className="h-12 bg-muted w-full">
                     <SelectValue placeholder="All priorities" />
                   </SelectTrigger>
                   <SelectContent>
@@ -525,7 +525,7 @@ const TaskTable = ({ setTasksLength }) => {
                     setFilters((prev) => ({ ...prev, status_id: value }))
                   }
                 >
-                  <SelectTrigger className="h-12 bg-gray-50 w-full">
+                  <SelectTrigger className="h-12 bg-muted w-full">
                     <SelectValue placeholder="All statuses" />
                   </SelectTrigger>
                   <SelectContent>
@@ -558,7 +558,7 @@ const TaskTable = ({ setTasksLength }) => {
                     setFilters((prev) => ({ ...prev, assigned_to: value }))
                   }
                 >
-                  <SelectTrigger className="h-12 bg-gray-50 w-full">
+                  <SelectTrigger className="h-12 bg-muted w-full">
                     <SelectValue placeholder="All assignees" />
                   </SelectTrigger>
                   <SelectContent>
@@ -590,7 +590,7 @@ const TaskTable = ({ setTasksLength }) => {
                     <Button
                       variant="outline"
                       className={cn(
-                        "h-9 w-full justify-start text-left font-normal bg-gray-50",
+                        "h-9 w-full justify-start text-left font-normal bg-muted",
                         !filters.from_date && "text-muted-foreground"
                       )}
                     >
@@ -629,7 +629,7 @@ const TaskTable = ({ setTasksLength }) => {
                     <Button
                       variant="outline"
                       className={cn(
-                        "h- w-full justify-start text-left font-normal bg-gray-50",
+                        "h- w-full justify-start text-left font-normal bg-muted",
                         !filters.to_date && "text-muted-foreground"
                       )}
                     >

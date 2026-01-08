@@ -6,11 +6,11 @@ const Login = () => {
   return (
     <div className="relative min-h-screen bg-gradient-to-br from-purple-50 via-white to-blue-50">
       <div className="absolute top-6 right-6 md:top-10 md:right-10">
-        <p className="text-sm text-gray-700">
+        <p className="text-sm text-foreground">
           Don't have account?{" "}
           <a
             href="/signup"
-            className="font-medium text-gray-900 hover:underline inline-flex items-center gap-1"
+            className="font-medium text-foreground hover:underline inline-flex items-center gap-1"
           >
             Sign Up
           </a>

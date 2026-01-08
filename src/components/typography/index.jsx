@@ -8,10 +8,10 @@ const typographyVariants = {
   h5: "text-lg font-medium leading-loose",
   h6: "text-base font-medium leading-loose",
   p: "text-base leading-relaxed",
-  blockquote: "border-l-4 pl-4 italic text-lg text-gray-600 leading-snug",
+  blockquote: "border-l-4 pl-4 italic text-lg text-muted-foreground leading-snug",
   default: "text-sm leading-tight",
   small: "text-xs leading-tight",
-  lead: "text-lg text-gray-700 leading-loose",
+  lead: "text-lg text-foreground leading-loose",
   muted: "text-sm text-gray-400 leading-tight",
 };
 

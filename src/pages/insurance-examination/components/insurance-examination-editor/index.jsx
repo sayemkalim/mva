@@ -287,17 +287,17 @@ export default function InsuranceExaminationPage() {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen">
         <p className="text-red-500 text-lg">Failed to load metadata</p>
-        <p className="text-sm text-gray-600 mt-2">{metaError?.message}</p>
+        <p className="text-sm text-muted-foreground mt-2">{metaError?.message}</p>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-muted">
       <Navbar2 />
 
-      <header className="bg-white border-b px-6 py-3">
-        <div className="flex items-center justify-end gap-6 text-sm text-gray-700">
+      <header className="bg-card border-b px-6 py-3">
+        <div className="flex items-center justify-end gap-6 text-sm text-foreground">
           <div>
             Unpaid: <span className="font-semibold">$ 0</span>
           </div>
@@ -313,11 +313,11 @@ export default function InsuranceExaminationPage() {
         </div>
       </header>
 
-      <nav className="bg-white border-b px-6 py-4 text-sm text-gray-600">
+      <nav className="bg-card border-b px-6 py-4 text-sm text-muted-foreground">
         <div className="flex items-center gap-2">
           <button
             onClick={() => navigate("/dashboard")}
-            className="hover:text-gray-900 transition"
+            className="hover:text-foreground transition"
             type="button"
           >
             Dashboard
@@ -325,36 +325,36 @@ export default function InsuranceExaminationPage() {
           <ChevronRight className="w-4 h-4" />
           <button
             onClick={() => navigate("/dashboard/workstation")}
-            className="hover:text-gray-900 transition"
+            className="hover:text-foreground transition"
             type="button"
           >
             Workstation
           </button>
           <ChevronRight className="w-4 h-4" />
-          <span className="text-gray-900 font-medium">
+          <span className="text-foreground font-medium">
             {id ? "Edit Insurance Examination" : "Add Insurance Examination"}
           </span>
         </div>
       </nav>
 
       <main className="container mx-auto px-4 sm:px-6 py-6 sm:py-8 max-w-7xl">
-        <h1 className="text-2xl sm:text-3xl font-bold mb-6 text-gray-900">
+        <h1 className="text-2xl sm:text-3xl font-bold mb-6 text-foreground">
           {id ? "Edit Insurance Examination" : "Add Insurance Examination"}
         </h1>
 
         <form
-          className="bg-white rounded-lg shadow-sm border p-6 sm:p-8 space-y-6"
+          className="bg-card rounded-lg shadow-sm border p-6 sm:p-8 space-y-6"
           onSubmit={handleSubmit}
         >
           {/* Assessment Information */}
           <div>
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">
+            <h2 className="text-lg font-semibold text-foreground mb-4">
               Assessment Information
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {/* Assessment Status */}
               <div className="space-y-2">
-                <Label className="text-gray-700 font-medium">
+                <Label className="text-foreground font-medium">
                   Assessment Status <span className="text-red-500">*</span>
                 </Label>
                 <Popover
@@ -418,7 +418,7 @@ export default function InsuranceExaminationPage() {
 
               {/* IE Received Date */}
               <div className="space-y-2">
-                <Label className="text-gray-700 font-medium">
+                <Label className="text-foreground font-medium">
                   IE Received in Our Office
                 </Label>
                 <Input
@@ -433,7 +433,7 @@ export default function InsuranceExaminationPage() {
 
               {/* Type of Assessment */}
               <div className="space-y-2">
-                <Label className="text-gray-700 font-medium">
+                <Label className="text-foreground font-medium">
                   Type of Assessment <span className="text-red-500">*</span>
                 </Label>
                 <Popover
@@ -497,7 +497,7 @@ export default function InsuranceExaminationPage() {
 
               {/* Date of Assessment */}
               <div className="space-y-2">
-                <Label className="text-gray-700 font-medium">
+                <Label className="text-foreground font-medium">
                   Date of Assessment <span className="text-red-500">*</span>
                 </Label>
                 <Input
@@ -513,7 +513,7 @@ export default function InsuranceExaminationPage() {
 
               {/* Time */}
               <div className="space-y-2">
-                <Label className="text-gray-700 font-medium">Time</Label>
+                <Label className="text-foreground font-medium">Time</Label>
                 <div className="relative">
                   <Clock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-500" />
                   <Input
@@ -529,7 +529,7 @@ export default function InsuranceExaminationPage() {
 
               {/* Location */}
               <div className="space-y-2">
-                <Label className="text-gray-700 font-medium">Location</Label>
+                <Label className="text-foreground font-medium">Location</Label>
                 <Input
                   name="location"
                   value={formData.location}
@@ -542,7 +542,7 @@ export default function InsuranceExaminationPage() {
 
               {/* Assessor Name */}
               <div className="space-y-2">
-                <Label className="text-gray-700 font-medium">
+                <Label className="text-foreground font-medium">
                   Assessor Name
                 </Label>
                 <Input
@@ -559,13 +559,13 @@ export default function InsuranceExaminationPage() {
 
           {/* Client Communication - 1st */}
           <div className="pt-6 border-t">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">
+            <h2 className="text-lg font-semibold text-foreground mb-4">
               Client Communication (1st)
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {/* Informed to Client */}
               <div className="space-y-2">
-                <Label className="text-gray-700 font-medium">
+                <Label className="text-foreground font-medium">
                   Informed to Client
                 </Label>
                 <Popover
@@ -626,7 +626,7 @@ export default function InsuranceExaminationPage() {
 
               {/* Mode of Communication */}
               <div className="space-y-2">
-                <Label className="text-gray-700 font-medium">
+                <Label className="text-foreground font-medium">
                   Mode of Communication
                 </Label>
                 <Popover
@@ -690,7 +690,7 @@ export default function InsuranceExaminationPage() {
 
               {/* Communication Date */}
               <div className="space-y-2">
-                <Label className="text-gray-700 font-medium">
+                <Label className="text-foreground font-medium">
                   Communication Date
                 </Label>
                 <Input
@@ -705,7 +705,7 @@ export default function InsuranceExaminationPage() {
 
               {/* Required Transportation */}
               <div className="space-y-2">
-                <Label className="text-gray-700 font-medium">
+                <Label className="text-foreground font-medium">
                   Required Transportation
                 </Label>
                 <Popover
@@ -766,7 +766,7 @@ export default function InsuranceExaminationPage() {
 
               {/* Required Interpreter */}
               <div className="space-y-2">
-                <Label className="text-gray-700 font-medium">
+                <Label className="text-foreground font-medium">
                   Required Interpreter
                 </Label>
                 <Popover
@@ -829,13 +829,13 @@ export default function InsuranceExaminationPage() {
 
           {/* Client Communication - 2nd */}
           <div className="pt-6 border-t">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">
+            <h2 className="text-lg font-semibold text-foreground mb-4">
               Client Communication (2nd)
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {/* Communication Date 2nd */}
               <div className="space-y-2">
-                <Label className="text-gray-700 font-medium">
+                <Label className="text-foreground font-medium">
                   Communication Date
                 </Label>
                 <Input
@@ -850,7 +850,7 @@ export default function InsuranceExaminationPage() {
 
               {/* Mode of Communication 2nd */}
               <div className="space-y-2">
-                <Label className="text-gray-700 font-medium">
+                <Label className="text-foreground font-medium">
                   Mode of Communication
                 </Label>
                 <Popover
@@ -914,7 +914,7 @@ export default function InsuranceExaminationPage() {
 
               {/* Reminder to Client */}
               <div className="space-y-2">
-                <Label className="text-gray-700 font-medium">
+                <Label className="text-foreground font-medium">
                   Reminder to Client
                 </Label>
                 <Popover
@@ -978,7 +978,7 @@ export default function InsuranceExaminationPage() {
 
               {/* Informed Transportation */}
               <div className="space-y-2">
-                <Label className="text-gray-700 font-medium">
+                <Label className="text-foreground font-medium">
                   Informed Transportation
                 </Label>
                 <Popover
@@ -1039,7 +1039,7 @@ export default function InsuranceExaminationPage() {
 
               {/* Informed Interpreter */}
               <div className="space-y-2">
-                <Label className="text-gray-700 font-medium">
+                <Label className="text-foreground font-medium">
                   Informed Interpreter
                 </Label>
                 <Popover
@@ -1102,13 +1102,13 @@ export default function InsuranceExaminationPage() {
 
           {/* Adjuster Communication - 3rd */}
           <div className="pt-6 border-t">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">
+            <h2 className="text-lg font-semibold text-foreground mb-4">
               Adjuster Communication (3rd)
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {/* Response from Adjuster */}
               <div className="space-y-2 md:col-span-2 lg:col-span-3">
-                <Label className="text-gray-700 font-medium">
+                <Label className="text-foreground font-medium">
                   Response from Adjuster
                 </Label>
                 <Textarea
@@ -1124,7 +1124,7 @@ export default function InsuranceExaminationPage() {
 
               {/* Communication Date 3rd */}
               <div className="space-y-2">
-                <Label className="text-gray-700 font-medium">
+                <Label className="text-foreground font-medium">
                   Communication Date
                 </Label>
                 <Input
@@ -1139,7 +1139,7 @@ export default function InsuranceExaminationPage() {
 
               {/* Mode of Communication 3rd */}
               <div className="space-y-2">
-                <Label className="text-gray-700 font-medium">
+                <Label className="text-foreground font-medium">
                   Mode of Communication
                 </Label>
                 <Popover
@@ -1205,13 +1205,13 @@ export default function InsuranceExaminationPage() {
 
           {/* IE Results & Status */}
           <div className="pt-6 border-t">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">
+            <h2 className="text-lg font-semibold text-foreground mb-4">
               IE Results & Status
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {/* IE Result */}
               <div className="space-y-2 md:col-span-2 lg:col-span-3">
-                <Label className="text-gray-700 font-medium">IE Result</Label>
+                <Label className="text-foreground font-medium">IE Result</Label>
                 <Textarea
                   name="ie_result"
                   value={formData.ie_result}
@@ -1225,7 +1225,7 @@ export default function InsuranceExaminationPage() {
 
               {/* IE Status */}
               <div className="space-y-2">
-                <Label className="text-gray-700 font-medium">IE Status</Label>
+                <Label className="text-foreground font-medium">IE Status</Label>
                 <Popover open={openIEStatus} onOpenChange={setOpenIEStatus}>
                   <PopoverTrigger asChild>
                     <Button
@@ -1281,7 +1281,7 @@ export default function InsuranceExaminationPage() {
 
               {/* Partially Approved */}
               <div className="space-y-2">
-                <Label className="text-gray-700 font-medium">
+                <Label className="text-foreground font-medium">
                   Partially Approved
                 </Label>
                 <Input
@@ -1296,7 +1296,7 @@ export default function InsuranceExaminationPage() {
 
               {/* Referred To */}
               <div className="space-y-2">
-                <Label className="text-gray-700 font-medium">Referred To</Label>
+                <Label className="text-foreground font-medium">Referred To</Label>
                 <Input
                   name="referred_to"
                   value={formData.referred_to}
@@ -1311,13 +1311,13 @@ export default function InsuranceExaminationPage() {
 
           {/* Final Communication - 4th */}
           <div className="pt-6 border-t">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">
+            <h2 className="text-lg font-semibold text-foreground mb-4">
               Final Communication (4th)
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {/* Mode of Communication 4th */}
               <div className="space-y-2">
-                <Label className="text-gray-700 font-medium">
+                <Label className="text-foreground font-medium">
                   Mode of Communication
                 </Label>
                 <Popover
@@ -1381,7 +1381,7 @@ export default function InsuranceExaminationPage() {
 
               {/* Communication Date 4th */}
               <div className="space-y-2">
-                <Label className="text-gray-700 font-medium">
+                <Label className="text-foreground font-medium">
                   Communication Date
                 </Label>
                 <Input
@@ -1396,7 +1396,7 @@ export default function InsuranceExaminationPage() {
 
               {/* Note */}
               <div className="space-y-2 md:col-span-2 lg:col-span-3">
-                <Label className="text-gray-700 font-medium">Note</Label>
+                <Label className="text-foreground font-medium">Note</Label>
                 <Textarea
                   name="note"
                   value={formData.note}

@@ -37,7 +37,7 @@ const SearchableSelect = ({ label, options, value, onChange, placeholder }) => {
 
   return (
     <div className="space-y-2">
-      <Label className="text-gray-700 font-medium">{label}</Label>
+      <Label className="text-foreground font-medium">{label}</Label>
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
           <Button
@@ -185,12 +185,12 @@ export default function ScheduledPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-muted">
       <Navbar2 />
 
       {/* Financial Summary Header */}
-      <header className="bg-white border-b px-6 py-3">
-        <div className="flex items-center justify-end gap-6 text-sm text-gray-700">
+      <header className="bg-card border-b px-6 py-3">
+        <div className="flex items-center justify-end gap-6 text-sm text-foreground">
           <div>
             Unpaid: <span className="font-semibold">$ 0</span>
           </div>
@@ -207,11 +207,11 @@ export default function ScheduledPage() {
       </header>
 
       {/* Breadcrumb Navigation */}
-      <nav className="bg-white border-b px-6 py-4 text-sm text-gray-600">
+      <nav className="bg-card border-b px-6 py-4 text-sm text-muted-foreground">
         <div className="flex items-center gap-2">
           <button
             onClick={() => navigate("/dashboard")}
-            className="hover:text-gray-900 transition"
+            className="hover:text-foreground transition"
             type="button"
           >
             Dashboard
@@ -219,29 +219,29 @@ export default function ScheduledPage() {
           <ChevronRight className="w-4 h-4" />
           <button
             onClick={() => navigate("/dashboard/workstation")}
-            className="hover:text-gray-900 transition"
+            className="hover:text-foreground transition"
             type="button"
           >
             Workstation
           </button>
           <ChevronRight className="w-4 h-4" />
-          <span className="text-gray-900 font-medium">Discovery Scheduled</span>
+          <span className="text-foreground font-medium">Discovery Scheduled</span>
         </div>
       </nav>
 
       {/* Main Content */}
       <main className="container mx-auto px-4 sm:px-6 py-6 sm:py-8 max-w-6xl">
-        <h1 className="text-2xl sm:text-3xl font-bold mb-6 text-gray-900">
+        <h1 className="text-2xl sm:text-3xl font-bold mb-6 text-foreground">
           Discovery Scheduled
         </h1>
 
         <form
-          className="bg-white rounded-lg shadow-sm border p-6 sm:p-8 space-y-6"
+          className="bg-card rounded-lg shadow-sm border p-6 sm:p-8 space-y-6"
           onSubmit={handleSubmit}
         >
           {/* Discovery Information */}
           <div>
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">
+            <h2 className="text-lg font-semibold text-foreground mb-4">
               Discovery Information
             </h2>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -257,7 +257,7 @@ export default function ScheduledPage() {
 
               {!isDiscoveryScheduledNo() && (
                 <div className="space-y-2">
-                  <Label className="text-gray-700 font-medium">
+                  <Label className="text-foreground font-medium">
                     Discovery Date
                   </Label>
                   <Input
@@ -275,7 +275,7 @@ export default function ScheduledPage() {
           {/* Client Communication - Show only when Discovery Scheduled is NOT "No" */}
           {!isDiscoveryScheduledNo() && (
             <div className="pt-6 border-t">
-              <h2 className="text-lg font-semibold text-gray-900 mb-4">
+              <h2 className="text-lg font-semibold text-foreground mb-4">
                 Client Communication
               </h2>
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -290,7 +290,7 @@ export default function ScheduledPage() {
                 />
 
                 <div className="space-y-2">
-                  <Label className="text-gray-700 font-medium">Date</Label>
+                  <Label className="text-foreground font-medium">Date</Label>
                   <Input
                     type="date"
                     name="date"
@@ -316,12 +316,12 @@ export default function ScheduledPage() {
           {/* Opposing Counsel Section - Show only when Discovery Scheduled is "No" */}
           {isDiscoveryScheduledNo() && (
             <div className="pt-6 border-t">
-              <h2 className="text-lg font-semibold text-gray-900 mb-4">
+              <h2 className="text-lg font-semibold text-foreground mb-4">
                 Opposing Counsel Communication
               </h2>
               <div className="space-y-6">
                 <div className="space-y-2">
-                  <Label className="text-gray-700 font-medium">
+                  <Label className="text-foreground font-medium">
                     Correspond with Opposing Counsel
                   </Label>
                   <Textarea

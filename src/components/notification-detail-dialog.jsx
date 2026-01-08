@@ -78,18 +78,18 @@ export function NotificationDetailDialog({
           <div className="space-y-3">
             <div>
               <Label className="text-sm font-semibold">From</Label>
-              <p className="text-sm text-gray-700">{notification?.name}</p>
+              <p className="text-sm text-foreground">{notification?.name}</p>
             </div>
 
             <div>
               <Label className="text-sm font-semibold">Message</Label>
-              <p className="text-sm text-gray-700">{notification?.message}</p>
+              <p className="text-sm text-foreground">{notification?.message}</p>
             </div>
 
             {notification?.time && (
               <div>
                 <Label className="text-sm font-semibold">Time</Label>
-                <p className="text-sm text-gray-700">
+                <p className="text-sm text-foreground">
                   {new Date(notification.time).toLocaleString()}
                 </p>
               </div>

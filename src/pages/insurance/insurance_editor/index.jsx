@@ -250,7 +250,7 @@ export default function Insurance() {
         <div className="text-red-500 text-xl font-semibold">
           Error loading form
         </div>
-        <p className="text-gray-600">
+        <p className="text-muted-foreground">
           {metadataError?.message || "Invalid response from server"}
         </p>
         <div className="flex gap-4">
@@ -276,57 +276,57 @@ export default function Insurance() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-muted">
       <Navbar2 />
-      <div className="bg-white border-b px-6 py-3">
+      <div className="bg-card border-b px-6 py-3">
         <div className="flex items-center justify-end gap-6 text-sm">
-          <span className="text-gray-700">
+          <span className="text-foreground">
             Unpaid: <span className="font-semibold">$ 0</span>
           </span>
-          <span className="text-gray-700">
+          <span className="text-foreground">
             Unbilled: <span className="font-semibold">$ 0</span>
           </span>
-          <span className="text-gray-700">
+          <span className="text-foreground">
             Client Funds-Operating: <span className="font-semibold">$ 0</span>
           </span>
-          <span className="text-gray-700">
+          <span className="text-foreground">
             Client Funds-Trust: <span className="font-semibold">$ 0</span>
           </span>
         </div>
       </div>
 
       {/* Breadcrumb */}
-      <div className="bg-white border-b px-6 py-4">
-        <div className="flex items-center gap-2 text-sm text-gray-600">
+      <div className="bg-card border-b px-6 py-4">
+        <div className="flex items-center gap-2 text-sm text-muted-foreground">
           <button
             onClick={() => navigate("/dashboard")}
-            className="hover:text-gray-900 transition"
+            className="hover:text-foreground transition"
           >
             Dashboard
           </button>
           <ChevronRight className="w-4 h-4" />
           <button
             onClick={() => navigate("/dashboard/workstation")}
-            className="hover:text-gray-900 transition"
+            className="hover:text-foreground transition"
           >
             Workstation
           </button>
           <ChevronRight className="w-4 h-4" />
-          <span className="text-gray-900 font-medium">Insurance</span>
+          <span className="text-foreground font-medium">Insurance</span>
         </div>
       </div>
 
       {/* Main Content */}
       <div className="container mx-auto px-6 py-8 max-w-7xl">
-        <div className="bg-white rounded-lg shadow-sm border p-8">
-          <h1 className="text-2xl font-bold mb-8 text-gray-900 uppercase">
+        <div className="bg-card rounded-lg shadow-sm border p-8">
+          <h1 className="text-2xl font-bold mb-8 text-foreground uppercase">
             Insurance Information
           </h1>
 
           <form onSubmit={handleSubmit} className="space-y-8">
             {/* Policy Holder Information Section */}
             <div className="space-y-6">
-              <h2 className="text-xl font-semibold text-gray-900">
+              <h2 className="text-xl font-semibold text-foreground">
                 Policy Holder Information
               </h2>
 
@@ -339,7 +339,7 @@ export default function Insurance() {
                 />
                 <Label
                   htmlFor="policy_holder_same_as_applicant"
-                  className="text-gray-700 font-medium cursor-pointer"
+                  className="text-foreground font-medium cursor-pointer"
                 >
                   Policy Holder Same as Applicant
                 </Label>
@@ -348,7 +348,7 @@ export default function Insurance() {
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 {/* Name Field - ✅ h-9 */}
                 <div className="space-y-2">
-                  <Label htmlFor="name" className="text-gray-700 font-medium">
+                  <Label htmlFor="name" className="text-foreground font-medium">
                     Name{" "}
                     {formData.policy_holder_same_as_applicant && (
                       <span className="text-blue-600 text-sm">
@@ -363,7 +363,7 @@ export default function Insurance() {
                     onChange={handleChange}
                     placeholder="Enter name"
                     readOnly={formData.policy_holder_same_as_applicant}
-                    className={`h-9 bg-gray-50 border-gray-300 ${
+                    className={`h-9 bg-muted border-input ${
                       formData.policy_holder_same_as_applicant
                         ? "cursor-not-allowed opacity-75"
                         : ""
@@ -375,7 +375,7 @@ export default function Insurance() {
                   <div className="space-y-2">
                     <Label
                       htmlFor="type_of_ownership_id"
-                      className="text-gray-700 font-medium"
+                      className="text-foreground font-medium"
                     >
                       Type of Ownership
                     </Label>
@@ -385,7 +385,7 @@ export default function Insurance() {
                         handleSelectChange("type_of_ownership_id", value)
                       }
                     >
-                      <SelectTrigger className="w-full h-11 bg-white border-gray-300">
+                      <SelectTrigger className="w-full h-11 bg-card border-input">
                         <SelectValue placeholder="Select type">
                           {getSelectedOptionName(
                             formData.type_of_ownership_id,
@@ -413,7 +413,7 @@ export default function Insurance() {
                 <div className="space-y-2">
                   <Label
                     htmlFor="insurance_company"
-                    className="text-gray-700 font-medium"
+                    className="text-foreground font-medium"
                   >
                     Insurance Company
                   </Label>
@@ -423,7 +423,7 @@ export default function Insurance() {
                     value={formData.insurance_company}
                     onChange={handleChange}
                     placeholder="TD"
-                    className="h-9 bg-gray-50 border-gray-300"
+                    className="h-9 bg-muted border-input"
                   />
                 </div>
               </div>
@@ -431,11 +431,11 @@ export default function Insurance() {
 
             {/* Address Section */}
             <div className="space-y-6 pt-6 border-t">
-              <h2 className="text-xl font-semibold text-gray-900">Address</h2>
+              <h2 className="text-xl font-semibold text-foreground">Address</h2>
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div className="space-y-2">
-                  <Label className="text-gray-700 font-medium">
+                  <Label className="text-foreground font-medium">
                     Unit Number
                   </Label>
                   <Input
@@ -444,12 +444,12 @@ export default function Insurance() {
                       handleAddressChange("unit_number", e.target.value)
                     }
                     placeholder="5B"
-                    className="h-9 bg-gray-50 border-gray-300"
+                    className="h-9 bg-muted border-input"
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label className="text-gray-700 font-medium">
+                  <Label className="text-foreground font-medium">
                     Street Number
                   </Label>
                   <Input
@@ -458,12 +458,12 @@ export default function Insurance() {
                       handleAddressChange("street_number", e.target.value)
                     }
                     placeholder="221"
-                    className="h-9 bg-gray-50 border-gray-300"
+                    className="h-9 bg-muted border-input"
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label className="text-gray-700 font-medium">
+                  <Label className="text-foreground font-medium">
                     Street Name
                   </Label>
                   <Input
@@ -472,36 +472,36 @@ export default function Insurance() {
                       handleAddressChange("street_name", e.target.value)
                     }
                     placeholder="King Street West"
-                    className="h-9 bg-gray-50 border-gray-300"
+                    className="h-9 bg-muted border-input"
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label className="text-gray-700 font-medium">City</Label>
+                  <Label className="text-foreground font-medium">City</Label>
                   <Input
                     value={formData.address.city}
                     onChange={(e) =>
                       handleAddressChange("city", e.target.value)
                     }
                     placeholder="Toronto"
-                    className="h-9 bg-gray-50 border-gray-300"
+                    className="h-9 bg-muted border-input"
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label className="text-gray-700 font-medium">Province</Label>
+                  <Label className="text-foreground font-medium">Province</Label>
                   <Input
                     value={formData.address.province}
                     onChange={(e) =>
                       handleAddressChange("province", e.target.value)
                     }
                     placeholder="Ontario"
-                    className="h-9 bg-gray-50 border-gray-300"
+                    className="h-9 bg-muted border-input"
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label className="text-gray-700 font-medium">
+                  <Label className="text-foreground font-medium">
                     Postal Code
                   </Label>
                   <Input
@@ -510,19 +510,19 @@ export default function Insurance() {
                       handleAddressChange("postal_code", e.target.value)
                     }
                     placeholder="M5H 1K5"
-                    className="h-9 bg-gray-50 border-gray-300"
+                    className="h-9 bg-muted border-input"
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label className="text-gray-700 font-medium">Country</Label>
+                  <Label className="text-foreground font-medium">Country</Label>
                   <Input
                     value={formData.address.country}
                     onChange={(e) =>
                       handleAddressChange("country", e.target.value)
                     }
                     placeholder="Canada"
-                    className="h-9 bg-gray-50 border-gray-300"
+                    className="h-9 bg-muted border-input"
                   />
                 </div>
               </div>
@@ -530,7 +530,7 @@ export default function Insurance() {
 
             {/* Policy Details Section */}
             <div className="space-y-6 pt-6 border-t">
-              <h2 className="text-xl font-semibold text-gray-900">
+              <h2 className="text-xl font-semibold text-foreground">
                 Policy Details
               </h2>
 
@@ -539,7 +539,7 @@ export default function Insurance() {
                 <div className="space-y-2">
                   <Label
                     htmlFor="policy_no"
-                    className="text-gray-700 font-medium"
+                    className="text-foreground font-medium"
                   >
                     Policy Number
                   </Label>
@@ -549,7 +549,7 @@ export default function Insurance() {
                     value={formData.policy_no}
                     onChange={handleChange}
                     placeholder="123-xxxx-xxxx"
-                    className="h-9 bg-gray-50 border-gray-300"
+                    className="h-9 bg-muted border-input"
                   />
                 </div>
 
@@ -557,7 +557,7 @@ export default function Insurance() {
                 <div className="space-y-2">
                   <Label
                     htmlFor="claim_no"
-                    className="text-gray-700 font-medium"
+                    className="text-foreground font-medium"
                   >
                     Claim Number
                   </Label>
@@ -567,7 +567,7 @@ export default function Insurance() {
                     value={formData.claim_no}
                     onChange={handleChange}
                     placeholder="123-xxxx-xxxx"
-                    className="h-9 bg-gray-50 border-gray-300"
+                    className="h-9 bg-muted border-input"
                   />
                 </div>
               </div>

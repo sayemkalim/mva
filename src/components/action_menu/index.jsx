@@ -17,7 +17,7 @@ const ActionMenu = ({ options = [] }) => {
       </PopoverTrigger>
       <PopoverContent
         align="end"
-        className="w-40 p-2 space-y-1 text-sm text-gray-700 shadow-lg"
+        className="w-40 p-2 space-y-1 text-sm text-foreground shadow-lg"
       >
         {options.map(({ label, icon: Icon, action, className }, index) => (
           <button

@@ -67,7 +67,7 @@ const ContactUsTable = ({ setContactUsLength, params, setParams }) => {
       key: "subject",
       label: "Subject",
       render: (value) => (
-        <Typography className="line-clamp-1 text-gray-600">{value}</Typography>
+        <Typography className="line-clamp-1 text-muted-foreground">{value}</Typography>
       ),
     },
     // {

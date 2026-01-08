@@ -68,7 +68,7 @@ const AddAdminCard = () => {
         breadcrumbs={[{ title: "Add Admin", isNavigation: false }]}
       />
 
-      <div className="p-10 max-w-6xl mx-auto w-full space-y-6 bg-white rounded-xl border border-gray-200">
+      <div className="p-10 max-w-6xl mx-auto w-full space-y-6 bg-card rounded-xl border border-gray-200">
         <Typography variant="h3" className="mb-4">
           Add Admin
         </Typography>
@@ -111,7 +111,7 @@ const AddAdminCard = () => {
           <button
             type="button"
             onClick={() => setShowPassword((prev) => !prev)}
-            className="absolute top-[38px] right-3 text-gray-500 hover:text-gray-700"
+            className="absolute top-[38px] right-3 text-gray-500 hover:text-foreground"
             tabIndex={-1}
           >
             {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}

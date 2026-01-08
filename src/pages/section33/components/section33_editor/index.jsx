@@ -17,7 +17,7 @@ import {
   CommandGroup,
   CommandItem,
 } from "@/components/ui/command";
-import { Loader2, Plus, Trash2, ChevronsUpDown, Check } from "lucide-react";
+import { Loader2, Plus, Trash2, ChevronsUpDown, Check, ChevronRight } from "lucide-react";
 import { toast } from "sonner";
 import { fetchSectionById } from "../../helpers/fetchSectionById";
 import { getABMeta } from "../../helpers/fetchABMeta";
@@ -25,6 +25,7 @@ import { createSection, updateSection } from "../../helpers/createSection";
 import { deleteSectionCommunication } from "../../helpers/deleteSectionCommunication";
 import { deleteSectiondocument } from "../../helpers/deleteSectiondocument";
 import { Navbar2 } from "@/components/navbar2";
+import { formatPhoneNumber } from "@/lib/utils";
 
 const SearchableDropdown = ({
   value,
@@ -50,7 +51,7 @@ const SearchableDropdown = ({
         <Button
           variant="outline"
           role="combobox"
-          className="w-full justify-between font-normal bg-gray-50"
+          className="w-full justify-between font-normal bg-muted"
           type="button"
         >
           {selectedOption ? selectedOption.name : placeholder}
@@ -74,9 +75,8 @@ const SearchableDropdown = ({
                   className="cursor-pointer flex items-center"
                 >
                   <Check
-                    className={`mr-2 h-4 w-4 ${
-                      value === opt.id ? "opacity-100" : "opacity-0"
-                    }`}
+                    className={`mr-2 h-4 w-4 ${value === opt.id ? "opacity-100" : "opacity-0"
+                      }`}
                   />
                   {opt.name}
                 </CommandItem>
@@ -322,10 +322,10 @@ export default function Section33() {
         i === idx
           ? fieldName === "documents_requested_by_the_insurer_id"
             ? {
-                ...item,
-                [fieldName]: value,
-                expanded: !!value,
-              }
+              ...item,
+              [fieldName]: value,
+              expanded: !!value,
+            }
             : { ...item, [fieldName]: value }
           : item
       )
@@ -353,9 +353,9 @@ export default function Section33() {
       prev.map((doc, idx) =>
         idx === docIdx
           ? {
-              ...doc,
-              communications: [...doc.communications, { ...emptyComm }],
-            }
+            ...doc,
+            communications: [...doc.communications, { ...emptyComm }],
+          }
           : doc
       )
     );
@@ -369,11 +369,11 @@ export default function Section33() {
         prev.map((doc, di) =>
           di === docIdx
             ? {
-                ...doc,
-                communications: doc.communications.filter(
-                  (_, i) => i !== commIdx
-                ),
-              }
+              ...doc,
+              communications: doc.communications.filter(
+                (_, i) => i !== commIdx
+              ),
+            }
             : doc
         )
       );
@@ -385,11 +385,11 @@ export default function Section33() {
       prev.map((doc, di) =>
         di === docIdx
           ? {
-              ...doc,
-              communications: doc.communications.map((c, ci) =>
-                ci === commIdx ? { ...c, [key]: value } : c
-              ),
-            }
+            ...doc,
+            communications: doc.communications.map((c, ci) =>
+              ci === commIdx ? { ...c, [key]: value } : c
+            ),
+          }
           : doc
       )
     );
@@ -420,9 +420,9 @@ export default function Section33() {
       if (resp.Apistatus === true) {
         toast.success(
           resp.message ||
-            (isEditMode
-              ? "Record updated successfully!"
-              : "Record created successfully!")
+          (isEditMode
+            ? "Record updated successfully!"
+            : "Record created successfully!")
         );
         queryClient.invalidateQueries(["section33", id]);
         navigate(-1);
@@ -586,13 +586,33 @@ export default function Section33() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-muted">
       <Navbar2 />
+
+      <div className="bg-card border-b px-6 py-4">
+        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+          <button
+            onClick={() => navigate("/dashboard")}
+            className="hover:text-foreground transition"
+          >
+            Dashboard
+          </button>
+          <ChevronRight className="w-4 h-4" />
+          <button
+            onClick={() => navigate(-1)}
+            className="hover:text-foreground transition"
+          >
+            Section 33 List
+          </button>
+          <ChevronRight className="w-4 h-4" />
+          <span className="text-foreground font-medium">Section 33 </span>
+        </div>
+      </div>
       <form
         onSubmit={handleSubmit}
         className="container mx-auto px-6 py-8 max-w-7xl"
       >
-        <div className="bg-white rounded-lg shadow-sm border p-8">
+        <div className="bg-card rounded-lg shadow-sm border p-8">
           {/* Main document fields */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-2">
             <div className="space-y-2">
@@ -620,7 +640,7 @@ export default function Section33() {
                     s33_req_received: e.target.value,
                   }))
                 }
-                className="h-9 bg-gray-50 border-gray-300"
+                className="h-9 bg-muted border-input"
               />
             </div>
           </div>
@@ -647,7 +667,7 @@ export default function Section33() {
                 onChange={(e) =>
                   setMainForm((p) => ({ ...p, from_date: e.target.value }))
                 }
-                className="h-9 bg-gray-50 border-gray-300"
+                className="h-9 bg-muted border-input"
               />
             </div>
             <div className="space-y-2">
@@ -659,7 +679,7 @@ export default function Section33() {
                 onChange={(e) =>
                   setMainForm((p) => ({ ...p, to_date: e.target.value }))
                 }
-                className="h-9 bg-gray-50 border-gray-300"
+                className="h-9 bg-muted border-input"
               />
             </div>
           </div>
@@ -682,7 +702,7 @@ export default function Section33() {
                         ambulance_cnr: e.target.value,
                       }))
                     }
-                    className="h-9 bg-gray-50 border-gray-300"
+                    className="h-9 bg-muted border-input"
                     placeholder="Reference Number"
                   />
                 </div>
@@ -696,7 +716,7 @@ export default function Section33() {
                         medical_clinic_name: e.target.value,
                       }))
                     }
-                    className="h-9 bg-gray-50 border-gray-300"
+                    className="h-9 bg-muted border-input"
                     placeholder="Clinic Name"
                   />
                 </div>
@@ -705,10 +725,10 @@ export default function Section33() {
                   <Input
                     value={mainForm.phone}
                     onChange={(e) =>
-                      setMainForm((p) => ({ ...p, phone: e.target.value }))
+                      setMainForm((p) => ({ ...p, phone: formatPhoneNumber(e.target.value) }))
                     }
-                    className="h-9 bg-gray-50 border-gray-300"
-                    placeholder="Phone"
+                    className="h-9 bg-muted border-input"
+                    placeholder="(888) 888-8888"
                   />
                 </div>
                 <div className="space-y-2">
@@ -716,10 +736,10 @@ export default function Section33() {
                   <Input
                     value={mainForm.fax}
                     onChange={(e) =>
-                      setMainForm((p) => ({ ...p, fax: e.target.value }))
+                      setMainForm((p) => ({ ...p, fax: formatPhoneNumber(e.target.value) }))
                     }
-                    className="h-9 bg-gray-50 border-gray-300"
-                    placeholder="Fax"
+                    className="h-9 bg-muted border-input"
+                    placeholder="(888) 888-8888"
                   />
                 </div>
                 <div className="space-y-2">
@@ -729,7 +749,7 @@ export default function Section33() {
                     onChange={(e) =>
                       setMainForm((p) => ({ ...p, email: e.target.value }))
                     }
-                    className="h-9 bg-gray-50 border-gray-300"
+                    className="h-9 bg-muted border-input"
                     placeholder="Email"
                   />
                 </div>
@@ -762,7 +782,7 @@ export default function Section33() {
                 {mainForm.communications.map((c, commIdx) => (
                   <div
                     key={commIdx}
-                    className="grid grid-cols-1 md:grid-cols-4 gap-4 bg-white p-4 mb-3 border rounded-lg relative"
+                    className="grid grid-cols-1 md:grid-cols-4 gap-4 bg-card p-4 mb-3 border rounded-lg relative"
                   >
                     <Button
                       type="button"
@@ -781,7 +801,7 @@ export default function Section33() {
                         onChange={(e) =>
                           handleMainCommChange(commIdx, "date", e.target.value)
                         }
-                        className="h-9 bg-gray-50 border-gray-300"
+                        className="h-9 bg-muted border-input"
                       />
                     </div>
                     <div className="space-y-2">
@@ -836,7 +856,7 @@ export default function Section33() {
                             e.target.value
                           )
                         }
-                        className="h-9 bg-gray-50 border-gray-300"
+                        className="h-9 bg-muted border-input"
                       />
                     </div>
                   </div>
@@ -870,7 +890,7 @@ export default function Section33() {
                 meta.insurance_documents_requested_by_the_insurer
               ) || "Ambulance CNR";
             return (
-              <div key={idx} className="mb-8 border rounded-lg p-6 bg-gray-50">
+              <div key={idx} className="mb-8 border rounded-lg p-6 bg-muted">
                 <div className="flex items-center justify-between mb-2">
                   <div className="font-bold">Document {idx + 2}</div>
                   <Button
@@ -908,7 +928,7 @@ export default function Section33() {
                       onChange={(e) =>
                         handleDocSearchSelect(idx, "from_date", e.target.value)
                       }
-                      className="h-9 bg-gray-50 border-gray-300"
+                      className="h-9 bg-muted border-input"
                     />
                   </div>
                   <div className="space-y-2">
@@ -919,7 +939,7 @@ export default function Section33() {
                       onChange={(e) =>
                         handleDocSearchSelect(idx, "to_date", e.target.value)
                       }
-                      className="h-9 bg-gray-50 border-gray-300"
+                      className="h-9 bg-muted border-input"
                     />
                   </div>
                 </div>
@@ -937,7 +957,7 @@ export default function Section33() {
                               e.target.value
                             )
                           }
-                          className="h-9 bg-gray-50 border-gray-300"
+                          className="h-9 bg-muted border-input"
                           placeholder={`${selectedDocLabel} Ref No`}
                         />
                       </div>
@@ -952,7 +972,7 @@ export default function Section33() {
                               e.target.value
                             )
                           }
-                          className="h-9 bg-gray-50 border-gray-300"
+                          className="h-9 bg-muted border-input"
                           placeholder="Clinic Name"
                         />
                       </div>
@@ -961,10 +981,10 @@ export default function Section33() {
                         <Input
                           value={doc.phone}
                           onChange={(e) =>
-                            handleDocSearchSelect(idx, "phone", e.target.value)
+                            handleDocSearchSelect(idx, "phone", formatPhoneNumber(e.target.value))
                           }
-                          className="h-9 bg-gray-50 border-gray-300"
-                          placeholder="Phone"
+                          className="h-9 bg-muted border-input"
+                          placeholder="(888) 888-8888"
                         />
                       </div>
                       <div className="space-y-2">
@@ -972,10 +992,10 @@ export default function Section33() {
                         <Input
                           value={doc.fax}
                           onChange={(e) =>
-                            handleDocSearchSelect(idx, "fax", e.target.value)
+                            handleDocSearchSelect(idx, "fax", formatPhoneNumber(e.target.value))
                           }
-                          className="h-9 bg-gray-50 border-gray-300"
-                          placeholder="Fax"
+                          className="h-9 bg-muted border-input"
+                          placeholder="(888) 888-8888"
                         />
                       </div>
                       <div className="space-y-2">
@@ -985,7 +1005,7 @@ export default function Section33() {
                           onChange={(e) =>
                             handleDocSearchSelect(idx, "email", e.target.value)
                           }
-                          className="h-9 bg-gray-50 border-gray-300"
+                          className="h-9 bg-muted border-input"
                           placeholder="Email"
                         />
                       </div>
@@ -1020,7 +1040,7 @@ export default function Section33() {
                       {doc.communications.map((c, commIdx) => (
                         <div
                           key={commIdx}
-                          className="grid grid-cols-1 md:grid-cols-4 gap-4 bg-white p-4 mb-3 border rounded-lg relative"
+                          className="grid grid-cols-1 md:grid-cols-4 gap-4 bg-card p-4 mb-3 border rounded-lg relative"
                         >
                           <Button
                             type="button"
@@ -1044,7 +1064,7 @@ export default function Section33() {
                                   e.target.value
                                 )
                               }
-                              className="h-9 bg-gray-50 border-gray-300"
+                              className="h-9 bg-muted border-input"
                             />
                           </div>
                           <div className="space-y-2">
@@ -1102,7 +1122,7 @@ export default function Section33() {
                                   e.target.value
                                 )
                               }
-                              className="h-9 bg-gray-50 border-gray-300"
+                              className="h-9 bg-muted border-input"
                             />
                           </div>
                         </div>
@@ -1124,7 +1144,7 @@ export default function Section33() {
                 onChange={(e) =>
                   setMainForm((p) => ({ ...p, deadline: e.target.value }))
                 }
-                className="h-9 bg-gray-50 border-gray-300"
+                className="h-9 bg-muted border-input"
               />
             </div>
             <div className="space-y-2">
@@ -1139,7 +1159,7 @@ export default function Section33() {
                     response_to_insurance: e.target.value,
                   }))
                 }
-                className="h-9 bg-gray-50 border-gray-300"
+                className="h-9 bg-muted border-input"
               />
             </div>
             <div className="space-y-2">

@@ -14,6 +14,8 @@ import { getABMeta } from "../helpers/fetchABMeta";
 import { fetchAdjusterBySlug } from "../helpers/fetchAdjusterBySlug";
 import { createAdjuster } from "../helpers/createAdjuster";
 import { deleteAdjuster } from "../helpers/deleteAdjuster";
+import { Navbar2 } from "@/components/navbar2";
+import { formatPhoneNumber } from "@/lib/utils";
 
 export default function Adjuster() {
   const { slug } = useParams();
@@ -233,7 +235,7 @@ export default function Adjuster() {
         <div className="text-red-500 text-xl font-semibold">
           Error loading form
         </div>
-        <p className="text-gray-600">
+        <p className="text-muted-foreground">
           {metadataError?.message || "Invalid response from server"}
         </p>
         <div className="flex gap-4">
@@ -254,48 +256,49 @@ export default function Adjuster() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="bg-white border-b px-6 py-3">
+    <div className="min-h-screen bg-muted">
+      <Navbar2 />
+      <div className="bg-card border-b px-6 py-3">
         <div className="flex items-center justify-end gap-6 text-sm">
-          <span className="text-gray-700">
+          <span className="text-foreground">
             Unpaid: <span className="font-semibold">$ 0</span>
           </span>
-          <span className="text-gray-700">
+          <span className="text-foreground">
             Unbilled: <span className="font-semibold">$ 0</span>
           </span>
-          <span className="text-gray-700">
+          <span className="text-foreground">
             Client Funds-Operating: <span className="font-semibold">$ 0</span>
           </span>
-          <span className="text-gray-700">
+          <span className="text-foreground">
             Client Funds-Trust: <span className="font-semibold">$ 0</span>
           </span>
         </div>
       </div>
 
-      <div className="bg-white border-b px-6 py-4">
-        <div className="flex items-center gap-2 text-sm text-gray-600">
+      <div className="bg-card border-b px-6 py-4">
+        <div className="flex items-center gap-2 text-sm text-muted-foreground">
           <button
             onClick={() => navigate("/dashboard")}
-            className="hover:text-gray-900 transition"
+            className="hover:text-foreground transition"
           >
             Dashboard
           </button>
           <ChevronRight className="w-4 h-4" />
           <button
             onClick={() => navigate("/dashboard/workstation")}
-            className="hover:text-gray-900 transition"
+            className="hover:text-foreground transition"
           >
             Workstation
           </button>
           <ChevronRight className="w-4 h-4" />
-          <span className="text-gray-900 font-medium">Adjuster</span>
+          <span className="text-foreground font-medium">Adjuster</span>
         </div>
       </div>
 
       <div className="container mx-auto px-6 py-8 max-w-7xl">
-        <div className="bg-white rounded-lg shadow-sm border p-8">
+        <div className="bg-card rounded-lg shadow-sm border p-8">
           <div className="flex items-center justify-between mb-8">
-            <h1 className="text-2xl font-bold text-gray-900 uppercase">
+            <h1 className="text-2xl font-bold text-foreground uppercase">
               Adjuster Information
             </h1>
             <Button
@@ -313,11 +316,11 @@ export default function Adjuster() {
             {adjusters.map((adjuster, index) => (
               <div
                 key={index}
-                className="border border-gray-200 p-6 rounded-lg space-y-6 bg-gray-50"
+                className="border border-gray-200 p-6 rounded-lg space-y-6 bg-muted"
               >
                 <div className="flex justify-between items-start">
                   <div className="flex items-center gap-4">
-                    <h3 className="font-semibold text-gray-900 text-lg">
+                    <h3 className="font-semibold text-foreground text-lg">
                       Adjuster {index + 1}
                     </h3>
 
@@ -331,9 +334,8 @@ export default function Adjuster() {
                       />
                       <Label
                         htmlFor={`current-${index}`}
-                        className={`cursor-pointer font-medium ${
-                          adjuster.current ? "text-green-600" : "text-gray-600"
-                        }`}
+                        className={`cursor-pointer font-medium ${adjuster.current ? "text-green-600" : "text-muted-foreground"
+                          }`}
                       >
                         {adjuster.current ? "✓ Current" : "Set as Current"}
                       </Label>
@@ -354,7 +356,7 @@ export default function Adjuster() {
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                   <div className="space-y-2">
-                    <Label className="text-gray-700 font-medium">
+                    <Label className="text-foreground font-medium">
                       Insurance Company
                     </Label>
                     <Input
@@ -363,12 +365,12 @@ export default function Adjuster() {
                         handleChange(index, "insurance_company", e.target.value)
                       }
                       placeholder="ABC Insurance"
-                      className="h-9 bg-white border-gray-300"
+                      className="h-9 bg-card border-input"
                     />
                   </div>
 
                   <div className="space-y-2">
-                    <Label className="text-gray-700 font-medium">
+                    <Label className="text-foreground font-medium">
                       First Name
                     </Label>
                     <Input
@@ -377,12 +379,12 @@ export default function Adjuster() {
                         handleChange(index, "first_name", e.target.value)
                       }
                       placeholder="John"
-                      className="h-9 bg-white border-gray-300"
+                      className="h-9 bg-card border-input"
                     />
                   </div>
 
                   <div className="space-y-2">
-                    <Label className="text-gray-700 font-medium">
+                    <Label className="text-foreground font-medium">
                       Last Name
                     </Label>
                     <Input
@@ -391,12 +393,12 @@ export default function Adjuster() {
                         handleChange(index, "last_name", e.target.value)
                       }
                       placeholder="Doe"
-                      className="h-9 bg-white border-gray-300"
+                      className="h-9 bg-card border-input"
                     />
                   </div>
 
                   <div className="space-y-2">
-                    <Label className="text-gray-700 font-medium">
+                    <Label className="text-foreground font-medium">
                       Claim Number
                     </Label>
                     <Input
@@ -405,12 +407,12 @@ export default function Adjuster() {
                         handleChange(index, "claim_no", e.target.value)
                       }
                       placeholder="CLM-12345"
-                      className="h-9 bg-white border-gray-300"
+                      className="h-9 bg-card border-input"
                     />
                   </div>
 
                   <div className="space-y-2">
-                    <Label className="text-gray-700 font-medium">
+                    <Label className="text-foreground font-medium">
                       Policy Number
                     </Label>
                     <Input
@@ -419,40 +421,40 @@ export default function Adjuster() {
                         handleChange(index, "policy_no", e.target.value)
                       }
                       placeholder="POL-99991"
-                      className="h-9 bg-white border-gray-300"
+                      className="h-9 bg-card border-input"
                     />
                   </div>
 
                   <div className="space-y-2">
-                    <Label className="text-gray-700 font-medium">
+                    <Label className="text-foreground font-medium">
                       Toll Free Number
                     </Label>
                     <Input
                       value={adjuster.toll_free_no}
                       onChange={(e) =>
-                        handleChange(index, "toll_free_no", e.target.value)
+                        handleChange(index, "toll_free_no", formatPhoneNumber(e.target.value))
                       }
-                      placeholder="1800123456"
-                      className="h-9 bg-white border-gray-300"
+                      placeholder="(888) 888-8888"
+                      className="h-9 bg-card border-input"
                     />
                   </div>
 
                   <div className="space-y-2">
-                    <Label className="text-gray-700 font-medium">
+                    <Label className="text-foreground font-medium">
                       Telephone
                     </Label>
                     <Input
                       value={adjuster.telephone}
                       onChange={(e) =>
-                        handleChange(index, "telephone", e.target.value)
+                        handleChange(index, "telephone", formatPhoneNumber(e.target.value))
                       }
-                      placeholder="4161234567"
-                      className="h-9 bg-white border-gray-300"
+                      placeholder="(888) 888-8888"
+                      className="h-9 bg-card border-input"
                     />
                   </div>
 
                   <div className="space-y-2">
-                    <Label className="text-gray-700 font-medium">
+                    <Label className="text-foreground font-medium">
                       Extension
                     </Label>
                     <Input
@@ -461,24 +463,24 @@ export default function Adjuster() {
                         handleChange(index, "ext", e.target.value)
                       }
                       placeholder="101"
-                      className="h-9 bg-white border-gray-300"
+                      className="h-9 bg-card border-input"
                     />
                   </div>
 
                   <div className="space-y-2">
-                    <Label className="text-gray-700 font-medium">Fax</Label>
+                    <Label className="text-foreground font-medium">Fax</Label>
                     <Input
                       value={adjuster.fax}
                       onChange={(e) =>
-                        handleChange(index, "fax", e.target.value)
+                        handleChange(index, "fax", formatPhoneNumber(e.target.value))
                       }
-                      placeholder="4169998888"
-                      className="h-9 bg-white border-gray-300"
+                      placeholder="(888) 888-8888"
+                      className="h-9 bg-card border-input"
                     />
                   </div>
 
                   <div className="space-y-2">
-                    <Label className="text-gray-700 font-medium">Email</Label>
+                    <Label className="text-foreground font-medium">Email</Label>
                     <Input
                       type="email"
                       value={adjuster.email}
@@ -486,12 +488,12 @@ export default function Adjuster() {
                         handleChange(index, "email", e.target.value)
                       }
                       placeholder="john@example.com"
-                      className="h-9 bg-white border-gray-300"
+                      className="h-9 bg-card border-input"
                     />
                   </div>
 
                   <div className="space-y-2 md:col-span-3">
-                    <Label className="text-gray-700 font-medium">Note</Label>
+                    <Label className="text-foreground font-medium">Note</Label>
                     <Textarea
                       value={adjuster.note}
                       onChange={(e) =>
@@ -499,7 +501,7 @@ export default function Adjuster() {
                       }
                       placeholder="Primary adjuster"
                       rows={3}
-                      className="bg-white border-gray-300"
+                      className="bg-card border-input"
                     />
                   </div>
                 </div>

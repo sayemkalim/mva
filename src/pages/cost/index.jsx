@@ -411,8 +411,8 @@ const CostList = () => {
 
     <div className="min-h-screen bg-background">
       <Navbar2 />
-      <header className="bg-white border-b px-6 py-3">
-        <div className="flex items-center justify-end gap-6 text-sm text-gray-700">
+      <header className="bg-card border-b px-6 py-3">
+        <div className="flex items-center justify-end gap-6 text-sm text-foreground">
           <div>
             Unpaid: <span className="font-semibold">{formatCurrency(unpaid)}</span>
           </div>
@@ -429,11 +429,11 @@ const CostList = () => {
       </header>
 
       {/* Breadcrumb */}
-      <nav className="bg-white border-b px-6 py-4 text-sm text-gray-600">
+      <nav className="bg-card border-b px-6 py-4 text-sm text-muted-foreground">
         <div className="flex items-center gap-2">
           <button
             onClick={() => navigate("/dashboard")}
-            className="hover:text-gray-900 transition"
+            className="hover:text-foreground transition"
             type="button"
           >
             Dashboard
@@ -441,13 +441,13 @@ const CostList = () => {
           <ChevronRight className="w-4 h-4" />
           <button
             onClick={() => navigate("/dashboard/workstation")}
-            className="hover:text-gray-900 transition"
+            className="hover:text-foreground transition"
             type="button"
           >
             Workstation
           </button>
           <ChevronRight className="w-4 h-4" />
-          <span className="text-gray-900 font-medium">Cost</span>
+          <span className="text-foreground font-medium">Cost</span>
         </div>
       </nav>
 
@@ -490,10 +490,10 @@ const CostList = () => {
       </div>
 
       {/* Table */}
-      <div className="bg-white rounded-lg border border-border overflow-hidden mx-6 mb-6">
+      <div className="bg-card rounded-lg border border-border overflow-hidden mx-6 mb-6">
         <Table>
           <TableHeader>
-            <TableRow className="bg-gray-50">
+            <TableRow className="bg-muted">
               <TableHead>Date</TableHead>
               <TableHead>Type</TableHead>
               <TableHead>Cost Type</TableHead>
@@ -525,7 +525,7 @@ const CostList = () => {
                   .reduce((sum, cost) => sum + parseFloat(cost.amount || 0), 0);
 
                 return (
-                  <TableRow key={item.id} className="hover:bg-gray-50">
+                  <TableRow key={item.id} className="hover:bg-muted">
                     <TableCell>{formatDate(item.date)}</TableCell>
                     <TableCell>{item.type || "-"}</TableCell>
                     <TableCell>{getSectionTypeLabel(item.section_type)}</TableCell>

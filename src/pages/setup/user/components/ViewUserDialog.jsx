@@ -118,7 +118,7 @@ const ViewUserDialog = ({ open, onClose, userId }) => {
 
             {/* Contact Information */}
             <div className="space-y-3">
-              <h4 className="font-semibold text-gray-900">
+              <h4 className="font-semibold text-foreground">
                 Contact Information
               </h4>
               <div className="grid grid-cols-2 gap-4">
@@ -145,7 +145,7 @@ const ViewUserDialog = ({ open, onClose, userId }) => {
 
             {/* Address Information */}
             <div className="space-y-3">
-              <h4 className="font-semibold text-gray-900">Address</h4>
+              <h4 className="font-semibold text-foreground">Address</h4>
               <div className="flex items-start gap-2">
                 <MapPin className="h-4 w-4 text-muted-foreground mt-1" />
                 <div>
@@ -173,7 +173,7 @@ const ViewUserDialog = ({ open, onClose, userId }) => {
             {/* Firm Information */}
             {user.firm && (
               <div className="space-y-3">
-                <h4 className="font-semibold text-gray-900">
+                <h4 className="font-semibold text-foreground">
                   Firm Information
                 </h4>
                 <div className="flex items-center gap-2">
@@ -190,7 +190,7 @@ const ViewUserDialog = ({ open, onClose, userId }) => {
 
             {/* Account Details */}
             <div className="space-y-3 pt-4 border-t">
-              <h4 className="font-semibold text-gray-900">Account Details</h4>
+              <h4 className="font-semibold text-foreground">Account Details</h4>
               <div className="grid grid-cols-2 gap-4 text-sm">
                 <div className="flex items-center gap-2">
                   <Calendar className="h-4 w-4 text-muted-foreground" />
