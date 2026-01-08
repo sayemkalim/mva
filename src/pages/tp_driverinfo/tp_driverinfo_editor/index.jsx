@@ -308,7 +308,7 @@ export default function DriverInfoForm() {
             </h2>
 
             {/* Policy holder same as applicant (checkbox) */}
-            <div className="border rounded-2xl p-6 bg-muted space-y-4">
+            <div className="border rounded-2xl p-6  space-y-4">
               <div className="flex items-center gap-3">
                 <input
                   id="policy_same_yes"
@@ -359,7 +359,7 @@ export default function DriverInfoForm() {
             </div>
 
             {/* Primary Address */}
-            <div className="border rounded-2xl p-6 bg-muted space-y-4">
+            <div className="border rounded-2xl p-6  space-y-4">
               <h3 className="text-xl font-bold text-foreground">
                 Primary Address
               </h3>
@@ -461,7 +461,7 @@ export default function DriverInfoForm() {
             </div>
 
             {/* Licence + Driver location */}
-            <div className="border rounded-2xl p-6 bg-muted space-y-4">
+            <div className="border rounded-2xl p-6  space-y-4">
               <h3 className="text-xl font-bold text-foreground">
                 Driver Licence & Location
               </h3>
@@ -534,7 +534,7 @@ export default function DriverInfoForm() {
             </div>
 
             {/* Mailing Address same as above */}
-            <div className="border rounded-2xl p-6 bg-muted space-y-4">
+            <div className="border rounded-2xl p-6  space-y-4">
               <div className="flex items-center gap-3">
                 <input
                   id="same_as_above"

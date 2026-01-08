@@ -76,7 +76,7 @@ function SearchableDropdown({
         <Button
           variant="outline"
           role="combobox"
-          className="w-full justify-between font-normal bg-card h-11 text-sm"
+          className="w-full justify-between font-normal bg-card h-9 text-sm "
           type="button"
         >
           {selected ? selected.name : placeholder}
@@ -546,7 +546,7 @@ export default function Identification() {
             {identifications.map((identification, index) => (
               <div
                 key={index}
-                className="border border-gray-200 p-6 rounded-lg space-y-6 bg-muted"
+                className="border border-gray-200 p-6 rounded-lg space-y-6 "
               >
                 <div className="flex justify-between items-center">
                   <h3 className="font-semibold text-foreground text-lg">

@@ -457,7 +457,7 @@ export default function OwnerInfoForm() {
                 {form.OwnerInformation.map((owner, index) => (
                   <div
                     key={owner.id ?? index}
-                    className="border rounded-2xl p-6 bg-muted space-y-4 relative"
+                    className="border rounded-2xl p-6  space-y-4 relative"
                   >
                     <div className="flex items-center justify-between mb-4">
                       <h4 className="text-lg font-semibold">
@@ -701,7 +701,7 @@ export default function OwnerInfoForm() {
                 {form.DirectorInformation.map((director, index) => (
                   <div
                     key={director.id ?? index}
-                    className="border rounded-2xl p-6 bg-muted space-y-4 relative"
+                    className="border rounded-2xl p-6  space-y-4 relative"
                   >
                     <div className="flex items-center justify-between mb-4">
                       <h4 className="text-lg font-semibold">

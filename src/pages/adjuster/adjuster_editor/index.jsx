@@ -316,7 +316,7 @@ export default function Adjuster() {
             {adjusters.map((adjuster, index) => (
               <div
                 key={index}
-                className="border border-gray-200 p-6 rounded-lg space-y-6 bg-muted"
+                className="border border-gray-200 p-6 rounded-lg space-y-6"
               >
                 <div className="flex justify-between items-start">
                   <div className="flex items-center gap-4">

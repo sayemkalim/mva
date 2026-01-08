@@ -99,14 +99,14 @@ export default function Insurance() {
   useEffect(() => {
     if (formData.policy_holder_same_as_applicant && !formData.name) {
       const workstationData = localStorage.getItem("workstationData");
-      
+
       if (workstationData) {
         try {
           const parsedData = JSON.parse(workstationData);
           const currentApplicant = parsedData.find(
             (item) => item.slug === slug
           );
-          
+
           if (currentApplicant && currentApplicant.name) {
             setFormData((prev) => ({
               ...prev,
@@ -119,7 +119,7 @@ export default function Insurance() {
       }
     }
   }, [formData.policy_holder_same_as_applicant, slug]);
-  
+
   useEffect(() => {
     if (insuranceData) {
       console.log("📝 Populating form with existing data:", insuranceData);
@@ -175,14 +175,14 @@ export default function Insurance() {
     if (checked) {
       let applicantName = "";
       const workstationData = localStorage.getItem("workstationData");
-      
+
       if (workstationData) {
         try {
           const parsedData = JSON.parse(workstationData);
           const currentApplicant = parsedData.find(
             (item) => item.slug === slug
           );
-          
+
           if (currentApplicant && currentApplicant.name) {
             applicantName = currentApplicant.name;
           }
@@ -191,7 +191,7 @@ export default function Insurance() {
           toast.error("Failed to retrieve applicant information");
         }
       }
-      
+
       setFormData((prev) => ({
         ...prev,
         policy_holder_same_as_applicant: true,
@@ -206,8 +206,8 @@ export default function Insurance() {
       }));
     }
   };
-  
-  
+
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     const isAddressFilled = (address) => {
@@ -329,9 +329,7 @@ export default function Insurance() {
               <h2 className="text-xl font-semibold text-foreground">
                 Policy Holder Information
               </h2>
-
-              {/* Checkbox for Same as Applicant */}
-              <div className="flex items-center space-x-2 p-4 bg-blue-50 rounded-lg border border-blue-200">
+              <div className="flex items-center space-x-2 p-4 bg-accent/50 rounded-lg border border-border">
                 <Checkbox
                   id="policy_holder_same_as_applicant"
                   checked={formData.policy_holder_same_as_applicant}
@@ -339,11 +337,12 @@ export default function Insurance() {
                 />
                 <Label
                   htmlFor="policy_holder_same_as_applicant"
-                  className="text-foreground font-medium cursor-pointer"
+                  className="text-accent-foreground font-medium cursor-pointer"
                 >
                   Policy Holder Same as Applicant
                 </Label>
               </div>
+
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 {/* Name Field - ✅ h-9 */}
@@ -363,11 +362,10 @@ export default function Insurance() {
                     onChange={handleChange}
                     placeholder="Enter name"
                     readOnly={formData.policy_holder_same_as_applicant}
-                    className={`h-9 bg-muted border-input ${
-                      formData.policy_holder_same_as_applicant
-                        ? "cursor-not-allowed opacity-75"
-                        : ""
-                    }`}
+                    className={`h-9 bg-muted border-input ${formData.policy_holder_same_as_applicant
+                      ? "cursor-not-allowed opacity-75"
+                      : ""
+                      }`}
                   />
                 </div>
 

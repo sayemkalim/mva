@@ -767,7 +767,7 @@ export default function Employment() {
               {formData.other_income.map((income, index) => (
                 <div
                   key={index}
-                  className="border border-gray-200 p-6 rounded-lg space-y-4 bg-muted"
+                  className="border border-gray-200 p-6 rounded-lg space-y-4 "
                 >
                   <div className="flex justify-between items-center">
                     <h3 className="font-semibold text-foreground">

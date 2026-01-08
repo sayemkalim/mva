@@ -590,6 +590,26 @@ export default function Section258Form() {
   return (
     <div className="min-h-screen bg-muted">
       <Navbar2 />
+
+<div className="bg-card border-b px-6 py-4">
+  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+    <button
+      onClick={() => navigate("/dashboard")}
+      className="hover:text-foreground transition"
+    >
+      Dashboard
+    </button>
+    <ChevronRight className="w-4 h-4" />
+    <button
+      onClick={() => navigate(-1)}
+      className="hover:text-foreground transition"
+    >
+      Section 33 List
+    </button>
+    <ChevronRight className="w-4 h-4" />
+    <span className="text-foreground font-medium">Section 33 </span>
+  </div>
+</div>
       <form
         onSubmit={handleSubmit}
         className="container mx-auto px-6 py-8 max-w-7xl"
@@ -622,9 +642,9 @@ export default function Section258Form() {
                     s33_req_received: e.target.value,
                   }))
                 }
-                className="h-9 bg-muted border-input"
+                className="h-9 border-input"
               />
-            </div>
+            </div>  
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-2">
             <div className="space-y-2">
@@ -872,7 +892,7 @@ export default function Section258Form() {
                 meta.insurance_documents_requested_by_the_insurer
               ) || "Ambulance CNR";
             return (
-              <div key={idx} className="mb-8 border rounded-lg p-6 bg-muted">
+              <div key={idx} className="mb-8 border rounded-lg p-6 ">
                 <div className="flex items-center justify-between mb-2">
                   <div className="font-bold">Document {idx + 2}</div>
                   <Button

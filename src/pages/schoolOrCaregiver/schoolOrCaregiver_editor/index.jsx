@@ -26,11 +26,6 @@ import {
   CommandGroup,
   CommandItem,
 } from "@/components/ui/command";
-
-/**
- * SearchableDropdown - parent-managed open state, closes on select.
- * - value passed as string ("" when empty). Parent handlers convert Number(value).
- */
 function SearchableDropdown({
   value,
   onValueChange,
@@ -64,7 +59,7 @@ function SearchableDropdown({
         <Button
           variant="outline"
           role="combobox"
-          className="w-full justify-between font-normal bg-muted h-11 text-sm"
+          className="w-full justify-between font-normal bg-muted h-9 text-sm"
           type="button"
         >
           {selected ? selected.name : placeholder}
@@ -786,7 +781,7 @@ export default function SchoolCaregiver() {
               {[1, 2, 3, 4, 5].map((num) => (
                 <div
                   key={num}
-                  className="border border-gray-200 p-6 rounded-lg space-y-4 bg-muted"
+                  className="border border-gray-200 p-6 rounded-lg space-y-4 "
                 >
                   <h3 className="font-semibold text-foreground">
                     Caregiver {num}

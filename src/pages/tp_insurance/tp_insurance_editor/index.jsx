@@ -222,7 +222,7 @@ export default function TPInsurerForm() {
             {records.map((rec, idx) => (
               <div
                 key={idx}
-                className="relative border border-input rounded-2xl p-8 bg-muted"
+                className="relative border border-input rounded-2xl p-8 "
               >
                 {records.length > 1 && (
                   <Button

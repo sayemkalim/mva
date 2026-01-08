@@ -279,6 +279,33 @@ export default function ApplicantInformation() {
   });
   const [popoverOpen, setPopoverOpen] = useState({});
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
+  const [sameAsCurrentAddress, setSameAsCurrentAddress] = useState(false);
+
+  // Handler for Same as Current Address checkbox
+  const handleSameAddressChange = (checked) => {
+    setSameAsCurrentAddress(checked);
+    if (checked) {
+      // Copy current address to mailing address
+      setFormData((prev) => ({
+        ...prev,
+        mailing_address: { ...prev.current_address },
+      }));
+    } else {
+      // Clear mailing address
+      setFormData((prev) => ({
+        ...prev,
+        mailing_address: {
+          unit_number: "",
+          street_number: "",
+          street_name: "",
+          city: "",
+          province: "",
+          postal_code: "",
+          country: "",
+        },
+      }));
+    }
+  };
 
   useEffect(() => {
     if (!slug) {

@@ -890,7 +890,7 @@ export default function Section33() {
                 meta.insurance_documents_requested_by_the_insurer
               ) || "Ambulance CNR";
             return (
-              <div key={idx} className="mb-8 border rounded-lg p-6 bg-muted">
+              <div key={idx} className="mb-8 border rounded-lg p-6 ">
                 <div className="flex items-center justify-between mb-2">
                   <div className="font-bold">Document {idx + 2}</div>
                   <Button
