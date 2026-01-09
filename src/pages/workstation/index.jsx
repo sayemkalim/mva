@@ -18,8 +18,7 @@ const Matter = () => {
   const [searchText, setSearchText] = useState("");
   const [params, setParams] = useState(paramInitialState);
 
-  const debouncedSearch = useDebounce(searchText, 2000);
-
+  const debouncedSearch = useDebounce(searchText, 500);
   const handleSearch = (e) => {
     setSearchText(e.target.value);
   };
