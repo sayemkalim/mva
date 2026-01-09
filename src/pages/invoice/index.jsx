@@ -50,6 +50,7 @@ import {
   Building,
   ChevronDown,
   Link2Off,
+  Eye,
 } from "lucide-react";
 import {
   Dialog,
@@ -149,6 +150,10 @@ const Invoice = () => {
   // Delete Payment Dialog State
   const [deletePaymentDialogOpen, setDeletePaymentDialogOpen] = useState(false);
   const [paymentToDelete, setPaymentToDelete] = useState(null);
+
+  // Payment Detail Dialog State
+  const [paymentDetailDialogOpen, setPaymentDetailDialogOpen] = useState(false);
+  const [selectedPaymentDetail, setSelectedPaymentDetail] = useState(null);
 
   // Write Off Dialog State
   const [writeOffDialogOpen, setWriteOffDialogOpen] = useState(false);
@@ -1076,6 +1081,7 @@ const Invoice = () => {
               <TableHead>Status</TableHead>
               <TableHead>Created By</TableHead>
               <TableHead className="w-40">History</TableHead>
+              <TableHead className="w-20">Locked</TableHead>
               <TableHead className="w-20">Actions</TableHead>
             </TableRow>
           </TableHeader>
@@ -1117,6 +1123,13 @@ const Invoice = () => {
                     >
                       <CreditCard className="h-4 w-4" />
                     </button>
+                  </TableCell>
+                  <TableCell>
+                    {item.isLocked ? (
+                      <Lock className="h-4 w-4 text-gray-600" />
+                    ) : (
+                      <Unlock className="h-4 w-4 text-gray-600" />
+                    )}
                   </TableCell>
                   <TableCell>
                     <Popover>
@@ -1169,7 +1182,7 @@ const Invoice = () => {
                               setPaymentPopoverOpen(open ? item.id : null)
                             }
                           >
-                            <PopoverTrigger asChild>
+                            <PopoverTrigger asChild disabled={item.status === "paid"}>
                               <button className="flex items-center justify-between gap-2 px-3 py-2 text-sm rounded-md hover:bg-accent text-left w-full">
                                 <span className="flex items-center gap-2">
                                   <CreditCard className="h-4 w-4" />
@@ -2079,16 +2092,29 @@ const Invoice = () => {
                         </TableCell>
                         <TableCell>{formatDate(payment.created_at)}</TableCell>
                         <TableCell>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-8 w-8 hover:bg-red-50 hover:text-red-600"
-                            onClick={() =>
-                              handleOpenDeletePaymentDialog(payment)
-                            }
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
+                          <div className="flex items-center gap-2">
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-8 w-8 hover:bg-blue-50 hover:text-blue-600"
+                              onClick={() => {
+                                setSelectedPaymentDetail(payment);
+                                setPaymentDetailDialogOpen(true);
+                              }}
+                            >
+                              <Eye className="h-4 w-4" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-8 w-8 hover:bg-red-50 hover:text-red-600"
+                              onClick={() =>
+                                handleOpenDeletePaymentDialog(payment)
+                              }
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </div>
                         </TableCell>
                       </TableRow>
                     ))}
@@ -2096,6 +2122,294 @@ const Invoice = () => {
                 </Table>
               </div>
             )}
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Payment Detail Dialog */}
+      <Dialog
+        open={paymentDetailDialogOpen}
+        onOpenChange={setPaymentDetailDialogOpen}
+      >
+        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="text-xl font-semibold">
+              Payment Details - ID #{selectedPaymentDetail?.id}
+            </DialogTitle>
+          </DialogHeader>
+          <div className="py-4 space-y-6">
+            {/* Creator Information - Most Important */}
+            {selectedPaymentDetail?.creator && (
+              <div className="border-2 border-primary/20 rounded-lg p-4 bg-primary/5">
+                <h3 className="text-base font-semibold text-primary mb-3">
+                  Created By
+                </h3>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-sm font-medium text-muted-foreground">
+                      Name
+                    </label>
+                    <p className="text-base mt-1 font-semibold">
+                      {selectedPaymentDetail.creator.first_name}{" "}
+                      {selectedPaymentDetail.creator.last_name}
+                    </p>
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium text-muted-foreground">
+                      Role
+                    </label>
+                    <p className="text-sm mt-1">
+                      <Badge className="bg-blue-100 text-blue-800">
+                        {selectedPaymentDetail.creator.role?.toUpperCase() || "-"}
+                      </Badge>
+                    </p>
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium text-muted-foreground">
+                      Email
+                    </label>
+                    <p className="text-sm mt-1">
+                      {selectedPaymentDetail.creator.email || "-"}
+                    </p>
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium text-muted-foreground">
+                      Phone Number
+                    </label>
+                    <p className="text-sm mt-1">
+                      {selectedPaymentDetail.creator.phone_number || "-"}
+                    </p>
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium text-muted-foreground">
+                      Created Date
+                    </label>
+                    <p className="text-sm mt-1">
+                      {formatDate(selectedPaymentDetail?.created_at)}
+                    </p>
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium text-muted-foreground">
+                      Last Login
+                    </label>
+                    <p className="text-sm mt-1">
+                      {selectedPaymentDetail.creator.last_login_at
+                        ? formatDate(selectedPaymentDetail.creator.last_login_at)
+                        : "-"}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Payment Information */}
+            <div>
+              <h3 className="text-sm font-semibold text-muted-foreground mb-3">
+                Payment Information
+              </h3>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="text-sm font-medium text-muted-foreground">
+                    Payment ID
+                  </label>
+                  <p className="text-sm mt-1">{selectedPaymentDetail?.id}</p>
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-muted-foreground">
+                    Bank Type
+                  </label>
+                  <p className="text-sm mt-1">
+                    {selectedPaymentDetail?.bank_type
+                      ? selectedPaymentDetail.bank_type
+                          .replace("-", " ")
+                          .toUpperCase()
+                      : "-"}
+                  </p>
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-muted-foreground">
+                    Applied Credit
+                  </label>
+                  <p className="text-sm mt-1 font-semibold">
+                    {formatCurrency(selectedPaymentDetail?.applied_credit)}
+                  </p>
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-muted-foreground">
+                    Type
+                  </label>
+                  <p className="text-sm mt-1">
+                    {selectedPaymentDetail?.type || "-"}
+                  </p>
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-muted-foreground">
+                    Bank Name
+                  </label>
+                  <p className="text-sm mt-1">
+                    {selectedPaymentDetail?.bank_name || "-"}
+                  </p>
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-muted-foreground">
+                    Apply Date
+                  </label>
+                  <p className="text-sm mt-1">
+                    {selectedPaymentDetail?.apply_date
+                      ? formatDate(selectedPaymentDetail.apply_date)
+                      : "-"}
+                  </p>
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-muted-foreground">
+                    Pay To
+                  </label>
+                  <p className="text-sm mt-1">
+                    {selectedPaymentDetail?.pay_to || "-"}
+                  </p>
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-muted-foreground">
+                    Reference Number
+                  </label>
+                  <p className="text-sm mt-1">
+                    {selectedPaymentDetail?.ref || "-"}
+                  </p>
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-muted-foreground">
+                    Method
+                  </label>
+                  <p className="text-sm mt-1">
+                    {selectedPaymentDetail?.method?.name || "-"}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Memo Fields */}
+            {(selectedPaymentDetail?.memo_1 || selectedPaymentDetail?.memo_2) && (
+              <div>
+                <h3 className="text-sm font-semibold text-muted-foreground mb-3">
+                  Memos
+                </h3>
+                <div className="space-y-3">
+                  {selectedPaymentDetail?.memo_1 && (
+                    <div>
+                      <label className="text-sm font-medium text-muted-foreground">
+                        Memo 1
+                      </label>
+                      <p className="text-sm mt-1">
+                        {selectedPaymentDetail.memo_1}
+                      </p>
+                    </div>
+                  )}
+                  {selectedPaymentDetail?.memo_2 && (
+                    <div>
+                      <label className="text-sm font-medium text-muted-foreground">
+                        Memo 2
+                      </label>
+                      <p className="text-sm mt-1">
+                        {selectedPaymentDetail.memo_2}
+                      </p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* Invoice Information */}
+            {selectedPaymentDetail?.invoice && (
+              <div>
+                <h3 className="text-sm font-semibold text-muted-foreground mb-3">
+                  Invoice Information
+                </h3>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-sm font-medium text-muted-foreground">
+                      Invoice Number
+                    </label>
+                    <p className="text-sm mt-1 font-medium">
+                      {selectedPaymentDetail.invoice.invoice_number}
+                    </p>
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium text-muted-foreground">
+                      Invoice Date
+                    </label>
+                    <p className="text-sm mt-1">
+                      {formatDate(selectedPaymentDetail.invoice.invoice_date)}
+                    </p>
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium text-muted-foreground">
+                      Due Date
+                    </label>
+                    <p className="text-sm mt-1">
+                      {formatDate(selectedPaymentDetail.invoice.due_date)}
+                    </p>
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium text-muted-foreground">
+                      Invoice Amount
+                    </label>
+                    <p className="text-sm mt-1 font-semibold">
+                      {formatCurrency(selectedPaymentDetail.invoice.amount)}
+                    </p>
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium text-muted-foreground">
+                      Balance
+                    </label>
+                    <p className="text-sm mt-1">
+                      {formatCurrency(selectedPaymentDetail.invoice.balance)}
+                    </p>
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium text-muted-foreground">
+                      Status
+                    </label>
+                    <p className="text-sm mt-1">
+                      <Badge
+                        className={
+                          selectedPaymentDetail.invoice.status === "paid"
+                            ? "bg-green-100 text-green-800"
+                            : "bg-yellow-100 text-yellow-800"
+                        }
+                      >
+                        {selectedPaymentDetail.invoice.status}
+                      </Badge>
+                    </p>
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium text-muted-foreground">
+                      Remaining Credit
+                    </label>
+                    <p className="text-sm mt-1">
+                      {formatCurrency(
+                        selectedPaymentDetail.invoice.remaining_credit
+                      )}
+                    </p>
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium text-muted-foreground">
+                      Write Off
+                    </label>
+                    <p className="text-sm mt-1">
+                      {formatCurrency(selectedPaymentDetail.invoice.write_of)}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+          <div className="flex justify-end pt-4 border-t">
+            <Button
+              variant="outline"
+              onClick={() => setPaymentDetailDialogOpen(false)}
+            >
+              Close
+            </Button>
           </div>
         </DialogContent>
       </Dialog>

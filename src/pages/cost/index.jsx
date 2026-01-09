@@ -22,7 +22,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Plus, ChevronDown, X, Trash2, Pencil, ChevronRight, MoreHorizontal } from "lucide-react";
+import { Plus, ChevronDown, X, Trash2, Pencil, ChevronRight, MoreHorizontal, Lock, Unlock } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -60,7 +60,7 @@ const CostList = () => {
     type: "Expense",
     expense: "",
     description: "",
-    quantity: "",
+    quantity: "1",
     rate: "",
     taxable: true,
   });
@@ -363,7 +363,7 @@ const CostList = () => {
   });
 
   const bankTypes = metaData?.accounting_bank_type || [];
-  const accountingMethods = metaData?.accounting_method || [];
+  const accountingMethods = metaData?.accounting_banking_method || [];
   const timeSpentOptions = metaData?.timeentries || [];
   const rateLevelOptions = metaData?.rateentries || [];
   const rateTypeOptions = metaData?.accounting_rate_type || [];
@@ -502,6 +502,7 @@ const CostList = () => {
               <TableHead>Payment Amount</TableHead>
               <TableHead>Balance</TableHead>
               <TableHead>Status</TableHead>
+              <TableHead className="w-20">Locked</TableHead>
               <TableHead className="w-20">Actions</TableHead>
             </TableRow>
           </TableHeader>
@@ -538,6 +539,13 @@ const CostList = () => {
                     <TableCell>{parseFloat(item.amount || 0).toFixed(2)}</TableCell>
                     <TableCell>{runningBalance.toFixed(2)}</TableCell>
                     <TableCell className="text-orange-500">{parseString(item.status)}</TableCell>
+                    <TableCell>
+                      {item.isLocked ? (
+                        <Lock className="h-4 w-4 text-muted-foreground" />
+                      ) : (
+                        <Unlock className="h-4 w-4 text-muted-foreground" />
+                      )}
+                    </TableCell>
                     <TableCell>
                       <Popover>
                         <PopoverTrigger asChild>
@@ -873,6 +881,7 @@ const CostList = () => {
                 <Label>Quantity</Label>
                 <Input 
                   type="number" 
+                  min="1"
                   placeholder="" 
                   value={softCostForm.quantity}
                   onChange={(e) => setSoftCostForm({...softCostForm, quantity: e.target.value})}
@@ -892,7 +901,12 @@ const CostList = () => {
                 <Input 
                   type="number" 
                   placeholder="" 
-                  value={(parseFloat(softCostForm.quantity) || 0) * (parseFloat(softCostForm.rate) || 0)}
+                  value={
+                    (() => {
+                      const baseValue = (parseFloat(softCostForm.quantity) || 0) * (parseFloat(softCostForm.rate) || 0);
+                      return softCostForm.taxable ? (baseValue * 1.13).toFixed(2) : baseValue.toFixed(2);
+                    })()
+                  }
                   disabled
                 />
               </div>
@@ -1312,6 +1326,7 @@ const CostList = () => {
                   <Label>Quantity</Label>
                   <Input 
                     type="number" 
+                    min="1"
                     placeholder="" 
                     value={editingCost.quantity || ""}
                     onChange={(e) => setEditingCost({...editingCost, quantity: e.target.value})}
@@ -1331,7 +1346,13 @@ const CostList = () => {
                   <Input 
                     type="number" 
                     placeholder="" 
-                    value={(parseFloat(editingCost.quantity) || 0) * (parseFloat(editingCost.rate) || 0)}
+                    value=
+                    {
+                    (() => {
+                      const baseValue = (parseFloat(editingCost.quantity) || 0) * (parseFloat(editingCost.rate) || 0);
+                      return editingCost.taxable ? (baseValue * 1.13).toFixed(2) : baseValue.toFixed(2);
+                    })()
+                  }
                     disabled
                   />
                 </div>
