@@ -94,35 +94,50 @@ const BankTransaction = () => {
 
   const addMutation = useMutation({
     mutationFn: (payload) => addDeposit(payload, slug),
-    onSuccess: () => {
-      queryClient.invalidateQueries(["depositList", slug]);
-      setDialogOpen(false);
-      resetForm();
+    onSuccess: (response) => {
+      if (response?.Apistatus != false) {
+        queryClient.invalidateQueries(["depositList", slug]);
+        setDialogOpen(false);
+        resetForm();
+      } else {
+        toast.error(response?.message || "Failed to add transaction");
+      }
     },
     onError: (error) => {
       console.error("Failed to add deposit:", error);
+      toast.error("Failed to add transaction");
     },
   });
 
   const deleteMutation = useMutation({
     mutationFn: (id) => deleteDeposit(id),
-    onSuccess: () => {
-      queryClient.invalidateQueries(["depositList", slug]);
+    onSuccess: (response) => {
+      if (response?.Apistatus != false) {
+        queryClient.invalidateQueries(["depositList", slug]);
+      } else {
+        toast.error(response?.message || "Failed to delete transaction");
+      }
     },
     onError: (error) => {
       console.error("Failed to delete deposit:", error);
+      toast.error("Failed to delete transaction");
     },
   });
 
   const updateMutation = useMutation({
     mutationFn: ({ payload, id }) => updateDeposit(payload, id),
-    onSuccess: () => {
-      queryClient.invalidateQueries(["depositList", slug]);
-      setEditDialogOpen(false);
-      setEditingDeposit(null);
+    onSuccess: (response) => {
+      if (response?.Apistatus != false) {
+        queryClient.invalidateQueries(["depositList", slug]);
+        setEditDialogOpen(false);
+        setEditingDeposit(null);
+      } else {
+        toast.error(response?.message || "Failed to update transaction");
+      }
     },
     onError: (error) => {
       console.error("Failed to update deposit:", error);
+      toast.error("Failed to update transaction");
     },
   });
 

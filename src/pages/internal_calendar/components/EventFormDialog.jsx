@@ -31,7 +31,8 @@ import { fetchEventMeta } from "../helpers/fetchEventMeta";
 import { fetchEventById } from "../helpers/fetchEventById";
 import { uploadAttachment } from "@/pages/task/helpers/uploadAttachment";
 import { deleteAttachment } from "@/pages/task/helpers/deleteTask";
-import ContactSearch from "./ContactSearch";
+import ContactSearch from "@/pages/calender/components/ContactSearch";
+// import ContactSearch from "./ContactSearch";
 
 // Attachment Uploader Component
 const AttachmentUploader = ({ files, onFilesChange, onUpload, onDelete }) => {

@@ -350,12 +350,12 @@ const Invoice = () => {
   const createInvoiceMutation = useMutation({
     mutationFn: (data) => createInvoice(slug, data),
     onSuccess: (response) => {
-      if (response?.response?.Apistatus === true) {
+      if (response?.response?.Apistatus != false) {
         toast.success("Invoice created successfully");
         queryClient.invalidateQueries(["invoiceList", slug]);
         closeAddDialog();
       } else {
-        toast.error(response?.message || "Failed to create invoice");
+        toast.error(response?.response?.message || "Failed to create invoice");
       }
     },
     onError: (error) => {
@@ -395,7 +395,7 @@ const Invoice = () => {
   const deleteInvoiceMutation = useMutation({
     mutationFn: (invoiceId) => deleteInvoice(invoiceId),
     onSuccess: (response) => {
-      if (response?.response?.Apistatus === true) {
+      if (response?.response?.Apistatus != false) {
         toast.success("Invoice deleted successfully");
         queryClient.invalidateQueries(["invoiceList", slug]);
         closeDeleteDialog();
@@ -485,7 +485,7 @@ const Invoice = () => {
   const updateInvoiceMutation = useMutation({
     mutationFn: (data) => updateInvoice(editInvoiceId, data),
     onSuccess: (response) => {
-      if (response?.response?.Apistatus === true) {
+      if (response?.response?.Apistatus != false) {
         toast.success("Invoice updated successfully");
         queryClient.invalidateQueries(["invoiceList", slug]);
         closeEditDialog();
@@ -647,10 +647,14 @@ const Invoice = () => {
     };
 
     try {
-      await saveInvoicePaymentTrust(slug, payload);
-      toast.success("Payment received successfully");
-      closeTrustPaymentDialog();
-      queryClient.invalidateQueries(["invoiceList", slug]);
+      const response = await saveInvoicePaymentTrust(slug, payload);
+      if (response?.Apistatus != false) {
+        toast.success("Payment received successfully");
+        closeTrustPaymentDialog();
+        queryClient.invalidateQueries(["invoiceList", slug]);
+      } else {
+        toast.error(response?.message || "Failed to save payment");
+      }
     } catch (error) {
       console.error("Failed to save payment:", error);
       toast.error(error?.response?.data?.message || "Failed to save payment");
@@ -746,10 +750,14 @@ const Invoice = () => {
     };
 
     try {
-      await saveInvoicePaymentOperating(slug, payload);
-      toast.success("Payment received successfully");
-      closeOperatingPaymentDialog();
-      queryClient.invalidateQueries(["invoiceList", slug]);
+      const response = await saveInvoicePaymentOperating(slug, payload);
+      if (response?.Apistatus != false) {
+        toast.success("Payment received successfully");
+        closeOperatingPaymentDialog();
+        queryClient.invalidateQueries(["invoiceList", slug]);
+      } else {
+        toast.error(response?.message || "Failed to save payment");
+      }
     } catch (error) {
       console.error("Failed to save payment:", error);
       toast.error(error?.response?.data?.message || "Failed to save payment");
@@ -792,7 +800,7 @@ const Invoice = () => {
   const deletePaymentMutation = useMutation({
     mutationFn: (paymentId) => deleteInvoicePayment(paymentId),
     onSuccess: (response) => {
-      if (response?.response?.Apistatus === true) {
+      if (response?.response?.Apistatus != false) {
         toast.success("Payment deleted successfully");
         queryClient.invalidateQueries(["invoiceList", slug]);
         closeDeletePaymentDialog();
@@ -946,7 +954,7 @@ const Invoice = () => {
 
     try {
       const response = await saveInvoiceWriteOff(payload);
-      if (response?.response?.Apistatus) {
+      if (response?.response?.Apistatus != false) {
         toast.success("Write-off saved successfully");
         queryClient.invalidateQueries(["invoiceList", slug]);
         closeWriteOffDialog();
@@ -965,7 +973,7 @@ const Invoice = () => {
     setDeleteWriteOffLoading(true);
     try {
       const response = await deleteInvoiceWriteOff(writeOffToDelete.id);
-      if (response?.Apistatus) {
+      if (response?.Apistatus != false) {
         toast.success("Write-off deleted successfully");
         // Refresh write-off data
         const refreshedData = await fetchInvoiceWriteOff(invoiceToWriteOff.id);
@@ -992,11 +1000,11 @@ const Invoice = () => {
     setUnlinkPaymentLoading(true);
     try {
       const response = await unlinkInvoicePayment(invoiceToUnlink.id);
-      if (response?.Apistatus) {
+      if (response?.response?.Apistatus != false) {
         toast.success("Payment unlinked successfully");
         queryClient.invalidateQueries(["invoiceList", slug]);
       } else {
-        toast.error(response?.message || "Failed to unlink payment");
+        toast.error(response?.response?.message || "Failed to unlink payment");
       }
     } catch (error) {
       console.error("Failed to unlink payment:", error);
@@ -1169,7 +1177,7 @@ const Invoice = () => {
                               setInvoiceToUnlink(item);
                               setUnlinkPaymentDialogOpen(true);
                             }}
-                            disabled={!item.isLocked}
+                            disabled={item.isLocked}
                           >
                             <Link2Off className="h-4 w-4" />
                             Unlink Payment
