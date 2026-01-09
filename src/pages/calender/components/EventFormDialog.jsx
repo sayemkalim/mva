@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { toast } from "sonner";
-import { Trash2, Plus, Upload, X, FileIcon, Check, Loader2 } from "lucide-react";
+import { Trash2, Plus, Upload, X, FileIcon, Check, Loader2, Eye } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 import { Button } from "@/components/ui/button";
@@ -196,6 +196,25 @@ const AttachmentUploader = ({ files, onFilesChange, onUpload, onDelete }) => {
                   >
                     <X className="h-3 w-3" />
                   </button>
+                  {file.uploaded && file.id && (
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        const API_URL = `${import.meta.env.VITE_API_BASE_URL}/attachments/${file.id}`;
+                        const link = document.createElement('a');
+                        link.href = API_URL;
+                        link.download = file.name;
+                        link.target = '_blank';
+                        document.body.appendChild(link);
+                        link.click();
+                        document.body.removeChild(link);
+                      }}
+                      className="absolute top-1 left-1 z-10 bg-blue-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-blue-600"
+                    >
+                      <Eye className="h-3 w-3" />
+                    </button>
+                  )}
                   <div className="aspect-video bg-gray-100 flex items-center justify-center relative">
                     {isImageFile(file.type) && previewUrls[file.tempId] ? (
                       <img

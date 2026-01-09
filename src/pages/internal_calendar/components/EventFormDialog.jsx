@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { toast } from "sonner";
-import { Trash2, Plus, Upload, X, FileIcon, Check, Loader2, Lock } from "lucide-react";
+import { Trash2, Plus, Upload, X, FileIcon, Check, Loader2, Eye } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 import { Button } from "@/components/ui/button";
@@ -24,32 +24,16 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 import { createEvent, updateEvent } from "../helpers/createEvent";
 import { fetchEventMeta } from "../helpers/fetchEventMeta";
 import { fetchEventById } from "../helpers/fetchEventById";
 import { uploadAttachment } from "@/pages/task/helpers/uploadAttachment";
 import { deleteAttachment } from "@/pages/task/helpers/deleteTask";
-import { apiService } from "@/api/api_service/apiService";
-import { endpoints } from "@/api/endpoints";
+import ContactSearch from "./ContactSearch";
 
-const fetchContactBySlug = async (slug) => {
-  if (!slug) return null;
-  
-  const apiResponse = await apiService({
-    endpoint: endpoints.searchContact,
-    method: "POST",
-    data: { searchBar: "" },
-    headers: {
-      "Content-Type": "application/json",
-    },
-  });
-  
-  const contacts = apiResponse?.response?.data || [];
-  const contact = contacts.find(c => c.slug === slug);
-  return contact || null;
-};
-
+// Attachment Uploader Component
 const AttachmentUploader = ({ files, onFilesChange, onUpload, onDelete }) => {
   const [isDragging, setIsDragging] = useState(false);
   const [previewUrls, setPreviewUrls] = useState({});
@@ -212,6 +196,25 @@ const AttachmentUploader = ({ files, onFilesChange, onUpload, onDelete }) => {
                   >
                     <X className="h-3 w-3" />
                   </button>
+                  {file.uploaded && file.id && (
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        const API_URL = `${import.meta.env.VITE_API_BASE_URL}/attachments/${file.id}`;
+                        const link = document.createElement('a');
+                        link.href = API_URL;
+                        link.download = file.name;
+                        link.target = '_blank';
+                        document.body.appendChild(link);
+                        link.click();
+                        document.body.removeChild(link);
+                      }}
+                      className="absolute top-1 left-1 z-10 bg-blue-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-blue-600"
+                    >
+                      <Eye className="h-3 w-3" />
+                    </button>
+                  )}
                   <div className="aspect-video bg-gray-100 flex items-center justify-center relative">
                     {isImageFile(file.type) && previewUrls[file.tempId] ? (
                       <img
@@ -290,65 +293,9 @@ const AttachmentUploader = ({ files, onFilesChange, onUpload, onDelete }) => {
   );
 };
 
-const ReadOnlyContactDisplay = ({ contactName, contactEmail, isLoading }) => {
-  if (isLoading) {
-    return (
-      <div className="space-y-2">
-        <Label className="text-foreground font-medium flex items-center gap-2">
-          Contact
-          <Lock className="h-3 w-3 text-muted-foreground" />
-        </Label>
-        <div className="flex items-center gap-2 p-3 rounded-md bg-gray-100 border border-gray-200 shadow-sm">
-          <Loader2 className="h-4 w-4 animate-spin text-primary" />
-          <span className="text-sm text-muted-foreground">Loading contact...</span>
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <div className="space-y-2">
-      <Label className="text-foreground font-medium flex items-center gap-2">
-        Contact
-        <Lock className="h-3 w-3 text-muted-foreground" />
-      </Label>
-      <div className="flex items-center gap-2 p-3 rounded-md bg-gray-100 border border-gray-200 shadow-sm">
-        <div className="flex items-center justify-center bg-primary/10 text-primary rounded-full h-8 w-8">
-          <Check className="h-4 w-4" />
-        </div>
-        <div className="flex-1">
-          <div className="font-semibold text-sm text-foreground">
-            {contactName || "No Contact Selected"}
-          </div>
-          {contactEmail && (
-            <div className="text-xs text-gray-500">
-              {contactEmail}
-            </div>
-          )}
-        </div>
-        <span className="px-2 py-0.5 bg-primary/10 rounded-full text-xs text-primary font-medium tracking-wide flex items-center gap-1">
-          <Lock className="h-3 w-3" />
-          Fixed
-        </span>
-      </div>
-    </div>
-  );
-};
-
-const EventFormDialog = ({ open, onClose, event, slotInfo, onDelete, contactSlugFromUrl }) => {
+const EventFormDialog = ({ open, onClose, event, slotInfo, onDelete }) => {
   const queryClient = useQueryClient();
   const isEditing = !!event;
-
-  const { data: contactData, isLoading: isContactLoading } = useQuery({
-    queryKey: ["contactBySlug", contactSlugFromUrl],
-    queryFn: () => fetchContactBySlug(contactSlugFromUrl),
-    enabled: !!contactSlugFromUrl && open,
-  });
-
-  const contactId = contactData?.id || "";
-  const contactName = contactData?.contact_name || "";
-  const contactEmail = contactData?.primary_email || "";
-  const contactSlug = contactData?.slug || contactSlugFromUrl || "";
 
   const { data: metaData } = useQuery({
     queryKey: ["eventMeta"],
@@ -395,7 +342,9 @@ const EventFormDialog = ({ open, onClose, event, slotInfo, onDelete, contactSlug
   const [participants, setParticipants] = useState([]);
   const [uploadedFiles, setUploadedFiles] = useState([]);
   const [attachmentIds, setAttachmentIds] = useState([]);
+  const [selectedContactName, setSelectedContactName] = useState("");
   
+  // Reminder dialog state
   const [reminderDialogOpen, setReminderDialogOpen] = useState(false);
   const [newReminder, setNewReminder] = useState({
     type_id: "",
@@ -404,6 +353,7 @@ const EventFormDialog = ({ open, onClose, event, slotInfo, onDelete, contactSlug
     relative_id: "",
   });
 
+  // Participant dialog state
   const [participantDialogOpen, setParticipantDialogOpen] = useState(false);
   const [newParticipant, setNewParticipant] = useState({
     user_id: "",
@@ -429,9 +379,11 @@ const EventFormDialog = ({ open, onClose, event, slotInfo, onDelete, contactSlug
         status_id: eventDetails.status_id ? String(eventDetails.status_id) : "",
         priority_id: eventDetails.priority_id ? String(eventDetails.priority_id) : "",
         repeat_id: eventDetails.repeat_id ? String(eventDetails.repeat_id) : "",
-        initial_id: contactId ? String(contactId) : "",
-        slug: contactSlug || "",
+        initial_id: eventDetails.initial_id ? String(eventDetails.initial_id) : "",
+        slug: eventDetails.slug || "",
       });
+      // Set selected contact name if available
+      setSelectedContactName(eventDetails.contact_name || "");
       setReminders(
         (eventDetails.reminders || []).map((r) => ({
           type_id: String(r.type_id),
@@ -448,6 +400,7 @@ const EventFormDialog = ({ open, onClose, event, slotInfo, onDelete, contactSlug
           comment: p.comment || "",
         }))
       );
+      // Load existing attachments
       if (Array.isArray(eventDetails.attachments)) {
         const existingFiles = eventDetails.attachments.map((att) => ({
           tempId: `existing_${att.id}`,
@@ -480,15 +433,16 @@ const EventFormDialog = ({ open, onClose, event, slotInfo, onDelete, contactSlug
         status_id: statuses.length > 0 ? String(statuses[0].id) : "",
         priority_id: priorities.length > 0 ? String(priorities[0].id) : "",
         repeat_id: repeats.length > 0 ? String(repeats[0].id) : "",
-        initial_id: contactId ? String(contactId) : "",
-        slug: contactSlug || "",
+        initial_id: "",
+        slug: "",
       });
+      setSelectedContactName("");
       setReminders([]);
       setParticipants([]);
       setUploadedFiles([]);
       setAttachmentIds([]);
     }
-  }, [eventDetails, slotInfo, isEditing, categories, statuses, priorities, repeats, contactId, contactSlug]);
+  }, [eventDetails, slotInfo, isEditing, categories, statuses, priorities, repeats]);
 
   const { mutate: createEventMutation, isPending: isCreating } = useMutation({
     mutationFn: createEvent,
@@ -616,6 +570,15 @@ const EventFormDialog = ({ open, onClose, event, slotInfo, onDelete, contactSlug
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
+  const handleContactSelect = (contact) => {
+    setFormData((prev) => ({
+      ...prev,
+      initial_id: contact.id ? String(contact.id) : "",
+      slug: contact.slug || "",
+    }));
+    setSelectedContactName(contact.contact_name || "");
+  };
+
   const openReminderDialog = () => {
     setNewReminder({
       type_id: reminderTypes.length > 0 ? String(reminderTypes[0].id) : "",
@@ -712,8 +675,8 @@ const EventFormDialog = ({ open, onClose, event, slotInfo, onDelete, contactSlug
       status_id: formData.status_id ? parseInt(formData.status_id) : null,
       priority_id: formData.priority_id ? parseInt(formData.priority_id) : null,
       repeat_id: formData.repeat_id ? parseInt(formData.repeat_id) : null,
-      initial_id: contactId ? parseInt(contactId) : null,
-      slug: contactSlug || null,
+      initial_id: formData.initial_id ? parseInt(formData.initial_id) : null,
+      slug: formData.slug || null,
       reminders: reminders.map((r) => ({
         type_id: parseInt(r.type_id),
         timing_id: parseInt(r.timing_id),
@@ -920,11 +883,16 @@ const EventFormDialog = ({ open, onClose, event, slotInfo, onDelete, contactSlug
                     </Select>
                   </div>
                 </div>
-                <ReadOnlyContactDisplay 
-                  contactName={contactName}
-                  contactEmail={contactEmail}
-                  isLoading={isContactLoading}
-                />
+
+                <div className="space-y-2">
+                  <ContactSearch
+                    onSelect={handleContactSelect}
+                    initialId={formData.initial_id}
+                    initialSlug={formData.slug}
+                    initialContactName={selectedContactName}
+                    label="Select Contact"
+                  />
+                </div>
               </div>
 
               <div className="space-y-4">
@@ -1397,4 +1365,3 @@ const EventFormDialog = ({ open, onClose, event, slotInfo, onDelete, contactSlug
 };
 
 export default EventFormDialog;
-
