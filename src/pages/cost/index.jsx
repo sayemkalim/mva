@@ -42,6 +42,7 @@ import {
 } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Navbar2 } from "@/components/navbar2";
+import { toast } from "sonner";
 
 const CostList = () => {
   const { slug } = useParams();
@@ -182,12 +183,16 @@ const CostList = () => {
 
   const addCostMutation = useMutation({
     mutationFn: (payload) => addCost(payload, slug),
-    onSuccess: () => {
-      queryClient.invalidateQueries(["costList", slug]);
-      setDialogOpen(null);
-      resetSoftCostForm();
-      resetHardCostForm();
-      resetTimeCardForm();
+    onSuccess: (response) => {
+      if (response?.Apistatus != false) {
+        queryClient.invalidateQueries(["costList", slug]);
+        setDialogOpen(null);
+        resetSoftCostForm();
+        resetHardCostForm();
+        resetTimeCardForm();
+      } else {
+        toast.error(response?.message || "Failed to add cost. Please try again.");
+      }
     },
     onError: (error) => {
       console.error("Failed to add cost:", error);
@@ -196,8 +201,12 @@ const CostList = () => {
 
   const deleteCostMutation = useMutation({
     mutationFn: (id) => deleteCost(id),
-    onSuccess: () => {
-      queryClient.invalidateQueries(["costList", slug]);
+    onSuccess: (response) => {
+      if (response?.Apistatus != false) {
+        queryClient.invalidateQueries(["costList", slug]);
+      } else {
+        toast.error(response?.message || "Failed to delete cost. Please try again.");
+      }
     },
     onError: (error) => {
       console.error("Failed to delete cost:", error);
@@ -206,10 +215,14 @@ const CostList = () => {
 
   const updateCostMutation = useMutation({
     mutationFn: ({ payload, id }) => updateCost(payload, id),
-    onSuccess: () => {
-      queryClient.invalidateQueries(["costList", slug]);
-      setEditDialogOpen(null);
-      setEditingCost(null);
+    onSuccess: (response) => {
+      if(response?.Apistatus != false){
+        queryClient.invalidateQueries(["costList", slug]);
+        setEditDialogOpen(null);
+        setEditingCost(null);
+      }else {
+        toast.error(response?.message || "Failed to update cost. Please try again.");
+      }
     },
     onError: (error) => {
       console.error("Failed to update cost:", error);
@@ -241,6 +254,17 @@ const CostList = () => {
   };
 
   const handleEditSoftCostSubmit = () => {
+    if (
+      !editingCost.timekeeker ||
+      !editingCost.date ||
+      !editingCost.type ||
+      !editingCost.quantity ||
+      !editingCost.rate
+    ) {
+      toast.error("Please fill in all required fields (Timekeeper, Date, Type, Quantity, Rate, Value).");
+      return;
+    }
+
     const payload = {
       section_type: "soft-cost",
       timekeeker: editingCost.timekeeker,
@@ -256,6 +280,19 @@ const CostList = () => {
   };
 
   const handleEditTimeCardSubmit = () => {
+    if (
+      !editingCost.timekeeker ||
+      !editingCost.date ||
+      !editingCost.type ||
+      !editingCost.time_spent_id ||
+      !editingCost.rate_level_id ||
+      !editingCost.rate ||
+      !editingCost.rate_type_id
+    ) {
+      toast.error("Please fill in all required fields (Timekeeper, Date, Type, Time Spent, Rate Level, Rate/Price, Rate Type).");
+      return;
+    }
+
     const payload = {
       section_type: "time-card",
       timekeeker: editingCost.timekeeker,
@@ -278,13 +315,25 @@ const CostList = () => {
   };
 
   const handleEditHardCostSubmit = () => {
+    if (
+      !editingCost.date ||
+      !editingCost.bank_type_id ||
+      !editingCost.type ||
+      !editingCost.method_id ||
+      !editingCost.pay_to ||
+      !editingCost.amount
+    ) {
+      toast.error("Please fill in all required fields (Date, Bank Type, Type, Method, Pay to, Amount).");
+      return;
+    }
+
     const payload = {
       section_type: "hard-cost",
       date: editingCost.date,
       bank_type_id: parseInt(editingCost.bank_type_id) || null,
       type: editingCost.type,
       method_id: parseInt(editingCost.method_id) || null,
-      quantity: parseFloat(editingCost.quantity) || 1,
+      quantity: 1,
       pay_to: editingCost.pay_to,
       amount: parseFloat(editingCost.amount) || 0,
       memo_1: editingCost.memo_1,
@@ -296,6 +345,17 @@ const CostList = () => {
   };
 
   const handleSoftCostSubmit = () => {
+    if (
+      !softCostForm.timekeeper ||
+      !softCostForm.date ||
+      !softCostForm.type ||
+      !softCostForm.quantity ||
+      !softCostForm.rate
+    ) {
+      toast.error("Please fill in all required fields (Timekeeper, Date, Type, Quantity, Rate, Value).");
+      return;
+    }
+
     const payload = {
       section_type: "soft-cost",
       timekeeker: softCostForm.timekeeper,
@@ -311,6 +371,19 @@ const CostList = () => {
   };
 
   const handleTimeCardSubmit = () => {
+    if (
+      !timeCardForm.timekeeper ||
+      !timeCardForm.date ||
+      !timeCardForm.type ||
+      !timeCardForm.time_spent_id ||
+      !timeCardForm.rate_level_id ||
+      !timeCardForm.rate ||
+      !timeCardForm.rate_type_id
+    ) {
+      toast.error("Please fill in all required fields (Timekeeper, Date, Type, Time Spent, Rate Level, Rate/Price, Rate Type).");
+      return;
+    }
+
     const payload = {
       section_type: "time-card",
       timekeeker: timeCardForm.timekeeper,
@@ -333,13 +406,25 @@ const CostList = () => {
   };
 
   const handleHardCostSubmit = () => {
+    if (
+      !hardCostForm.date ||
+      !hardCostForm.bank_type_id ||
+      !hardCostForm.type ||
+      !hardCostForm.method_id ||
+      !hardCostForm.pay_to ||
+      !hardCostForm.amount
+    ) {
+      toast.error("Please fill in all required fields (Date, Bank Type, Type, Method, Pay to, Amount).");
+      return;
+    }
+
     const payload = {
       section_type: "hard-cost",
       date: hardCostForm.date,
       bank_type_id: parseInt(hardCostForm.bank_type_id) || null,
       type: hardCostForm.type,
       method_id: parseInt(hardCostForm.method_id) || null,
-      quantity: parseFloat(hardCostForm.quantity) || 1,
+      quantity: 1,
       pay_to: hardCostForm.pay_to,
       amount: parseFloat(hardCostForm.amount) || 0,
       memo_1: hardCostForm.memo_1,
@@ -598,7 +683,7 @@ const CostList = () => {
           <div className="space-y-6 py-4">
             <div className="grid grid-cols-3 gap-4">
               <div className="space-y-2">
-                <Label>Timekeeper</Label>
+                <Label>Timekeeper <span className="text-red-500">*</span></Label>
                 <Input 
                   placeholder="" 
                   value={timeCardForm.timekeeper}
@@ -606,7 +691,7 @@ const CostList = () => {
                 />
               </div>
               <div className="space-y-2">
-                <Label>Date</Label>
+                <Label>Date <span className="text-red-500">*</span></Label>
                 <Input
                   type="date"
                   value={timeCardForm.date}
@@ -614,7 +699,7 @@ const CostList = () => {
                 />
               </div>
               <div className="space-y-2">
-                <Label>Type</Label>
+                <Label>Type <span className="text-red-500">*</span></Label>
                 <Input 
                   value={timeCardForm.type}
                   disabled
@@ -645,7 +730,7 @@ const CostList = () => {
               <h3 className="text-lg font-medium mb-4">Time & Amount</h3>
               <div className="grid grid-cols-6 gap-4 mb-4">
                 <div className="space-y-2 col-span-3">
-                  <Label>Time Spent</Label>
+                  <Label>Time Spent <span className="text-red-500">*</span></Label>
                   <Select
                     value={timeCardForm.time_spent_id}
                     onValueChange={(value) => setTimeCardForm({...timeCardForm, time_spent_id: value})}
@@ -675,7 +760,7 @@ const CostList = () => {
 
               <div className="grid grid-cols-6 gap-4">
                 <div className="space-y-2 col-span-2">
-                  <Label>Rate Level</Label>
+                  <Label>Rate Level <span className="text-red-500">*</span></Label>
                   <Select
                     value={timeCardForm.rate_level_id}
                     onValueChange={(value) => {
@@ -700,7 +785,7 @@ const CostList = () => {
                   </Select>
                 </div>
                 <div className="space-y-2 col-span-2">
-                  <Label>Rate/Price</Label>
+                  <Label>Rate/Price <span className="text-red-500">*</span></Label>
                   <Input 
                     type="number" 
                     className="w-full" 
@@ -709,7 +794,7 @@ const CostList = () => {
                   />
                 </div>
                 <div className="space-y-2 col-span-2">
-                  <Label>Rate Type</Label>
+                  <Label>Rate Type <span className="text-red-500">*</span></Label>
                   <Select
                     value={timeCardForm.rate_type_id}
                     onValueChange={(value) => setTimeCardForm({...timeCardForm, rate_type_id: value})}
@@ -885,7 +970,7 @@ const CostList = () => {
           <div className="space-y-6 py-4">
             <div className="grid grid-cols-4 gap-4">
               <div className="space-y-2">
-                <Label>Timekeeper</Label>
+                <Label>Timekeeper <span className="text-red-500">*</span></Label>
                 <Input 
                   placeholder="" 
                   value={softCostForm.timekeeper}
@@ -893,7 +978,7 @@ const CostList = () => {
                 />
               </div>
               <div className="space-y-2">
-                <Label>Date</Label>
+                <Label>Date <span className="text-red-500">*</span></Label>
                 <Input
                   type="date"
                   value={softCostForm.date}
@@ -901,7 +986,7 @@ const CostList = () => {
                 />
               </div>
               <div className="space-y-2">
-                <Label>Type</Label>
+                <Label>Type <span className="text-red-500">*</span></Label>
                 <Input 
                   value={softCostForm.type} 
                   disabled
@@ -929,7 +1014,7 @@ const CostList = () => {
 
             <div className="grid grid-cols-3 gap-4">
               <div className="space-y-2">
-                <Label>Quantity</Label>
+                <Label>Quantity <span className="text-red-500">*</span></Label>
                 <Input 
                   type="number" 
                   min="1"
@@ -939,7 +1024,7 @@ const CostList = () => {
                 />
               </div>
               <div className="space-y-2">
-                <Label>Rate</Label>
+                <Label>Rate <span className="text-red-500">*</span></Label>
                 <Input 
                   type="number" 
                   placeholder="" 
@@ -948,7 +1033,7 @@ const CostList = () => {
                 />
               </div>
               <div className="space-y-2">
-                <Label>Value</Label>
+                <Label>Value <span className="text-red-500">*</span></Label>
                 <Input 
                   type="number" 
                   placeholder="" 
@@ -1003,9 +1088,9 @@ const CostList = () => {
             </button>
           </DialogHeader>
           <div className="space-y-6 py-4">
-            <div className="grid grid-cols-5 gap-4">
+            <div className="grid grid-cols-4 gap-4">
               <div className="space-y-2">
-                <Label>Date</Label>
+                <Label>Date <span className="text-red-500">*</span></Label>
                 <Input
                   type="date"
                   value={hardCostForm.date}
@@ -1013,7 +1098,7 @@ const CostList = () => {
                 />
               </div>
               <div className="space-y-2">
-                <Label>Bank Type</Label>
+                <Label>Bank Type <span className="text-red-500">*</span></Label>
                 <Select
                   value={hardCostForm.bank_type_id}
                   onValueChange={(value) => setHardCostForm({...hardCostForm, bank_type_id: value})}
@@ -1031,7 +1116,7 @@ const CostList = () => {
                 </Select>
               </div>
               <div className="space-y-2">
-                <Label>Type</Label>
+                <Label>Type <span className="text-red-500">*</span></Label>
                 <Input 
                   disabled
                   value={hardCostForm.type}
@@ -1039,7 +1124,7 @@ const CostList = () => {
                 />
               </div>
               <div className="space-y-2">
-                <Label>Method</Label>
+                <Label>Method <span className="text-red-500">*</span></Label>
                 <Select
                   value={hardCostForm.method_id}
                   onValueChange={(value) => setHardCostForm({...hardCostForm, method_id: value})}
@@ -1056,19 +1141,11 @@ const CostList = () => {
                   </SelectContent>
                 </Select>
               </div>
-              <div className="space-y-2">
-                <Label>Quantity</Label>
-                <Input 
-                  type="number" 
-                  value={hardCostForm.quantity}
-                  onChange={(e) => setHardCostForm({...hardCostForm, quantity: e.target.value})}
-                />
-              </div>
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label>Pay to</Label>
+                <Label>Pay to <span className="text-red-500">*</span></Label>
                 <Input 
                   placeholder="" 
                   value={hardCostForm.pay_to}
@@ -1076,7 +1153,7 @@ const CostList = () => {
                 />
               </div>
               <div className="space-y-2">
-                <Label>Amount</Label>
+                <Label>Amount <span className="text-red-500">*</span></Label>
                 <Input 
                   type="number" 
                   placeholder="" 
@@ -1330,7 +1407,7 @@ const CostList = () => {
             <div className="space-y-6 py-4">
               <div className="grid grid-cols-4 gap-4">
                 <div className="space-y-2">
-                  <Label>Timekeeper</Label>
+                  <Label>Timekeeper <span className="text-red-500">*</span></Label>
                   <Input 
                     placeholder="" 
                     value={editingCost.timekeeker || ""}
@@ -1338,7 +1415,7 @@ const CostList = () => {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label>Date</Label>
+                  <Label>Date <span className="text-red-500">*</span></Label>
                   <Input
                     type="date"
                     value={editingCost.date || ""}
@@ -1346,7 +1423,7 @@ const CostList = () => {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label>Type</Label>
+                  <Label>Type <span className="text-red-500">*</span></Label>
                   <Input 
                     value={editingCost.type || "Expense"} 
                     disabled
@@ -1374,7 +1451,7 @@ const CostList = () => {
 
               <div className="grid grid-cols-3 gap-4">
                 <div className="space-y-2">
-                  <Label>Quantity</Label>
+                  <Label>Quantity <span className="text-red-500">*</span></Label>
                   <Input 
                     type="number" 
                     min="1"
@@ -1384,7 +1461,7 @@ const CostList = () => {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label>Rate</Label>
+                  <Label>Rate <span className="text-red-500">*</span></Label>
                   <Input 
                     type="number" 
                     placeholder="" 
@@ -1393,7 +1470,7 @@ const CostList = () => {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label>Value</Label>
+                  <Label>Value <span className="text-red-500">*</span></Label>
                   <Input 
                     type="number" 
                     placeholder="" 
@@ -1454,7 +1531,7 @@ const CostList = () => {
             <div className="space-y-6 py-4">
               <div className="grid grid-cols-3 gap-4">
                 <div className="space-y-2">
-                  <Label>Timekeeper</Label>
+                  <Label>Timekeeper <span className="text-red-500">*</span></Label>
                   <Input 
                     placeholder="" 
                     value={editingCost.timekeeker || ""}
@@ -1462,7 +1539,7 @@ const CostList = () => {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label>Date</Label>
+                  <Label>Date <span className="text-red-500">*</span></Label>
                   <Input
                     type="date"
                     value={editingCost.date || ""}
@@ -1470,7 +1547,7 @@ const CostList = () => {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label>Type</Label>
+                  <Label>Type <span className="text-red-500">*</span></Label>
                   <Input 
                     value={editingCost.type || "Lawyer Work"}
                     disabled
@@ -1501,7 +1578,7 @@ const CostList = () => {
                 <h3 className="text-lg font-medium mb-4">Time & Amount</h3>
                 <div className="grid grid-cols-6 gap-4 mb-4">
                   <div className="space-y-2 col-span-3">
-                    <Label>Time Spent</Label>
+                    <Label>Time Spent <span className="text-red-500">*</span></Label>
                     <Select
                       value={String(editingCost.time_spent_id || "")}
                       onValueChange={(value) => setEditingCost({...editingCost, time_spent_id: value})}
@@ -1531,7 +1608,7 @@ const CostList = () => {
 
                 <div className="grid grid-cols-6 gap-4">
                   <div className="space-y-2 col-span-2">
-                    <Label>Rate Level</Label>
+                    <Label>Rate Level <span className="text-red-500">*</span></Label>
                     <Select
                       value={String(editingCost.rate_level_id || "")}
                       onValueChange={(value) => {
@@ -1556,7 +1633,7 @@ const CostList = () => {
                     </Select>
                   </div>
                   <div className="space-y-2 col-span-2">
-                    <Label>Rate/Price</Label>
+                    <Label>Rate/Price <span className="text-red-500">*</span></Label>
                     <Input 
                       type="number" 
                       className="w-full" 
@@ -1565,7 +1642,7 @@ const CostList = () => {
                     />
                   </div>
                   <div className="space-y-2 col-span-2">
-                    <Label>Rate Type</Label>
+                    <Label>Rate Type <span className="text-red-500">*</span></Label>
                     <Select
                       value={String(editingCost.rate_type_id || "")}
                       onValueChange={(value) => setEditingCost({...editingCost, rate_type_id: value})}
@@ -1742,9 +1819,9 @@ const CostList = () => {
           </DialogHeader>
           {editingCost && (
             <div className="space-y-6 py-4">
-              <div className="grid grid-cols-5 gap-4">
+              <div className="grid grid-cols-4 gap-4">
                 <div className="space-y-2">
-                  <Label>Date</Label>
+                  <Label>Date <span className="text-red-500">*</span></Label>
                   <Input
                     type="date"
                     value={editingCost.date || ""}
@@ -1752,7 +1829,7 @@ const CostList = () => {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label>Bank Type</Label>
+                  <Label>Bank Type <span className="text-red-500">*</span></Label>
                   <Select
                     value={String(editingCost.bank_type_id || "")}
                     onValueChange={(value) => setEditingCost({...editingCost, bank_type_id: value})}
@@ -1770,14 +1847,14 @@ const CostList = () => {
                   </Select>
                 </div>
                 <div className="space-y-2">
-                  <Label>Type</Label>
+                  <Label>Type <span className="text-red-500">*</span></Label>
                   <Input 
                     disabled
                     value={editingCost.type || "Payment"}
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label>Method</Label>
+                  <Label>Method <span className="text-red-500">*</span></Label>
                   <Select
                     value={String(editingCost.method_id || "")}
                     onValueChange={(value) => setEditingCost({...editingCost, method_id: value})}
@@ -1794,19 +1871,11 @@ const CostList = () => {
                     </SelectContent>
                   </Select>
                 </div>
-                <div className="space-y-2">
-                  <Label>Quantity</Label>
-                  <Input 
-                    type="number" 
-                    value={editingCost.quantity || ""}
-                    onChange={(e) => setEditingCost({...editingCost, quantity: e.target.value})}
-                  />
-                </div>
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label>Pay to</Label>
+                  <Label>Pay to <span className="text-red-500">*</span></Label>
                   <Input 
                     placeholder="" 
                     value={editingCost.pay_to || ""}
@@ -1814,7 +1883,7 @@ const CostList = () => {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label>Amount</Label>
+                  <Label>Amount <span className="text-red-500">*</span></Label>
                   <Input 
                     type="number" 
                     placeholder="" 

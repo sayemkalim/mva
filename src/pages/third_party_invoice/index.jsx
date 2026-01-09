@@ -495,11 +495,15 @@ const ThirdPartyInvoice = () => {
 
   const addMutation = useMutation({
     mutationFn: (payload) => addInvoice(payload, slug),
-    onSuccess: () => {
-      queryClient.invalidateQueries(["thirdPartyInvoiceList", slug]);
-      setDialogOpen(false);
-      resetForm();
-      toast.success("Invoice added successfully");
+    onSuccess: (response) => {
+      if (response?.Apistatus != false) {
+        queryClient.invalidateQueries(["thirdPartyInvoiceList", slug]);
+        setDialogOpen(false);
+        resetForm();
+        toast.success("Invoice added successfully");
+      } else {
+        toast.error(response?.message || "Failed to add invoice");
+      }
     },
     onError: (error) => {
       console.error("Failed to add invoice:", error);
@@ -509,9 +513,13 @@ const ThirdPartyInvoice = () => {
 
   const deleteMutation = useMutation({
     mutationFn: (id) => deleteInvoice(id),
-    onSuccess: () => {
-      queryClient.invalidateQueries(["thirdPartyInvoiceList", slug]);
-      toast.success("Invoice deleted successfully");
+    onSuccess: (response) => {
+      if (response?.Apistatus != false) {
+        queryClient.invalidateQueries(["thirdPartyInvoiceList", slug]);
+        toast.success("Invoice deleted successfully");
+      } else {
+        toast.error(response?.message || "Failed to delete invoice");
+      }
     },
     onError: (error) => {
       console.error("Failed to delete invoice:", error);
@@ -521,10 +529,14 @@ const ThirdPartyInvoice = () => {
 
   const unlinkMutation = useMutation({
     mutationFn: (paidId) => unlinkInvoice(paidId),
-    onSuccess: () => {
-      queryClient.invalidateQueries(["thirdPartyInvoiceList", slug]);
-      toast.success("Invoice unlinked successfully");
-      setUnlinkConfirmItem(null);
+    onSuccess: (response) => {
+      if (response?.Apistatus != false) {
+        queryClient.invalidateQueries(["thirdPartyInvoiceList", slug]);
+        toast.success("Invoice unlinked successfully");
+        setUnlinkConfirmItem(null);
+      } else {
+        toast.error(response?.message || "Failed to unlink invoice");
+      }
     },
     onError: (error) => {
       console.error("Failed to unlink invoice:", error);
@@ -535,7 +547,7 @@ const ThirdPartyInvoice = () => {
   const payMutation = useMutation({
     mutationFn: (payload) => payBill(payload),
     onSuccess: (response) => {
-      if (response?.Apistatus === true) {
+      if (response?.Apistatus != false) {
         queryClient.invalidateQueries(["thirdPartyInvoiceList", slug]);
         toast.success(response?.message || "Payment successful");
         closePayDialog();
@@ -552,13 +564,17 @@ const ThirdPartyInvoice = () => {
 
   const updateMutation = useMutation({
     mutationFn: ({ payload, id }) => updateInvoice(payload, id),
-    onSuccess: () => {
-      queryClient.invalidateQueries(["thirdPartyInvoiceList", slug]);
-      setEditDialogOpen(false);
-      setEditingInvoice(null);
-      setEditUploadedFiles([]);
-      setEditAttachmentIds([]);
-      toast.success("Invoice updated successfully");
+    onSuccess: (response) => {
+      if (response?.Apistatus != false) {
+        queryClient.invalidateQueries(["thirdPartyInvoiceList", slug]);
+        setEditDialogOpen(false);
+        setEditingInvoice(null);
+        setEditUploadedFiles([]);
+        setEditAttachmentIds([]);
+        toast.success("Invoice updated successfully");
+      } else {
+        toast.error(response?.message || "Failed to update invoice");
+      }
     },
     onError: (error) => {
       console.error("Failed to update invoice:", error);

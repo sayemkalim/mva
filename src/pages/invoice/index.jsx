@@ -16,6 +16,8 @@ import { fetchInvoiceWriteOff } from "./helpers/fetchInvoiceWriteOff";
 import { saveInvoiceWriteOff } from "./helpers/saveInvoiceWriteOff";
 import { deleteInvoiceWriteOff } from "./helpers/deleteInvoiceWriteOff";
 import { unlinkInvoicePayment } from "./helpers/unlinkInvoicePayment";
+import { downloadPaymentHistory } from "./helpers/downloadPaymentHistory";
+import { downloadInvoice } from "./helpers/downloadInvoice";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -51,6 +53,7 @@ import {
   ChevronDown,
   Link2Off,
   Eye,
+  Printer,
 } from "lucide-react";
 import {
   Dialog,
@@ -350,12 +353,12 @@ const Invoice = () => {
   const createInvoiceMutation = useMutation({
     mutationFn: (data) => createInvoice(slug, data),
     onSuccess: (response) => {
-      if (response?.response?.Apistatus === true) {
+      if (response?.response?.Apistatus != false) {
         toast.success("Invoice created successfully");
         queryClient.invalidateQueries(["invoiceList", slug]);
         closeAddDialog();
       } else {
-        toast.error(response?.message || "Failed to create invoice");
+        toast.error(response?.response?.message || "Failed to create invoice");
       }
     },
     onError: (error) => {
@@ -395,7 +398,7 @@ const Invoice = () => {
   const deleteInvoiceMutation = useMutation({
     mutationFn: (invoiceId) => deleteInvoice(invoiceId),
     onSuccess: (response) => {
-      if (response?.response?.Apistatus === true) {
+      if (response?.response?.Apistatus != false) {
         toast.success("Invoice deleted successfully");
         queryClient.invalidateQueries(["invoiceList", slug]);
         closeDeleteDialog();
@@ -485,7 +488,7 @@ const Invoice = () => {
   const updateInvoiceMutation = useMutation({
     mutationFn: (data) => updateInvoice(editInvoiceId, data),
     onSuccess: (response) => {
-      if (response?.response?.Apistatus === true) {
+      if (response?.response?.Apistatus != false) {
         toast.success("Invoice updated successfully");
         queryClient.invalidateQueries(["invoiceList", slug]);
         closeEditDialog();
@@ -647,10 +650,14 @@ const Invoice = () => {
     };
 
     try {
-      await saveInvoicePaymentTrust(slug, payload);
-      toast.success("Payment received successfully");
-      closeTrustPaymentDialog();
-      queryClient.invalidateQueries(["invoiceList", slug]);
+      const response = await saveInvoicePaymentTrust(slug, payload);
+      if (response?.Apistatus != false) {
+        toast.success("Payment received successfully");
+        closeTrustPaymentDialog();
+        queryClient.invalidateQueries(["invoiceList", slug]);
+      } else {
+        toast.error(response?.message || "Failed to save payment");
+      }
     } catch (error) {
       console.error("Failed to save payment:", error);
       toast.error(error?.response?.data?.message || "Failed to save payment");
@@ -746,10 +753,14 @@ const Invoice = () => {
     };
 
     try {
-      await saveInvoicePaymentOperating(slug, payload);
-      toast.success("Payment received successfully");
-      closeOperatingPaymentDialog();
-      queryClient.invalidateQueries(["invoiceList", slug]);
+      const response = await saveInvoicePaymentOperating(slug, payload);
+      if (response?.Apistatus != false) {
+        toast.success("Payment received successfully");
+        closeOperatingPaymentDialog();
+        queryClient.invalidateQueries(["invoiceList", slug]);
+      } else {
+        toast.error(response?.message || "Failed to save payment");
+      }
     } catch (error) {
       console.error("Failed to save payment:", error);
       toast.error(error?.response?.data?.message || "Failed to save payment");
@@ -792,7 +803,7 @@ const Invoice = () => {
   const deletePaymentMutation = useMutation({
     mutationFn: (paymentId) => deleteInvoicePayment(paymentId),
     onSuccess: (response) => {
-      if (response?.response?.Apistatus === true) {
+      if (response?.response?.Apistatus != false) {
         toast.success("Payment deleted successfully");
         queryClient.invalidateQueries(["invoiceList", slug]);
         closeDeletePaymentDialog();
@@ -814,6 +825,40 @@ const Invoice = () => {
   const handleConfirmDeletePayment = () => {
     if (paymentToDelete) {
       deletePaymentMutation.mutate(paymentToDelete.id);
+    }
+  };
+
+  const downloadHistoryMutation = useMutation({
+    mutationFn: (invoiceId) => downloadPaymentHistory(invoiceId),
+    onSuccess: () => {
+      toast.success("Payment history downloaded successfully");
+    },
+    onError: (error) => {
+      console.error("Failed to download payment history:", error);
+      toast.error("Failed to download payment history");
+    },
+  });
+
+  const handlePrintPaymentHistory = (item) => {
+    if (item?.id) {
+      downloadHistoryMutation.mutate(item.id);
+    }
+  };
+
+  const downloadInvoiceMutation = useMutation({
+    mutationFn: (invoiceId) => downloadInvoice(invoiceId),
+    onSuccess: () => {
+      toast.success("Invoice downloaded successfully");
+    },
+    onError: (error) => {
+      console.error("Failed to download invoice:", error);
+      toast.error("Failed to download invoice");
+    },
+  });
+
+  const handlePrintInvoice = (item) => {
+    if (item?.id) {
+      downloadInvoiceMutation.mutate(item.id);
     }
   };
 
@@ -946,7 +991,7 @@ const Invoice = () => {
 
     try {
       const response = await saveInvoiceWriteOff(payload);
-      if (response?.response?.Apistatus) {
+      if (response?.response?.Apistatus != false) {
         toast.success("Write-off saved successfully");
         queryClient.invalidateQueries(["invoiceList", slug]);
         closeWriteOffDialog();
@@ -965,9 +1010,8 @@ const Invoice = () => {
     setDeleteWriteOffLoading(true);
     try {
       const response = await deleteInvoiceWriteOff(writeOffToDelete.id);
-      if (response?.Apistatus) {
+      if (response?.Apistatus != false) {
         toast.success("Write-off deleted successfully");
-        // Refresh write-off data
         const refreshedData = await fetchInvoiceWriteOff(invoiceToWriteOff.id);
         if (refreshedData?.Apistatus) {
           setWriteOffData(refreshedData);
@@ -992,11 +1036,11 @@ const Invoice = () => {
     setUnlinkPaymentLoading(true);
     try {
       const response = await unlinkInvoicePayment(invoiceToUnlink.id);
-      if (response?.Apistatus) {
+      if (response?.response?.Apistatus != false) {
         toast.success("Payment unlinked successfully");
         queryClient.invalidateQueries(["invoiceList", slug]);
       } else {
-        toast.error(response?.message || "Failed to unlink payment");
+        toast.error(response?.response?.message || "Failed to unlink payment");
       }
     } catch (error) {
       console.error("Failed to unlink payment:", error);
@@ -1169,10 +1213,17 @@ const Invoice = () => {
                               setInvoiceToUnlink(item);
                               setUnlinkPaymentDialogOpen(true);
                             }}
-                            disabled={!item.isLocked}
+                            disabled={item.isLocked}
                           >
                             <Link2Off className="h-4 w-4" />
                             Unlink Payment
+                          </button>
+                          <button
+                            className="flex items-center gap-2 px-3 py-2 text-sm rounded-md hover:bg-accent text-left disabled:opacity-50 disabled:cursor-not-allowed"
+                            onClick={() => handlePrintPaymentHistory(item)}
+                          >
+                            <Printer className="h-4 w-4" />
+                            Print Payment History
                           </button>
 
                           {/* Invoice Payment Nested Popover */}
@@ -2036,7 +2087,7 @@ const Invoice = () => {
               {selectedInvoiceForHistory?.invoice_number}
             </DialogTitle>
             <div className="flex items-center gap-3 absolute right-4 top-4">
-              <Button className="bg-primary hover:bg-primary/90 gap-2">
+              <Button onClick={() => handlePrintInvoice(selectedInvoiceForHistory)} className="bg-primary hover:bg-primary/90 gap-2">
                 Print History
               </Button>
               <button
