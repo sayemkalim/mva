@@ -16,7 +16,7 @@ const safeFormat = (dateStr, formatStr) => {
   return dateObj && isValid(dateObj) ? format(dateObj, formatStr) : "-";
 };
 
-const ClientTable = ({ slug, setBlogsLength }) => {
+const ClientTable = ({ slug, setBlogsLength, params = {} }) => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
@@ -25,13 +25,15 @@ const ClientTable = ({ slug, setBlogsLength }) => {
     isLoading,
     error,
   } = useQuery({
-    queryKey: ["clientcorrespondencelist", slug],
-    queryFn: () => fetchClientCorrespondanceList(slug),
+    queryKey: ["clientcorrespondencelist", slug, params.search],
+    queryFn: () => fetchClientCorrespondanceList(slug, { search: params.search || "" }),
     enabled: !!slug,
   });
 
   const [openDelete, setOpenDelete] = useState(false);
   const [selectedSection, setSelectedSection] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const perPage = 10;
 
   const onOpenDialog = (row) => {
     setOpenDelete(true);
@@ -68,6 +70,13 @@ const ClientTable = ({ slug, setBlogsLength }) => {
   useEffect(() => {
     setBlogsLength(sections.length);
   }, [sections, setBlogsLength]);
+
+  // Pagination calculations
+  const totalPages = Math.ceil(sections.length / perPage);
+  const paginatedData = sections.slice(
+    (currentPage - 1) * perPage,
+    currentPage * perPage
+  );
 
   const onNavigateToEdit = (section) => {
     if (!section?.id) {
@@ -144,9 +153,8 @@ const ClientTable = ({ slug, setBlogsLength }) => {
 
         return (
           <span
-            className={`px-2 py-1 rounded-full text-xs font-medium ${
-              statusColors[value] || "bg-gray-100 text-foreground"
-            }`}
+            className={`px-2 py-1 rounded-full text-xs font-medium ${statusColors[value] || "bg-gray-100 text-foreground"
+              }`}
           >
             {value || "-"}
           </span>
@@ -180,10 +188,14 @@ const ClientTable = ({ slug, setBlogsLength }) => {
     <>
       <CustomTable
         columns={columns}
-        data={sections}
+        data={paginatedData}
         isLoading={isLoading}
         error={error}
         onRowClick={onNavigateToEdit}
+        totalPages={totalPages}
+        currentPage={currentPage}
+        perPage={perPage}
+        onPageChange={setCurrentPage}
       />
       <CustomDialog
         onOpen={openDelete}

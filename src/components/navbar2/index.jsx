@@ -50,11 +50,10 @@ export function Navbar2() {
   const { theme, setTheme } = useTheme();
   const [loadingAction, setLoadingAction] = useState({});
   const [selectedIds, setSelectedIds] = useState([]);
-  const [notificationFilter, setNotificationFilter] = useState("all"); // "all", "action", "normal"
+  const [notificationFilter, setNotificationFilter] = useState("all"); 
   const [selectedNotification, setSelectedNotification] = useState(null);
   const [dialogOpen, setDialogOpen] = useState(false);
 
-  // Timer logic
   const [seconds, setSeconds] = useState(0);
   const [isActive, setIsActive] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
@@ -66,7 +65,6 @@ export function Navbar2() {
     return () => clearInterval(intervalRef.current);
   }, []);
 
-  // Fetch notifications using TanStack Query
   const {
     data: notificationsData,
     isLoading: isLoadingNotifications,
@@ -85,8 +83,6 @@ export function Navbar2() {
     refetchInterval: 30000,
     refetchOnWindowFocus: true,
   });
-
-  // Fetch unread count using TanStack Query
   const { data: unreadCountData, refetch: refetchUnreadCount } = useQuery({
     queryKey: ["unreadCount"],
     queryFn: async () => {
@@ -129,8 +125,6 @@ export function Navbar2() {
       queryClient.invalidateQueries({ queryKey: ["unreadCount"] });
     },
   });
-
-  // Mutation for deleting single notification
   const deleteNotificationMutation = useMutation({
     mutationFn: (id) => deleteNotificationById(id),
     onSuccess: () => {
@@ -138,8 +132,6 @@ export function Navbar2() {
       queryClient.invalidateQueries({ queryKey: ["unreadCount"] });
     },
   });
-
-  // Mutation for deleting all notifications
   const deleteAllMutation = useMutation({
     mutationFn: deleteAllNotifications,
     onSuccess: () => {
@@ -148,8 +140,6 @@ export function Navbar2() {
       clearWsAll();
     },
   });
-
-  // Mutation for responding to action notifications
   const respondMutation = useMutation({
     mutationFn: ({ id, action }) => respondToNotification(id, action),
     onSuccess: () => {

@@ -1,16 +1,25 @@
 import { apiService } from "@/api/api_service/apiService";
 import { endpoints } from "@/api/endpoints";
 
-export const fetchSectionList = async (slug) => {
+export const fetchSectionList = async (slug, { search = "" } = {}) => {
   try {
+    const params = new URLSearchParams();
+    if (search && search.trim()) {
+      params.append("search", search);
+    }
+
+    const queryString = params.toString();
+    const endpoint = queryString
+      ? `${endpoints.sectionList}/${slug}?${queryString}`
+      : `${endpoints.sectionList}/${slug}`;
+
     const apiResponse = await apiService({
-      endpoint: `${endpoints.sectionList}/${slug}`,
+      endpoint,
     });
 
-    console.log("ApFull API response:", apiResponse);
     return apiResponse;
   } catch (error) {
-    console.error("Error fetching workstation list:", error);
+    console.error("Error fetching section list:", error);
     throw error;
   }
 };

@@ -15,7 +15,7 @@ const safeFormat = (dateStr, formatStr) => {
   return dateObj && isValid(dateObj) ? format(dateObj, formatStr) : "-";
 };
 
-const LatTable = ({ slug, setBlogsLength }) => {
+const LatTable = ({ slug, setBlogsLength, params = {} }) => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
@@ -24,8 +24,8 @@ const LatTable = ({ slug, setBlogsLength }) => {
     isLoading,
     error,
   } = useQuery({
-    queryKey: ["latList", slug],
-    queryFn: () => fetchLatList(slug),
+    queryKey: ["latList", slug, params.search],
+    queryFn: () => fetchLatList(slug, { search: params.search || "" }),
     enabled: !!slug,
   });
 

@@ -88,8 +88,53 @@ const SearchableDropdown = ({
     </Popover>
   );
 };
+const StatusRibbon = ({ statusName }) => {
+  if (!statusName) return null;
 
-// Include id so backend can distinguish existing vs new communications
+  const getStatusColor = (name) => {
+    const statusLower = name?.toLowerCase() || "";
+    if (statusLower.includes("pending")) return "bg-yellow-500";
+    if (statusLower.includes("fulfilled") || statusLower.includes("completed")) return "bg-green-500";
+    if (statusLower.includes("rejected") || statusLower.includes("cancelled")) return "bg-red-500";
+    if (statusLower.includes("in progress") || statusLower.includes("processing")) return "bg-blue-500";
+    return "bg-purple-500";
+  };
+
+  return (
+    <div className="absolute top-0 left-0 overflow-hidden w-24 h-24 pointer-events-none z-10">
+      <div
+        className={`${getStatusColor(statusName)} text-white text-[9.5px] font-bold uppercase py-0.5 px-6 transform -rotate-45 -translate-x-6 translate-y-4 shadow-md`}
+      >
+        {statusName}
+      </div>
+    </div>
+  );
+};
+
+
+const DocumentStatusBadge = ({ statusName }) => {
+  if (!statusName) return null;
+
+  const getStatusColor = (name) => {
+    const statusLower = name?.toLowerCase() || "";
+    if (statusLower.includes("pending")) return "bg-yellow-500";
+    if (statusLower.includes("fulfilled") || statusLower.includes("completed")) return "bg-green-500";
+    if (statusLower.includes("rejected") || statusLower.includes("cancelled")) return "bg-red-500";
+    if (statusLower.includes("in progress") || statusLower.includes("processing")) return "bg-blue-500";
+    return "bg-purple-500";
+  };
+
+  return (
+    <div className="inline-flex items-center gap-2 px-3 py-1  text-white text-[9.5px] font-bold uppercase ">
+      <div className="flex items-center gap-2">
+        <span className={`${getStatusColor(statusName)} px-3 py-1 `}>
+          {statusName}
+        </span>
+      </div>
+    </div>
+  );
+};
+
 const emptyComm = {
   id: null,
   date: "",
@@ -98,7 +143,6 @@ const emptyComm = {
   reminder: "",
 };
 
-// Include id so backend can distinguish existing vs new documents
 const emptyDocReq = {
   id: null,
   documents_requested_by_the_insurer_id: "",
@@ -110,6 +154,7 @@ const emptyDocReq = {
   fax: "",
   email: "",
   request_status_id: "",
+  request_status_name: "",
   communications: [{ ...emptyComm }],
   expanded: false,
 };
@@ -122,7 +167,6 @@ export default function Section33() {
   const [popoverOpen, setPopoverOpen] = useState({});
   const isEditMode = Boolean(id);
 
-  // Fetch meta info for dropdown options
   const {
     data: metaResp,
     isLoading: loadingMeta,
@@ -136,7 +180,6 @@ export default function Section33() {
   });
   const meta = metaResp?.response || {};
 
-  // Fetch existing section33 data for editing
   const { data: section33, isLoading: loadingSection33 } = useQuery({
     queryKey: ["section33", id],
     queryFn: () => fetchSectionById(id),
@@ -145,7 +188,6 @@ export default function Section33() {
     retry: 1,
   });
 
-  // Delete mutations
   const deleteCommMutation = useMutation({
     mutationFn: (commId) => deleteSectionCommunication(commId),
     onSuccess: () => {
@@ -164,9 +206,7 @@ export default function Section33() {
     onError: (e) => toast.error(e.message || "Failed to delete document"),
   });
 
-  // Main form state (includes first document fields)
   const [mainForm, setMainForm] = useState({
-    // Section 33 record id
     id: "",
     request_id: "",
     s33_req_received: "",
@@ -176,13 +216,14 @@ export default function Section33() {
     deadline: "",
     response_to_insurance: "",
     s33_req_status_id: "",
+    s33_req_status_name: "",
     ambulance_cnr: "",
     medical_clinic_name: "",
     phone: "",
     fax: "",
     email: "",
     request_status_id: "",
-    // id of the first requested_documents record
+    request_status_name: "",
     main_doc_id: null,
     communications: [{ ...emptyComm }],
     expanded: false,
@@ -209,21 +250,23 @@ export default function Section33() {
           fax: firstDoc.fax ?? "",
           email: firstDoc.email ?? "",
           request_status_id: firstDoc.request_status_id ?? "",
+          request_status_name: firstDoc.status?.name ?? "",
           deadline: section33.deadline ?? "",
           response_to_insurance: section33.response_to_insurance ?? "",
           s33_req_status_id: section33.s33_req_status_id ?? "",
+          s33_req_status_name: section33.status?.name ?? "",
           expanded: !!firstDoc.requested_id,
           main_doc_id: firstDoc.id ?? null,
           communications: (firstDoc.communications || []).map((c) => ({
             ...emptyComm,
-            ...c, // keeps c.id from backend
+            ...c,
           })) || [{ ...emptyComm }],
         });
 
         setDocumentsRequested(
           docs.slice(1).map((doc) => ({
             ...emptyDocReq,
-            id: doc.id ?? null, // keep each doc's id
+            id: doc.id ?? null,
             documents_requested_by_the_insurer_id: doc.requested_id ?? "",
             from_date: doc.from_date ?? "",
             to_date: doc.to_date ?? "",
@@ -233,10 +276,11 @@ export default function Section33() {
             fax: doc.fax ?? "",
             email: doc.email ?? "",
             request_status_id: doc.request_status_id ?? "",
+            request_status_name: doc.status?.name ?? "",
             expanded: !!doc.requested_id,
             communications: (doc.communications || []).map((c) => ({
               ...emptyComm,
-              ...c, // keeps c.id from backend
+              ...c,
             })) || [{ ...emptyComm }],
           }))
         );
@@ -254,9 +298,11 @@ export default function Section33() {
           fax: "",
           email: "",
           request_status_id: "",
+          request_status_name: "",
           deadline: section33.deadline ?? "",
           response_to_insurance: section33.response_to_insurance ?? "",
           s33_req_status_id: section33.s33_req_status_id ?? "",
+          s33_req_status_name: section33.status?.name ?? "",
           expanded: false,
           main_doc_id: null,
           communications: [{ ...emptyComm }],
@@ -277,13 +323,28 @@ export default function Section33() {
         expanded: !!value,
       }));
       setPopoverOpen((p) => ({ ...p, [popKey]: false }));
+    } else if (fieldName === "s33_req_status_id") {
+      const statusName = getLabel(value, meta.insurance_section_request);
+      setMainForm((prev) => ({ 
+        ...prev, 
+        s33_req_status_id: value,
+        s33_req_status_name: statusName 
+      }));
+      setPopoverOpen((p) => ({ ...p, [popKey]: false }));
+    } else if (fieldName === "request_status_id") {
+      const statusName = getLabel(value, meta.insurance_status);
+      setMainForm((prev) => ({ 
+        ...prev, 
+        request_status_id: value,
+        request_status_name: statusName 
+      }));
+      setPopoverOpen((p) => ({ ...p, [popKey]: false }));
     } else {
       setMainForm((prev) => ({ ...prev, [fieldName]: value }));
       setPopoverOpen((p) => ({ ...p, [popKey]: false }));
     }
   };
 
-  // Communication handlers for main form
   const addMainComm = () =>
     setMainForm((prev) => ({
       ...prev,
@@ -315,22 +376,31 @@ export default function Section33() {
     setPopoverOpen((p) => ({ ...p, [popKey]: false }));
   };
 
-  // Additional documents handlers
   const handleDocSearchSelect = (idx, fieldName, value, popKey) => {
     setDocumentsRequested((prev) =>
-      prev.map((item, i) =>
-        i === idx
-          ? fieldName === "documents_requested_by_the_insurer_id"
-            ? {
+      prev.map((item, i) => {
+        if (i === idx) {
+          if (fieldName === "documents_requested_by_the_insurer_id") {
+            return {
               ...item,
               [fieldName]: value,
               expanded: !!value,
-            }
-            : { ...item, [fieldName]: value }
-          : item
-      )
+            };
+          } else if (fieldName === "request_status_id") {
+            const statusName = getLabel(value, meta.insurance_status);
+            return { 
+              ...item, 
+              request_status_id: value,
+              request_status_name: statusName 
+            };
+          } else {
+            return { ...item, [fieldName]: value };
+          }
+        }
+        return item;
+      })
     );
-    if (popoverKey) {
+    if (popKey) {
       setPopoverOpen((p) => ({ ...p, [popKey]: false }));
     }
   };
@@ -347,7 +417,6 @@ export default function Section33() {
     }
   };
 
-  // Communication inside documents handlers
   const addComm = (docIdx) =>
     setDocumentsRequested((prev) =>
       prev.map((doc, idx) =>
@@ -406,14 +475,13 @@ export default function Section33() {
     setPopoverOpen((p) => ({ ...p, [popKey]: false }));
   };
 
-  // Mutation for save/update
   const mutation = useMutation({
     mutationFn: ({ isEdit, idOrSlug, data }) =>
       isEdit
         ? updateSection(idOrSlug, data)
         : createSection({ slug: idOrSlug, data }),
     onSuccess: (data) => {
-      const resp = data?.response || data; // For safety, prefer response key
+      const resp = data?.response || data;
 
       console.log("API Success Response:", resp);
 
@@ -451,7 +519,6 @@ export default function Section33() {
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    // Map main communications with ids
     const mainCommsPayload = (mainForm.communications || []).map((c) => ({
       id: c.id ?? null,
       date: c.date,
@@ -460,10 +527,9 @@ export default function Section33() {
       reminder: c.reminder,
     }));
 
-    // Build documents_requested payload with ids
     const docsPayload = [
       {
-        id: mainForm.main_doc_id ?? null, // id of the first document
+        id: mainForm.main_doc_id ?? null,
         requested_id: mainForm.documents_requested_by_the_insurer_id,
         from_date: mainForm.from_date,
         to_date: mainForm.to_date,
@@ -476,7 +542,7 @@ export default function Section33() {
         communications: mainCommsPayload,
       },
       ...documentsRequested.map((doc) => ({
-        id: doc.id ?? null, // id of additional document
+        id: doc.id ?? null,
         requested_id: doc.documents_requested_by_the_insurer_id,
         from_date: doc.from_date,
         to_date: doc.to_date,
@@ -497,7 +563,7 @@ export default function Section33() {
     ];
 
     const payload = {
-      id: mainForm.id || null, // section33 id
+      id: mainForm.id || null,
       request_id: mainForm.request_id,
       s33_req_received: mainForm.s33_req_received,
       documents_requested_by_the_insurer_id:
@@ -513,7 +579,7 @@ export default function Section33() {
       fax: mainForm.fax,
       email: mainForm.email,
       request_status_id: mainForm.request_status_id,
-      communications: mainCommsPayload, // top level communication
+      communications: mainCommsPayload,
       documents_requested: docsPayload,
     };
 
@@ -524,7 +590,6 @@ export default function Section33() {
     }
   };
 
-  // Delete handlers
   const handleDeleteDocument = (docId) => {
     if (!docId) {
       toast.error("Document does not have a valid ID to delete.");
@@ -541,9 +606,7 @@ export default function Section33() {
     deleteCommMutation.mutate(commId);
   };
 
-  // Main document delete logic
   const handleDeleteMainDocument = () => {
-    // delete first requested_document by its own id
     if (mainForm.main_doc_id) {
       handleDeleteDocument(mainForm.main_doc_id);
     }
@@ -555,12 +618,14 @@ export default function Section33() {
       deadline: prev.deadline,
       response_to_insurance: prev.response_to_insurance,
       s33_req_status_id: prev.s33_req_status_id,
+      s33_req_status_name: prev.s33_req_status_name,
       ambulance_cnr: "",
       medical_clinic_name: "",
       phone: "",
       fax: "",
       email: "",
       request_status_id: "",
+      request_status_name: "",
       main_doc_id: null,
       communications: [{ ...emptyComm }],
       expanded: false,
@@ -588,7 +653,6 @@ export default function Section33() {
   return (
     <div className="min-h-screen bg-muted">
       <Navbar2 />
-
       <div className="bg-card border-b px-6 py-4">
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
           <button
@@ -612,9 +676,13 @@ export default function Section33() {
         onSubmit={handleSubmit}
         className="container mx-auto px-6 py-8 max-w-7xl"
       >
-        <div className="bg-card rounded-lg shadow-sm border p-8">
-          {/* Main document fields */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-2">
+        <div className="bg-card rounded-lg shadow-sm border p-8 relative overflow-hidden">
+          {/* S33 Request Status Ribbon - Only in Edit Mode */}
+          {isEditMode && mainForm.s33_req_status_name && (
+            <StatusRibbon statusName={mainForm.s33_req_status_name} />
+          )}
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
             <div className="space-y-2">
               <Label>Request</Label>
               <SearchableDropdown
@@ -629,7 +697,7 @@ export default function Section33() {
               />
             </div>
             <div className="space-y-2">
-              <Label>S33 REQ Received</Label>
+              <Label>S33 REQ Requested Received</Label>
               <Input
                 type="date"
                 name="s33_req_received"
@@ -644,6 +712,14 @@ export default function Section33() {
               />
             </div>
           </div>
+
+          <div className="flex items-center gap-2 mb-6">
+            <Label className="text-lg font-bold">DOCUMENTS REQUESTED (1)</Label>
+            {isEditMode && mainForm.expanded && mainForm.request_status_name && (
+              <DocumentStatusBadge statusName={mainForm.request_status_name} />
+            )}
+          </div>
+
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-2">
             <div className="space-y-2">
               <Label>Documents Requested by the Insurer</Label>
@@ -683,7 +759,7 @@ export default function Section33() {
               />
             </div>
           </div>
-          {/* Expanded main document fields */}
+
           {mainForm.expanded && (
             <>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-4">
@@ -767,6 +843,7 @@ export default function Section33() {
                   />
                 </div>
               </div>
+
               <div className="mt-6">
                 <div className="flex justify-between items-center mb-2">
                   <span className="font-semibold">Communications</span>
@@ -864,6 +941,7 @@ export default function Section33() {
               </div>
             </>
           )}
+
           <div className="flex gap-4 mb-4 mt-4">
             <Button
               type="button"
@@ -883,6 +961,7 @@ export default function Section33() {
               <Trash2 className="h-4 w-4 mr-2" /> Delete Document
             </Button>
           </div>
+
           {documentsRequested.map((doc, idx) => {
             const selectedDocLabel =
               getLabel(
@@ -890,9 +969,15 @@ export default function Section33() {
                 meta.insurance_documents_requested_by_the_insurer
               ) || "Ambulance CNR";
             return (
-              <div key={idx} className="mb-8 border rounded-lg p-6 ">
-                <div className="flex items-center justify-between mb-2">
-                  <div className="font-bold">Document {idx + 2}</div>
+              <div key={idx} className="mb-8 border rounded-lg p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center gap-2">
+                    <div className="font-bold">DOCUMENTS REQUESTED ({idx + 2})</div>
+                    {/* Horizontal Document Status Badge for Additional Documents - Only in Edit Mode */}
+                    {isEditMode && doc.expanded && doc.request_status_name && (
+                      <DocumentStatusBadge statusName={doc.request_status_name} />
+                    )}
+                  </div>
                   <Button
                     type="button"
                     variant="destructive"
@@ -1133,13 +1218,12 @@ export default function Section33() {
               </div>
             );
           })}
-          {/* Bottom fields */}
+
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
             <div className="space-y-2">
               <Label>Deadline</Label>
               <Input
                 type="date"
-                name="deadline"
                 value={mainForm.deadline}
                 onChange={(e) =>
                   setMainForm((p) => ({ ...p, deadline: e.target.value }))
@@ -1151,7 +1235,6 @@ export default function Section33() {
               <Label>Response to Insurance</Label>
               <Input
                 type="date"
-                name="response_to_insurance"
                 value={mainForm.response_to_insurance}
                 onChange={(e) =>
                   setMainForm((p) => ({
@@ -1169,34 +1252,32 @@ export default function Section33() {
                 options={meta.insurance_section_request}
                 onSelect={handleMainSearchSelect}
                 placeholder="Select status"
-                popoverKey="main_s33_req_status"
+                popoverKey="s33_req_status_id"
                 fieldName="s33_req_status_id"
                 popoverOpen={popoverOpen}
                 setPopoverOpen={setPopoverOpen}
               />
             </div>
           </div>
-          {/* Submit Buttons */}
-          <div className="flex justify-end gap-4 pt-6 border-t mt-6">
+
+          <div className="flex justify-end gap-4 mt-8">
             <Button
               type="button"
               variant="outline"
               onClick={() => navigate(-1)}
-              disabled={mutation.isPending}
-              size="lg"
             >
               Cancel
             </Button>
-            <Button type="submit" disabled={mutation.isPending} size="lg">
+            <Button type="submit" disabled={mutation.isPending}>
               {mutation.isPending ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  {isEditMode ? "Updating..." : "Saving..."}
+                  Saving...
                 </>
               ) : isEditMode ? (
-                "Update Section 33"
+                "Update"
               ) : (
-                "Save Section 33"
+                "Save"
               )}
             </Button>
           </div>

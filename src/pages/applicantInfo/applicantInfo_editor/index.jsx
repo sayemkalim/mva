@@ -27,9 +27,8 @@ import { getApplicantMeta } from "../helpers/fetchApplicantInfoMetadata";
 import { fetchApplicantInfoBySlug } from "../helpers/fetchApplicantInfoBySlug";
 import { uploadAttachment } from "../helpers/uploadAttachment";
 import { Navbar2 } from "@/components/navbar2";
+import { Checkbox } from "@/components/ui/checkbox";
 import { formatPhoneNumber } from "@/lib/utils";
-
-/* shadcn-style components for searchable select */
 import {
   Popover,
   PopoverTrigger,
@@ -254,6 +253,7 @@ export default function ApplicantInformation() {
       province: "",
       postal_code: "",
       country: "",
+      sameascurrent: false,
     },
     family_member_first_name: "",
     family_member_middle_name: "",
@@ -280,32 +280,32 @@ export default function ApplicantInformation() {
   const [popoverOpen, setPopoverOpen] = useState({});
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const [sameAsCurrentAddress, setSameAsCurrentAddress] = useState(false);
-
-  // Handler for Same as Current Address checkbox
+  const [mailingAddressBackup, setMailingAddressBackup] = useState(null);
   const handleSameAddressChange = (checked) => {
     setSameAsCurrentAddress(checked);
+    
     if (checked) {
-      // Copy current address to mailing address
-      setFormData((prev) => ({
+      setMailingAddressBackup({ ...formData.mailingaddress });
+      setFormData(prev => ({
         ...prev,
-        mailing_address: { ...prev.current_address },
-      }));
-    } else {
-      // Clear mailing address
-      setFormData((prev) => ({
-        ...prev,
-        mailing_address: {
-          unit_number: "",
-          street_number: "",
-          street_name: "",
-          city: "",
-          province: "",
-          postal_code: "",
-          country: "",
+        mailingaddress: {
+          ...prev.currentaddress,
+          sameascurrent: true, 
         },
       }));
+    } else {
+      if (mailingAddressBackup) {
+        setFormData(prev => ({
+          ...prev,
+          mailingaddress: {
+            ...mailingAddressBackup,
+            sameascurrent: false,
+          },
+        }));
+      }
     }
   };
+  
 
   useEffect(() => {
     if (!slug) {
@@ -383,6 +383,7 @@ export default function ApplicantInformation() {
           province: applicantData.mailing_address?.province ?? "",
           postal_code: applicantData.mailing_address?.postal_code ?? "",
           country: applicantData.mailing_address?.country ?? "",
+          sameascurrent: applicantData.mailingaddress?.sameascurrent ?? false,
         },
         family_member_first_name: applicantData.family_member_first_name ?? "",
         family_member_middle_name:
@@ -709,7 +710,7 @@ export default function ApplicantInformation() {
                   htmlFor="last_name"
                   className="text-foreground font-medium"
                 >
-                  Last Name
+                  Last Name<span className="text-red-600">*</span>
                 </Label>
                 <Input
                   id="last_name"
@@ -726,7 +727,7 @@ export default function ApplicantInformation() {
                   htmlFor="first_name"
                   className="text-foreground font-medium"
                 >
-                  First Name
+                  First Name<span className="text-red-600">*</span>
                 </Label>
                 <Input
                   id="first_name"
@@ -737,25 +738,6 @@ export default function ApplicantInformation() {
                   className="w-full h-9 bg-muted border-input"
                 />
               </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="email" className="text-foreground font-medium">
-                  Email
-                </Label>
-                <Input
-                  id="email"
-                  name="email"
-                  type="email"
-                  value={formData.email}
-                  onChange={handleChange}
-                  placeholder="john.doe@example.com"
-                  className="w-full h-9 bg-muted border-input"
-                />
-              </div>
-            </div>
-
-            {/* Row 2 */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               <div className="space-y-2">
                 <Label
                   htmlFor="middle_name"
@@ -773,6 +755,26 @@ export default function ApplicantInformation() {
                 />
               </div>
 
+             
+            </div>
+
+            {/* Row 2 */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+             
+            <div className="space-y-2">
+                <Label htmlFor="email" className="text-foreground font-medium">
+                  Email
+                </Label>
+                <Input
+                  id="email"
+                  name="email"
+                  type="email"
+                  value={formData.email}
+                  onChange={handleChange}
+                  placeholder="john.doe@example.com"
+                  className="w-full h-9 bg-muted border-input"
+                />
+              </div>
               <div className="space-y-2">
                 <Label
                   htmlFor="marital_status_id"
@@ -1443,9 +1445,24 @@ export default function ApplicantInformation() {
 
             {/* Mailing Address */}
             <div className="space-y-6 pt-6 border-t">
-              <h2 className="text-xl font-semibold text-foreground">
-                Mailing Address
-              </h2>
+              <div className="flex items-center justify-between">
+                <h2 className="text-xl font-semibold text-foreground">
+                  Mailing Address
+                </h2>
+                <div className="flex items-center space-x-2">
+                  <Checkbox
+                    id="sameAsCurrentAddress"
+                    checked={sameAsCurrentAddress}
+                    onCheckedChange={handleSameAddressChange}
+                  />
+                  <Label
+                    htmlFor="sameAsCurrentAddress"
+                    className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
+                  >
+                    Same as Current Address
+                  </Label>
+                </div>
+              </div>
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <div className="space-y-2">
                   <Label className="text-foreground font-medium">
@@ -1462,6 +1479,7 @@ export default function ApplicantInformation() {
                     }
                     placeholder="5B"
                     className="w-full h-9 bg-muted border-input"
+                    disabled={sameAsCurrentAddress}
                   />
                 </div>
 
@@ -1480,6 +1498,7 @@ export default function ApplicantInformation() {
                     }
                     placeholder="221"
                     className="w-full h-9 bg-muted border-input"
+                    disabled={sameAsCurrentAddress}
                   />
                 </div>
 
@@ -1498,6 +1517,7 @@ export default function ApplicantInformation() {
                     }
                     placeholder="King Street West"
                     className="w-full h-9 bg-muted border-input"
+                    disabled={sameAsCurrentAddress}
                   />
                 </div>
 
@@ -1514,6 +1534,7 @@ export default function ApplicantInformation() {
                     }
                     placeholder="Toronto"
                     className="w-full h-9 bg-muted border-input"
+                    disabled={sameAsCurrentAddress}
                   />
                 </div>
 
@@ -1530,6 +1551,7 @@ export default function ApplicantInformation() {
                     }
                     placeholder="Ontario"
                     className="w-full h-9 bg-muted border-input"
+                    disabled={sameAsCurrentAddress}
                   />
                 </div>
 
@@ -1548,6 +1570,7 @@ export default function ApplicantInformation() {
                     }
                     placeholder="M5H 1K5"
                     className="w-full h-9 bg-muted border-input"
+                    disabled={sameAsCurrentAddress}
                   />
                 </div>
 
@@ -1564,6 +1587,7 @@ export default function ApplicantInformation() {
                     }
                     placeholder="Canada"
                     className="w-full h-9 bg-muted border-input"
+                    disabled={sameAsCurrentAddress}
                   />
                 </div>
               </div>

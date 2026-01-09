@@ -17,7 +17,7 @@ import {
   CommandGroup,
   CommandItem,
 } from "@/components/ui/command";
-import { Loader2, Plus, Trash2, ChevronsUpDown, Check } from "lucide-react";
+import { Loader2, Plus, Trash2, ChevronsUpDown, Check, ChevronRight } from "lucide-react";
 import { toast } from "sonner";
 import { getABMeta } from "../../helpers/fetchABMeta";
 import { createSection, updateSection } from "../../helpers/createSection";
