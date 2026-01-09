@@ -31,6 +31,9 @@ import {
   Unlink,
   DollarSign,
   MoreHorizontal,
+  Lock,
+  Unlock,
+  Eye,
 } from "lucide-react";
 import {
   Dialog,
@@ -215,6 +218,25 @@ const AttachmentUploader = ({ files, onFilesChange, onUpload, onDelete }) => {
                   key={file.tempId}
                   className="relative bg-card border rounded-lg overflow-hidden hover:shadow-md transition-shadow group"
                 >
+                  {file.uploaded && file.id && (
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        const link = document.createElement('a');
+                        link.href = `${import.meta.env.VITE_API_BASE_URL}/storage/attachments/${file.id}`;
+                        link.download = file.name || 'attachment';
+                        link.target = '_blank';
+                        document.body.appendChild(link);
+                        link.click();
+                        document.body.removeChild(link);
+                      }}
+                      className="absolute top-1 left-1 z-10 bg-blue-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-blue-600"
+                      title="Download attachment"
+                    >
+                      <Eye className="h-3 w-3" />
+                    </button>
+                  )}
                   <button
                     type="button"
                     onClick={(e) => handleRemoveFile(e, file)}
@@ -917,6 +939,7 @@ const ThirdPartyInvoice = () => {
               <TableHead>Balance</TableHead>
               <TableHead>Status</TableHead>
               <TableHead>Memo</TableHead>
+              <TableHead>Locked</TableHead>
               <TableHead className="w-24">Actions</TableHead>
             </TableRow>
           </TableHeader>
@@ -953,6 +976,13 @@ const ThirdPartyInvoice = () => {
                   <TableCell>{getStatusBadge(item.status)}</TableCell>
                   <TableCell className="max-w-[200px] truncate">
                     {item.memo || "-"}
+                  </TableCell>
+                  <TableCell>
+                    {item.isLocked ? (
+                      <Lock className="h-4 w-4 text-gray-600" />
+                    ) : (
+                      <Unlock className="h-4 w-4 text-gray-600" />
+                    )}
                   </TableCell>
                   <TableCell>
                     <Popover>
@@ -1645,12 +1675,12 @@ const ThirdPartyInvoice = () => {
                       </TableCell>
                     </TableRow>
                   ) : (
-                    payBillsData.map((bill) => (
+                    payBillsData.map((bill, index) => (
                       <TableRow key={bill.id}>
                         <TableCell>
                           <Checkbox />
                         </TableCell>
-                        <TableCell>{bill.id}</TableCell>
+                        <TableCell>{index + 1}</TableCell>
                         <TableCell>{bill.applicant_name}</TableCell>
                         <TableCell>{formatCurrency(bill.amount)}</TableCell>
                         <TableCell>{formatCurrency(bill.remaining_amount || bill.balance)}</TableCell>
@@ -1659,12 +1689,23 @@ const ThirdPartyInvoice = () => {
                             type="number"
                             className="w-28"
                             value={appliedAmounts[bill.id] || ""}
-                            onChange={(e) =>
-                              setAppliedAmounts({
-                                ...appliedAmounts,
-                                [bill.id]: e.target.value,
-                              })
-                            }
+                            onChange={(e) => {
+                              const enteredValue = parseFloat(e.target.value) || 0;
+                              const maxAmount = parseFloat(bill.amount || 0) ;
+                              
+                              if (enteredValue > maxAmount) {
+                                toast.error(`Applied amount cannot exceed remaining amount of ${formatCurrency(maxAmount)}`);
+                                setAppliedAmounts({
+                                  ...appliedAmounts,
+                                  [bill.id]: maxAmount.toString(),
+                                });
+                              } else {
+                                setAppliedAmounts({
+                                  ...appliedAmounts,
+                                  [bill.id]: e.target.value,
+                                });
+                              }
+                            }}
                           />
                         </TableCell>
                         <TableCell>

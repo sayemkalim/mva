@@ -22,7 +22,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Plus, ChevronDown, X, Trash2, Pencil, ChevronRight, MoreHorizontal  } from "lucide-react";
+import { Plus, ChevronDown, X, Trash2, Pencil, ChevronRight, MoreHorizontal, Lock, Unlock  } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -42,6 +42,7 @@ import {
 } from "@/components/ui/select";
 import { Navbar2 } from "@/components/navbar2";
 import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
 
 const BankTransaction = () => {
   const { slug } = useParams();
@@ -151,6 +152,12 @@ const BankTransaction = () => {
   };
 
   const handleSubmit = () => {
+    // Validate required fields
+    if (!form.date || !form.banktype_id || !form.method_id || !form.type_id || !form.pay_or || !form.amount) {
+      toast.error("Please fill in all required fields (Date, Bank Type, Method, Type, Payor, Amount)");
+      return;
+    }
+    
     const payload = {
       banktype_id: parseInt(form.banktype_id) || null,
       method_id: parseInt(form.method_id) || null,
@@ -173,6 +180,12 @@ const BankTransaction = () => {
   };
 
   const handleEditSubmit = () => {
+    // Validate required fields
+    if (!editingDeposit.date || !editingDeposit.banktype_id || !editingDeposit.method_id || !editingDeposit.type_id || !editingDeposit.pay_or || !editingDeposit.amount) {
+      toast.error("Please fill in all required fields (Date, Bank Type, Method, Type, Payor, Amount)");
+      return;
+    }
+    
     const payload = {
       banktype_id: parseInt(editingDeposit.banktype_id) || null,
       method_id: parseInt(editingDeposit.method_id) || null,
@@ -288,19 +301,20 @@ const formatDate = (dateString) => {
               <TableHead>Type</TableHead>
               <TableHead>Payor</TableHead>
               <TableHead>Amount</TableHead>
+              <TableHead className="w-16">Status</TableHead>
               <TableHead className="w-24">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {isLoading ? (
               <TableRow>
-                <TableCell colSpan={10} className="text-center py-8 text-muted-foreground">
+                <TableCell colSpan={8} className="text-center py-8 text-muted-foreground">
                   Loading...
                 </TableCell>
               </TableRow>
             ) : deposits.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={10} className="text-center py-8 text-muted-foreground">
+                <TableCell colSpan={8} className="text-center py-8 text-muted-foreground">
                   No data available
                 </TableCell>
               </TableRow>
@@ -313,6 +327,13 @@ const formatDate = (dateString) => {
                   <TableCell>{item.Type}</TableCell>
                   <TableCell>{item.Payor || "-"}</TableCell>
                   <TableCell>{parseFloat(item.Amount || 0).toFixed(2)}</TableCell>
+                  <TableCell>
+                    {item.isLocked ? (
+                      <Lock className="h-4 w-4 text-muted-foreground" />
+                    ) : (
+                      <Unlock className="h-4 w-4 text-muted-foreground" />
+                    )}
+                  </TableCell>
                   <TableCell>
                     <Popover>
                       <PopoverTrigger asChild>
@@ -367,18 +388,20 @@ const formatDate = (dateString) => {
           <div className="space-y-6 py-4">
             <div className="grid grid-cols-4 gap-4">
               <div className="space-y-2">
-                <Label>Date</Label>
+                <Label>Date <span className="text-red-500">*</span></Label>
                 <Input
                   type="date"
                   value={form.date}
                   onChange={(e) => setForm({...form, date: e.target.value})}
+                  required
                 />
               </div>
               <div className="space-y-2">
-                <Label>Bank Type</Label>
+                <Label>Bank Type <span className="text-red-500">*</span></Label>
                 <Select
                   value={form.banktype_id}
                   onValueChange={(value) => setForm({...form, banktype_id: value})}
+                  required
                 >
                   <SelectTrigger className="w-full">
                     <SelectValue placeholder="Select" />
@@ -393,10 +416,11 @@ const formatDate = (dateString) => {
                 </Select>
               </div>
               <div className="space-y-2">
-                <Label>Method</Label>
+                <Label>Method <span className="text-red-500">*</span></Label>
                 <Select
                   value={form.method_id}
                   onValueChange={(value) => setForm({...form, method_id: value})}
+                  required
                 >
                   <SelectTrigger className="w-full">
                     <SelectValue placeholder="Select" />
@@ -411,10 +435,11 @@ const formatDate = (dateString) => {
                 </Select>
               </div>
               <div className="space-y-2">
-                <Label>Type</Label>
+                <Label>Type <span className="text-red-500">*</span></Label>
                 <Select
                   value={form.type_id}
                   onValueChange={(value) => setForm({...form, type_id: value})}
+                  required
                 >
                   <SelectTrigger className="w-full">
                     <SelectValue placeholder="Select" />
@@ -432,20 +457,22 @@ const formatDate = (dateString) => {
 
             <div className="grid grid-cols-4 gap-4">
               <div className="space-y-2">
-                <Label>Payor</Label>
+                <Label>Payor <span className="text-red-500">*</span></Label>
                 <Input 
                   placeholder="" 
                   value={form.pay_or}
                   onChange={(e) => setForm({...form, pay_or: e.target.value})}
+                  required
                 />
               </div>
               <div className="space-y-2">
-                <Label>Amount</Label>
+                <Label>Amount <span className="text-red-500">*</span></Label>
                 <Input 
                   type="number" 
                   placeholder="" 
                   value={form.amount}
                   onChange={(e) => setForm({...form, amount: e.target.value})}
+                  required
                 />
               </div>
               <div className="space-y-2 col-span-2">
@@ -564,18 +591,20 @@ const formatDate = (dateString) => {
             <div className="space-y-6 py-4">
               <div className="grid grid-cols-4 gap-4">
                 <div className="space-y-2">
-                  <Label>Date</Label>
+                  <Label>Date <span className="text-red-500">*</span></Label>
                   <Input
                     type="date"
                     value={editingDeposit.date || ""}
                     onChange={(e) => setEditingDeposit({...editingDeposit, date: e.target.value})}
+                    required
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label>Bank Type</Label>
+                  <Label>Bank Type <span className="text-red-500">*</span></Label>
                   <Select
                     value={String(editingDeposit.banktype_id || "")}
                     onValueChange={(value) => setEditingDeposit({...editingDeposit, banktype_id: value})}
+                    required
                   >
                     <SelectTrigger className="w-full">
                       <SelectValue placeholder="Select" />
@@ -590,10 +619,11 @@ const formatDate = (dateString) => {
                   </Select>
                 </div>
                 <div className="space-y-2">
-                  <Label>Method</Label>
+                  <Label>Method <span className="text-red-500">*</span></Label>
                   <Select
                     value={String(editingDeposit.method_id || "")}
                     onValueChange={(value) => setEditingDeposit({...editingDeposit, method_id: value})}
+                    required
                   >
                     <SelectTrigger className="w-full">
                       <SelectValue placeholder="Select" />
@@ -608,10 +638,11 @@ const formatDate = (dateString) => {
                   </Select>
                 </div>
                 <div className="space-y-2">
-                  <Label>Type</Label>
+                  <Label>Type <span className="text-red-500">*</span></Label>
                   <Select
                     value={String(editingDeposit.type_id || "")}
                     onValueChange={(value) => setEditingDeposit({...editingDeposit, type_id: value})}
+                    required
                   >
                     <SelectTrigger className="w-full">
                       <SelectValue placeholder="Select" />
@@ -629,20 +660,22 @@ const formatDate = (dateString) => {
 
               <div className="grid grid-cols-4 gap-4">
                 <div className="space-y-2">
-                  <Label>Payor</Label>
+                  <Label>Payor <span className="text-red-500">*</span></Label>
                   <Input 
                     placeholder="" 
                     value={editingDeposit.pay_or || ""}
                     onChange={(e) => setEditingDeposit({...editingDeposit, pay_or: e.target.value})}
+                    required
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label>Amount</Label>
+                  <Label>Amount <span className="text-red-500">*</span></Label>
                   <Input 
                     type="number" 
                     placeholder="" 
                     value={editingDeposit.amount || ""}
                     onChange={(e) => setEditingDeposit({...editingDeposit, amount: e.target.value})}
+                    required
                   />
                 </div>
                 <div className="space-y-2 col-span-2">
