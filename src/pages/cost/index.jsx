@@ -678,7 +678,14 @@ const CostList = () => {
                   <Label>Rate Level</Label>
                   <Select
                     value={timeCardForm.rate_level_id}
-                    onValueChange={(value) => setTimeCardForm({...timeCardForm, rate_level_id: value})}
+                    onValueChange={(value) => {
+                      const selectedRate = rateLevelOptions.find(item => String(item.id) === value);
+                      setTimeCardForm({
+                        ...timeCardForm, 
+                        rate_level_id: value,
+                        rate: selectedRate?.rate || selectedRate?.value || timeCardForm.rate
+                      });
+                    }}
                   >
                     <SelectTrigger className="w-full">
                       <SelectValue placeholder="Select" />
@@ -721,11 +728,26 @@ const CostList = () => {
                 </div>
               </div>
 
-              {/* <div className="text-right mt-4">
-                <span className="text-sm text-muted-foreground">
-                  Value: ${((parseFloat(timeCardForm.rate) || 0) * (parseFloat(timeCardForm.time_billed?.split(':')[0]) || 0)).toFixed(2)}
-                </span>
-              </div> */}
+              <div className="text-right mt-4">
+                <p className="text-sm font-medium">
+                  Value: ${
+                    (() => {
+                      const rate = parseFloat(timeCardForm.rate) || 0;
+                      const selectedRateType = rateTypeOptions.find(item => String(item.id) === timeCardForm.rate_type_id);
+                      const rateTypeName = selectedRateType?.name?.toLowerCase() || '';
+                      
+                      if (rateTypeName.includes('flat')) {
+                        return rate.toFixed(2);
+                      } else if (rateTypeName.includes('hourly')) {
+                        const selectedTimeSpent = timeSpentOptions.find(item => String(item.id) === timeCardForm.time_spent_id);
+                        const timeValue = parseFloat(selectedTimeSpent?.minute) || parseFloat(selectedTimeSpent?.hours) || 0;
+                        return (rate * (timeValue/60)).toFixed(2);
+                      }
+                      return rate.toFixed(2);
+                    })()
+                  }
+                </p>
+              </div>
             </div>
 
             <Tabs defaultValue="billing" className="w-full">
@@ -792,18 +814,47 @@ const CostList = () => {
               </TabsContent>
               <TabsContent value="tax" className="pt-4">
                 <div className="space-y-4">
-                  <Select 
-                    value={timeCardForm.taxable ? "taxable" : "non-taxable"}
-                    onValueChange={(value) => setTimeCardForm({...timeCardForm, taxable: value === "taxable"})}
-                  >
-                    <SelectTrigger className="w-full">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="taxable">Taxable</SelectItem>
-                      <SelectItem value="non-taxable">Non-Taxable</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  <div className="flex items-center space-x-2">
+                    <Checkbox 
+                      id="taxable"
+                      checked={timeCardForm.taxable}
+                      onCheckedChange={(checked) => setTimeCardForm({...timeCardForm, taxable: checked})}
+                      disabled={!billingStatusOptions.find(item => String(item.id) === timeCardForm.billing_status_id)?.name?.toLowerCase().includes('billable')}
+                    />
+                    <Label 
+                      htmlFor="taxable" 
+                      className={!billingStatusOptions.find(item => String(item.id) === timeCardForm.billing_status_id)?.name?.toLowerCase().includes('billable') ? "text-muted-foreground cursor-not-allowed" : "cursor-pointer"}
+                    >
+                      Taxable
+                    </Label>
+                  </div>
+                  
+                  {timeCardForm.taxable && billingStatusOptions.find(item => String(item.id) === timeCardForm.billing_status_id)?.name?.toLowerCase().includes('billable') && (
+                    <div className="mt-4 p-4 bg-muted rounded-lg space-y-2">
+                      {(() => {
+                        const rate = parseFloat(timeCardForm.rate) || 0;
+                        const selectedRateType = rateTypeOptions.find(item => String(item.id) === timeCardForm.rate_type_id);
+                        const rateTypeName = selectedRateType?.name?.toLowerCase() || '';
+                        
+                        let value = rate;
+                        if (rateTypeName.includes('hourly')) {
+                          const selectedTimeSpent = timeSpentOptions.find(item => String(item.id) === timeCardForm.time_spent_id);
+                          const timeValue = parseFloat(selectedTimeSpent?.minute) || parseFloat(selectedTimeSpent?.hours) || 0;
+                          value = rate * (timeValue/60);
+                        }
+                        
+                        const taxTotal = value * 0.13;
+                        const cardTotal = value + taxTotal;
+                        
+                        return (
+                          <>
+                            <p className="text-sm"><span className="font-medium">Tax Total (13%):</span> ${taxTotal.toFixed(2)}</p>
+                            <p className="text-sm"><span className="font-medium">Card Total:</span> ${cardTotal.toFixed(2)}</p>
+                          </>
+                        );
+                      })()}
+                    </div>
+                  )}
                 </div>
               </TabsContent>
             </Tabs>
@@ -1483,7 +1534,14 @@ const CostList = () => {
                     <Label>Rate Level</Label>
                     <Select
                       value={String(editingCost.rate_level_id || "")}
-                      onValueChange={(value) => setEditingCost({...editingCost, rate_level_id: value})}
+                      onValueChange={(value) => {
+                        const selectedRate = rateLevelOptions.find(item => String(item.id) === value);
+                        setEditingCost({
+                          ...editingCost, 
+                          rate_level_id: value,
+                          rate: selectedRate?.rate || selectedRate?.value || editingCost.rate
+                        });
+                      }}
                     >
                       <SelectTrigger className="w-full">
                         <SelectValue placeholder="Select" />
@@ -1524,6 +1582,27 @@ const CostList = () => {
                       </SelectContent>
                     </Select>
                   </div>
+                </div>
+
+                <div className="text-right mt-4">
+                  <p className="text-sm font-medium">
+                    Value: ${
+                      (() => {
+                        const rate = parseFloat(editingCost.rate) || 0;
+                        const selectedRateType = rateTypeOptions.find(item => String(item.id) === String(editingCost.rate_type_id));
+                        const rateTypeName = selectedRateType?.name?.toLowerCase() || '';
+                        
+                        if (rateTypeName.includes('flat')) {
+                          return rate.toFixed(2);
+                        } else if (rateTypeName.includes('hourly')) {
+                          const selectedTimeSpent = timeSpentOptions.find(item => String(item.id) === String(editingCost.time_spent_id));
+                          const timeValue = parseFloat(selectedTimeSpent?.minute) || parseFloat(selectedTimeSpent?.hour) || 0;
+                          return (rate * (timeValue/60)).toFixed(2);
+                        }
+                        return rate.toFixed(2);
+                      })()
+                    }
+                  </p>
                 </div>
               </div>
 
@@ -1591,18 +1670,47 @@ const CostList = () => {
                 </TabsContent>
                 <TabsContent value="tax" className="pt-4">
                   <div className="space-y-4">
-                    <Select 
-                      value={editingCost.taxable ? "taxable" : "non-taxable"}
-                      onValueChange={(value) => setEditingCost({...editingCost, taxable: value === "taxable"})}
-                    >
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="taxable">Taxable</SelectItem>
-                        <SelectItem value="non-taxable">Non-Taxable</SelectItem>
-                      </SelectContent>
-                    </Select>
+                    <div className="flex items-center space-x-2">
+                      <Checkbox 
+                        id="edit-taxable"
+                        checked={editingCost.taxable}
+                        onCheckedChange={(checked) => setEditingCost({...editingCost, taxable: checked})}
+                        disabled={!billingStatusOptions.find(item => String(item.id) === String(editingCost.billing_status_id))?.name?.toLowerCase().includes('billable')}
+                      />
+                      <Label 
+                        htmlFor="edit-taxable" 
+                        className={!billingStatusOptions.find(item => String(item.id) === String(editingCost.billing_status_id))?.name?.toLowerCase().includes('billable') ? "text-muted-foreground cursor-not-allowed" : "cursor-pointer"}
+                      >
+                        Taxable
+                      </Label>
+                    </div>
+                    
+                    {editingCost.taxable && billingStatusOptions.find(item => String(item.id) === String(editingCost.billing_status_id))?.name?.toLowerCase().includes('billable') && (
+                      <div className="mt-4 p-4 bg-muted rounded-lg space-y-2">
+                        {(() => {
+                          const rate = parseFloat(editingCost.rate) || 0;
+                          const selectedRateType = rateTypeOptions.find(item => String(item.id) === String(editingCost.rate_type_id));
+                          const rateTypeName = selectedRateType?.name?.toLowerCase() || '';
+                          
+                          let value = rate;
+                          if (rateTypeName.includes('hourly')) {
+                            const selectedTimeSpent = timeSpentOptions.find(item => String(item.id) === String(editingCost.time_spent_id));
+                            const timeValue = parseFloat(selectedTimeSpent?.minute) || parseFloat(selectedTimeSpent?.hour) || 0;
+                            value = rate * (timeValue/60);
+                          }
+                          
+                          const taxTotal = value * 0.13;
+                          const cardTotal = value + taxTotal;
+                          
+                          return (
+                            <>
+                              <p className="text-sm"><span className="font-medium">Tax Total (13%):</span> ${taxTotal.toFixed(2)}</p>
+                              <p className="text-sm"><span className="font-medium">Card Total:</span> ${cardTotal.toFixed(2)}</p>
+                            </>
+                          );
+                        })()}
+                      </div>
+                    )}
                   </div>
                 </TabsContent>
               </Tabs>
