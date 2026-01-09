@@ -16,6 +16,8 @@ import { fetchInvoiceWriteOff } from "./helpers/fetchInvoiceWriteOff";
 import { saveInvoiceWriteOff } from "./helpers/saveInvoiceWriteOff";
 import { deleteInvoiceWriteOff } from "./helpers/deleteInvoiceWriteOff";
 import { unlinkInvoicePayment } from "./helpers/unlinkInvoicePayment";
+import { downloadPaymentHistory } from "./helpers/downloadPaymentHistory";
+import { downloadInvoice } from "./helpers/downloadInvoice";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -51,6 +53,7 @@ import {
   ChevronDown,
   Link2Off,
   Eye,
+  Printer,
 } from "lucide-react";
 import {
   Dialog,
@@ -825,6 +828,40 @@ const Invoice = () => {
     }
   };
 
+  const downloadHistoryMutation = useMutation({
+    mutationFn: (invoiceId) => downloadPaymentHistory(invoiceId),
+    onSuccess: () => {
+      toast.success("Payment history downloaded successfully");
+    },
+    onError: (error) => {
+      console.error("Failed to download payment history:", error);
+      toast.error("Failed to download payment history");
+    },
+  });
+
+  const handlePrintPaymentHistory = (item) => {
+    if (item?.id) {
+      downloadHistoryMutation.mutate(item.id);
+    }
+  };
+
+  const downloadInvoiceMutation = useMutation({
+    mutationFn: (invoiceId) => downloadInvoice(invoiceId),
+    onSuccess: () => {
+      toast.success("Invoice downloaded successfully");
+    },
+    onError: (error) => {
+      console.error("Failed to download invoice:", error);
+      toast.error("Failed to download invoice");
+    },
+  });
+
+  const handlePrintInvoice = (item) => {
+    if (item?.id) {
+      downloadInvoiceMutation.mutate(item.id);
+    }
+  };
+
   // Write Off Handlers
   const handleOpenWriteOffDialog = async (item) => {
     setInvoiceToWriteOff(item);
@@ -975,7 +1012,6 @@ const Invoice = () => {
       const response = await deleteInvoiceWriteOff(writeOffToDelete.id);
       if (response?.Apistatus != false) {
         toast.success("Write-off deleted successfully");
-        // Refresh write-off data
         const refreshedData = await fetchInvoiceWriteOff(invoiceToWriteOff.id);
         if (refreshedData?.Apistatus) {
           setWriteOffData(refreshedData);
@@ -1181,6 +1217,13 @@ const Invoice = () => {
                           >
                             <Link2Off className="h-4 w-4" />
                             Unlink Payment
+                          </button>
+                          <button
+                            className="flex items-center gap-2 px-3 py-2 text-sm rounded-md hover:bg-accent text-left disabled:opacity-50 disabled:cursor-not-allowed"
+                            onClick={() => handlePrintPaymentHistory(item)}
+                          >
+                            <Printer className="h-4 w-4" />
+                            Print Payment History
                           </button>
 
                           {/* Invoice Payment Nested Popover */}
@@ -2044,7 +2087,7 @@ const Invoice = () => {
               {selectedInvoiceForHistory?.invoice_number}
             </DialogTitle>
             <div className="flex items-center gap-3 absolute right-4 top-4">
-              <Button className="bg-primary hover:bg-primary/90 gap-2">
+              <Button onClick={() => handlePrintInvoice(selectedInvoiceForHistory)} className="bg-primary hover:bg-primary/90 gap-2">
                 Print History
               </Button>
               <button
