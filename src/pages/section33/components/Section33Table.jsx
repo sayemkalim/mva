@@ -15,7 +15,7 @@ const safeFormat = (dateStr, formatStr) => {
   return dateObj && isValid(dateObj) ? format(dateObj, formatStr) : "-";
 };
 
-const Section33Table = ({ slug, setBlogsLength }) => {
+const Section33Table = ({ slug, setBlogsLength, params = {} }) => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
@@ -24,8 +24,8 @@ const Section33Table = ({ slug, setBlogsLength }) => {
     isLoading,
     error,
   } = useQuery({
-    queryKey: ["sectionList", slug],
-    queryFn: () => fetchSectionList(slug),
+    queryKey: ["sectionList", slug, params.search],
+    queryFn: () => fetchSectionList(slug, { search: params.search || "" }),
     enabled: !!slug,
   });
 

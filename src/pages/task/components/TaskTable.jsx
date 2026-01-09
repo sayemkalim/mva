@@ -132,8 +132,6 @@ const TaskTable = ({ setTasksLength }) => {
       ? metaData.response.assignees
       : [];
   }, [metaData]);
-
-  // Get unique clients for dropdown
   const uniqueClients = useMemo(() => {
     const clients = tasks
       .map((task) => task.applicantInformations_name)
@@ -412,7 +410,7 @@ const TaskTable = ({ setTasksLength }) => {
 
   return (
     <>
-      <div className="mb-4 flex items-center justify-between">
+      <div className="mb-4 flex items-center justify-between ">
         <Button
           onClick={() => setOpenFilter(true)}
           variant="outline"

@@ -15,7 +15,7 @@ const safeFormat = (dateStr, formatStr) => {
   return dateObj && isValid(dateObj) ? format(dateObj, formatStr) : "-";
 };
 
-const Section258Table = ({ slug, setBlogsLength }) => {
+const Section258Table = ({ slug, setBlogsLength, params = {} }) => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
@@ -24,13 +24,15 @@ const Section258Table = ({ slug, setBlogsLength }) => {
     isLoading,
     error,
   } = useQuery({
-    queryKey: ["sectionList", slug],
-    queryFn: () => fetchSectionList(slug),
+    queryKey: ["section258List", slug, params.search],
+    queryFn: () => fetchSectionList(slug, { search: params.search || "" }),
     enabled: !!slug,
   });
 
   const [openDelete, setOpenDelete] = useState(false);
   const [selectedSection, setSelectedSection] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const perPage = 10;
 
   const onOpenDialog = (row) => {
     setOpenDelete(true);
@@ -67,6 +69,13 @@ const Section258Table = ({ slug, setBlogsLength }) => {
   useEffect(() => {
     setBlogsLength(sections.length);
   }, [sections, setBlogsLength]);
+
+  // Pagination calculations
+  const totalPages = Math.ceil(sections.length / perPage);
+  const paginatedData = sections.slice(
+    (currentPage - 1) * perPage,
+    currentPage * perPage
+  );
 
   const onNavigateToEdit = (section) => {
     if (!section?.id) {
@@ -174,10 +183,14 @@ const Section258Table = ({ slug, setBlogsLength }) => {
     <>
       <CustomTable
         columns={columns}
-        data={sections}
+        data={paginatedData}
         isLoading={isLoading}
         error={error}
         onRowClick={onNavigateToEdit}
+        totalPages={totalPages}
+        currentPage={currentPage}
+        perPage={perPage}
+        onPageChange={setCurrentPage}
       />
       <CustomDialog
         onOpen={openDelete}

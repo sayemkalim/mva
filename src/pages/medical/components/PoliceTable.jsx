@@ -16,7 +16,7 @@ const safeFormat = (dateStr, formatStr) => {
   return dateObj && isValid(dateObj) ? format(dateObj, formatStr) : "-";
 };
 
-const MedicalTable = ({ slug, setBlogsLength }) => {
+const MedicalTable = ({ slug, setBlogsLength, params = {} }) => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
@@ -25,13 +25,15 @@ const MedicalTable = ({ slug, setBlogsLength }) => {
     isLoading,
     error,
   } = useQuery({
-    queryKey: ["medicalist", slug],
-    queryFn: () => fetchMedicalList(slug),
+    queryKey: ["medicallist", slug, params.search],
+    queryFn: () => fetchMedicalList(slug, { search: params.search || "" }),
     enabled: !!slug,
   });
 
   const [openDelete, setOpenDelete] = useState(false);
   const [selectedSection, setSelectedSection] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const perPage = 10;
 
   const onOpenDialog = (row) => {
     setOpenDelete(true);
@@ -69,6 +71,13 @@ const MedicalTable = ({ slug, setBlogsLength }) => {
     setBlogsLength(sections.length);
   }, [sections, setBlogsLength]);
 
+  // Pagination calculations
+  const totalPages = Math.ceil(sections.length / perPage);
+  const paginatedData = sections.slice(
+    (currentPage - 1) * perPage,
+    currentPage * perPage
+  );
+
   const onNavigateToEdit = (section) => {
     if (!section?.id) {
       toast.error("Invalid section data");
@@ -91,9 +100,8 @@ const MedicalTable = ({ slug, setBlogsLength }) => {
 
         const imageUrl = value.path.startsWith("http")
           ? value.path
-          : `${
-              import.meta.env.VITE_API_URL || "https://mva-backend.vsrlaw.ca/"
-            }/${value.path}`;
+          : `${import.meta.env.VITE_API_URL || "https://mva-backend.vsrlaw.ca/"
+          }/${value.path}`;
 
         return (
           <img
@@ -152,10 +160,14 @@ const MedicalTable = ({ slug, setBlogsLength }) => {
     <>
       <CustomTable
         columns={columns}
-        data={sections}
+        data={paginatedData}
         isLoading={isLoading}
         error={error}
         onRowClick={onNavigateToEdit}
+        totalPages={totalPages}
+        currentPage={currentPage}
+        perPage={perPage}
+        onPageChange={setCurrentPage}
       />
       <CustomDialog
         onOpen={openDelete}

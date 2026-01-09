@@ -16,7 +16,7 @@ const safeFormat = (dateStr, formatStr) => {
   return dateObj && isValid(dateObj) ? format(dateObj, formatStr) : "-";
 };
 
-const ConflictTable = ({ slug, setBlogsLength }) => {
+const ConflictTable = ({ slug, setBlogsLength, params = {} }) => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
@@ -25,13 +25,15 @@ const ConflictTable = ({ slug, setBlogsLength }) => {
     isLoading,
     error,
   } = useQuery({
-    queryKey: ["conflictlist", slug],
-    queryFn: () => fetchConflictList(slug),
+    queryKey: ["conflictlist", slug, params.search],
+    queryFn: () => fetchConflictList(slug, { search: params.search || "" }),
     enabled: !!slug,
   });
 
   const [openDelete, setOpenDelete] = useState(false);
   const [selectedSection, setSelectedSection] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const perPage = 10;
 
   const onOpenDialog = (row) => {
     setOpenDelete(true);
@@ -69,12 +71,19 @@ const ConflictTable = ({ slug, setBlogsLength }) => {
     setBlogsLength(sections.length);
   }, [sections, setBlogsLength]);
 
+  // Pagination calculations
+  const totalPages = Math.ceil(sections.length / perPage);
+  const paginatedData = sections.slice(
+    (currentPage - 1) * perPage,
+    currentPage * perPage
+  );
+
   const onNavigateToEdit = (section) => {
     if (!section?.id) {
       toast.error("Invalid section data");
       return;
     }
-    
+
     navigate(`/dashboard/conflict-search/edit/${section.id}`, {
       state: {
         conflictData: section,
@@ -97,9 +106,8 @@ const ConflictTable = ({ slug, setBlogsLength }) => {
 
         const imageUrl = value.path.startsWith("http")
           ? value.path
-          : `${
-              import.meta.env.VITE_API_URL || "https://mva-backend.vsrlaw.ca/"
-            }/${value.path}`;
+          : `${import.meta.env.VITE_API_URL || "https://mva-backend.vsrlaw.ca/"
+          }/${value.path}`;
 
         return (
           <img
@@ -158,10 +166,14 @@ const ConflictTable = ({ slug, setBlogsLength }) => {
     <>
       <CustomTable
         columns={columns}
-        data={sections}
+        data={paginatedData}
         isLoading={isLoading}
         error={error}
         onRowClick={onNavigateToEdit}
+        totalPages={totalPages}
+        currentPage={currentPage}
+        perPage={perPage}
+        onPageChange={setCurrentPage}
       />
       <CustomDialog
         onOpen={openDelete}

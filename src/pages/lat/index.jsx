@@ -21,7 +21,6 @@ const Lat = () => {
   const [params, setParams] = useState(paramInitialState);
 
   const debouncedSearch = useDebounce(searchText, 500);
-
   const handleSearch = (e) => {
     setSearchText(e.target.value);
   };
