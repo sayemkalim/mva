@@ -92,7 +92,7 @@ export default function AbCounselPage() {
     mutationFn: createAbCounsel,
     onSuccess: () => {
       toast.success("Counsel data saved!");
-      navigate("/dashboard/workstation");
+      // navigate("/dashboard/workstation");
     },
     onError: () => {
       toast.error("Failed to save counsel data");

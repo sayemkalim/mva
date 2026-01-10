@@ -22,6 +22,7 @@ import { Calendar } from "@/components/ui/calendar";
 import { cn } from "@/lib/utils";
 
 import { Navbar2 } from "@/components/navbar2";
+import Billing from "@/components/billing";
 import { fetchBankBySlug } from "../helpers/fetchBankBySlug";
 import { createBank } from "../helpers/createBank";
 import { getABMeta } from "../helpers/fetchABMeta";
@@ -206,22 +207,7 @@ export default function BankPage() {
   return (
     <div className="min-h-screen bg-muted">
       <Navbar2 />
-      <header className="bg-card border-b px-6 py-3">
-        <div className="flex items-center justify-end gap-6 text-sm text-foreground">
-          <div>
-            Unpaid: <span className="font-semibold">$ 0</span>
-          </div>
-          <div>
-            Unbilled: <span className="font-semibold">$ 0</span>
-          </div>
-          <div>
-            Client Funds-Operating: <span className="font-semibold">$ 0</span>
-          </div>
-          <div>
-            Client Funds-Trust: <span className="font-semibold">$ 0</span>
-          </div>
-        </div>
-      </header>
+      <Billing />
 
       {/* Breadcrumb */}
       <nav className="bg-card border-b px-6 py-4 text-sm text-muted-foreground">

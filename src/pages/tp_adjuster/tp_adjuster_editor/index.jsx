@@ -12,6 +12,7 @@ import { fetchTpAdjusterBySlug } from "../helpers/fetchTpAdjusterBySlug";
 import { createTpAdjuster } from "../helpers/createTpAdjuster";
 import { deleteTpAdjuster } from "../helpers/deleteTpAdjuster";
 import Billing from "@/components/billing";
+import { Textarea } from "@/components/ui/textarea";
 
 const emptyRecord = {
   id: null,
@@ -407,7 +408,7 @@ export default function TPAdjusterForm() {
                   >
                     Note
                   </Label>
-                  <Input
+                  <Textarea
                     id={`note_${idx}`}
                     value={rec.note}
                     onChange={(e) => updateField(idx, "note", e.target.value)}

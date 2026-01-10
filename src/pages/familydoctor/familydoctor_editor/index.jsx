@@ -23,6 +23,7 @@ import { Calendar } from "@/components/ui/calendar";
 import { cn } from "@/lib/utils";
 
 import { Navbar2 } from "@/components/navbar2";
+import Billing from "@/components/billing";
 import { fetchFamilyDoctorBySlug } from "../helpers/fetchFamilyDoctorBySlug";
 import { createFamilyDoctor } from "../helpers/createFamilyDoctor";
 import { deleteFamilyDoctor } from "../helpers/deleteFamilyDoctor";
@@ -30,7 +31,7 @@ import { getABMeta } from "../helpers/fetchABMeta";
 
 const SearchableSelect = ({ label, options, value, onChange, placeholder }) => {
   const selected = options.find((opt) => String(opt.id) === String(value));
-  
+
   return (
     <div className="space-y-2">
       <Label className="text-foreground font-medium">{label}</Label>
@@ -206,11 +207,11 @@ export default function FamilyDoctorPage() {
 
   const handleRemoveRecord = (index) => {
     const record = records[index];
-    
+
     if (record.id) {
       deleteMutation.mutate(record.id);
     }
-    
+
     const newRecords = records.filter((_, i) => i !== index);
     setRecords(newRecords.length > 0 ? newRecords : [
       {
@@ -261,22 +262,7 @@ export default function FamilyDoctorPage() {
   return (
     <div className="min-h-screen bg-muted">
       <Navbar2 />
-      <header className="bg-card border-b px-6 py-3">
-        <div className="flex items-center justify-end gap-6 text-sm text-foreground">
-          <div>
-            Unpaid: <span className="font-semibold">$ 0</span>
-          </div>
-          <div>
-            Unbilled: <span className="font-semibold">$ 0</span>
-          </div>
-          <div>
-            Client Funds-Operating: <span className="font-semibold">$ 0</span>
-          </div>
-          <div>
-            Client Funds-Trust: <span className="font-semibold">$ 0</span>
-          </div>
-        </div>
-      </header>
+      <Billing />
 
       {/* Breadcrumb */}
       <nav className="bg-card border-b px-6 py-4 text-sm text-muted-foreground">

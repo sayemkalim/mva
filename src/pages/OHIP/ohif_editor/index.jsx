@@ -30,6 +30,7 @@ import { Calendar } from "@/components/ui/calendar";
 import { cn } from "@/lib/utils";
 
 import { Navbar2 } from "@/components/navbar2";
+import Billing from "@/components/billing";
 
 import { getABMeta } from "../helpers/fetchABMeta";
 import { fetchOhifBySlug } from "../helpers/fetchOhifBySlug";
@@ -233,22 +234,22 @@ export default function OhipPage() {
       newRecords.length > 0
         ? newRecords
         : [
-            {
-              id: null,
-              form_filled_by_id: "",
-              communication_date: "",
-              mode_of_communication_id: "",
-              first_reminder: "",
-              second_reminder: "",
-              request_from: "",
-              request_to: "",
-              summary_received_id: "",
-              summary_sent_to_id: "",
-              invoice_amount: "",
-              invoice_status_id: "",
-              note: "",
-            },
-          ]
+          {
+            id: null,
+            form_filled_by_id: "",
+            communication_date: "",
+            mode_of_communication_id: "",
+            first_reminder: "",
+            second_reminder: "",
+            request_from: "",
+            request_to: "",
+            summary_received_id: "",
+            summary_sent_to_id: "",
+            invoice_amount: "",
+            invoice_status_id: "",
+            note: "",
+          },
+        ]
     );
   };
 
@@ -283,22 +284,7 @@ export default function OhipPage() {
   return (
     <div className="min-h-screen bg-muted">
       <Navbar2 />
-      <header className="bg-card border-b px-6 py-3">
-        <div className="flex items-center justify-end gap-6 text-sm text-foreground">
-          <div>
-            Unpaid: <span className="font-semibold">$ 0</span>
-          </div>
-          <div>
-            Unbilled: <span className="font-semibold">$ 0</span>
-          </div>
-          <div>
-            Client Funds-Operating: <span className="font-semibold">$ 0</span>
-          </div>
-          <div>
-            Client Funds-Trust: <span className="font-semibold">$ 0</span>
-          </div>
-        </div>
-      </header>
+      <Billing />
 
       {/* Breadcrumb */}
       <nav className="bg-card border-b px-6 py-4 text-sm text-muted-foreground">

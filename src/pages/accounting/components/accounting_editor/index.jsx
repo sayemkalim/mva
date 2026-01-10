@@ -16,6 +16,7 @@ import {
 import { toast } from "sonner";
 
 import { Navbar2 } from "@/components/navbar2";
+import Billing from "@/components/billing";
 import { uploadAttachment } from "../../helpers/uploadAttachment";
 import { fetchLatById } from "../../helpers/fetchLatById";
 import {
@@ -97,7 +98,7 @@ export default function AccountingPage() {
       console.error("Mutation Error:", err);
       toast.error(
         err.message ||
-          (id ? "Failed to update Accounting" : "Failed to save Accounting")
+        (id ? "Failed to update Accounting" : "Failed to save Accounting")
       );
     },
   });
@@ -215,22 +216,7 @@ export default function AccountingPage() {
       <Navbar2 />
 
       {/* Financial Summary Header */}
-      <header className="bg-card border-b px-6 py-3">
-        <div className="flex items-center justify-end gap-6 text-sm text-foreground">
-          <div>
-            Unpaid: <span className="font-semibold">$ 0</span>
-          </div>
-          <div>
-            Unbilled: <span className="font-semibold">$ 0</span>
-          </div>
-          <div>
-            Client Funds-Operating: <span className="font-semibold">$ 0</span>
-          </div>
-          <div>
-            Client Funds-Trust: <span className="font-semibold">$ 0</span>
-          </div>
-        </div>
-      </header>
+      <Billing />
 
       {/* Breadcrumb Navigation */}
       <nav className="bg-card border-b px-6 py-4 text-sm text-muted-foreground">
@@ -310,15 +296,13 @@ export default function AccountingPage() {
                 Upload File <span className="text-red-500">(Max 10MB)</span>
               </Label>
               <div
-                className={`relative border-2 border-dashed rounded-lg transition-all overflow-hidden ${
-                  filePreview
+                className={`relative border-2 border-dashed rounded-lg transition-all overflow-hidden ${filePreview
                     ? "border-green-500 bg-green-50/50"
                     : "border-input bg-muted hover:border-gray-400 hover:bg-gray-100"
-                } ${
-                  uploadMutation.isLoading
+                  } ${uploadMutation.isLoading
                     ? "pointer-events-none opacity-70"
                     : ""
-                }`}
+                  }`}
                 style={{ minHeight: "250px" }}
               >
                 <input

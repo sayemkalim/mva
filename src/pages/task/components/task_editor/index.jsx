@@ -36,6 +36,7 @@ import { format } from "date-fns";
 import { Calendar } from "@/components/ui/calendar";
 import { cn } from "@/lib/utils";
 import { Navbar2 } from "@/components/navbar2";
+import Billing from "@/components/billing";
 import { uploadAttachment } from "../../helpers/uploadAttachment";
 import {
   createTask,
@@ -722,12 +723,12 @@ export default function TaskPage() {
           prev.map((file) =>
             file.tempId === variables.tempId
               ? {
-                  ...file,
-                  id: attachmentId,
-                  name: fullFileName,
-                  uploaded: true,
-                  uploading: false,
-                }
+                ...file,
+                id: attachmentId,
+                name: fullFileName,
+                uploaded: true,
+                uploading: false,
+              }
               : file
           )
         );
@@ -879,12 +880,12 @@ export default function TaskPage() {
           : [],
         reminders: Array.isArray(taskData.reminders)
           ? taskData.reminders.map((reminder) => ({
-              id: reminder.id,
-              type_id: reminder.type_id,
-              scheduled_at: reminder.scheduled_at
-                ? reminder.scheduled_at.replace(" ", "T").slice(0, 16)
-                : "",
-            }))
+            id: reminder.id,
+            type_id: reminder.type_id,
+            scheduled_at: reminder.scheduled_at
+              ? reminder.scheduled_at.replace(" ", "T").slice(0, 16)
+              : "",
+          }))
           : [],
         attachment_ids: Array.isArray(taskData.attachments)
           ? taskData.attachments.map((att) => att.id)
@@ -1049,22 +1050,7 @@ export default function TaskPage() {
   return (
     <div className="min-h-screen bg-muted">
       <Navbar2 />
-      <header className="bg-card border-b px-6 py-3">
-        <div className="flex items-center justify-end gap-6 text-sm text-foreground">
-          <div>
-            Unpaid: <span className="font-semibold">$ 0</span>
-          </div>
-          <div>
-            Unbilled: <span className="font-semibold">$ 0</span>
-          </div>
-          <div>
-            Client Funds-Operating: <span className="font-semibold">$ 0</span>
-          </div>
-          <div>
-            Client Funds-Trust: <span className="font-semibold">$ 0</span>
-          </div>
-        </div>
-      </header>
+      <Billing />
 
       <nav className="bg-card border-b px-6 py-4 text-sm text-muted-foreground">
         <div className="flex items-center gap-2">

@@ -32,6 +32,7 @@ import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
 import { Navbar2 } from "@/components/navbar2";
+import Billing from "@/components/billing";
 import { uploadAttachment } from "../../helpers/uploadAttachment";
 import {
   createClientCorrespondence,
@@ -113,9 +114,9 @@ export default function CorrespondencePage() {
     onError: (err) => {
       toast.error(
         err.message ||
-          (id
-            ? "Failed to update Correspondence"
-            : "Failed to save Correspondence")
+        (id
+          ? "Failed to update Correspondence"
+          : "Failed to save Correspondence")
       );
     },
   });
@@ -339,22 +340,7 @@ export default function CorrespondencePage() {
     <div className="min-h-screen bg-muted">
       <Navbar2 />
 
-      <header className="bg-card border-b px-6 py-3">
-        <div className="flex items-center justify-end gap-6 text-sm text-foreground">
-          <div>
-            Unpaid: <span className="font-semibold">$ 0</span>
-          </div>
-          <div>
-            Unbilled: <span className="font-semibold">$ 0</span>
-          </div>
-          <div>
-            Client Funds-Operating: <span className="font-semibold">$ 0</span>
-          </div>
-          <div>
-            Client Funds-Trust: <span className="font-semibold">$ 0</span>
-          </div>
-        </div>
-      </header>
+      <Billing />
 
       <nav className="bg-card border-b px-6 py-4 text-sm text-muted-foreground">
         <div className="flex items-center gap-2">
@@ -670,15 +656,13 @@ export default function CorrespondencePage() {
                 Upload File <span className="text-red-500">(Max 10MB)</span>
               </Label>
               <div
-                className={`relative border-2 border-dashed rounded-lg transition-all overflow-hidden ${
-                  filePreview
+                className={`relative border-2 border-dashed rounded-lg transition-all overflow-hidden ${filePreview
                     ? "border-green-500 bg-green-50/50"
                     : "border-input bg-muted hover:border-gray-400 hover:bg-gray-100"
-                } ${
-                  uploadMutation.isLoading
+                  } ${uploadMutation.isLoading
                     ? "pointer-events-none opacity-70"
                     : ""
-                }`}
+                  }`}
                 style={{ minHeight: "250px" }}
               >
                 <input

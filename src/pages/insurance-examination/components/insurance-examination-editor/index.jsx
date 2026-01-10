@@ -29,6 +29,7 @@ import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
 import { Navbar2 } from "@/components/navbar2";
+import Billing from "@/components/billing";
 
 import { getABMeta } from "../../helpers/fetchABMeta";
 import {
@@ -83,9 +84,9 @@ export default function InsuranceExaminationPage() {
     onError: (err) => {
       toast.error(
         err.message ||
-          (id
-            ? "Failed to update Insurance Examination"
-            : "Failed to save Insurance Examination")
+        (id
+          ? "Failed to update Insurance Examination"
+          : "Failed to save Insurance Examination")
       );
     },
   });
@@ -296,22 +297,7 @@ export default function InsuranceExaminationPage() {
     <div className="min-h-screen bg-muted">
       <Navbar2 />
 
-      <header className="bg-card border-b px-6 py-3">
-        <div className="flex items-center justify-end gap-6 text-sm text-foreground">
-          <div>
-            Unpaid: <span className="font-semibold">$ 0</span>
-          </div>
-          <div>
-            Unbilled: <span className="font-semibold">$ 0</span>
-          </div>
-          <div>
-            Client Funds-Operating: <span className="font-semibold">$ 0</span>
-          </div>
-          <div>
-            Client Funds-Trust: <span className="font-semibold">$ 0</span>
-          </div>
-        </div>
-      </header>
+      <Billing />
 
       <nav className="bg-card border-b px-6 py-4 text-sm text-muted-foreground">
         <div className="flex items-center gap-2">

@@ -381,7 +381,7 @@ export default function OwnerInfoForm() {
     mutationFn: (payload) => createOwnerInfo({ slug, data: payload }),
     onSuccess: () => {
       toast.success("Owner information saved successfully!");
-      navigate("/dashboard/workstation");
+      // navigate("/dashboard/workstation");
     },
     onError: (error) => {
       toast.error(error?.message || "Failed to save owner information");
