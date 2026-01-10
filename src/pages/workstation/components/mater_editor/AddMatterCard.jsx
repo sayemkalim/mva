@@ -200,7 +200,7 @@ const AddMatterCard = ({
       }
       return createMatter(data);
     },
-    onSuccess: () => {
+    onSuccess: (response) => {
       toast.success(
         isEditMode
           ? "Matter updated successfully"
@@ -209,8 +209,14 @@ const AddMatterCard = ({
       queryClient.invalidateQueries(["matters"]);
       if (isEditMode) {
         queryClient.invalidateQueries(["matter", initialData.slug]);
+      } else {
+        console.log("Create matter response:", response);
+        const newSlug = response?.response?.slug || response?.data?.slug || response?.slug;
+        console.log("New slug:", newSlug);
+        if (newSlug) {
+          navigate(`/dashboard/workstation/edit/${newSlug}`);
+        }
       }
-      // navigate("/dashboard/workstation");
     },
     onError: (error) => {
       toast.error(
@@ -324,13 +330,13 @@ const AddMatterCard = ({
                   return (
                     <Badge key={id} variant="secondary" className="mr-1">
                       {option.name}
-                      <X
+                      {/* <X
                         className="ml-1 h-3 w-3 cursor-pointer"
                         onClick={(e) => {
                           e.stopPropagation();
                           removeFromMultiSelect(fieldName, id);
                         }}
-                      />
+                      /> */}
                     </Badge>
                   );
                 })}
@@ -414,7 +420,6 @@ const AddMatterCard = ({
           </h1>
 
           <form className="space-y-12" onSubmit={handleSubmit} noValidate>
-            {/* ===== FILE DETAILS SECTION ===== */}
             <section>
               <h2 className="font-semibold text-xl mb-6 border-b pb-2 uppercase text-foreground">
                 File Details
@@ -598,7 +603,19 @@ const AddMatterCard = ({
                     fieldName="tort_claim_settlement_approx_id"
                   />
                 </div>
-
+                <div>
+                  <label className="block font-medium mb-2 text-foreground">
+                    Property Damage Claim Settlement Approx.
+                  </label>
+                  <SearchableDropdown
+                    value={formData.property_damage_claim_settlement_approx_id}
+                    onSelect={handleDropdownChange}
+                    options={metadata.property_damage_claim_settlem}
+                    placeholder="Select property damage approx."
+                    popoverKey="property_damage_claim_settlement_approx"
+                    fieldName="property_damage_claim_settlement_approx_id"
+                  />
+                </div>
                 {/* LTD Claim Settlement Approx. */}
                 <div>
                   <label className="block font-medium mb-2 text-foreground">
@@ -615,19 +632,7 @@ const AddMatterCard = ({
                 </div>
 
                 {/* Property Damage Claim Settlement Approx. */}
-                <div>
-                  <label className="block font-medium mb-2 text-foreground">
-                    Property Damage Claim Settlement Approx.
-                  </label>
-                  <SearchableDropdown
-                    value={formData.property_damage_claim_settlement_approx_id}
-                    onSelect={handleDropdownChange}
-                    options={metadata.property_damage_claim_settlem}
-                    placeholder="Select property damage approx."
-                    popoverKey="property_damage_claim_settlement_approx"
-                    fieldName="property_damage_claim_settlement_approx_id"
-                  />
-                </div>
+
 
                 {/* At Fault */}
                 <div>

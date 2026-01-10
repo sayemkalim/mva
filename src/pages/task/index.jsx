@@ -52,7 +52,7 @@ const Task = () => {
   }, [debouncedSearch]);
 
   return (
-<div className="flex flex-col w-full lg:w-[82.5vw]"> 
+<div className="flex flex-col w-full"> 
         <Navbar2 />
         <Billing/>
       <NavbarItem title="Tasks" breadcrumbs={breadcrumbs} />
