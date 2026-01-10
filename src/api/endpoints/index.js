@@ -380,14 +380,13 @@ export const endpoints = {
   invoicePaymentSaveOperating: "api/v2/file/accounting/invoice-payments/save/operating-bank",
   invoicePaymentHistory: "api/v2/file/accounting/invoice-payments/invoice",
   invoicePaymentDelete: "api/v2/file/accounting/invoice-payments/delete",
-  downloadPaymentHistory: "api/v2/file/accounting/invoice/print-invoice-payments",
-  downloadInvoice: "api/v2/file/accounting/invoice/print-invoice",
   invoiceWriteOff: "api/v2/file/accounting/invoice-write-off/save",
 
   // Final Settlement
   finalSettlementShow: "api/v2/file/accounting/final-settlement/show",
   finalSettlementSave: "api/v2/file/accounting/final-settlement/save",
   downloadFinalSettlement: "api/v2/file/accounting/final-settlement/download",
-
+  //billing 
+  billing: "api/v2/file/accounting/financial-status"
 };
 
