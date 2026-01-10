@@ -63,7 +63,7 @@ const CostList = () => {
     description: "",
     quantity: "1",
     rate: "",
-    taxable: true,
+    taxable: null,
   });
 
   // Hard Cost Form State
@@ -113,7 +113,7 @@ const CostList = () => {
     hold: false,
     flag_id: "",
     note: "",
-    taxable: true,
+    taxable: false,
   });
 
   const resetSoftCostForm = () => {
@@ -125,7 +125,7 @@ const CostList = () => {
       description: "",
       quantity: "",
       rate: "",
-      taxable: true,
+      taxable: null,
     });
   };
 
@@ -177,7 +177,7 @@ const CostList = () => {
       hold: false,
       flag_id: "",
       note: "",
-      taxable: true,
+      taxable: false,
     });
   };
 
@@ -280,10 +280,10 @@ const CostList = () => {
   };
 
   const handleEditTimeCardSubmit = () => {
+    console.log("Editing Cost:");
     if (
       !editingCost.timekeeker ||
       !editingCost.date ||
-      !editingCost.type ||
       !editingCost.time_spent_id ||
       !editingCost.rate_level_id ||
       !editingCost.rate ||
@@ -582,7 +582,7 @@ const CostList = () => {
               <TableHead>Date</TableHead>
               <TableHead>Type</TableHead>
               <TableHead>Cost Type</TableHead>
-              <TableHead>Method</TableHead>
+              <TableHead>Name</TableHead>
               <TableHead>Description</TableHead>
               <TableHead>Payment Amount</TableHead>
               <TableHead>Balance</TableHead>
@@ -1051,11 +1051,11 @@ const CostList = () => {
             <div className="space-y-2">
               <Label>Tax</Label>
               <Select 
-                value={softCostForm.taxable ? "taxable" : "non-taxable"}
+                value={softCostForm.taxable === true ? "taxable" : softCostForm.taxable === false ? "non-taxable" : undefined}
                 onValueChange={(value) => setSoftCostForm({...softCostForm, taxable: value === "taxable"})}
               >
                 <SelectTrigger>
-                  <SelectValue />
+                  <SelectValue placeholder="Select tax type" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="taxable">Taxable</SelectItem>
@@ -1478,7 +1478,8 @@ const CostList = () => {
                     {
                     (() => {
                       const baseValue = (parseFloat(editingCost.quantity) || 0) * (parseFloat(editingCost.rate) || 0);
-                      return editingCost.taxable ? (baseValue * 1.13).toFixed(2) : baseValue.toFixed(2);
+                      const isTaxable = editingCost.taxable === true || editingCost.taxable === 1 || editingCost.taxable === "true" || editingCost.taxable === "1";
+                      return isTaxable ? (baseValue * 1.13).toFixed(2) : baseValue.toFixed(2);
                     })()
                   }
                     disabled
@@ -1489,11 +1490,17 @@ const CostList = () => {
               <div className="space-y-2">
                 <Label>Tax</Label>
                 <Select 
-                  value={editingCost.taxable ? "taxable" : "non-taxable"}
+                  value={
+                    editingCost.taxable === null || editingCost.taxable === undefined
+                      ? undefined 
+                      : (editingCost.taxable === true || editingCost.taxable === 1 || editingCost.taxable === "true" || editingCost.taxable === "1") 
+                        ? "taxable" 
+                        : "non-taxable"
+                  }
                   onValueChange={(value) => setEditingCost({...editingCost, taxable: value === "taxable"})}
                 >
                   <SelectTrigger>
-                    <SelectValue />
+                    <SelectValue placeholder="Select tax type" />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="taxable">Taxable</SelectItem>

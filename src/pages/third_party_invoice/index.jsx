@@ -706,9 +706,13 @@ const ThirdPartyInvoice = () => {
         const existingFiles = invoiceData.attachments.map((att) => ({
           tempId: `existing_${att.id}`,
           id: att.id,
-          name: att.original_name || att.name || "File",
+          name: att.extension 
+            ? `${att.original_name}.${att.extension}` 
+            : (att.original_name || att.name || "File"),
           size: att.size || 0,
           type: att.mime_type || "",
+          url: att.path,
+          path: att.path,
           uploaded: true,
           uploading: false,
         }));
