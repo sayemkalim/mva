@@ -5,6 +5,7 @@ import CustomActionMenu from "@/components/custom_action";
 import NavbarItem from "@/components/navbar/navbar_item";
 import { Navbar2 } from "@/components/navbar2";
 import Section258Table from "./components/Section258Table";
+import Billing from "@/components/billing";
 
 const Section28 = () => {
   const navigate = useNavigate();
@@ -47,13 +48,14 @@ const Section28 = () => {
   }, [debouncedSearch]);
 
   return (
-    <div className="flex flex-col">
+    <div className="flex flex-col w-full lg:w-[82.5vw]">
       <Navbar2 />
-      <NavbarItem title="Sections" breadcrumbs={breadcrumbs} />
+      <Billing />
+      <NavbarItem title="Sections 258" breadcrumbs={breadcrumbs} />
 
       <div className="px-4">
         <CustomActionMenu
-          title="Sections"
+          title="Sections 258"
           total={blogsLength}
           onAdd={onAdd}
           searchText={searchText}

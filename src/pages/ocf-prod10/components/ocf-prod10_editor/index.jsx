@@ -12,6 +12,7 @@ import {
   createOcfProd10,
   updateOcfProd10,
 } from "../../helpers/createOcfProd10";
+import Billing from "@/components/billing";
 
 export default function OCFProd10Page() {
   const { id, slug } = useParams();
@@ -167,7 +168,7 @@ export default function OCFProd10Page() {
   return (
     <div className="min-h-screen bg-muted">
       <Navbar2 />
-
+<Billing/>
       <nav className="bg-card border-b px-6 py-4 text-sm text-muted-foreground">
         <div className="flex items-center gap-2">
           <button

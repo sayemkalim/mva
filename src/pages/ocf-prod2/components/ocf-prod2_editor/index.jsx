@@ -10,6 +10,7 @@ import { toast } from "sonner";
 import { Navbar2 } from "@/components/navbar2";
 import { createOcfProd2, updateOcfProd2 } from "../../helpers/createOcfProd2";
 import { fetchOcfProd2ById } from "../../helpers/fetchOcfProd2ById";
+import Billing from "@/components/billing";
 
 export default function OCFProd2Page() {
   const { id, slug } = useParams();
@@ -212,7 +213,7 @@ export default function OCFProd2Page() {
   return (
     <div className="min-h-screen bg-muted">
       <Navbar2 />
-
+<Billing/>
       <nav className="bg-card border-b px-6 py-4 text-sm text-muted-foreground">
         <div className="flex items-center gap-2">
           <button

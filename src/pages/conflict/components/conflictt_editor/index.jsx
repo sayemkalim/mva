@@ -5,13 +5,14 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Loader2, ChevronRight, Upload, X, FileText } from "lucide-react";
+import { Loader2, ChevronRight, Upload, X } from "lucide-react";
 import { toast } from "sonner";
 
 import { Navbar2 } from "@/components/navbar2";
 import { uploadAttachment } from "../../helpers/uploadAttachment";
 import { createConflict, updateConflict } from "../../helpers/createConflict";
 import { fetchLatById } from "../../helpers/fetchLatById";
+import Billing from "@/components/billing";
 
 export default function ConflictSearchPage() {
   const { slug, id } = useParams();
@@ -19,19 +20,29 @@ export default function ConflictSearchPage() {
   const location = useLocation();
   const queryClient = useQueryClient();
 
-  // Get data from navigation state (instant access)
   const stateData = location.state?.conflictData;
 
-  // Fetch data from API (for direct URL access or refresh)
   const { data: apiConflictData, isLoading: loadingConflict } = useQuery({
     queryKey: ["conflictSearchData", id],
     queryFn: () => fetchLatById(id),
-    enabled: !!id && !stateData, // Only fetch if no state data available
+    enabled: !!id && !stateData,
     retry: 1,
   });
 
-  // Use state data if available, otherwise use API data
   const conflictData = stateData || apiConflictData;
+
+  const [formData, setFormData] = useState({
+    name: "",
+    attachment_id: null,
+    date: "",
+    memo: "",
+  });
+
+  const [file, setFile] = useState(null);
+  const [fileName, setFileName] = useState("");
+  const [filePreview, setFilePreview] = useState(null);
+  const [fileUrl, setFileUrl] = useState(null);
+  const [fileType, setFileType] = useState(null);
 
   const uploadMutation = useMutation({
     mutationFn: uploadAttachment,
@@ -66,6 +77,8 @@ export default function ConflictSearchPage() {
       setFile(null);
       setFileName("");
       setFilePreview(null);
+      setFileUrl(null);
+      setFileType(null);
     },
   });
 
@@ -93,8 +106,6 @@ export default function ConflictSearchPage() {
         "conflictlist",
         slug || location.state?.slug,
       ]);
-
-      // navigate(`/dashboard/workstation/edit/${slug || location.state?.slug}`);
     },
     onError: (err) => {
       console.error("Mutation Error:", err);
@@ -107,17 +118,6 @@ export default function ConflictSearchPage() {
     },
   });
 
-  const [formData, setFormData] = useState({
-    name: "",
-    attachment_id: null,
-    date: "",
-    memo: "",
-  });
-
-  const [file, setFile] = useState(null);
-  const [fileName, setFileName] = useState("");
-  const [filePreview, setFilePreview] = useState(null);
-  const [fileType, setFileType] = useState(null);
   useEffect(() => {
     if (conflictData) {
       console.log("Loading conflict data:", conflictData);
@@ -129,22 +129,24 @@ export default function ConflictSearchPage() {
         date: conflictData.date ? conflictData.date.split("T")[0] : "",
         memo: conflictData.memo || "",
       });
+
       const attachment = conflictData.attachment;
       if (attachment?.path) {
-        const imageUrl = attachment.path.startsWith("http")
+        const fullUrl = attachment.path.startsWith("http")
           ? attachment.path
           : `${
               import.meta.env.VITE_API_URL || "https://mva-backend.vsrlaw.ca/"
             }${attachment.path}`;
 
-        setFilePreview(imageUrl);
+        setFilePreview(fullUrl);
+        setFileUrl(fullUrl);
         setFileName(attachment.original_name || "Uploaded file");
 
         const extension = attachment.original_name
           ?.split(".")
           .pop()
           ?.toLowerCase();
-        setFileType(extension);
+        setFileType(extension || null);
       }
     }
   }, [conflictData]);
@@ -161,12 +163,14 @@ export default function ConflictSearchPage() {
         return;
       }
 
-      const extension = selectedFile.name.split(".").pop().toLowerCase();
+      const extension = selectedFile.name.split(".").pop()?.toLowerCase() || "";
       setFileType(extension);
+
       const previewUrl = URL.createObjectURL(selectedFile);
       setFile(selectedFile);
       setFileName(selectedFile.name);
       setFilePreview(previewUrl);
+      setFileUrl(previewUrl);
 
       try {
         await uploadMutation.mutateAsync({ file: selectedFile });
@@ -183,6 +187,7 @@ export default function ConflictSearchPage() {
     setFile(null);
     setFileName("");
     setFilePreview(null);
+    setFileUrl(null);
     setFileType(null);
     setFormData((prev) => ({
       ...prev,
@@ -214,7 +219,9 @@ export default function ConflictSearchPage() {
   };
 
   const isImageFile = (type) => {
-    return ["jpg", "jpeg", "png", "gif", "webp"].includes(type?.toLowerCase());
+    return ["jpg", "jpeg", "png", "gif", "webp"].includes(
+      (type || "").toLowerCase()
+    );
   };
 
   if (loadingConflict && !stateData) {
@@ -230,23 +237,7 @@ export default function ConflictSearchPage() {
     <div className="min-h-screen bg-muted">
       <Navbar2 />
 
-      {/* Financial Summary Header */}
-      <header className="bg-card border-b px-6 py-3">
-        <div className="flex items-center justify-end gap-6 text-sm text-foreground">
-          <div>
-            Unpaid: <span className="font-semibold">$ 0</span>
-          </div>
-          <div>
-            Unbilled: <span className="font-semibold">$ 0</span>
-          </div>
-          <div>
-            Client Funds-Operating: <span className="font-semibold">$ 0</span>
-          </div>
-          <div>
-            Client Funds-Trust: <span className="font-semibold">$ 0</span>
-          </div>
-        </div>
-      </header>
+<Billing/>
 
       {/* Breadcrumb Navigation */}
       <nav className="bg-card border-b px-6 py-4 text-sm text-muted-foreground">
@@ -358,60 +349,57 @@ export default function ConflictSearchPage() {
                         removeFile();
                       }}
                       className="absolute top-3 right-3 z-10 w-8 h-8 bg-red-500 hover:bg-red-600 text-white rounded-full flex items-center justify-center transition-colors shadow-md"
-                      disabled={mutation.isLoading || uploadMutation.isLoading}
+                      disabled={
+                        mutation.isLoading || uploadMutation.isLoading
+                      }
                     >
                       <X className="w-4 h-4" />
                     </button>
 
-                    {isImageFile(fileType) ? (
-                      <div className="flex flex-col items-center gap-3">
+                    <div className="flex flex-col items-center gap-3 w-full">
+                      {isImageFile(fileType) ? (
                         <div className="relative group">
                           <img
                             src={filePreview}
                             alt="Preview"
-                            className="max-h-[180px] max-w-full rounded-lg shadow-md border-2 border-green-500"
+                            className="max-h-[200px] max-w-[200px] rounded-lg shadow-md border-2 border-green-500 object-fit"
                           />
                           <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 rounded-lg transition-colors" />
                         </div>
-                        <div className="text-center">
-                          <p className="text-sm font-medium text-green-700">
-                            Image Uploaded
-                          </p>
-                          <p className="text-xs text-muted-foreground mt-1 max-w-[200px] truncate">
-                            {fileName}
-                          </p>
-                          {uploadMutation.isLoading && (
-                            <p className="text-xs text-blue-600 mt-1 flex items-center gap-1 justify-center">
-                              <Loader2 className="w-3 h-3 animate-spin" />
-                              Uploading...
-                            </p>
-                          )}
-                        </div>
-                      </div>
-                    ) : (
-                      <div className="flex flex-col items-center justify-center gap-3">
-                        <div className="relative">
-                          <div className="w-28 h-28 bg-gradient-to-br from-green-100 to-green-200 rounded-xl border-2 border-green-500 shadow-md flex items-center justify-center">
-                            <FileText className="w-12 h-12 text-green-600" />
-                          </div>
-                        </div>
+                      ) : (
+                          <iframe
+                            src={fileUrl}
+                            title={fileName}
+                            className="w-full h-[300px] object-cover"
+                          />
+              
+                      )}
 
-                        <div className="text-center">
-                          <p className="text-sm font-medium text-green-700">
-                            File Uploaded
-                          </p>
-                          <p className="text-xs text-muted-foreground mt-1 max-w-[200px] truncate">
-                            {fileName}
-                          </p>
-                          {uploadMutation.isLoading && (
-                            <p className="text-xs text-blue-600 mt-1 flex items-center gap-1 justify-center">
-                              <Loader2 className="w-3 h-3 animate-spin" />
-                              Uploading...
-                            </p>
-                          )}
-                        </div>
-                      </div>
-                    )}
+                      {fileUrl && (
+                        <a
+                          href={fileUrl}
+                          download={fileName}
+                          target="_blank"
+                          rel="noreferrer"
+                        >
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            className="mt-2"
+                          >
+                            Download 
+                          </Button>
+                        </a>
+                      )}
+
+                      {uploadMutation.isLoading && (
+                        <p className="text-xs text-blue-600 mt-2 flex items-center gap-1 justify-center">
+                          <Loader2 className="w-3 h-3 animate-spin" />
+                          Uploading...
+                        </p>
+                      )}
+                    </div>
                   </div>
                 ) : (
                   <div

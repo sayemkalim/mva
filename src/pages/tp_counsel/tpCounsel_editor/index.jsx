@@ -24,6 +24,7 @@ import { Navbar2 } from "@/components/navbar2";
 import { fetchTpCounselBySlug } from "../helpers/fetchTpCounselBySlug";
 import { createTpCounsel } from "../helpers/createTpCounsel";
 import { formatPhoneNumber } from "@/lib/utils";
+import Billing from "@/components/billing";
 
 const SearchableSelect = ({ label, options, value, onChange, placeholder }) => {
   const selected = options.find((opt) => String(opt.id) === String(value));
@@ -200,22 +201,7 @@ export default function TpCounselForm() {
   return (
     <div className="min-h-screen bg-muted">
       <Navbar2 />
-      <header className="bg-card border-b px-6 py-3">
-        <div className="flex items-center justify-end gap-6 text-sm text-foreground">
-          <div>
-            Unpaid: <span className="font-semibold">$ 0</span>
-          </div>
-          <div>
-            Unbilled: <span className="font-semibold">$ 0</span>
-          </div>
-          <div>
-            Client Funds-Operating: <span className="font-semibold">$ 0</span>
-          </div>
-          <div>
-            Client Funds-Trust: <span className="font-semibold">$ 0</span>
-          </div>
-        </div>
-      </header>
+      <Billing />
 
       {/* Breadcrumb */}
       <nav className="bg-card border-b px-6 py-4 text-sm text-muted-foreground">

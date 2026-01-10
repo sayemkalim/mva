@@ -6,6 +6,7 @@ import NavbarItem from "@/components/navbar/navbar_item";
 import { Navbar2 } from "@/components/navbar2";
 import Section33Table from "./components/MvaProdTable";
 import { Button } from "@/components/ui/button";
+import Billing from "@/components/billing";
 
 const MvaProd = () => {
   const navigate = useNavigate();
@@ -51,6 +52,7 @@ const MvaProd = () => {
   return (
     <div className="flex flex-col">
       <Navbar2 />
+      <Billing/>
       <NavbarItem title="Mva Production" breadcrumbs={breadcrumbs} />
 
       <div className="px-4">

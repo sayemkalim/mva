@@ -13,6 +13,7 @@ import {
   createPsychological,
   updatePsychological,
 } from "../../helpers/createPsychological";
+import Billing from "@/components/billing";
 
 const SYMPTOM_KEYS = {
   psychological: [
@@ -223,7 +224,7 @@ export default function PsychologicalPage() {
   return (
     <div className="min-h-screen bg-muted">
       <Navbar2 />
-
+<Billing/>
       <nav className="bg-card border-b px-6 py-4 text-sm text-muted-foreground">
         <div className="flex items-center gap-2">
           <button

@@ -11,6 +11,7 @@ import { toast } from "sonner";
 import { Navbar2 } from "@/components/navbar2";
 import { fetchMvaProdById } from "../../helpers/fetchMvaProdById";
 import { createMvaProd, updateMvaProd } from "../../helpers/createMvaProd";
+import Billing from "@/components/billing";
 
 export default function MvaPage() {
   const { id, slug } = useParams();
@@ -615,7 +616,7 @@ export default function MvaPage() {
   return (
     <div className="min-h-screen bg-muted">
       <Navbar2 />
-
+<Billing/>
       <nav className="bg-card border-b px-6 py-4 text-sm text-muted-foreground">
         <div className="flex items-center gap-2">
           <button

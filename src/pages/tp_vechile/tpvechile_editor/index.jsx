@@ -25,6 +25,7 @@ import { Navbar2 } from "@/components/navbar2";
 import { getABMeta } from "../helpers/fetchABMeta";
 import { createTpVechile } from "../helpers/createTpVechile";
 import { fetchTpVechileBySlug } from "../helpers/fetchTpVechileBySlug";
+import Billing from "@/components/billing";
 
 // Reusable Searchable Dropdown
 function SearchableDropdown({
@@ -213,6 +214,7 @@ export default function VehicleInfoForm() {
   return (
     <div className="min-h-screen bg-muted">
       <Navbar2 />
+      <Billing/>
       <div className="bg-card border-b px-6 py-4">
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
           <button

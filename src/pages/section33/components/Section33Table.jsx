@@ -121,6 +121,37 @@ const Section33Table = ({ slug, setBlogsLength, params = {} }) => {
       label: "Request Date",
       render: (value) => safeFormat(value, "dd/MM/yyyy"),
     },
+    {
+      key: "requested_documents",
+      label: "Document Details",
+      render: (value) => {
+        if (!Array.isArray(value) || value.length === 0) return <Typography variant="p">-</Typography>;
+        return (
+          <table className="w-full border-collapse">
+            <thead>
+              <tr className="text-xs text-muted-foreground">
+                <th className="text-left py-1 px-2 font-medium">Requested Documents</th>
+                <th className="text-left py-1 px-2 font-medium">From Date</th>
+                <th className="text-left py-1 px-2 font-medium">To Date</th>
+                <th className="text-left py-1 px-2 font-medium">First Reminder</th>
+                <th className="text-left py-1 px-2 font-medium">Second Reminder</th>
+              </tr>
+            </thead>
+            <tbody>
+              {value.map((doc, i) => (
+                <tr key={i} className={i < value.length - 1 ? "border-b border-black" : ""}>
+                  <td className="py-2 px-2 text-sm">{doc.requested_name || "-"}</td>
+                  <td className="py-2 px-2 text-sm">{safeFormat(doc.from_date, "yyyy-MM-dd")}</td>
+                  <td className="py-2 px-2 text-sm">{safeFormat(doc.to_date, "yyyy-MM-dd")}</td>
+                  <td className="py-2 px-2 text-sm">{safeFormat(doc.first_reminder, "yyyy-MM-dd")}</td>
+                  <td className="py-2 px-2 text-sm">{safeFormat(doc.second_reminder, "yyyy-MM-dd")}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        );
+      },
+    },
     // {
     //   key: "first_reminder",
     //   label: "First Reminder",

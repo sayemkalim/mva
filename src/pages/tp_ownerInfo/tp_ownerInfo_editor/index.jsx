@@ -34,6 +34,7 @@ import { createOwnerInfo } from "../helpers/createOwnerInfo";
 import { fetchTpOwnerInfoBySlug } from "../helpers/fetchTpOwnerInfoBySlug";
 import { deleteOwnerInfo } from "../helpers/deleteOwnerInfo";
 import { deleteOwnerDirector } from "../helpers/deleteOwnerDirector";
+import Billing from "@/components/billing";
 function SearchableDropdown({
   label = "",
   placeholder = "Select...",
@@ -410,7 +411,7 @@ export default function OwnerInfoForm() {
   return (
     <div className="min-h-screen bg-muted">
       <Navbar2 />
-
+<Billing/>
       <div className="bg-card border-b px-6 py-4">
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
           <button

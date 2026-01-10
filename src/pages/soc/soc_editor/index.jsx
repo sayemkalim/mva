@@ -25,6 +25,7 @@ import { fetchSocBySlug } from "../helpers/fetchSocBySlug";
 import { Navbar2 } from "@/components/navbar2";
 import { clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
+import Billing from "@/components/billing";
 
 function cn(...inputs) {
   return twMerge(clsx(inputs));
@@ -231,24 +232,7 @@ export default function SocPage() {
     <div className="min-h-screen bg-muted">
       <Navbar2 />
 
-      {/* Financial Summary Header */}
-      <header className="bg-card border-b px-6 py-3">
-        <div className="flex items-center justify-end gap-6 text-sm text-foreground">
-          <div>
-            Unpaid: <span className="font-semibold">$ 0</span>
-          </div>
-          <div>
-            Unbilled: <span className="font-semibold">$ 0</span>
-          </div>
-          <div>
-            Client Funds-Operating: <span className="font-semibold">$ 0</span>
-          </div>
-          <div>
-            Client Funds-Trust: <span className="font-semibold">$ 0</span>
-          </div>
-        </div>
-      </header>
-
+      <Billing/>
       {/* Breadcrumb Navigation */}
       <nav className="bg-card border-b px-6 py-4 text-sm text-muted-foreground">
         <div className="flex items-center gap-2">

@@ -26,6 +26,7 @@ import {
   CommandGroup,
   CommandItem,
 } from "@/components/ui/command";
+import Billing from "@/components/billing";
 
 const SearchableDropdown = ({
   value,
@@ -238,7 +239,6 @@ export default function AccidentalInformation() {
     }));
   };
 
-  // ✅ Wrapper used by SearchableDropdown
   const handleDropdownSelect = (fieldName, id, popoverKey) => {
     handleSelectChange(fieldName, id);
     setPopoverOpen((prev) => ({ ...prev, [popoverKey]: false }));
@@ -326,23 +326,7 @@ export default function AccidentalInformation() {
   return (
     <div className="min-h-screen bg-muted">
       <Navbar2 />
-      <div className="bg-card border-b px-6 py-3">
-        <div className="flex items-center justify-end gap-6 text-sm">
-          <span className="text-foreground">
-            Unpaid: <span className="font-semibold">$ 0</span>
-          </span>
-          <span className="text-foreground">
-            Unbilled: <span className="font-semibold">$ 0</span>
-          </span>
-          <span className="text-foreground">
-            Client Funds-Operating: <span className="font-semibold">$ 0</span>
-          </span>
-          <span className="text-foreground">
-            Client Funds-Trust: <span className="font-semibold">$ 0</span>
-          </span>
-        </div>
-      </div>
-
+    <Billing/>
       {/* Breadcrumb */}
       <div className="bg-card border-b px-6 py-4">
         <div className="flex items-center gap-2 text-sm text-muted-foreground">

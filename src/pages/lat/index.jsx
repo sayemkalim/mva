@@ -6,6 +6,7 @@ import NavbarItem from "@/components/navbar/navbar_item";
 import { Navbar2 } from "@/components/navbar2";
 import Section33Table from "./components/LatTable";
 import LatTable from "./components/LatTable";
+import Billing from "@/components/billing";
 
 const Lat = () => {
   const navigate = useNavigate();
@@ -50,6 +51,7 @@ const Lat = () => {
   return (
     <div className="flex flex-col">
       <Navbar2 />
+      <Billing/>
       <NavbarItem title="Lats" breadcrumbs={breadcrumbs} />
 
       <div className="px-4">

@@ -26,6 +26,7 @@ import { deleteSectionCommunication } from "../../helpers/deleteSectionCommunica
 import { deleteSectiondocument } from "../../helpers/deleteSectiondocument";
 import { Navbar2 } from "@/components/navbar2";
 import { formatPhoneNumber } from "@/lib/utils";
+import Billing from "@/components/billing";
 
 const SearchableDropdown = ({
   value,
@@ -653,6 +654,7 @@ export default function Section33() {
   return (
     <div className="min-h-screen bg-muted">
       <Navbar2 />
+      <Billing/>
       <div className="bg-card border-b px-6 py-4">
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
           <button

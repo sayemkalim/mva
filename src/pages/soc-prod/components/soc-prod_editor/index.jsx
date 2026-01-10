@@ -11,6 +11,7 @@ import { toast } from "sonner";
 import { Navbar2 } from "@/components/navbar2";
 import { fetchSocProdById } from "../../helpers/fetchSocProdById";
 import { createSocProd, updateSocProd } from "../../helpers/createSocProd";
+import Billing from "@/components/billing";
 
 export default function SocProdPage() {
   const { id, slug } = useParams();
@@ -273,7 +274,7 @@ export default function SocProdPage() {
   return (
     <div className="min-h-screen bg-muted">
       <Navbar2 />
-
+<Billing/>
       <nav className="bg-card border-b px-6 py-4 text-sm text-muted-foreground">
         <div className="flex items-center gap-2">
           <button

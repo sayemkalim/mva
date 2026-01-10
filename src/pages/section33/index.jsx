@@ -5,6 +5,7 @@ import CustomActionMenu from "@/components/custom_action";
 import NavbarItem from "@/components/navbar/navbar_item";
 import { Navbar2 } from "@/components/navbar2";
 import Section33Table from "./components/Section33Table";
+import Billing from "@/components/billing";
 
 const Section = () => {
   const navigate = useNavigate();
@@ -47,8 +48,10 @@ const Section = () => {
   }, [debouncedSearch]);
 
   return (
-    <div className="flex flex-col">
+    <div className="flex flex-col w-full lg:w-[82.5vw]">
+
       <Navbar2 />
+      <Billing/>
       <NavbarItem title="Sections" breadcrumbs={breadcrumbs} />
 
       <div className="px-4">

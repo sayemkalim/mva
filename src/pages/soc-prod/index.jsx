@@ -6,6 +6,7 @@ import NavbarItem from "@/components/navbar/navbar_item";
 import { Navbar2 } from "@/components/navbar2";
 import Section33Table from "./components/SocProdTable";
 import { Button } from "@/components/ui/button";
+import Billing from "@/components/billing";
 
 const SocProd = () => {
   const navigate = useNavigate();
@@ -51,6 +52,7 @@ const SocProd = () => {
   return (
     <div className="flex flex-col">
       <Navbar2 />
+      <Billing/>
       <NavbarItem title="Soc Production" breadcrumbs={breadcrumbs} />
 
       <div className="px-4">

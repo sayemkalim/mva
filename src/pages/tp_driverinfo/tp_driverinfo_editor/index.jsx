@@ -26,6 +26,7 @@ import { Navbar2 } from "@/components/navbar2";
 import { getABMeta } from "../helpers/fetchABMeta";
 import { fetchDriverInfoBySlug } from "../helpers/fetchDriverInfoBySlug";
 import { createDriverInfo } from "../helpers/createDriverInfo";
+import Billing from "@/components/billing";
 function SearchableDropdown({
   label = "",
   placeholder = "Select...",
@@ -262,7 +263,7 @@ export default function DriverInfoForm() {
   return (
     <div className="min-h-screen bg-muted">
       <Navbar2 />
-
+<Billing/>
       {/* Breadcrumb */}
       <div className="bg-card border-b px-6 py-4">
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
@@ -283,22 +284,7 @@ export default function DriverInfoForm() {
           <span className="text-foreground font-medium">Driver Information</span>
         </div>
       </div>
-      <div className="bg-card border-b px-6 py-3">
-        <div className="flex items-center justify-end gap-6 text-sm">
-          <span className="text-foreground">
-            Unpaid: <span className="font-semibold">$ 0</span>
-          </span>
-          <span className="text-foreground">
-            Unbilled: <span className="font-semibold">$ 0</span>
-          </span>
-          <span className="text-foreground">
-            Client Funds-Operating: <span className="font-semibold">$ 0</span>
-          </span>
-          <span className="text-foreground">
-            Client Funds-Trust: <span className="font-semibold">$ 0</span>
-          </span>
-        </div>
-      </div>
+  
       {/* Main Content */}
       <div className="container mx-auto px-6 py-8 max-w-7xl">
         <div className="bg-card rounded-lg shadow-sm border p-8">

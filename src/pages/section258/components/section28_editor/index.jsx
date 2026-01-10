@@ -25,6 +25,8 @@ import { deleteSectionCommunication } from "../../helpers/deleteSectionCommunica
 import { deleteSectiondocument } from "../../helpers/deleteSectiondocument";
 import { Navbar2 } from "@/components/navbar2";
 import { fetchSectionById } from "../../helpers/fetchSectionById";
+import Billing from "@/components/billing";
+import { formatPhoneNumber } from "@/lib/utils";
 
 const SearchableDropdown = ({
   value,
@@ -74,9 +76,8 @@ const SearchableDropdown = ({
                   className="cursor-pointer flex items-center"
                 >
                   <Check
-                    className={`mr-2 h-4 w-4 ${
-                      value === opt.id ? "opacity-100" : "opacity-0"
-                    }`}
+                    className={`mr-2 h-4 w-4 ${value === opt.id ? "opacity-100" : "opacity-0"
+                      }`}
                   />
                   {opt.name}
                 </CommandItem>
@@ -86,6 +87,29 @@ const SearchableDropdown = ({
         </Command>
       </PopoverContent>
     </Popover>
+  );
+};
+
+const StatusRibbon = ({ statusName }) => {
+  if (!statusName) return null;
+
+  const getStatusColor = (name) => {
+    const statusLower = name?.toLowerCase() || "";
+    if (statusLower.includes("pending")) return "bg-yellow-500";
+    if (statusLower.includes("fulfilled") || statusLower.includes("completed")) return "bg-green-500";
+    if (statusLower.includes("rejected") || statusLower.includes("cancelled")) return "bg-red-500";
+    if (statusLower.includes("in progress") || statusLower.includes("processing")) return "bg-blue-500";
+    return "bg-purple-500";
+  };
+
+  return (
+    <div className="absolute top-0 left-0 overflow-hidden w-24 h-24 pointer-events-none z-10">
+      <div
+        className={`${getStatusColor(statusName)} text-white text-[9.5px] font-bold uppercase py-0.5 px-6 transform -rotate-45 -translate-x-6 translate-y-4 shadow-md`}
+      >
+        {statusName}
+      </div>
+    </div>
   );
 };
 
@@ -172,6 +196,7 @@ export default function Section258Form() {
     deadline: "",
     response_to_insurance: "",
     s33_req_status_id: "",
+    s33_req_status_name: "",
     ambulance_cnr: "",
     medical_clinic_name: "",
     phone: "",
@@ -209,6 +234,7 @@ export default function Section258Form() {
           deadline: section258.deadline ?? "",
           response_to_insurance: section258.response_to_insurance ?? "",
           s33_req_status_id: section258.s33_req_status_id ?? "",
+          s33_req_status_name: section258.status?.name ?? "",
           expanded: !!firstDoc.requested_id,
           // keep id of main document
           main_doc_id: firstDoc.id ?? null,
@@ -256,6 +282,7 @@ export default function Section258Form() {
           deadline: section258.deadline ?? "",
           response_to_insurance: section258.response_to_insurance ?? "",
           s33_req_status_id: section258.s33_req_status_id ?? "",
+          s33_req_status_name: section258.status?.name ?? "",
           expanded: false,
           main_doc_id: null,
           communications: [{ ...emptyComm }],
@@ -321,10 +348,10 @@ export default function Section258Form() {
         i === idx
           ? fieldName === "documents_requested_by_the_insurer_id"
             ? {
-                ...item,
-                [fieldName]: value,
-                expanded: !!value,
-              }
+              ...item,
+              [fieldName]: value,
+              expanded: !!value,
+            }
             : { ...item, [fieldName]: value }
           : item
       )
@@ -352,9 +379,9 @@ export default function Section258Form() {
       prev.map((doc, idx) =>
         idx === docIdx
           ? {
-              ...doc,
-              communications: [...doc.communications, { ...emptyComm }],
-            }
+            ...doc,
+            communications: [...doc.communications, { ...emptyComm }],
+          }
           : doc
       )
     );
@@ -368,11 +395,11 @@ export default function Section258Form() {
         prev.map((doc, di) =>
           di === docIdx
             ? {
-                ...doc,
-                communications: doc.communications.filter(
-                  (_, i) => i !== commIdx
-                ),
-              }
+              ...doc,
+              communications: doc.communications.filter(
+                (_, i) => i !== commIdx
+              ),
+            }
             : doc
         )
       );
@@ -384,11 +411,11 @@ export default function Section258Form() {
       prev.map((doc, di) =>
         di === docIdx
           ? {
-              ...doc,
-              communications: doc.communications.map((c, ci) =>
-                ci === commIdx ? { ...c, [key]: value } : c
-              ),
-            }
+            ...doc,
+            communications: doc.communications.map((c, ci) =>
+              ci === commIdx ? { ...c, [key]: value } : c
+            ),
+          }
           : doc
       )
     );
@@ -419,9 +446,9 @@ export default function Section258Form() {
       if (resp.Apistatus === true) {
         toast.success(
           resp.message ||
-            (isEditMode
-              ? "Record updated successfully!"
-              : "Record created successfully!")
+          (isEditMode
+            ? "Record updated successfully!"
+            : "Record created successfully!")
         );
         queryClient.invalidateQueries(["section258", id]);
         navigate(-1);
@@ -590,31 +617,35 @@ export default function Section258Form() {
   return (
     <div className="min-h-screen bg-muted">
       <Navbar2 />
-
-<div className="bg-card border-b px-6 py-4">
-  <div className="flex items-center gap-2 text-sm text-muted-foreground">
-    <button
-      onClick={() => navigate("/dashboard")}
-      className="hover:text-foreground transition"
-    >
-      Dashboard
-    </button>
-    <ChevronRight className="w-4 h-4" />
-    <button
-      onClick={() => navigate(-1)}
-      className="hover:text-foreground transition"
-    >
-      Section 33 List
-    </button>
-    <ChevronRight className="w-4 h-4" />
-    <span className="text-foreground font-medium">Section 33 </span>
-  </div>
-</div>
+      <Billing />
+      <div className="bg-card border-b px-6 py-4">
+        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+          <button
+            onClick={() => navigate("/dashboard")}
+            className="hover:text-foreground transition"
+          >
+            Dashboard
+          </button>
+          <ChevronRight className="w-4 h-4" />
+          <button
+            onClick={() => navigate(-1)}
+            className="hover:text-foreground transition"
+          >
+            Section 258 List
+          </button>
+          <ChevronRight className="w-4 h-4" />
+          <span className="text-foreground font-medium">Section 258 </span>
+        </div>
+      </div>
       <form
         onSubmit={handleSubmit}
         className="container mx-auto px-6 py-8 max-w-7xl"
       >
-        <div className="bg-card rounded-lg shadow-sm border p-8">
+        <div className="bg-card rounded-lg shadow-sm border p-8 relative overflow-hidden">
+          {/* S258 Request Status Ribbon - Only in Edit Mode */}
+          {isEditMode && mainForm.s33_req_status_name && (
+            <StatusRibbon statusName={mainForm.s33_req_status_name} />
+          )}
           {/* Main document fields */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-2">
             <div className="space-y-2">
@@ -644,7 +675,7 @@ export default function Section258Form() {
                 }
                 className="h-9 border-input"
               />
-            </div>  
+            </div>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-2">
             <div className="space-y-2">
@@ -727,10 +758,10 @@ export default function Section258Form() {
                   <Input
                     value={mainForm.phone}
                     onChange={(e) =>
-                      setMainForm((p) => ({ ...p, phone: e.target.value }))
+                      setMainForm((p) => ({ ...p, phone: formatPhoneNumber(e.target.value) }))
                     }
                     className="h-9 bg-muted border-input"
-                    placeholder="Phone"
+                    placeholder="(888) 888-8888"
                   />
                 </div>
                 <div className="space-y-2">
@@ -738,10 +769,10 @@ export default function Section258Form() {
                   <Input
                     value={mainForm.fax}
                     onChange={(e) =>
-                      setMainForm((p) => ({ ...p, fax: e.target.value }))
+                      setMainForm((p) => ({ ...p, fax: formatPhoneNumber(e.target.value) }))
                     }
                     className="h-9 bg-muted border-input"
-                    placeholder="Fax"
+                    placeholder="(888) 888-8888"
                   />
                 </div>
                 <div className="space-y-2">
@@ -983,10 +1014,10 @@ export default function Section258Form() {
                         <Input
                           value={doc.phone}
                           onChange={(e) =>
-                            handleDocSearchSelect(idx, "phone", e.target.value)
+                            handleDocSearchSelect(idx, "phone", formatPhoneNumber(e.target.value))
                           }
                           className="h-9 bg-muted border-input"
-                          placeholder="Phone"
+                          placeholder="(888) 888-8888"
                         />
                       </div>
                       <div className="space-y-2">
@@ -994,10 +1025,10 @@ export default function Section258Form() {
                         <Input
                           value={doc.fax}
                           onChange={(e) =>
-                            handleDocSearchSelect(idx, "fax", e.target.value)
+                            handleDocSearchSelect(idx, "fax", formatPhoneNumber(e.target.value))
                           }
                           className="h-9 bg-muted border-input"
-                          placeholder="Fax"
+                          placeholder="(888) 888-8888"
                         />
                       </div>
                       <div className="space-y-2">
