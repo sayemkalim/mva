@@ -224,6 +224,8 @@ const Invoice = () => {
   const [deleteWriteOffLoading, setDeleteWriteOffLoading] = useState(false);
   const [writeOffHistoryDialogOpen, setWriteOffHistoryDialogOpen] =
     useState(false);
+  const [historyDetailDialogOpen, setHistoryDetailDialogOpen] = useState(false);
+  const [selectedHistoryDetail, setSelectedHistoryDetail] = useState(null);
   const [unlinkPaymentDialogOpen, setUnlinkPaymentDialogOpen] = useState(false);
   const [invoiceToUnlink, setInvoiceToUnlink] = useState(null);
   const [unlinkPaymentLoading, setUnlinkPaymentLoading] = useState(false);
@@ -1213,7 +1215,7 @@ const Invoice = () => {
                               setInvoiceToUnlink(item);
                               setUnlinkPaymentDialogOpen(true);
                             }}
-                            disabled={item.isLocked}
+                            disabled={!item.isLocked}
                           >
                             <Link2Off className="h-4 w-4" />
                             Unlink Payment
@@ -2810,17 +2812,30 @@ const Invoice = () => {
                           {parseFloat(history.change_hard || 0).toFixed(2)}
                         </TableCell>
                         <TableCell>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-8 w-8 hover:bg-red-50 hover:text-red-600"
-                            onClick={() => {
-                              setWriteOffToDelete(history);
-                              setDeleteWriteOffDialogOpen(true);
-                            }}
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
+                          <div className="flex items-center gap-1">
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-8 w-8 hover:bg-blue-50 hover:text-blue-600"
+                              onClick={() => {
+                                setSelectedHistoryDetail(history);
+                                setHistoryDetailDialogOpen(true);
+                              }}
+                            >
+                              <Eye className="h-4 w-4" />
+                            </Button>
+                            <Button
+                              variant="ghost" 
+                              size="icon"
+                              className="h-8 w-8 hover:bg-red-50 hover:text-red-600"
+                              onClick={() => {
+                                setWriteOffToDelete(history);
+                                setDeleteWriteOffDialogOpen(true);
+                              }}
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </div>
                         </TableCell>
                       </TableRow>
                     ))}
@@ -2837,6 +2852,84 @@ const Invoice = () => {
             <Button
               variant="outline"
               onClick={() => setWriteOffHistoryDialogOpen(false)}
+            >
+              Close
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Write-off History Detail Dialog */}
+      <Dialog
+        open={historyDetailDialogOpen}
+        onOpenChange={setHistoryDetailDialogOpen}
+      >
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Write-off Detail</DialogTitle>
+          </DialogHeader>
+          {selectedHistoryDetail && (
+            <div className="space-y-6 py-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-1">
+                  <span className="text-sm font-medium text-muted-foreground">Invoice Number</span>
+                  <p className="font-medium">{selectedHistoryDetail.invoice_number}</p>
+                </div>
+                <div className="space-y-1">
+                  <span className="text-sm font-medium text-muted-foreground">Change Date</span>
+                  <p className="font-medium">{new Date(selectedHistoryDetail.change_date).toLocaleDateString()}</p>
+                </div>
+              </div>
+
+              <div className="border rounded-lg overflow-hidden">
+                <Table>
+                  <TableHeader>
+                    <TableRow className="bg-muted">
+                      <TableHead>Type</TableHead>
+                      <TableHead>Amount</TableHead>
+                      <TableHead>Notes</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    <TableRow>
+                      <TableCell className="font-medium">Fee</TableCell>
+                      <TableCell>{parseFloat(selectedHistoryDetail.change_fee || 0).toFixed(2)}</TableCell>
+                      <TableCell className="text-muted-foreground">{selectedHistoryDetail.notes_fee || "-"}</TableCell>
+                    </TableRow>
+                    <TableRow>
+                      <TableCell className="font-medium">HST on Fee</TableCell>
+                      <TableCell>{parseFloat(selectedHistoryDetail.change_hst || 0).toFixed(2)}</TableCell>
+                      <TableCell className="text-muted-foreground">{selectedHistoryDetail.notes_hst || "-"}</TableCell>
+                    </TableRow>
+                    <TableRow>
+                      <TableCell className="font-medium">Soft Cost</TableCell>
+                      <TableCell>{parseFloat(selectedHistoryDetail.change_soft || 0).toFixed(2)}</TableCell>
+                      <TableCell className="text-muted-foreground">{selectedHistoryDetail.notes_soft || "-"}</TableCell>
+                    </TableRow>
+                    <TableRow>
+                      <TableCell className="font-medium">HST on Soft Cost</TableCell>
+                      <TableCell>{parseFloat(selectedHistoryDetail.change_soft_hst || 0).toFixed(2)}</TableCell>
+                      <TableCell className="text-muted-foreground">{selectedHistoryDetail.notes_soft_hst || "-"}</TableCell>
+                    </TableRow>
+                    <TableRow>
+                      <TableCell className="font-medium">Hard Cost</TableCell>
+                      <TableCell>{parseFloat(selectedHistoryDetail.change_hard || 0).toFixed(2)}</TableCell>
+                      <TableCell className="text-muted-foreground">{selectedHistoryDetail.notes_hard || "-"}</TableCell>
+                    </TableRow>
+                  </TableBody>
+                </Table>
+              </div>
+
+              <div className="flex justify-between items-center text-sm text-muted-foreground pt-2 border-t">
+                 <div>Created by ID: {selectedHistoryDetail.created_by}</div>
+                 <div>Last Updated: {new Date(selectedHistoryDetail.updated_at).toLocaleString()}</div>
+              </div>
+            </div>
+          )}
+          <div className="flex justify-end pt-2">
+            <Button
+              variant="outline"
+              onClick={() => setHistoryDetailDialogOpen(false)}
             >
               Close
             </Button>
