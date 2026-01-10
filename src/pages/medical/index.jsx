@@ -5,6 +5,7 @@ import CustomActionMenu from "@/components/custom_action";
 import NavbarItem from "@/components/navbar/navbar_item";
 import { Navbar2 } from "@/components/navbar2";
 import MedicalTable from "./components/PoliceTable";
+import Billing from "@/components/billing";
 
 const MedicalReport = () => {
   const navigate = useNavigate();
@@ -49,6 +50,7 @@ const MedicalReport = () => {
   return (
     <div className="flex flex-col">
       <Navbar2 />
+      <Billing/>
       <NavbarItem title="Medical Report" breadcrumbs={breadcrumbs} />
 
       <div className="px-4">

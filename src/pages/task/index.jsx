@@ -5,6 +5,7 @@ import CustomActionMenu from "@/components/custom_action";
 import NavbarItem from "@/components/navbar/navbar_item";
 import { Navbar2 } from "@/components/navbar2";
 import TaskTable from "./components/TaskTable";
+import Billing from "@/components/billing";
 
 const Task = () => {
   const navigate = useNavigate();
@@ -53,6 +54,7 @@ const Task = () => {
   return (
 <div className="flex flex-col w-full lg:w-[82.5vw]"> 
         <Navbar2 />
+        <Billing/>
       <NavbarItem title="Tasks" breadcrumbs={breadcrumbs} />
 
       <div className="px-4">

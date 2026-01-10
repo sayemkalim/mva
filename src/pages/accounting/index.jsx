@@ -6,6 +6,7 @@ import NavbarItem from "@/components/navbar/navbar_item";
 import { Navbar2 } from "@/components/navbar2";
 import PoliceTable from "./components/AccountingTable";
 import AccountingTable from "./components/AccountingTable";
+import Billing from "@/components/billing";
 
 const Accounting = () => {
   const navigate = useNavigate();
@@ -50,6 +51,7 @@ const Accounting = () => {
   return (
     <div className="flex flex-col">
       <Navbar2 />
+      <Billing/>
       <NavbarItem title="Accounting" breadcrumbs={breadcrumbs} />
 
       <div className="px-4">
