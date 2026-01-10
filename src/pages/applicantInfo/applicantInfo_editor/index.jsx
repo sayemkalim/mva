@@ -246,6 +246,7 @@ export default function ApplicantInformation() {
       postal_code: "",
       country: "",
     },
+    sameascurrent: false,
     mailing_address: {
       unit_number: "",
       street_number: "",
@@ -254,7 +255,7 @@ export default function ApplicantInformation() {
       province: "",
       postal_code: "",
       country: "",
-      sameascurrent: false,
+
     },
     family_member_first_name: "",
     family_member_middle_name: "",
@@ -280,25 +281,23 @@ export default function ApplicantInformation() {
   });
   const [popoverOpen, setPopoverOpen] = useState({});
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
-  const [sameAsCurrentAddress, setSameAsCurrentAddress] = useState(false);
+
   const [mailingAddressBackup, setMailingAddressBackup] = useState(null);
   const handleSameAddressChange = (checked) => {
-    setSameAsCurrentAddress(checked);
-    
     if (checked) {
-      setMailingAddressBackup({ ...formData.mailingaddress });
+      setMailingAddressBackup({ ...formData.mailing_address });
       setFormData(prev => ({
         ...prev,
-        mailingaddress: {
-          ...prev.currentaddress,
-          sameascurrent: true, 
+        mailing_address: {
+          ...prev.current_address,
+          sameascurrent: true,
         },
       }));
     } else {
       if (mailingAddressBackup) {
         setFormData(prev => ({
           ...prev,
-          mailingaddress: {
+          mailing_address: {
             ...mailingAddressBackup,
             sameascurrent: false,
           },
@@ -306,7 +305,7 @@ export default function ApplicantInformation() {
       }
     }
   };
-  
+
 
   useEffect(() => {
     if (!slug) {
@@ -438,10 +437,24 @@ export default function ApplicantInformation() {
   };
 
   const handleAddressChange = (addressType, field, value) => {
-    setFormData((prev) => ({
-      ...prev,
-      [addressType]: { ...prev[addressType], [field]: value },
-    }));
+    setFormData((prev) => {
+      const updatedAddress = { ...prev[addressType], [field]: value };
+      if (addressType === "current_address" && prev.mailing_address?.sameascurrent) {
+        return {
+          ...prev,
+          current_address: updatedAddress,
+          mailing_address: {
+            ...updatedAddress,
+            sameascurrent: true,
+          },
+        };
+      }
+
+      return {
+        ...prev,
+        [addressType]: updatedAddress,
+      };
+    });
   };
 
   const handleSelectChange = (name, value) => {
@@ -562,8 +575,10 @@ export default function ApplicantInformation() {
         current_address: formData.current_address,
       }),
       ...(isAddressFilled(formData.mailing_address) && {
-        mailing_address: formData.mailing_address,
+        mailing_address: (({ sameascurrent, ...rest }) => rest)(formData.mailing_address),
       }),
+
+      same_as_address: formData.mailing_address?.sameascurrent ?? false,
 
       family_member_first_name: formData.family_member_first_name || null,
       family_member_middle_name: formData.family_member_middle_name || null,
@@ -741,13 +756,13 @@ export default function ApplicantInformation() {
                 />
               </div>
 
-             
+
             </div>
 
             {/* Row 2 */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-             
-            <div className="space-y-2">
+
+              <div className="space-y-2">
                 <Label htmlFor="email" className="text-foreground font-medium">
                   Email
                 </Label>
@@ -1438,7 +1453,7 @@ export default function ApplicantInformation() {
                 <div className="flex items-center space-x-2">
                   <Checkbox
                     id="sameAsCurrentAddress"
-                    checked={sameAsCurrentAddress}
+                    checked={formData.mailing_address?.sameascurrent ?? false}
                     onCheckedChange={handleSameAddressChange}
                   />
                   <Label
@@ -1465,7 +1480,7 @@ export default function ApplicantInformation() {
                     }
                     placeholder="5B"
                     className="w-full h-9 bg-muted border-input"
-                    disabled={sameAsCurrentAddress}
+                    disabled={formData.mailing_address?.sameascurrent ?? false}
                   />
                 </div>
 
@@ -1484,7 +1499,7 @@ export default function ApplicantInformation() {
                     }
                     placeholder="221"
                     className="w-full h-9 bg-muted border-input"
-                    disabled={sameAsCurrentAddress}
+                    disabled={formData.mailing_address?.sameascurrent ?? false}
                   />
                 </div>
 
@@ -1503,7 +1518,7 @@ export default function ApplicantInformation() {
                     }
                     placeholder="King Street West"
                     className="w-full h-9 bg-muted border-input"
-                    disabled={sameAsCurrentAddress}
+                    disabled={formData.mailing_address?.sameascurrent ?? false}
                   />
                 </div>
 
@@ -1520,7 +1535,7 @@ export default function ApplicantInformation() {
                     }
                     placeholder="Toronto"
                     className="w-full h-9 bg-muted border-input"
-                    disabled={sameAsCurrentAddress}
+                    disabled={formData.mailing_address?.sameascurrent ?? false}
                   />
                 </div>
 
@@ -1537,7 +1552,7 @@ export default function ApplicantInformation() {
                     }
                     placeholder="Ontario"
                     className="w-full h-9 bg-muted border-input"
-                    disabled={sameAsCurrentAddress}
+                    disabled={formData.mailing_address?.sameascurrent ?? false}
                   />
                 </div>
 
@@ -1556,7 +1571,7 @@ export default function ApplicantInformation() {
                     }
                     placeholder="M5H 1K5"
                     className="w-full h-9 bg-muted border-input"
-                    disabled={sameAsCurrentAddress}
+                    disabled={formData.mailing_address?.sameascurrent ?? false}
                   />
                 </div>
 
@@ -1573,7 +1588,7 @@ export default function ApplicantInformation() {
                     }
                     placeholder="Canada"
                     className="w-full h-9 bg-muted border-input"
-                    disabled={sameAsCurrentAddress}
+                    disabled={formData.mailing_address?.sameascurrent ?? false}
                   />
                 </div>
               </div>
@@ -1770,132 +1785,129 @@ export default function ApplicantInformation() {
             </div>
 
             {/* Family Member Address */}
-            <div className="space-y-6 pt-6 border-t">
-              <h2 className="text-xl font-semibold text-foreground">
-                Family Member Address
-              </h2>
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <div className="space-y-2">
-                  <Label className="text-foreground font-medium">
-                    Unit Number
-                  </Label>
-                  <Input
-                    value={formData.family_member_address.unit_number}
-                    onChange={(e) =>
-                      handleAddressChange(
-                        "family_member_address",
-                        "unit_number",
-                        e.target.value
-                      )
-                    }
-                    placeholder="5B"
-                    className="w-full h-9 bg-muted border-input"
-                  />
-                </div>
 
-                <div className="space-y-2">
-                  <Label className="text-foreground font-medium">
-                    Street Number
-                  </Label>
-                  <Input
-                    value={formData.family_member_address.street_number}
-                    onChange={(e) =>
-                      handleAddressChange(
-                        "family_member_address",
-                        "street_number",
-                        e.target.value
-                      )
-                    }
-                    placeholder="221"
-                    className="w-full h-9 bg-muted border-input"
-                  />
-                </div>
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              <div className="space-y-2">
+                <Label className="text-foreground font-medium">
+                  Unit Number
+                </Label>
+                <Input
+                  value={formData.family_member_address.unit_number}
+                  onChange={(e) =>
+                    handleAddressChange(
+                      "family_member_address",
+                      "unit_number",
+                      e.target.value
+                    )
+                  }
+                  placeholder="5B"
+                  className="w-full h-9 bg-muted border-input"
+                />
+              </div>
 
-                <div className="space-y-2">
-                  <Label className="text-foreground font-medium">
-                    Street Name
-                  </Label>
-                  <Input
-                    value={formData.family_member_address.street_name}
-                    onChange={(e) =>
-                      handleAddressChange(
-                        "family_member_address",
-                        "street_name",
-                        e.target.value
-                      )
-                    }
-                    placeholder="King Street West"
-                    className="w-full h-9 bg-muted border-input"
-                  />
-                </div>
+              <div className="space-y-2">
+                <Label className="text-foreground font-medium">
+                  Street Number
+                </Label>
+                <Input
+                  value={formData.family_member_address.street_number}
+                  onChange={(e) =>
+                    handleAddressChange(
+                      "family_member_address",
+                      "street_number",
+                      e.target.value
+                    )
+                  }
+                  placeholder="221"
+                  className="w-full h-9 bg-muted border-input"
+                />
+              </div>
 
-                <div className="space-y-2">
-                  <Label className="text-foreground font-medium">City</Label>
-                  <Input
-                    value={formData.family_member_address.city}
-                    onChange={(e) =>
-                      handleAddressChange(
-                        "family_member_address",
-                        "city",
-                        e.target.value
-                      )
-                    }
-                    placeholder="Toronto"
-                    className="w-full h-9 bg-muted border-input"
-                  />
-                </div>
+              <div className="space-y-2">
+                <Label className="text-foreground font-medium">
+                  Street Name
+                </Label>
+                <Input
+                  value={formData.family_member_address.street_name}
+                  onChange={(e) =>
+                    handleAddressChange(
+                      "family_member_address",
+                      "street_name",
+                      e.target.value
+                    )
+                  }
+                  placeholder="King Street West"
+                  className="w-full h-9 bg-muted border-input"
+                />
+              </div>
 
-                <div className="space-y-2">
-                  <Label className="text-foreground font-medium">Province</Label>
-                  <Input
-                    value={formData.family_member_address.province}
-                    onChange={(e) =>
-                      handleAddressChange(
-                        "family_member_address",
-                        "province",
-                        e.target.value
-                      )
-                    }
-                    placeholder="Ontario"
-                    className="w-full h-9 bg-muted border-input"
-                  />
-                </div>
+              <div className="space-y-2">
+                <Label className="text-foreground font-medium">City</Label>
+                <Input
+                  value={formData.family_member_address.city}
+                  onChange={(e) =>
+                    handleAddressChange(
+                      "family_member_address",
+                      "city",
+                      e.target.value
+                    )
+                  }
+                  placeholder="Toronto"
+                  className="w-full h-9 bg-muted border-input"
+                />
+              </div>
 
-                <div className="space-y-2">
-                  <Label className="text-foreground font-medium">
-                    Postal Code
-                  </Label>
-                  <Input
-                    value={formData.family_member_address.postal_code}
-                    onChange={(e) =>
-                      handleAddressChange(
-                        "family_member_address",
-                        "postal_code",
-                        e.target.value
-                      )
-                    }
-                    placeholder="M5H 1K5"
-                    className="w-full h-9 bg-muted border-input"
-                  />
-                </div>
+              <div className="space-y-2">
+                <Label className="text-foreground font-medium">Province</Label>
+                <Input
+                  value={formData.family_member_address.province}
+                  onChange={(e) =>
+                    handleAddressChange(
+                      "family_member_address",
+                      "province",
+                      e.target.value
+                    )
+                  }
+                  placeholder="Ontario"
+                  className="w-full h-9 bg-muted border-input"
+                />
+              </div>
 
-                <div className="space-y-2">
-                  <Label className="text-foreground font-medium">Country</Label>
-                  <Input
-                    value={formData.family_member_address.country}
-                    onChange={(e) =>
-                      handleAddressChange(
-                        "family_member_address",
-                        "country",
-                        e.target.value
-                      )
-                    }
-                    placeholder="Canada"
-                    className="w-full h-9 bg-muted border-input"
-                  />
-                </div>
+              <div className="space-y-2">
+                <Label className="text-foreground font-medium">
+                  Postal Code
+                </Label>
+                <Input
+                  value={formData.family_member_address.postal_code}
+                  onChange={(e) =>
+                    handleAddressChange(
+                      "family_member_address",
+                      "postal_code",
+                      e.target.value
+                    )
+                  }
+                  placeholder="M5H 1K5"
+                  className="w-full h-9 bg-muted border-input"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label className="text-foreground font-medium">Country</Label>
+                <Input
+                  value={formData.family_member_address.country}
+                  onChange={(e) =>
+                    handleAddressChange(
+                      "family_member_address",
+                      "country",
+                      e.target.value
+                    )
+                  }
+                  placeholder="Canada"
+                  className="w-full h-9 bg-muted border-input"
+                />
               </div>
             </div>
+
 
             {/* Children */}
             <div className="space-y-6 pt-6 border-t">
