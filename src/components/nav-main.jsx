@@ -47,19 +47,59 @@ function RecursiveMenuItems({ items, depth = 1 }) {
     "/lat": ["/dashboard/lat/add/", "/dashboard/lat/edit/"],
     "/section-33-list": ["/dashboard/section/add/", "/dashboard/section/"],
     "/section-258-list": ["/dashboard/section258/add/", "/dashboard/section258/"],
+    "/medical-centre": ["/dashboard/medical-centre/add/", "/dashboard/medical-centre/edit/"],
+    "/insurance": ["/dashboard/insurance-ownership/add/", "/dashboard/insurance-ownership/edit/"],
+    "/police-report": ["/dashboard/police-report/add/", "/dashboard/police-report/edit/"],
+    "/accounting": ["/dashboard/accounting/add/", "/dashboard/accounting/edit/"],
+    "/medical-report": ["/dashboard/medical-report/add/", "/dashboard/medical-report/edit/"],
+    "/client-correspondence": ["/dashboard/client-correspondence/add/", "/dashboard/client-correspondence/edit/"],
+    "/insurance-examination": ["/dashboard/insurance-examination/add/", "/dashboard/insurance-examnation/edit/"],
+    "/vsr-insurance-examination": ["/dashboard/vsr-insurance-examination/add/", "/dashboard/vsr-insurance-examination/edit/"],
+    "/cost-hard": ["/dashboard/cost-hard/add/", "/dashboard/cost-hard/edit/"],
+    "/cost-soft": ["/dashboard/cost-soft/add/", "/dashboard/cost-soft/edit/"],
+    "/cost-timecard": ["/dashboard/cost-timecard/add/", "/dashboard/cost-timecard/edit/"],
+    "/psychological": ["/dashboard/psychological/add/", "/dashboard/psychological/edit/"],
+    "/mva-production": ["/dashboard/mva-production/add/", "/dashboard/mva-production/edit/"],
+    "/soc-production": ["/dashboard/soc-prod/add/", "/dashboard/soc-prod/edit/"],
+    "/ocf1-production": ["/dashboard/ocf1-prod/add/", "/dashboard/ocf1-prod/edit/"],
+    "/ocf2-production": ["/dashboard/ocf2-prod/add/", "/dashboard/ocf2-prod/edit/"],
+    "/ocf5-production": ["/dashboard/ocf5-prod/add/", "/dashboard/ocf5-prod/edit/"],
+    "/ocf6-production": ["/dashboard/ocf6-prod/add/", "/dashboard/ocf6-prod/edit/"],
+    "/ocf10-production": ["/dashboard/ocf10-prod/add/", "/dashboard/ocf10-prod/edit/"],
+    "/conflict": ["/dashboard/conflict/add/", "/dashboard/conflict-search/edit/"],
+    "/client": ["/dashboard/client/add", "/dashboard/client/edit/"],
+    "/task": ["/dashboard/task/add/", "/dashboard/task/edit/"],
   };
 
   const isItemActive = (url) => {
+    if (!url) return false;
     if (location.pathname === url) return true;
-    if (url) {
-      for (const [key, paths] of Object.entries(relatedPaths)) {
-        if (url.includes(key)) {
-          if (paths.some(path => location.pathname.includes(path))) {
-            return true;
-          }
+
+    // Check if current path starts with the item url (for nested routes)
+    if (url && location.pathname.startsWith(url)) return true;
+
+    // Check related paths mapping
+    for (const [key, paths] of Object.entries(relatedPaths)) {
+      if (url.includes(key)) {
+        if (paths.some(path => location.pathname.includes(path))) {
+          return true;
         }
       }
     }
+
+    // Generic check: extract the base path and check for add/edit variations
+    if (url) {
+      const urlParts = url.split('/').filter(Boolean);
+      const lastPart = urlParts[urlParts.length - 1];
+      if (lastPart && lastPart !== 'edit' && lastPart !== 'add') {
+        // Check if current path contains this segment in an add/edit context
+        if (location.pathname.includes(`/${lastPart}/add`) ||
+          location.pathname.includes(`/${lastPart}/edit`)) {
+          return true;
+        }
+      }
+    }
+
     return false;
   };
 
@@ -70,9 +110,17 @@ function RecursiveMenuItems({ items, depth = 1 }) {
         const hasChildren = subItem.items && subItem.items.length > 0;
         const isActive = isItemActive(subItem.url);
         const isLoading = loadingId === itemId;
-        const hasActiveDescendant = subItem.items?.some(
-          (child) => isItemActive(child.url)
-        );
+
+        // Recursive check for any active descendant
+        const checkActiveDescendant = (items) => {
+          if (!items || items.length === 0) return false;
+          return items.some((child) => {
+            if (isItemActive(child.url)) return true;
+            if (child.items) return checkActiveDescendant(child.items);
+            return false;
+          });
+        };
+        const hasActiveDescendant = checkActiveDescendant(subItem.items);
 
         if (hasChildren) {
           return (
@@ -84,7 +132,7 @@ function RecursiveMenuItems({ items, depth = 1 }) {
             >
               <SidebarMenuSubItem>
                 <CollapsibleTrigger asChild>
-                  <SidebarMenuSubButton className="text-xs">
+                  <SidebarMenuSubButton className="text-xs" isActive={hasActiveDescendant}>
                     {subItem.icon && (
                       <subItem.icon className="h-3.5 w-3.5 shrink-0" />
                     )}
@@ -150,10 +198,71 @@ export function NavMain({ items, showHeader = false, header }) {
       navigate(url);
     }
   };
+  // Map of sidebar URLs to their related add/edit paths (same as RecursiveMenuItems)
+  const relatedPaths = {
+    "/lat": ["/dashboard/lat/add/", "/dashboard/lat/edit/"],
+    "/section-33-list": ["/dashboard/section/add/", "/dashboard/section/"],
+    "/section-258-list": ["/dashboard/section258/add/", "/dashboard/section258/"],
+    "/medical-centre": ["/dashboard/medical-centre/add/", "/dashboard/medical-centre/edit/"],
+    "/insurance": ["/dashboard/insurance-ownership/add/", "/dashboard/insurance-ownership/edit/"],
+    "/police-report": ["/dashboard/police-report/add/", "/dashboard/police-report/edit/"],
+    "/accounting": ["/dashboard/accounting/add/", "/dashboard/accounting/edit/"],
+    "/medical-report": ["/dashboard/medical-report/add/", "/dashboard/medical-report/edit/"],
+    "/client-correspondence": ["/dashboard/client-correspondence/add/", "/dashboard/client-correspondence/edit/"],
+    "/insurance-examination": ["/dashboard/insurance-examination/add/", "/dashboard/insurance-examnation/edit/"],
+    "/vsr-insurance-examination": ["/dashboard/vsr-insurance-examination/add/", "/dashboard/vsr-insurance-examination/edit/"],
+    "/cost-hard": ["/dashboard/cost-hard/add/", "/dashboard/cost-hard/edit/"],
+    "/cost-soft": ["/dashboard/cost-soft/add/", "/dashboard/cost-soft/edit/"],
+    "/cost-timecard": ["/dashboard/cost-timecard/add/", "/dashboard/cost-timecard/edit/"],
+    "/psychological": ["/dashboard/psychological/add/", "/dashboard/psychological/edit/"],
+    "/mva-production": ["/dashboard/mva-production/add/", "/dashboard/mva-production/edit/"],
+    "/soc-production": ["/dashboard/soc-prod/add/", "/dashboard/soc-prod/edit/"],
+    "/ocf1-production": ["/dashboard/ocf1-prod/add/", "/dashboard/ocf1-prod/edit/"],
+    "/ocf2-production": ["/dashboard/ocf2-prod/add/", "/dashboard/ocf2-prod/edit/"],
+    "/ocf5-production": ["/dashboard/ocf5-prod/add/", "/dashboard/ocf5-prod/edit/"],
+    "/ocf6-production": ["/dashboard/ocf6-prod/add/", "/dashboard/ocf6-prod/edit/"],
+    "/ocf10-production": ["/dashboard/ocf10-prod/add/", "/dashboard/ocf10-prod/edit/"],
+    "/conflict": ["/dashboard/conflict/add/", "/dashboard/conflict-search/edit/"],
+    "/client": ["/dashboard/client/add", "/dashboard/client/edit/"],
+    "/task": ["/dashboard/task/add/", "/dashboard/task/edit/"],
+  };
+
+  const isUrlActive = (url) => {
+    if (!url) return false;
+    if (location.pathname === url) return true;
+
+    // Check if current path starts with the item url (for nested routes)
+    if (url && location.pathname.startsWith(url)) return true;
+
+    // Check related paths mapping
+    for (const [key, paths] of Object.entries(relatedPaths)) {
+      if (url.includes(key)) {
+        if (paths.some(path => location.pathname.includes(path))) {
+          return true;
+        }
+      }
+    }
+
+    // Generic check: extract the base path and check for add/edit variations
+    if (url) {
+      const urlParts = url.split('/').filter(Boolean);
+      const lastPart = urlParts[urlParts.length - 1];
+      if (lastPart && lastPart !== 'edit' && lastPart !== 'add') {
+        // Check if current path contains this segment in an add/edit context
+        if (location.pathname.includes(`/${lastPart}/add`) ||
+          location.pathname.includes(`/${lastPart}/edit`)) {
+          return true;
+        }
+      }
+    }
+
+    return false;
+  };
+
   const hasActiveChild = (items) => {
     if (!items || items.length === 0) return false;
     return items.some((item) => {
-      if (item.url === location.pathname) return true;
+      if (isUrlActive(item.url)) return true;
       if (item.items) return hasActiveChild(item.items);
       return false;
     });
@@ -180,7 +289,7 @@ export function NavMain({ items, showHeader = false, header }) {
               >
                 <SidebarMenuItem>
                   <CollapsibleTrigger asChild>
-                    <SidebarMenuButton tooltip={item.title} className="text-sm">
+                    <SidebarMenuButton tooltip={item.title} className="text-sm" isActive={hasActiveDescendant}>
                       {item.icon && <item.icon className="h-4 w-4 shrink-0" />}
                       <span className="truncate">{item.title}</span>
                       <ChevronRight className="ml-auto h-4 w-4 shrink-0 transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />

@@ -383,7 +383,7 @@ const AddMatterCard = ({
     <div className="min-h-screen bg-muted">
       <Navbar2 />
 
-      <Billing slug={initialData.slug} />
+      <Billing slug={initialData?.slug} />
 
       <div className="bg-card border-b px-6 py-4">
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
