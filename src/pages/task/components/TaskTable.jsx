@@ -225,24 +225,12 @@ const TaskTable = ({ setTasksLength }) => {
 
   const columns = [
     {
-      key: "file_no",
-      label: "File No",
+      key: "subject",
+      label: "Subject",
       render: (value) => <Typography variant="p">{value || "-"}</Typography>,
     },
-    {
-      key: "applicantInformations_name",
-      label: "Applicant Name",
-      render: (value) => (
-        <Typography className="block line-clamp-2 text-wrap" variant="p">
-          {value || "-"}
-        </Typography>
-      ),
-    },
-    {
-      key: "firm_name",
-      label: "Firm",
-      render: (value) => <Typography variant="p">{value || "-"}</Typography>,
-    },
+    
+    
     {
       key: "priority",
       label: "Priority",
@@ -292,11 +280,11 @@ const TaskTable = ({ setTasksLength }) => {
         );
       },
     },
-    {
-      key: "due_status",
-      label: "Due Status",
-      render: (value) => <Typography variant="p">{value || "-"}</Typography>,
-    },
+    // {
+    //   key: "due_status",
+    //   label: "Due Status",
+    //   render: (value) => <Typography variant="p">{value || "-"}</Typography>,
+    // },
     {
       key: "due_date",
       label: "Due Date",
