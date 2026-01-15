@@ -212,9 +212,9 @@ export default function MedicalCentrePage() {
 
   useEffect(() => {
     if (medicalData) {
-      if (medicalData.medical_centres?.length > 0) {
+      if (medicalData.medical_centre?.length > 0) {
         setMedicalCentres(
-          medicalData.medical_centres.map((rec) => ({
+          medicalData.medical_centre.map((rec) => ({
             service_type_id: rec.service_type_id,
             did_the_client_go_to_the_hospital_id: rec.did_the_client_go_to_the_hospital_id || "",
             hospital_name: rec.hospital_name || "",
@@ -229,9 +229,9 @@ export default function MedicalCentrePage() {
           }))
         );
       }
-      if (medicalData.medical_clinics?.length > 0) {
+      if (medicalData.medical_clinic?.length > 0) {
         setMedicalClinics(
-          medicalData.medical_clinics.map((rec) => ({
+          medicalData.medical_clinic.map((rec) => ({
             service_type_id: rec.service_type_id,
             clinic_name: rec.clinic_name || "",
             dr_name: rec.dr_name || "",
@@ -245,9 +245,9 @@ export default function MedicalCentrePage() {
           }))
         );
       }
-      if (medicalData.walk_in_clinics?.length > 0) {
+      if (medicalData.walk_in_clinic?.length > 0) {
         setWalkInClinics(
-          medicalData.walk_in_clinics.map((rec) => ({
+          medicalData.walk_in_clinic.map((rec) => ({
             service_type_id: rec.service_type_id,
             clinic_name: rec.clinic_name || "",
             dr_name: rec.dr_name || "",
@@ -261,9 +261,9 @@ export default function MedicalCentrePage() {
           }))
         );
       }
-      if (medicalData.physiotherapies?.length > 0) {
+      if (medicalData.physiotherapy?.length > 0) {
         setPhysiotherapies(
-          medicalData.physiotherapies.map((rec) => ({
+          medicalData.physiotherapy.map((rec) => ({
             service_type_id: rec.service_type_id,
             clinic_name: rec.clinic_name || "",
             dr_name: rec.dr_name || "",
@@ -277,9 +277,9 @@ export default function MedicalCentrePage() {
           }))
         );
       }
-      if (medicalData.pharmacies?.length > 0) {
+      if (medicalData.pharmacy?.length > 0) {
         setPharmacies(
-          medicalData.pharmacies.map((rec) => ({
+          medicalData.pharmacy.map((rec) => ({
             service_type_id: rec.service_type_id,
             clinic_name: rec.clinic_name || "",
             dr_name: rec.dr_name || "",
@@ -293,9 +293,9 @@ export default function MedicalCentrePage() {
           }))
         );
       }
-      if (medicalData.laboratories?.length > 0) {
+      if (medicalData.laboratory?.length > 0) {
         setLaboratories(
-          medicalData.laboratories.map((rec) => ({
+          medicalData.laboratory.map((rec) => ({
             service_type_id: rec.service_type_id,
             clinic_name: rec.clinic_name || "",
             dr_name: rec.dr_name || "",
