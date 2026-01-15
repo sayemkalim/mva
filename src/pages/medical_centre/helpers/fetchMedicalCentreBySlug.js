@@ -4,10 +4,10 @@ import { endpoints } from "@/api/endpoints";
 export const fetchMedicalCentreBySlug = async (slug) => {
   try {
     console.log("🔍 Fetching counsel with slug:", slug);
-    console.log("📍 API Endpoint:", `${endpoints.scheduled}/${slug}`);
+    console.log("📍 API Endpoint:", `${endpoints.medicalCentre}/${slug}`);
 
     const apiResponse = await apiService({
-      endpoint: `${endpoints.scheduled}/${slug}`,
+      endpoint: `${endpoints.medicalCentre}/${slug}`,
       method: "GET",
     });
 

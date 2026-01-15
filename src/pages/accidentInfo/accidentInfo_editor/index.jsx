@@ -75,9 +75,8 @@ const SearchableDropdown = ({
                   className="cursor-pointer flex items-center"
                 >
                   <Check
-                    className={`mr-2 h-4 w-4 ${
-                      value === opt.id ? "opacity-100" : "opacity-0"
-                    }`}
+                    className={`mr-2 h-4 w-4 ${value === opt.id ? "opacity-100" : "opacity-0"
+                      }`}
                   />
                   {opt.name}
                 </CommandItem>
@@ -326,7 +325,7 @@ export default function AccidentalInformation() {
   return (
     <div className="min-h-screen bg-muted">
       <Navbar2 />
-    <Billing/>
+      <Billing />
       {/* Breadcrumb */}
       <div className="bg-card border-b px-6 py-4">
         <div className="flex items-center gap-2 text-sm text-muted-foreground">

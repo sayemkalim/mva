@@ -94,6 +94,8 @@ const createEmptySymptom = () => ({
   mild: false,
   moderate: false,
   severe: false,
+  daily: false,
+  weekly: false,
 });
 
 const createInitialSymptoms = () => {
@@ -131,6 +133,17 @@ export default function PsychologicalPage() {
     claim_no: "",
     policy_no: "",
     symptoms: createInitialSymptoms(),
+
+    // Cognitive Complaints
+    cognitive_steering_wheel: false,
+    cognitive_air_bags: false,
+    cognitive_supported_beam: false,
+    cognitive_headrest: false,
+    cognitive_front_seat: false,
+    cognitive_mirror: false,
+    cognitive_other_part: "",
+    cognitive_pedestrian_hit: false,
+    cognitive_road_hit: false,
   });
 
   useEffect(() => {
@@ -147,6 +160,8 @@ export default function PsychologicalPage() {
         mild: bool(s.mild),
         moderate: bool(s.moderate),
         severe: bool(s.severe),
+        daily: bool(s.daily),
+        weekly: bool(s.weekly),
       };
     });
 
@@ -159,6 +174,16 @@ export default function PsychologicalPage() {
       claim_no: d.claim_no || "",
       policy_no: d.policy_no || "",
       symptoms: loadedSymptoms,
+
+      cognitive_steering_wheel: d.cognitive_steering_wheel || false,
+      cognitive_air_bags: d.cognitive_air_bags || false,
+      cognitive_supported_beam: d.cognitive_supported_beam || false,
+      cognitive_headrest: d.cognitive_headrest || false,
+      cognitive_front_seat: d.cognitive_front_seat || false,
+      cognitive_mirror: d.cognitive_mirror || false,
+      cognitive_other_part: d.cognitive_other_part || "",
+      cognitive_pedestrian_hit: d.cognitive_pedestrian_hit || false,
+      cognitive_road_hit: d.cognitive_road_hit || false,
     });
   }, [psychRecord]);
 
@@ -224,7 +249,7 @@ export default function PsychologicalPage() {
   return (
     <div className="min-h-screen bg-muted">
       <Navbar2 />
-<Billing/>
+      <Billing />
       <nav className="bg-card border-b px-6 py-4 text-sm text-muted-foreground">
         <div className="flex items-center gap-2">
           <button
@@ -329,6 +354,101 @@ export default function PsychologicalPage() {
 
           {/* Cognitive Symptoms */}
           <Section title="Cognitive Symptoms">
+            <div className="mb-8 space-y-6 border border-gray-100 rounded-lg p-6 bg-gray-50/50">
+              <div className="space-y-4">
+                <p className="text-sm font-medium text-gray-700">
+                  Did you hit your head on any Interior part of the car? Please circle:
+                </p>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  <div className="flex items-center space-x-2">
+                    <Checkbox
+                      id="cognitive_steering_wheel"
+                      checked={formData.cognitive_steering_wheel}
+                      onCheckedChange={(c) => handleChange("cognitive_steering_wheel", c)}
+                    />
+                    <Label htmlFor="cognitive_steering_wheel" className="font-normal cursor-pointer">Steering wheel</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <Checkbox
+                      id="cognitive_air_bags"
+                      checked={formData.cognitive_air_bags}
+                      onCheckedChange={(c) => handleChange("cognitive_air_bags", c)}
+                    />
+                    <Label htmlFor="cognitive_air_bags" className="font-normal cursor-pointer">Air bags</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <Checkbox
+                      id="cognitive_supported_beam"
+                      checked={formData.cognitive_supported_beam}
+                      onCheckedChange={(c) => handleChange("cognitive_supported_beam", c)}
+                    />
+                    <div className="flex flex-col cursor-pointer" onClick={() => handleChange("cognitive_supported_beam", !formData.cognitive_supported_beam)}>
+                      <Label htmlFor="cognitive_supported_beam" className="font-normal cursor-pointer pointer-events-none">Supported beam</Label>
+                      <span className="text-xs text-muted-foreground">(between the front windshields and window)</span>
+                    </div>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <Checkbox
+                      id="cognitive_headrest"
+                      checked={formData.cognitive_headrest}
+                      onCheckedChange={(c) => handleChange("cognitive_headrest", c)}
+                    />
+                    <Label htmlFor="cognitive_headrest" className="font-normal cursor-pointer">Headrest</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <Checkbox
+                      id="cognitive_front_seat"
+                      checked={formData.cognitive_front_seat}
+                      onCheckedChange={(c) => handleChange("cognitive_front_seat", c)}
+                    />
+                    <Label htmlFor="cognitive_front_seat" className="font-normal cursor-pointer">Front seat</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <Checkbox
+                      id="cognitive_mirror"
+                      checked={formData.cognitive_mirror}
+                      onCheckedChange={(c) => handleChange("cognitive_mirror", c)}
+                    />
+                    <Label htmlFor="cognitive_mirror" className="font-normal cursor-pointer">Mirror</Label>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2 pt-2">
+                  <Label htmlFor="cognitive_other_part" className="font-semibold whitespace-nowrap">OTHER</Label>
+                  <Input
+                    id="cognitive_other_part"
+                    value={formData.cognitive_other_part}
+                    onChange={(e) => handleChange("cognitive_other_part", e.target.value)}
+                    className="border-b border-t-0 border-x-0 rounded-none px-0 shadow-none focus-visible:ring-0 focus-visible:border-primary h-8"
+                    placeholder="________________________________"
+                  />
+                </div>
+
+                <div className="space-y-3 pt-4 border-t border-dashed">
+                  <div className="flex items-start space-x-2">
+                    <Checkbox
+                      id="cognitive_pedestrian_hit"
+                      checked={formData.cognitive_pedestrian_hit}
+                      onCheckedChange={(c) => handleChange("cognitive_pedestrian_hit", c)}
+                    />
+                    <Label htmlFor="cognitive_pedestrian_hit" className="font-normal pt-0.5 cursor-pointer leading-tight">
+                      If Pedestrian did you hit your head (includes face) on any part of the vehicle that struck you
+                    </Label>
+                  </div>
+                  <div className="flex items-start space-x-2">
+                    <Checkbox
+                      id="cognitive_road_hit"
+                      checked={formData.cognitive_road_hit}
+                      onCheckedChange={(c) => handleChange("cognitive_road_hit", c)}
+                    />
+                    <Label htmlFor="cognitive_road_hit" className="font-normal pt-0.5 cursor-pointer leading-tight">
+                      Did you strike your head on the road
+                    </Label>
+                  </div>
+                </div>
+              </div>
+            </div>
+
             <SymptomTable
               symptoms={SYMPTOM_KEYS.cognitive}
               formData={formData}
@@ -450,7 +570,45 @@ function SymptomTable({ symptoms, formData, onSymptomChange }) {
             const symptom = formData.symptoms[key] || createEmptySymptom();
             return (
               <tr key={key} className="hover:bg-muted">
-                <td className="border px-4 py-3">{formatLabel(key)}</td>
+                <td className="border px-4 py-3">
+                  <div className="flex items-center gap-3 flex-wrap">
+                    <span>{formatLabel(key)}</span>
+                    {key === "recurrent_headaches" && (
+                      <div className="flex gap-3 items-center">
+                        <div className="flex items-center space-x-2">
+                          <Checkbox
+                            id={`daily-${key}`}
+                            checked={symptom.daily || false}
+                            onCheckedChange={(c) =>
+                              onSymptomChange(key, "daily", c)
+                            }
+                          />
+                          <Label
+                            htmlFor={`daily-${key}`}
+                            className="font-normal text-xs cursor-pointer"
+                          >
+                            Daily
+                          </Label>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <Checkbox
+                            id={`weekly-${key}`}
+                            checked={symptom.weekly || false}
+                            onCheckedChange={(c) =>
+                              onSymptomChange(key, "weekly", c)
+                            }
+                          />
+                          <Label
+                            htmlFor={`weekly-${key}`}
+                            className="font-normal text-xs cursor-pointer"
+                          >
+                            Weekly
+                          </Label>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </td>
                 <td className="border px-4 py-3 text-center">
                   <Checkbox
                     checked={symptom.checkbox}

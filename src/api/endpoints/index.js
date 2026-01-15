@@ -387,6 +387,9 @@ export const endpoints = {
   finalSettlementSave: "api/v2/file/accounting/final-settlement/save",
   downloadFinalSettlement: "api/v2/file/accounting/final-settlement/download",
   //billing 
-  billing: "api/v2/file/accounting/financial-status"
+  billing: "api/v2/file/accounting/financial-status",
+  createMedicalCentre: "api/v2/file/medical-centre",
+  medicalCentre: "api/v2/file/medical-centre/show"
+
 };
 

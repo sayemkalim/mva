@@ -12,6 +12,7 @@ import { Navbar2 } from "@/components/navbar2";
 import { fetchMvaProdById } from "../../helpers/fetchMvaProdById";
 import { createMvaProd, updateMvaProd } from "../../helpers/createMvaProd";
 import Billing from "@/components/billing";
+import { formatPhoneNumber } from "@/utils/formatters";
 
 export default function MvaPage() {
   const { id, slug } = useParams();
@@ -616,7 +617,7 @@ export default function MvaPage() {
   return (
     <div className="min-h-screen bg-muted">
       <Navbar2 />
-<Billing/>
+      <Billing />
       <nav className="bg-card border-b px-6 py-4 text-sm text-muted-foreground">
         <div className="flex items-center gap-2">
           <button
@@ -671,7 +672,7 @@ export default function MvaPage() {
               <Field
                 label="Phone"
                 value={formData.client_phone}
-                onChange={(v) => handleChange("client_phone", v)}
+                onChange={(v) => handleChange("client_phone", formatPhoneNumber(v))}
               />
               <Field
                 label="Email"
@@ -745,7 +746,7 @@ export default function MvaPage() {
               <Field
                 label="Emergency Telephone"
                 value={formData.emergency_telephone}
-                onChange={(v) => handleChange("emergency_telephone", v)}
+                onChange={(v) => handleChange("emergency_telephone", formatPhoneNumber(v))}
               />
               <Field
                 label="Emergency Email"
@@ -760,7 +761,7 @@ export default function MvaPage() {
               <Field
                 label="Contact Telephone 1"
                 value={formData.contact_telephone_1}
-                onChange={(v) => handleChange("contact_telephone_1", v)}
+                onChange={(v) => handleChange("contact_telephone_1", formatPhoneNumber(v))}
               />
               <Field
                 label="Contact Email 1"
@@ -775,7 +776,7 @@ export default function MvaPage() {
               <Field
                 label="Contact Telephone 2"
                 value={formData.contact_telephone_2}
-                onChange={(v) => handleChange("contact_telephone_2", v)}
+                onChange={(v) => handleChange("contact_telephone_2", formatPhoneNumber(v))}
               />
               <Field
                 label="Contact Email 2"
@@ -928,16 +929,124 @@ export default function MvaPage() {
             </Grid>
           </Section>
 
-          {/* Vehicle & Third Party (shortened grouping) */}
-          <Section title="Vehicle & Third Party">
-            <Grid>
+          {/* Police Report */}
+          <Section title="POLICE REPORT">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               <Field
-                label="Your Vehicle Make"
+                label="Police Department"
+                value={formData.police_department}
+                onChange={(v) => handleChange("police_department", v)}
+              />
+              <Field
+                label="Officer's Name"
+                value={formData.officer_name}
+                onChange={(v) => handleChange("officer_name", v)}
+              />
+              <Field
+                label="Badge"
+                value={formData.badge}
+                onChange={(v) => handleChange("badge", v)}
+              />
+              <Field
+                label="Division"
+                value={formData.division}
+                onChange={(v) => handleChange("division", v)}
+              />
+            </div>
+            <div className="mt-6">
+              <div className="max-w-[250px]">
+                <Field
+                  type="date"
+                  label="Report"
+                  value={formData.report}
+                  onChange={(v) => handleChange("report", v)}
+                />
+              </div>
+            </div>
+          </Section>
+
+          {/* Witnesses */}
+          <Section title="WITNESSES">
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <Label className="text-base">
+                  Are you aware of any witnesses at the scene of the accident?
+                </Label>
+                <Checkbox
+                  checked={formData.aware_of_any_witnesses}
+                  onCheckedChange={(c) =>
+                    handleCheckbox("aware_of_any_witnesses", c)
+                  }
+                  className="h-4 w-4 border-black dark:border-gray-300"
+                />
+              </div>
+              <Textarea
+                value={formData.witnesses_desc}
+                onChange={(e) => handleChange("witnesses_desc", e.target.value)}
+                className="min-h-[80px]"
+                rows={3}
+              />
+            </div>
+          </Section>
+
+          {/* Accident Benefits */}
+          <Section title="ACCIDENT BENEFITS">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              <Field
+                label="Name of Policyholder"
+                value={formData.accident_benefits_name_of_policyholder}
+                onChange={(v) =>
+                  handleChange("accident_benefits_name_of_policyholder", v)
+                }
+              />
+              <Field
+                label="Insurance Company"
+                value={formData.accident_insurance_company}
+                onChange={(v) => handleChange("accident_insurance_company", v)}
+              />
+              <Field
+                label="Policy No"
+                value={formData.policy_no}
+                onChange={(v) => handleChange("policy_no", v)}
+              />
+              <Field
+                label="Claim No"
+                value={formData.claim_no}
+                onChange={(v) => handleChange("claim_no", v)}
+              />
+              <Field
+                label="Adjuster's name"
+                value={formData.adjuster_name}
+                onChange={(v) => handleChange("adjuster_name", v)}
+              />
+              <Field
+                label="Adjuster's contact information"
+                value={formData.adjuster_contact_information}
+                onChange={(v) => handleChange("adjuster_contact_information", v)}
+              />
+              <Field
+                label="Tel"
+                value={formData.adjuster_tel}
+                onChange={(v) => handleChange("adjuster_tel", formatPhoneNumber(v))}
+              />
+              <Field
+                label="Fax"
+                value={formData.fax}
+                onChange={(v) => handleChange("fax", formatPhoneNumber(v))}
+              />
+            </div>
+          </Section>
+
+          {/* Client Vehicle Information */}
+          <Section title="CLIENT VEHICLE INFORMATION">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              <Field
+                label="make"
                 value={formData.make}
                 onChange={(v) => handleChange("make", v)}
               />
               <Field
-                label="Your Vehicle Model"
+                label="Model"
                 value={formData.model}
                 onChange={(v) => handleChange("model", v)}
               />
@@ -952,48 +1061,1323 @@ export default function MvaPage() {
                 onChange={(v) => handleChange("plate", v)}
               />
               <Field
-                label="Third Party Driver Name"
+                label="Name of Driver"
+                value={formData.name_of_driver}
+                onChange={(v) => handleChange("name_of_driver", v)}
+              />
+              <Field
+                label="Address of Driver"
+                value={formData.address_of_driver}
+                onChange={(v) => handleChange("address_of_driver", v)}
+              />
+              <Field
+                label="Telephone"
+                value={formData.driver_telephone}
+                onChange={(v) => handleChange("driver_telephone", formatPhoneNumber(v))}
+              />
+              <Field
+                label="Name of Owner"
+                value={formData.name_of_owner}
+                onChange={(v) => handleChange("name_of_owner", v)}
+              />
+              <Field
+                label="Address of Owner"
+                value={formData.address_of_Owner}
+                onChange={(v) => handleChange("address_of_Owner", v)}
+              />
+              <Field
+                label="Telephone"
+                value={formData.driver_telephone_2nd}
+                onChange={(v) => handleChange("driver_telephone_2nd", formatPhoneNumber(v))}
+              />
+            </div>
+          </Section>
+
+          {/* Third Party Information */}
+          <Section title="Third Party Information">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              <Field
+                label="Name of Driver"
                 value={formData.third_party_name_of_driver}
                 onChange={(v) => handleChange("third_party_name_of_driver", v)}
               />
               <Field
-                label="Third Party Driver Address"
+                label="Address of Driver"
                 value={formData.third_party_address_of_driver}
-                onChange={(v) =>
-                  handleChange("third_party_address_of_driver", v)
-                }
+                onChange={(v) => handleChange("third_party_address_of_driver", v)}
               />
               <Field
-                label="Third Party Vehicle Owner"
+                label="Telephone Number of Driver"
+                value={formData.third_party_telephone_of_drive}
+                onChange={(v) => handleChange("third_party_telephone_of_drive", formatPhoneNumber(v))}
+              />
+              <Field
+                label="Driver's License # of Driver"
+                value={formData.third_party_drivers_license}
+                onChange={(v) => handleChange("third_party_drivers_license", v)}
+              />
+              <Field
+                label="Name of Vehicle Owner"
                 value={formData.third_party_name_of_vehicle_owner}
                 onChange={(v) =>
                   handleChange("third_party_name_of_vehicle_owner", v)
                 }
               />
               <Field
-                label="Third Party Owner Address"
+                label="Address of Vehicle Owner"
                 value={formData.third_party_address_of_vehicle_qwner}
                 onChange={(v) =>
                   handleChange("third_party_address_of_vehicle_qwner", v)
                 }
               />
               <Field
-                label="Third Party Insurance Company"
+                label="Telephone # of Owner"
+                value={formData.third_party_vehicle_telephone_of_owner}
+                onChange={(v) => handleChange("third_party_vehicle_telephone_of_owner", formatPhoneNumber(v))}
+              />
+              <Field
+                label="Name of Insurance Company"
                 value={formData.third_party_name_of_insurance_company}
                 onChange={(v) =>
                   handleChange("third_party_name_of_insurance_company", v)
                 }
               />
               <Field
-                label="Third Party Policy Number"
+                label="Policy Number"
                 value={formData.third_party_policy_number}
                 onChange={(v) => handleChange("third_party_policy_number", v)}
               />
-            </Grid>
+              <Field
+                label="Make"
+                value={formData.third_party_make}
+                onChange={(v) => handleChange("third_party_make", v)}
+              />
+              <Field
+                label="Model"
+                value={formData.third_party_model}
+                onChange={(v) => handleChange("third_party_model", v)}
+              />
+              <Field
+                label="Year"
+                value={formData.third_party_year}
+                onChange={(v) => handleChange("third_party_year", v)}
+              />
+              <Field
+                label="Plate"
+                value={formData.third_party_plate}
+                onChange={(v) => handleChange("third_party_plate", v)}
+              />
+            </div>
+          </Section>
+
+          {/* Previous Counsel */}
+          <Section title="PREVIOUS COUNSEL">
+            <div className="space-y-6">
+              <div className="flex items-center justify-between">
+                <Label className="text-base text-gray-700">
+                  Were you retained by a previous counsel for your accident?
+                </Label>
+                <Checkbox
+                  checked={formData.previous_counsel_for_your_accident}
+                  onCheckedChange={(c) =>
+                    handleCheckbox("previous_counsel_for_your_accident", c)
+                  }
+                  className="h-4 w-4 border-black dark:border-gray-300"
+                />
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 animate-in slide-in-from-top-2">
+                <Field
+                  label="Name of Firm"
+                  value={formData.previous_counsel_name_of_firm}
+                  onChange={(v) =>
+                    handleChange("previous_counsel_name_of_firm", v)
+                  }
+                />
+                <Field
+                  label="Name of Counsel"
+                  value={formData.previous_counsel_name_of_counsel}
+                  onChange={(v) =>
+                    handleChange("previous_counsel_name_of_counsel", v)
+                  }
+                />
+                <Field
+                  label="Address"
+                  value={formData.previous_counsel_address}
+                  onChange={(v) => handleChange("previous_counsel_address", v)}
+                />
+                <Field
+                  label="Telephone"
+                  value={formData.previous_counsel_telephone}
+                  onChange={(v) =>
+                    handleChange("previous_counsel_telephone", formatPhoneNumber(v))
+                  }
+                />
+              </div>
+            </div>
+          </Section>
+
+          {/* Hospital Information */}
+          <Section title="HOSPITAL INFORMATION">
+            <div className="space-y-6">
+              <div className="flex items-center justify-between">
+                <Label className="text-base text-gray-700">
+                  Did you go to the hospital after the accident?
+                </Label>
+                <Checkbox
+                  checked={formData.did_you_go_to_the_hospital_after_the_accident}
+                  onCheckedChange={(c) =>
+                    handleCheckbox(
+                      "did_you_go_to_the_hospital_after_the_accident",
+                      c
+                    )
+                  }
+                  className="h-4 w-4 border-black dark:border-gray-300"
+                />
+              </div>
+
+              <div className="space-y-6 animate-in slide-in-from-top-2">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <Field
+                    label="If yes, Which hospital"
+                    value={formData.hospital_information_which_hospital}
+                    onChange={(v) =>
+                      handleChange("hospital_information_which_hospital", v)
+                    }
+                  />
+                  <Field
+                    type="date"
+                    label="Date"
+                    value={formData.hospital_date}
+                    onChange={(v) => handleChange("hospital_date", v)}
+                  />
+                </div>
+
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <Label className="text-base text-gray-700">
+                      What date did you go to the hospital ?
+                    </Label>
+                    <Checkbox
+                      checked={
+                        formData.hospital_information_what_date_did_you_go_to_the_hospital
+                      }
+                      onCheckedChange={(c) =>
+                        handleCheckbox(
+                          "hospital_information_what_date_did_you_go_to_the_hospital",
+                          c
+                        )
+                      }
+                      className="h-4 w-4 border-black dark:border-gray-300"
+                    />
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <Label className="text-base text-gray-700">
+                      Were you taken there by ambulance ?
+                    </Label>
+                    <Checkbox
+                      checked={
+                        formData.hospital_information_were_you_taken_there_by_ambulance
+                      }
+                      onCheckedChange={(c) =>
+                        handleCheckbox(
+                          "hospital_information_were_you_taken_there_by_ambulance",
+                          c
+                        )
+                      }
+                      className="h-4 w-4 border-black dark:border-gray-300"
+                    />
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <Label className="text-base text-gray-700">
+                      Were you transferred to another hospital ?
+                    </Label>
+                    <Checkbox
+                      checked={
+                        formData.hospital_information_were_you_transferred_to_another_hospital
+                      }
+                      onCheckedChange={(c) =>
+                        handleCheckbox(
+                          "hospital_information_were_you_transferred_to_another_hospital",
+                          c
+                        )
+                      }
+                      className="h-4 w-4 border-black dark:border-gray-300"
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label className="text-base text-gray-700">
+                    If yes, please provide the name and the date you were
+                    transferred there
+                  </Label>
+                  <Textarea
+                    value={
+                      formData.hospital_information_please_provide_the_name_and_the_date
+                    }
+                    onChange={(e) =>
+                      handleChange(
+                        "hospital_information_please_provide_the_name_and_the_date",
+                        e.target.value
+                      )
+                    }
+                    className="min-h-[80px]"
+                    rows={3}
+                  />
+                </div>
+              </div>
+            </div>
+          </Section>
+
+          {/* Health Care Providers Information */}
+          <Section title="HEALTH CARE PROVIDERS INFORMATION">
+            <div className="space-y-6">
+              <div className="flex items-center justify-between">
+                <Label className="text-base text-gray-700">
+                  Were any x-ray, MRI, ultrasound or CT scan done ?
+                </Label>
+                <Checkbox
+                  checked={formData.were_any_x_ray_mri_ultrasound}
+                  onCheckedChange={(c) =>
+                    handleCheckbox("were_any_x_ray_mri_ultrasound", c)
+                  }
+                  className="h-4 w-4 border-black dark:border-gray-300"
+                />
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 animate-in slide-in-from-top-2">
+                <Field
+                  label="If yes, where ?"
+                  value={formData.if_yes_where}
+                  onChange={(v) => handleChange("if_yes_where", v)}
+                />
+                <Field
+                  label="On what body part ?"
+                  value={formData.on_what_body_part}
+                  onChange={(v) => handleChange("on_what_body_part", v)}
+                />
+                <Field
+                  label="What type of scan ?"
+                  value={formData.what_type_of_scan}
+                  onChange={(v) => handleChange("what_type_of_scan", v)}
+                />
+              </div>
+
+              <div className="pt-4 border-t border-gray-100">
+                <div className="flex items-center justify-between mb-4">
+                  <Label className="text-base text-gray-700">
+                    Any surgeries after the accident ?
+                  </Label>
+                  <Checkbox
+                    checked={formData.any_surgeries_after_the_accident}
+                    onCheckedChange={(c) =>
+                      handleCheckbox("any_surgeries_after_the_accident", c)
+                    }
+                    className="h-4 w-4 border-black dark:border-gray-300"
+                  />
+                </div>
+
+                <div className="animate-in slide-in-from-top-2">
+                  <Field
+                    label="If yes, please explain the type of surgery"
+                    value={formData.please_explain_the_type_of_surgery}
+                    onChange={(v) =>
+                      handleChange("please_explain_the_type_of_surgery", v)
+                    }
+                  />
+                </div>
+              </div>
+            </div>
           </Section>
 
           {/* Medical, Employment, Benefits etc. – you can keep splitting like above */}
           {/* ... */}
+
+
+
+          {/* Family Doctor Information */}
+          <Section title="FAMILY DOCTOR INFORMATION">
+            <div className="space-y-6">
+              <div className="flex items-center justify-between">
+                <Label className="text-base text-gray-700">
+                  Did you visit your family doctor after the accident ?
+                </Label>
+                <Checkbox
+                  checked={
+                    formData.did_you_visit_your_family_doctor_after_the_accident
+                  }
+                  onCheckedChange={(c) =>
+                    handleCheckbox(
+                      "did_you_visit_your_family_doctor_after_the_accident",
+                      c
+                    )
+                  }
+                  className="h-4 w-4 border-black dark:border-gray-300"
+                />
+              </div>
+              <div className="flex items-center justify-between">
+                <Label className="text-base text-gray-700">
+                  Are you scheduled to see your family doctor any time soon?
+                </Label>
+                <Checkbox
+                  checked={
+                    formData.are_you_scheduled_to_see_your_family_doctor_any_time_soon
+                  }
+                  onCheckedChange={(c) =>
+                    handleCheckbox(
+                      "are_you_scheduled_to_see_your_family_doctor_any_time_soon",
+                      c
+                    )
+                  }
+                  className="h-4 w-4 border-black dark:border-gray-300"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label className="text-base text-gray-700">
+                  How long have you been seeing this family doctor for ?
+                </Label>
+                <Input
+                  value={
+                    formData.how_long_have_you_been_seeing_this_family_doctor_for
+                  }
+                  onChange={(e) =>
+                    handleChange(
+                      "how_long_have_you_been_seeing_this_family_doctor_for",
+                      e.target.value
+                    )
+                  }
+                  className="h-12 border-input"
+                />
+              </div>
+
+              <div className="flex items-center justify-between pt-4 border-t border-gray-100">
+                <Label className="text-base text-gray-700">
+                  Any previous family doctors in the last three years?
+                </Label>
+                <Checkbox
+                  checked={
+                    formData.any_previous_family_doctors_in_the_last_three_years
+                  }
+                  onCheckedChange={(c) =>
+                    handleCheckbox(
+                      "any_previous_family_doctors_in_the_last_three_years",
+                      c
+                    )
+                  }
+                  className="h-4 w-4 border-black dark:border-gray-300"
+                />
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 animate-in slide-in-from-top-2">
+                <Field
+                  label="Name of Family Doctor"
+                  value={formData.name_of_family_doctor}
+                  onChange={(v) => handleChange("name_of_family_doctor", v)}
+                />
+                <Field
+                  label="Address of Family Doctor"
+                  value={formData.address_of_family_doctor}
+                  onChange={(v) => handleChange("address_of_family_doctor", v)}
+                />
+                <Field
+                  label="Telephone"
+                  value={formData.family_doctor_telephone}
+                  onChange={(v) => handleChange("family_doctor_telephone", formatPhoneNumber(v))}
+                />
+                <Field
+                  label="Fax"
+                  value={formData.family_doctor_fax}
+                  onChange={(v) => handleChange("family_doctor_fax", formatPhoneNumber(v))}
+                />
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 animate-in slide-in-from-top-2">
+                <Field
+                  label="Name of Previous Family Doctor"
+                  value={formData.name_of_previous_family_doctor}
+                  onChange={(v) =>
+                    handleChange("name_of_previous_family_doctor", v)
+                  }
+                />
+                <Field
+                  label="Address of Previous Family Doctor"
+                  value={formData.address_of_previous_family_doctor}
+                  onChange={(v) =>
+                    handleChange("address_of_previous_family_doctor", v)
+                  }
+                />
+                <Field
+                  label="Telephone"
+                  value={formData.previous_family_doctor_telephone}
+                  onChange={(v) =>
+                    handleChange("previous_family_doctor_telephone", formatPhoneNumber(v))
+                  }
+                />
+                <Field
+                  label="Fax"
+                  value={formData.previous_family_doctor_fax}
+                  onChange={(v) =>
+                    handleChange("previous_family_doctor_fax", formatPhoneNumber(v))
+                  }
+                />
+              </div>
+            </div>
+          </Section>
+
+          {/* Specialist Information */}
+          <Section title="SPECIALIST INFORMATION">
+            <div className="space-y-6">
+              <div className="flex items-center justify-between">
+                <Label className="text-base text-gray-700">
+                  Have you been referred to a specialist by your family doctor or
+                  the hospital after this accident ?
+                </Label>
+                <Checkbox
+                  checked={
+                    formData.have_you_been_referred_to_a_specialist_by_your_family_doctor
+                  }
+                  onCheckedChange={(c) =>
+                    handleCheckbox(
+                      "have_you_been_referred_to_a_specialist_by_your_family_doctor",
+                      c
+                    )
+                  }
+                  className="h-4 w-4 border-black dark:border-gray-300"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label className="text-base text-gray-700">
+                  If yes, please provide the name and contact information and type
+                  of specialist you have been referred to
+                </Label>
+                <Textarea
+                  value={formData.specialist_referral_info}
+                  onChange={(e) =>
+                    handleChange("specialist_referral_info", e.target.value)
+                  }
+                  className="min-h-[80px]"
+                  rows={3}
+                />
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <Field
+                  label="Name of Specialist Doctor"
+                  value={formData.name_of_specialist_doctor}
+                  onChange={(v) => handleChange("name_of_specialist_doctor", v)}
+                />
+                <Field
+                  label="Address of Specialist Doctor"
+                  value={formData.address_of_specialist_doctor}
+                  onChange={(v) =>
+                    handleChange("address_of_specialist_doctor", v)
+                  }
+                />
+                <Field
+                  label="Telephone"
+                  value={formData.specialist_doctor_telephone}
+                  onChange={(v) =>
+                    handleChange("specialist_doctor_telephone", formatPhoneNumber(v))
+                  }
+                />
+                <Field
+                  label="Fax"
+                  value={formData.specialist_doctor_fax}
+                  onChange={(v) => handleChange("specialist_doctor_fax", formatPhoneNumber(v))}
+                />
+                <Field
+                  label="Specialty"
+                  value={formData.specialist_doctor_specialty}
+                  onChange={(v) =>
+                    handleChange("specialist_doctor_specialty", v)
+                  }
+                />
+                <Field
+                  label="Name of Specialist Doctor"
+                  value={formData.name_of_specialist_doctor_2nd}
+                  onChange={(v) => handleChange("name_of_specialist_doctor_2nd", v)}
+                />
+                <Field
+                  label="Address of Specialist Doctor"
+                  value={formData.address_of_specialist_doctor_2nd}
+                  onChange={(v) =>
+                    handleChange("address_of_specialist_doctor_2nd", v)
+                  }
+                />
+                <Field
+                  label="Telephone"
+                  value={formData.specialist_doctor_telephone_2nd}
+                  onChange={(v) =>
+                    handleChange("specialist_doctor_telephone_2nd", formatPhoneNumber(v))
+                  }
+                />
+                <Field
+                  label="Fax"
+                  value={formData.specialist_doctor_fax_2nd}
+                  onChange={(v) => handleChange("specialist_doctor_fax_2nd", formatPhoneNumber(v))}
+                />
+                <Field
+                  label="Specialty"
+                  value={formData.specialist_doctor_specialty_2nd}
+                  onChange={(v) =>
+                    handleChange("specialist_doctor_specialty_2nd", v)
+                  }
+                />
+              </div>
+            </div>
+          </Section>
+
+          {/* Injuries List */}
+          <Section title="INJURIES LIST">
+            <div className="space-y-6">
+              <div className="space-y-2">
+                <Label className="text-base text-gray-700">
+                  Please describe your injuries as a result of this accident,
+                  starting from your head and listing all the way to the bottom
+                </Label>
+                <Textarea
+                  value={formData.injuries_list_description}
+                  onChange={(e) =>
+                    handleChange("injuries_list_description", e.target.value)
+                  }
+                  className="min-h-[80px]"
+                  rows={3}
+                />
+              </div>
+
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <Label className="text-base text-gray-700">
+                    Did you sustain any fractures ?
+                  </Label>
+                  <Checkbox
+                    checked={formData.did_you_sustain_any_fractures}
+                    onCheckedChange={(c) =>
+                      handleCheckbox("did_you_sustain_any_fractures", c)
+                    }
+                    className="h-4 w-4 border-black dark:border-gray-300"
+                  />
+                </div>
+                <div className="flex items-center justify-between">
+                  <Label className="text-base text-gray-700">
+                    Do you have any numbness or tingling ?
+                  </Label>
+                  <Checkbox
+                    checked={formData.do_you_have_any_numbness_or_tingling}
+                    onCheckedChange={(c) =>
+                      handleCheckbox("do_you_have_any_numbness_or_tingling", c)
+                    }
+                    className="h-4 w-4 border-black dark:border-gray-300"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label className="text-base text-gray-700">
+                  If yes, please describe where
+                </Label>
+                <Input
+                  value={formData.if_yes_please_describe_where_injuries}
+                  onChange={(e) =>
+                    handleChange(
+                      "if_yes_please_describe_where_injuries",
+                      e.target.value
+                    )
+                  }
+                  className="h-12 border-input"
+                />
+              </div>
+            </div>
+          </Section>
+
+          {/* Pre-Existing Conditions */}
+          <Section title="PRE-EXISTING CONDITIONS">
+            <div className="space-y-6">
+              <div className="flex items-center justify-between">
+                <Label className="text-base text-gray-700">
+                  Do you have any pre-existing injuries ?
+                </Label>
+                <Checkbox
+                  checked={formData.do_you_have_any_pre_existing_injuries}
+                  onCheckedChange={(c) =>
+                    handleCheckbox("do_you_have_any_pre_existing_injuries", c)
+                  }
+                  className="h-4 w-4 border-black dark:border-gray-300"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label className="text-base text-gray-700">
+                  If yes, please describe each injury – both physical and psycho
+                  logical
+                </Label>
+                <Textarea
+                  value={formData.pre_existing_injuries_description}
+                  onChange={(e) =>
+                    handleChange(
+                      "pre_existing_injuries_description",
+                      e.target.value
+                    )
+                  }
+                  className="min-h-[80px]"
+                  rows={3}
+                />
+              </div>
+            </div>
+          </Section>
+
+          {/* Pharmacy Info */}
+          <Section title="PHARMACY INFO">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              <Field
+                label="Name of Pharmacy"
+                value={formData.name_of_pharmacy}
+                onChange={(v) => handleChange("name_of_pharmacy", v)}
+              />
+              <Field
+                label="Address of Pharmacy"
+                value={formData.address_of_pharmacy}
+                onChange={(v) => handleChange("address_of_pharmacy", v)}
+              />
+              <Field
+                label="TEL"
+                value={formData.pharmacy_tel}
+                onChange={(v) =>
+                  handleChange("pharmacy_tel", formatPhoneNumber(v))
+                }
+              />
+              <Field
+                label="Fax"
+                value={formData.pharmacy_fax}
+                onChange={(v) =>
+                  handleChange("pharmacy_fax", formatPhoneNumber(v))
+                }
+              />
+            </div>
+          </Section>
+
+          {/* Physio/Chiro */}
+          <Section title="PHYSIO/CHIRO">
+            <div className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <Field
+                  label="Name of Clinic"
+                  value={formData.physio_clinic_name}
+                  onChange={(v) => handleChange("physio_clinic_name", v)}
+                />
+                <Field
+                  label="Address of Clinic"
+                  value={formData.physio_clinic_address}
+                  onChange={(v) => handleChange("physio_clinic_address", v)}
+                />
+                <Field
+                  label="Name of Doctor treating you"
+                  value={formData.physio_doctor_name}
+                  onChange={(v) => handleChange("physio_doctor_name", v)}
+                />
+                <Field
+                  label="TEL"
+                  value={formData.physio_tel}
+                  onChange={(v) =>
+                    handleChange("physio_tel", formatPhoneNumber(v))
+                  }
+                />
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <Field
+                  label="Fax"
+                  value={formData.physio_fax}
+                  onChange={(v) =>
+                    handleChange("physio_fax", formatPhoneNumber(v))
+                  }
+                />
+              </div>
+            </div>
+          </Section>
+
+          {/* Income Loss */}
+          <Section title="INCOME LOSS">
+            <div className="space-y-6">
+              <div className="bg-gray-50/50 p-4 rounded-lg -mx-4 md:-mx-8 md:px-8 border-b border-gray-100 mb-6">
+                <h3 className="font-semibold text-gray-900">
+                  EMPLOYER INFORMATION
+                </h3>
+              </div>
+
+              <div className="flex items-center justify-between mb-6">
+                <Label className="text-base text-gray-700">
+                  Were you employed at the time of the accident ?
+                </Label>
+                <Checkbox
+                  checked={formData.were_you_employed_at_the_time_of_the_accident}
+                  onCheckedChange={(c) =>
+                    handleCheckbox(
+                      "were_you_employed_at_the_time_of_the_accident",
+                      c
+                    )
+                  }
+                  className="h-4 w-4 border-black dark:border-gray-300"
+                />
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <Field
+                  label="Name of Employer"
+                  value={formData.name_of_employer}
+                  onChange={(v) => handleChange("name_of_employer", v)}
+                />
+                <Field
+                  label="Address of Employer"
+                  value={formData.address_of_employer}
+                  onChange={(v) => handleChange("address_of_employer", v)}
+                />
+                <Field
+                  label="Name of Supervisor"
+                  value={formData.name_of_supervisor}
+                  onChange={(v) => handleChange("name_of_supervisor", v)}
+                />
+                <Field
+                  label="Position"
+                  value={formData.position}
+                  onChange={(v) => handleChange("position", v)}
+                />
+                <Field
+                  label="Salary"
+                  value={formData.salary}
+                  onChange={(v) => handleChange("salary", v)}
+                />
+                <Field
+                  label="Length of tenure"
+                  value={formData.length_of_tenure}
+                  onChange={(v) => handleChange("length_of_tenure", v)}
+                />
+                <Field
+                  type="date"
+                  label="Start Date"
+                  value={formData.start_date}
+                  onChange={(v) => handleChange("start_date", v)}
+                />
+                <Field
+                  type="date"
+                  label="Emd Date (If any)"
+                  value={formData.end_date}
+                  onChange={(v) => handleChange("end_date", v)}
+                />
+              </div>
+
+              <div className="space-y-4 pt-6">
+                <div className="flex items-center justify-between">
+                  <Label className="text-base text-gray-700">
+                    Did you do overtime hours before the accident?
+                  </Label>
+                  <Checkbox
+                    checked={
+                      formData.did_you_do_overtime_hours_before_the_accident
+                    }
+                    onCheckedChange={(c) =>
+                      handleCheckbox(
+                        "did_you_do_overtime_hours_before_the_accident",
+                        c
+                      )
+                    }
+                    className="h-4 w-4 border-black dark:border-gray-300"
+                  />
+                </div>
+                <div className="flex items-center justify-between">
+                  <Label className="text-base text-gray-700">
+                    Did you take any time off work since the accident?
+                  </Label>
+                  <Checkbox
+                    checked={
+                      formData.did_you_take_any_time_off_work_since_the_accident
+                    }
+                    onCheckedChange={(c) =>
+                      handleCheckbox(
+                        "did_you_take_any_time_off_work_since_the_accident",
+                        c
+                      )
+                    }
+                    className="h-4 w-4 border-black dark:border-gray-300"
+                  />
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <Label className="text-base text-gray-700">
+                    If yes, then how much time?
+                  </Label>
+                  <Checkbox
+                    checked={formData.if_yes_then_how_much_time} // Assuming this is boolean toggle based on UI, but name implies text. Checking UI image showing toggle.
+                    onCheckedChange={(c) => handleCheckbox("if_yes_then_how_much_time", c)}
+                    className="h-4 w-4 border-black dark:border-gray-300"
+                  />
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <Label className="text-base text-gray-700">
+                    Have you now returned to work?
+                  </Label>
+                  <Checkbox
+                    checked={formData.have_you_now_returned_to_work}
+                    onCheckedChange={(c) =>
+                      handleCheckbox("have_you_now_returned_to_work", c)
+                    }
+                    className="h-4 w-4 border-black dark:border-gray-300"
+                  />
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <Label className="text-base text-gray-700">
+                    If yes, did you return to work on modified duties?
+                  </Label>
+                  <Checkbox
+                    checked={
+                      formData.if_yes_did_you_return_to_work_on_modified_duties
+                    }
+                    onCheckedChange={(c) =>
+                      handleCheckbox(
+                        "if_yes_did_you_return_to_work_on_modified_duties",
+                        c
+                      )
+                    }
+                    className="h-4 w-4 border-black dark:border-gray-300"
+                  />
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <Label className="text-base text-gray-700">
+                    In the last three years, have you worked anywhere else?
+                  </Label>
+                  <Checkbox
+                    checked={
+                      formData.in_the_last_three_years_have_you_worked_anywhere_else
+                    }
+                    onCheckedChange={(c) =>
+                      handleCheckbox(
+                        "in_the_last_three_years_have_you_worked_anywhere_else",
+                        c
+                      )
+                    }
+                    className="h-4 w-4 border-black dark:border-gray-300"
+                  />
+                </div>
+              </div>
+            </div>
+          </Section>
+
+          {/* Name of Previous Employer */}
+          <Section title="NAME OF PREVIOUS EMPLOYER">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              <Field
+                label="Name of Employer"
+                value={formData.previous_employer_name}
+                onChange={(v) => handleChange("previous_employer_name", v)}
+              />
+              <Field
+                label="Address of Employer"
+                value={formData.previous_employer_address}
+                onChange={(v) => handleChange("previous_employer_address", v)}
+              />
+              <Field
+                label="Name of Supervisor"
+                value={formData.previous_employer_supervisor}
+                onChange={(v) => handleChange("previous_employer_supervisor", v)}
+              />
+              <Field
+                label="Position"
+                value={formData.previous_employer_position}
+                onChange={(v) => handleChange("previous_employer_position", v)}
+              />
+              <Field
+                label="Salary"
+                value={formData.previous_employer_salary}
+                onChange={(v) => handleChange("previous_employer_salary", v)}
+              />
+              <Field
+                label="Length of tenure"
+                value={formData.previous_employer_tenure}
+                onChange={(v) => handleChange("previous_employer_tenure", v)}
+              />
+            </div>
+          </Section>
+
+          {/* Benefits Information */}
+          <Section title="BENEFITS INFORMATION">
+            <div className="space-y-6">
+              <div className="flex items-center justify-between">
+                <Label className="text-base text-gray-700">
+                  Do you have Short Term or Long-Term Disability?
+                </Label>
+                <Checkbox
+                  checked={formData.do_you_have_std_or_ltd}
+                  onCheckedChange={(c) =>
+                    handleCheckbox("do_you_have_std_or_ltd", c)
+                  }
+                  className="h-4 w-4 border-black dark:border-gray-300"
+                />
+              </div>
+              <div className="flex items-center justify-between">
+                <Label className="text-base text-gray-700">
+                  Do you have extended health care benefits?
+                </Label>
+                <Checkbox
+                  checked={formData.do_you_have_extended_health_care_benefits}
+                  onCheckedChange={(c) =>
+                    handleCheckbox(
+                      "do_you_have_extended_health_care_benefits",
+                      c
+                    )
+                  }
+                  className="h-4 w-4 border-black dark:border-gray-300"
+                />
+              </div>
+
+              <div className="bg-gray-50/50 p-4 rounded-lg -mx-4 md:-mx-8 md:px-8 border-b border-gray-100 mb-6">
+                <h3 className="font-semibold text-gray-900">
+                  STD LTD INSURER INFO
+                </h3>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <Field
+                  label="Name of Insurer"
+                  value={formData.std_ltd_insurer_name}
+                  onChange={(v) => handleChange("std_ltd_insurer_name", v)}
+                />
+                <Field
+                  label="Policy Number"
+                  value={formData.std_ltd_policy_number}
+                  onChange={(v) => handleChange("std_ltd_policy_number", v)}
+                />
+              </div>
+
+              <div className="bg-gray-50/50 p-4 rounded-lg -mx-4 md:-mx-8 md:px-8 border-b border-gray-100 mb-6 mt-6">
+                <h3 className="font-semibold text-gray-900">
+                  EXTENDED HEALTH CARE BENEFITS INFO
+                </h3>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <Field
+                  label="Name of Insurer"
+                  value={formData.extended_health_insurer_name}
+                  onChange={(v) =>
+                    handleChange("extended_health_insurer_name", v)
+                  }
+                />
+                <Field
+                  label="Policy Number"
+                  value={formData.extended_health_policy_number}
+                  onChange={(v) =>
+                    handleChange("extended_health_policy_number", v)
+                  }
+                />
+              </div>
+            </div>
+          </Section>
+
+          {/* Caregiver */}
+          <Section title="CAREGIVER">
+            <div className="space-y-6">
+              <div className="flex items-center justify-between">
+                <Label className="text-base text-gray-700">
+                  Were you the main caregiver to people living with you, at the
+                  time of the accident?
+                </Label>
+                <Checkbox
+                  checked={
+                    formData.were_you_the_main_caregiver_at_time_of_accident
+                  }
+                  onCheckedChange={(c) =>
+                    handleCheckbox(
+                      "were_you_the_main_caregiver_at_time_of_accident",
+                      c
+                    )
+                  }
+                  className="h-4 w-4 border-black dark:border-gray-300"
+                />
+              </div>
+              <div className="flex items-center justify-between">
+                <Label className="text-base text-gray-700">
+                  Were you paid to provide care to these people?
+                </Label>
+                <Checkbox
+                  checked={formData.were_you_paid_to_provide_care}
+                  onCheckedChange={(c) =>
+                    handleCheckbox("were_you_paid_to_provide_care", c)
+                  }
+                  className="h-4 w-4 border-black dark:border-gray-300"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label className="text-base text-gray-700">
+                  List the people who you were caring for at the time of the
+                  accident
+                </Label>
+                <Textarea
+                  value={formData.people_cared_for_list}
+                  onChange={(e) =>
+                    handleChange("people_cared_for_list", e.target.value)
+                  }
+                  className="min-h-[80px]"
+                  rows={3}
+                />
+              </div>
+
+              <div className="flex items-center justify-between pt-4 border-t border-gray-100">
+                <Label className="text-base text-gray-700">
+                  Did your injuries prevent you from performing the caregiving
+                  activities you did prior to the accident?
+                </Label>
+                <Checkbox
+                  checked={
+                    formData.did_injuries_prevent_caregiving_activities
+                  }
+                  onCheckedChange={(c) =>
+                    handleCheckbox(
+                      "did_injuries_prevent_caregiving_activities",
+                      c
+                    )
+                  }
+                  className="h-4 w-4 border-black dark:border-gray-300"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label className="text-base text-gray-700">
+                  If yes, since what date?
+                </Label>
+                <Input
+                  value={formData.caregiving_prevented_since_date}
+                  onChange={(e) =>
+                    handleChange(
+                      "caregiving_prevented_since_date",
+                      e.target.value
+                    )
+                  }
+                  className="h-12 border-input w-full md:w-1/3"
+                />
+              </div>
+            </div>
+          </Section>
+
+          {/* Government Assistance Info */}
+          <Section title="GOVERNMENT ASSISTANCE INFO">
+            <div className="space-y-6">
+              <div className="flex items-center justify-between">
+                <Label className="text-base text-gray-700">
+                  Have you received any EI in the last one year
+                </Label>
+                <Checkbox
+                  checked={formData.have_you_received_any_ei_in_last_year}
+                  onCheckedChange={(c) =>
+                    handleCheckbox(
+                      "have_you_received_any_ei_in_last_year",
+                      c
+                    )
+                  }
+                  className="h-4 w-4 border-black dark:border-gray-300"
+                />
+              </div>
+              <div className="flex items-center justify-between">
+                <Label className="text-base text-gray-700">
+                  Are you currently on EI?
+                </Label>
+                <Checkbox
+                  checked={formData.are_you_currently_on_ei}
+                  onCheckedChange={(c) =>
+                    handleCheckbox("are_you_currently_on_ei", c)
+                  }
+                  className="h-4 w-4 border-black dark:border-gray-300"
+                />
+              </div>
+              <div className="flex items-center justify-between">
+                <Label className="text-base text-gray-700">
+                  ave you been on Social Works, ODSP or CPP ?
+                </Label>
+                <Checkbox
+                  checked={
+                    formData.have_you_been_on_social_works_odsp_or_cpp
+                  }
+                  onCheckedChange={(c) =>
+                    handleCheckbox(
+                      "have_you_been_on_social_works_odsp_or_cpp",
+                      c
+                    )
+                  }
+                  className="h-4 w-4 border-black dark:border-gray-300"
+                />
+              </div>
+
+              <div className="space-y-2 pt-4 border-t border-gray-100 flex flex-col md:flex-row md:items-start gap-4">
+                <Label className="text-base text-gray-700 mt-2 whitespace-nowrap">
+                  If yes, then please advise since when and the reasons ?
+                </Label>
+                <Textarea
+                  value={formData.gov_assistance_details}
+                  onChange={(e) =>
+                    handleChange("gov_assistance_details", e.target.value)
+                  }
+                  className="min-h-[80px] flex-1"
+                  rows={3}
+                />
+              </div>
+            </div>
+          </Section>
+
+          {/* Student Information */}
+          <Section title="STUDENT INFORMATION">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              <Field
+                label="Name of School"
+                value={formData.name_of_school}
+                onChange={(v) => handleChange("name_of_school", v)}
+              />
+              <Field
+                label="Address of School"
+                value={formData.address_of_school}
+                onChange={(v) => handleChange("address_of_school", v)}
+              />
+              <Field
+                label="Date Last Attended:"
+                value={formData.school_date_last_attended}
+                onChange={(v) =>
+                  handleChange("school_date_last_attended", v)
+                }
+              />
+              <Field
+                label="Program and Lavel"
+                value={formData.school_program_and_level}
+                onChange={(v) =>
+                  handleChange("school_program_and_level", v)
+                }
+              />
+              <Field
+                label="Projected Date for Completion of Studies"
+                value={formData.school_projected_completion_date}
+                onChange={(v) =>
+                  handleChange("school_projected_completion_date", v)
+                }
+              />
+            </div>
+
+            <div className="space-y-4 pt-6">
+              <div className="flex items-center justify-between">
+                <Label className="text-base text-gray-700">
+                  Are you now attending school?
+                </Label>
+                <Checkbox
+                  checked={formData.are_you_now_attending_school}
+                  onCheckedChange={(c) =>
+                    handleCheckbox("are_you_now_attending_school", c)
+                  }
+                  className="h-4 w-4 border-black dark:border-gray-300"
+                />
+              </div>
+              <div className="flex items-center justify-between">
+                <Label className="text-base text-gray-700">
+                  Were you able to return to school after the accident ?
+                </Label>
+                <Checkbox
+                  checked={formData.were_you_able_to_return_to_school}
+                  onCheckedChange={(c) =>
+                    handleCheckbox("were_you_able_to_return_to_school", c)
+                  }
+                  className="h-4 w-4 border-black dark:border-gray-300"
+                />
+              </div>
+            </div>
+          </Section>
+
+          {/* OTHER */}
+          <Section title="OTHER">
+            <div className="space-y-6">
+              <div className="space-y-2">
+                <Label className="text-base text-gray-700">
+                  RECREATIONAL ACTIVITIES
+                </Label>
+                <Textarea
+                  value={formData.recreational_activities}
+                  onChange={(e) =>
+                    handleChange("recreational_activities", e.target.value)
+                  }
+                  className="min-h-[80px]"
+                  rows={3}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label className="text-base text-gray-700">Note</Label>
+                <Textarea
+                  value={formData.other_notes}
+                  onChange={(e) => handleChange("other_notes", e.target.value)}
+                  className="min-h-[80px]"
+                  rows={3}
+                />
+              </div>
+            </div>
+          </Section>
+
+          {/* INTIAL REQUESTS AFTER INTAKE */}
+          <Section title="INTIAL REQUESTS AFTER INTAKE:">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              <Field
+                label="Welcome Latters"
+                value={formData.welcome_letters}
+                onChange={(v) => handleChange("welcome_letters", v)}
+              />
+              <Field
+                label="Police Report"
+                value={formData.police_report_request}
+                onChange={(v) => handleChange("police_report_request", v)}
+              />
+              <Field
+                label="Property Damage file"
+                value={formData.property_damage_file}
+                onChange={(v) => handleChange("property_damage_file", v)}
+              />
+              <Field
+                label="Accident Benefits File"
+                value={formData.accident_benefits_file}
+                onChange={(v) => handleChange("accident_benefits_file", v)}
+              />
+              <Field
+                label="Family Doctor Clinical Notes and Records"
+                value={formData.family_doctor_clinical_notes}
+                onChange={(v) => handleChange("family_doctor_clinical_notes", v)}
+              />
+              <Field
+                label="Specialist’s Clinical Notes and Records"
+                value={formData.specialist_clinical_notes}
+                onChange={(v) => handleChange("specialist_clinical_notes", v)}
+              />
+              <Field
+                label="Hospital Records and Ambulance Call Report"
+                value={formData.hospital_records}
+                onChange={(v) => handleChange("hospital_records", v)}
+              />
+              <Field
+                label="Tax Returns"
+                value={formData.tax_returns}
+                onChange={(v) => handleChange("tax_returns", v)}
+              />
+              <Field
+                label="Employment file"
+                value={formData.employment_file}
+                onChange={(v) => handleChange("employment_file", v)}
+              />
+              <Field
+                label="Prescription Summary"
+                value={formData.prescription_summary}
+                onChange={(v) => handleChange("prescription_summary", v)}
+              />
+              <Field
+                label="Student file"
+                value={formData.student_file}
+                onChange={(v) => handleChange("student_file", v)}
+              />
+            </div>
+          </Section>
 
           {/* Files / OCF */}
           <Section title="OCF Forms">
@@ -1043,7 +2427,7 @@ export default function MvaPage() {
           </div>
         </form>
       </main>
-    </div>
+    </div >
   );
 }
 
@@ -1104,7 +2488,12 @@ function TextField({ label, value, onChange }) {
 function CheckboxField({ label, checked, onChange }) {
   return (
     <div className="flex items-center space-x-2">
-      <Checkbox id={label} checked={checked} onCheckedChange={onChange} />
+      <Checkbox
+        id={label}
+        checked={checked}
+        onCheckedChange={onChange}
+        className="border-black dark:border-gray-300"
+      />
       <label
         htmlFor={label}
         className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
