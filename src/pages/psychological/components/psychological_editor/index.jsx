@@ -279,7 +279,7 @@ export default function PsychologicalPage() {
           <h1 className="text-3xl font-bold text-foreground">
             {isEditMode ? "Edit" : "New"} Psychological Assessment
           </h1>
-          <div className="text-sm text-gray-500">{isEditMode.toString()}</div>
+          {/* <div className="text-sm text-gray-500">{isEditMode.toString()}</div> */}
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
