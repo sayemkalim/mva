@@ -9,8 +9,8 @@ export const fetchAccountingList = async (slug, { search = "" } = {}) => {
     }
     const queryString = params.toString();
     const endpoint = queryString
-      ? `${endpoints.accountingList}/${slug}?${queryString}`
-      : `${endpoints.accountingList}/${slug}`;
+      ? `${endpoints.accountinglist}/${slug}?${queryString}`
+      : `${endpoints.accountinglist}/${slug}`;
 
     const apiResponse = await apiService({
       endpoint,

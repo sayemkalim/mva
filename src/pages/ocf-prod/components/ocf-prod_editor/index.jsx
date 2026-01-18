@@ -5,14 +5,38 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Loader2, ChevronRight, Calendar as CalendarIcon } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { Loader2, ChevronRight, Calendar as CalendarIcon, Check, ChevronsUpDown } from "lucide-react";
+import { getABMeta } from "@/pages/medical_centre/helpers/fetchABMeta";
+import { getEmploymentMeta } from "@/pages/employment/helpers/fetchIEmploymentMetadata";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
-
 import { Navbar2 } from "@/components/navbar2";
 import { createOcfProd, updateOcfProd } from "../../helpers/createOcfProd";
 import { fetchOcfProdById } from "../../helpers/fetchOcfProdById";
 import Billing from "@/components/billing";
+import { format } from "date-fns";
+import { Calendar as CalendarComponent } from "@/components/ui/calendar";
 
 export default function OCFProdPage() {
   const { id, slug } = useParams();
@@ -106,6 +130,7 @@ export default function OCFProdPage() {
     badge_no: "",
     reporting_center: "",
     was_claiment_charged: "",
+    police_date_reported: "",
     police_if_yes_give_details: "",
     brief_accident_description: "",
     return_to_normal_activities: "",
@@ -113,6 +138,7 @@ export default function OCFProdPage() {
     outcome_if_yes_give_details: "",
     did_patient_see_health_professional: "",
     outcome_if_yes_give_details_2nd: "",
+    post_accident_additional_sheets: false,
     facility_name: "",
     health_professional: "",
     health_address: "",
@@ -121,9 +147,11 @@ export default function OCFProdPage() {
     health_postal_code: "",
     begun_ant_treatment: "",
     health_if_yes_give_details: "",
+    health_facility_additional_sheets: false,
     private_policy: "",
     spouse_policy: "",
     claimant_us_dependent: "",
+
     claimant_as_a_drive: "",
     claimant_employer_policy: "",
     policy_insuring: "",
@@ -132,10 +160,13 @@ export default function OCFProdPage() {
     policy_number: "",
     automobile_make_model_year: "",
     licence_plate_no: "",
-    were_you_an_occupant_of_this_automobile_at_the_time_of_the_accident: "",
+    were_you_an_occupant_of_this_automobile_at_the_time_of_the_accident:
+      "",
     employed: "",
     not_employed: "",
     un_employed_and: "",
+    student_or_recent_graduate: "",
+    caregiver: "",
     applicant_status_claimant_attending_school: "",
     applicant_status_name_of_school: "",
     applicant_status_address: "",
@@ -185,9 +216,135 @@ export default function OCFProdPage() {
     other_to_date1: "",
     other_total_amount_recived1: "",
     other_receiving_social_assistance_benfits: "",
+    caregiver_additional_sheets_attached: "",
+    caregiver_additional_sheets_attached_2: "",
+    employment_additional_sheets_attached: "",
+    other_insurance_additional_sheets: "",
     applicant_name: "",
     applicant_date: "",
   });
+
+  const { data: metaDataRaw } = useQuery({
+    queryKey: ["abMeta"],
+    queryFn: getABMeta,
+    staleTime: 5 * 60 * 1000,
+  });
+
+  const { data: employmentMetaRaw } = useQuery({
+    queryKey: ["employmentMeta"],
+    queryFn: getEmploymentMeta,
+    staleTime: 5 * 60 * 1000,
+  });
+
+  const employmentMetadata = employmentMetaRaw?.response;
+  const metaData = metaDataRaw?.response;
+  const [openStates, setOpenStates] = useState({});
+
+  const toggleOpen = (key, value) => {
+    setOpenStates((prev) => ({ ...prev, [key]: value }));
+  };
+
+  const formatPhoneNumber = (value) => {
+    if (!value) return value;
+    const phoneNumber = value.replace(/[^\d]/g, "");
+    const phoneNumberLength = phoneNumber.length;
+    if (phoneNumberLength < 4) return phoneNumber;
+    if (phoneNumberLength < 7) {
+      return `(${phoneNumber.slice(0, 3)}) ${phoneNumber.slice(3)}`;
+    }
+    return `(${phoneNumber.slice(0, 3)}) ${phoneNumber.slice(3, 6)}-${phoneNumber.slice(6, 10)}`;
+  };
+
+  const SearchableDropdown = ({ value, onChange, options, placeholder, openKey }) => {
+    const isOpen = openStates[openKey] || false;
+    return (
+      <Popover open={isOpen} onOpenChange={(v) => toggleOpen(openKey, v)}>
+        <PopoverTrigger asChild>
+          <Button
+            variant="outline"
+            role="combobox"
+            aria-expanded={isOpen}
+            className="w-full justify-between h-10 font-normal"
+          >
+            {value
+              ? options?.find((option) => option.name === value)?.name || value
+              : placeholder || "Select"}
+            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent className="w-[--radix-popover-trigger-width] p-0" align="start">
+          <Command>
+            <CommandInput placeholder="Search..." />
+            <CommandList>
+              <CommandEmpty>No results found.</CommandEmpty>
+              <CommandGroup>
+                {options?.map((option) => (
+                  <CommandItem
+                    key={option.id}
+                    value={option.name}
+                    onSelect={(currentValue) => {
+                      onChange(option.name);
+                      toggleOpen(openKey, false);
+                    }}
+                  >
+                    <Check
+                      className={cn(
+                        "mr-2 h-4 w-4",
+                        value === option.name ? "opacity-100" : "opacity-0"
+                      )}
+                    />
+                    {option.name}
+                  </CommandItem>
+                ))}
+              </CommandGroup>
+            </CommandList>
+          </Command>
+        </PopoverContent>
+      </Popover>
+    );
+  };
+
+  const DatePicker = ({ value, onChange, placeholder, openKey }) => {
+    const isOpen = openStates[openKey] || false;
+    return (
+      <Popover open={isOpen} onOpenChange={(v) => toggleOpen(openKey, v)}>
+        <PopoverTrigger asChild>
+          <Button
+            variant={"outline"}
+            className={cn(
+              "w-full justify-start text-left font-normal",
+              !value && "text-muted-foreground"
+            )}
+          >
+            <CalendarIcon className="mr-2 h-4 w-4" />
+            {value ? (
+              format(new Date(value + "T00:00:00"), "dd/MM/yyyy")
+            ) : (
+              <span>{placeholder || "Pick a date"}</span>
+            )}
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent className="w-auto p-0" align="start">
+          <CalendarComponent
+            mode="single"
+            selected={value ? new Date(value + "T00:00:00") : undefined}
+            onSelect={(date) => {
+              if (date) {
+                const yyyy = date.getFullYear();
+                const mm = String(date.getMonth() + 1).padStart(2, "0");
+                const dd = String(date.getDate()).padStart(2, "0");
+                onChange(`${yyyy}-${mm}-${dd}`);
+              } else {
+                onChange("");
+              }
+              toggleOpen(openKey, false);
+            }}
+            initialFocus
+          />
+        </PopoverContent>
+      </Popover>
+    );
+  };
 
   const [recordId, setRecordId] = useState(null);
 
@@ -264,6 +421,7 @@ export default function OCFProdPage() {
       badge_no: d.badge_no || "",
       reporting_center: d.reporting_center || "",
       was_claiment_charged: d.was_claiment_charged || "",
+      police_date_reported: d.police_date_reported || "",
       police_if_yes_give_details: d.police_if_yes_give_details || "",
       brief_accident_description: d.brief_accident_description || "",
       return_to_normal_activities: d.return_to_normal_activities || "",
@@ -273,6 +431,7 @@ export default function OCFProdPage() {
       did_patient_see_health_professional:
         d.did_patient_see_health_professional || "",
       outcome_if_yes_give_details_2nd: d.outcome_if_yes_give_details_2nd || "",
+      post_accident_additional_sheets: d.post_accident_additional_sheets || false,
       facility_name: d.facility_name || "",
       health_professional: d.health_professional || "",
       health_address: d.health_address || "",
@@ -281,6 +440,7 @@ export default function OCFProdPage() {
       health_postal_code: d.health_postal_code || "",
       begun_ant_treatment: d.begun_ant_treatment || "",
       health_if_yes_give_details: d.health_if_yes_give_details || "",
+      health_facility_additional_sheets: d.health_facility_additional_sheets || false,
       private_policy: d.private_policy || "",
       spouse_policy: d.spouse_policy || "",
       claimant_us_dependent: d.claimant_us_dependent || "",
@@ -298,6 +458,8 @@ export default function OCFProdPage() {
       employed: d.employed || "",
       not_employed: d.not_employed || "",
       un_employed_and: d.un_employed_and || "",
+      student_or_recent_graduate: d.student_or_recent_graduate || "",
+      caregiver: d.caregiver || "",
       applicant_status_claimant_attending_school:
         d.applicant_status_claimant_attending_school || "",
       applicant_status_name_of_school: d.applicant_status_name_of_school || "",
@@ -367,6 +529,14 @@ export default function OCFProdPage() {
       other_total_amount_recived1: d.other_total_amount_recived1 || "",
       other_receiving_social_assistance_benfits:
         d.other_receiving_social_assistance_benfits || "",
+      caregiver_additional_sheets_attached:
+        d.caregiver_additional_sheets_attached || "",
+      caregiver_additional_sheets_attached_2:
+        d.caregiver_additional_sheets_attached_2 || "",
+      employment_additional_sheets_attached:
+        d.employment_additional_sheets_attached || "",
+      other_insurance_additional_sheets:
+        d.other_insurance_additional_sheets || "",
       applicant_name: d.applicant_name || "",
       applicant_date: d.applicant_date || "",
     });
@@ -425,7 +595,7 @@ export default function OCFProdPage() {
     <div className="min-h-screen bg-muted">
       <Navbar2 />
 
-     <Billing/>
+      <Billing />
 
       <nav className="bg-card border-b px-6 py-4 text-sm text-muted-foreground">
         <div className="flex items-center gap-2">
@@ -636,9 +806,10 @@ export default function OCFProdPage() {
                 <Input
                   value={formData.home_tel}
                   onChange={(e) =>
-                    handleFieldChange("home_tel", e.target.value)
+                    handleFieldChange("home_tel", formatPhoneNumber(e.target.value))
                   }
                   placeholder="(000) 000-0000"
+                  maxLength={14}
                   className="h-10"
                 />
               </div>
@@ -647,9 +818,10 @@ export default function OCFProdPage() {
                 <Input
                   value={formData.work_tel}
                   onChange={(e) =>
-                    handleFieldChange("work_tel", e.target.value)
+                    handleFieldChange("work_tel", formatPhoneNumber(e.target.value))
                   }
                   placeholder="(000) 000-0000"
+                  maxLength={14}
                   className="h-10"
                 />
               </div>
@@ -657,7 +829,11 @@ export default function OCFProdPage() {
                 <Label className="text-sm font-medium">Fax</Label>
                 <Input
                   value={formData.fax}
-                  onChange={(e) => handleFieldChange("fax", e.target.value)}
+                  onChange={(e) =>
+                    handleFieldChange("fax", formatPhoneNumber(e.target.value))
+                  }
+                  placeholder="(000) 000-0000"
+                  maxLength={14}
                   className="h-10"
                 />
               </div>
@@ -675,13 +851,12 @@ export default function OCFProdPage() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label className="text-sm font-medium">Any Dependants</Label>
-                <Input
+                <SearchableDropdown
                   value={formData.any_dependants}
-                  onChange={(e) =>
-                    handleFieldChange("any_dependants", e.target.value)
-                  }
-                  placeholder="Yes/No"
-                  className="h-10"
+                  onChange={(val) => handleFieldChange("any_dependants", val)}
+                  options={metaData?.yes_no_option}
+                  placeholder="Select"
+                  openKey="any_dependants"
                 />
               </div>
               <div className="space-y-2">
@@ -779,8 +954,13 @@ export default function OCFProdPage() {
                 <Input
                   value={formData.patient_home_tel}
                   onChange={(e) =>
-                    handleFieldChange("patient_home_tel", e.target.value)
+                    handleFieldChange(
+                      "patient_home_tel",
+                      formatPhoneNumber(e.target.value)
+                    )
                   }
+                  placeholder="(000) 000-0000"
+                  maxLength={14}
                   className="h-10"
                 />
               </div>
@@ -789,8 +969,13 @@ export default function OCFProdPage() {
                 <Input
                   value={formData.patient_work_tel}
                   onChange={(e) =>
-                    handleFieldChange("patient_work_tel", e.target.value)
+                    handleFieldChange(
+                      "patient_work_tel",
+                      formatPhoneNumber(e.target.value)
+                    )
                   }
+                  placeholder="(000) 000-0000"
+                  maxLength={14}
                   className="h-10"
                 />
               </div>
@@ -799,8 +984,10 @@ export default function OCFProdPage() {
                 <Input
                   value={formData.patient_fax}
                   onChange={(e) =>
-                    handleFieldChange("patient_fax", e.target.value)
+                    handleFieldChange("patient_fax", formatPhoneNumber(e.target.value))
                   }
+                  placeholder="(000) 000-0000"
+                  maxLength={14}
                   className="h-10"
                 />
               </div>
@@ -1026,125 +1213,41 @@ export default function OCFProdPage() {
                   className="h-10"
                 />
               </div>
-              <div className="space-y-2">
-                <Label className="text-sm font-medium">Accident Occur</Label>
-                <Input
-                  value={formData.accident_occur}
-                  onChange={(e) =>
-                    handleFieldChange("accident_occur", e.target.value)
-                  }
-                  className="h-10"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label className="text-sm font-medium">Safety Insurance</Label>
-                <Input
-                  value={formData.safety_insurance}
-                  onChange={(e) =>
-                    handleFieldChange("safety_insurance", e.target.value)
-                  }
-                  className="h-10"
-                />
-              </div>
             </div>
 
-            <div className="space-y-4">
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label className="text-sm font-medium">
-                  Brief Accident Description
-                </Label>
-                <Textarea
-                  value={formData.brief_accident_description}
-                  onChange={(e) =>
-                    handleFieldChange(
-                      "brief_accident_description",
-                      e.target.value
-                    )
-                  }
-                  rows={4}
-                  className="resize-none"
+                <Label className="text-sm font-medium">Did the accident occur while you were at work?</Label>
+                <SearchableDropdown
+                  value={formData.accident_occur}
+                  onChange={(val) => handleFieldChange("accident_occur", val)}
+                  options={metaData?.yes_no_option}
+                  placeholder="Select"
+                  openKey="accident_occur"
                 />
               </div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label className="text-sm font-medium">
-                  Return to Normal Activities
-                </Label>
-                <Input
-                  value={formData.return_to_normal_activities}
-                  onChange={(e) =>
-                    handleFieldChange(
-                      "return_to_normal_activities",
-                      e.target.value
-                    )
-                  }
-                  className="h-10"
+                <Label className="text-sm font-medium">Did you file a claim with the Workplace Safety and Insurance Board?</Label>
+                <SearchableDropdown
+                  value={formData.safety_insurance}
+                  onChange={(val) => handleFieldChange("safety_insurance", val)}
+                  options={metaData?.yes_no_option}
+                  placeholder="Select"
+                  openKey="safety_insurance"
                 />
               </div>
               <div className="space-y-2">
-                <Label className="text-sm font-medium">
-                  Did Patient Go to Hospital
-                </Label>
-                <Input
-                  value={formData.did_the_patient_go_to_the_hospital}
-                  onChange={(e) =>
-                    handleFieldChange(
-                      "did_the_patient_go_to_the_hospital",
-                      e.target.value
-                    )
-                  }
-                  placeholder="Yes/No"
-                  className="h-10"
-                />
-              </div>
-              <div className="space-y-2 md:col-span-2">
-                <Label className="text-sm font-medium">
-                  Outcome Details (Hospital)
-                </Label>
-                <Textarea
-                  value={formData.outcome_if_yes_give_details}
-                  onChange={(e) =>
-                    handleFieldChange(
-                      "outcome_if_yes_give_details",
-                      e.target.value
-                    )
-                  }
-                  rows={2}
-                  className="resize-none"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label className="text-sm font-medium">
-                  Did Patient See Health Professional
-                </Label>
-                <Input
-                  value={formData.did_patient_see_health_professional}
-                  onChange={(e) =>
-                    handleFieldChange(
-                      "did_patient_see_health_professional",
-                      e.target.value
-                    )
-                  }
-                  placeholder="Yes/No"
-                  className="h-10"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label className="text-sm font-medium">
-                  Outcome Details (Health Professional)
-                </Label>
-                <Textarea
-                  value={formData.outcome_if_yes_give_details_2nd}
-                  onChange={(e) =>
-                    handleFieldChange(
-                      "outcome_if_yes_give_details_2nd",
-                      e.target.value
-                    )
-                  }
-                  rows={2}
-                  className="resize-none"
+                <Label className="text-sm font-medium">Was the accident reported to the police?</Label>
+                <SearchableDropdown
+                  value={formData.accident_reported_police}
+                  onChange={(val) => handleFieldChange("accident_reported_police", val)}
+                  options={metaData?.yes_no_option}
+                  placeholder="Select"
+                  openKey="accident_reported_police"
                 />
               </div>
             </div>
@@ -1153,27 +1256,11 @@ export default function OCFProdPage() {
           {/* SECTION 6: Police Report */}
           <div className="bg-card rounded-lg shadow-sm border p-6 space-y-6">
             <h2 className="text-xl font-semibold text-foreground border-b pb-3">
-              Police Report
+              POLICE REPORT SUMMARY
             </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="space-y-2">
-                <Label className="text-sm font-medium">
-                  Accident Reported to Police
-                </Label>
-                <Input
-                  value={formData.accident_reported_police}
-                  onChange={(e) =>
-                    handleFieldChange(
-                      "accident_reported_police",
-                      e.target.value
-                    )
-                  }
-                  placeholder="Yes/No"
-                  className="h-10"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label className="text-sm font-medium">Police Department</Label>
+                <Label className="text-sm font-medium">Department</Label>
                 <Input
                   value={formData.police_department}
                   onChange={(e) =>
@@ -1202,8 +1289,24 @@ export default function OCFProdPage() {
                   className="h-10"
                 />
               </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="space-y-2">
-                <Label className="text-sm font-medium">Reporting Center</Label>
+                <Label className="text-sm font-medium">Date Reported</Label>
+                <div className="flex items-center gap-2">
+                  <Input
+                    type="date"
+                    value={formData.police_date_reported}
+                    onChange={(e) =>
+                      handleFieldChange("police_date_reported", e.target.value)
+                    }
+                    className="h-10"
+                  />
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Label className="text-sm font-medium">Reporting center</Label>
                 <Input
                   value={formData.reporting_center}
                   onChange={(e) =>
@@ -1213,43 +1316,127 @@ export default function OCFProdPage() {
                 />
               </div>
               <div className="space-y-2">
-                <Label className="text-sm font-medium">
-                  Was Claimant Charged
-                </Label>
-                <Input
+                <Label className="text-sm font-medium">Was claimant charged ?</Label>
+                <SearchableDropdown
                   value={formData.was_claiment_charged}
-                  onChange={(e) =>
-                    handleFieldChange("was_claiment_charged", e.target.value)
-                  }
-                  placeholder="Yes/No"
-                  className="h-10"
+                  onChange={(val) => handleFieldChange("was_claiment_charged", val)}
+                  options={metaData?.yes_no_option}
+                  placeholder="Select"
+                  openKey="was_claiment_charged"
                 />
               </div>
-              <div className="space-y-2 md:col-span-3">
-                <Label className="text-sm font-medium">
-                  Police Details (If Yes)
-                </Label>
+            </div>
+
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label className="text-sm font-medium">if yes, give details</Label>
                 <Textarea
                   value={formData.police_if_yes_give_details}
                   onChange={(e) =>
-                    handleFieldChange(
-                      "police_if_yes_give_details",
-                      e.target.value
-                    )
+                    handleFieldChange("police_if_yes_give_details", e.target.value)
                   }
-                  rows={2}
+                  rows={3}
+                  className="resize-none"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label className="text-sm font-medium">Brief Accident Description</Label>
+                <Textarea
+                  value={formData.brief_accident_description}
+                  onChange={(e) =>
+                    handleFieldChange("brief_accident_description", e.target.value)
+                  }
+                  rows={3}
                   className="resize-none"
                 />
               </div>
             </div>
           </div>
 
+          {/* POST-ACCIDENT OUTCOMES */}
+          <div className="bg-card rounded-lg shadow-sm border p-6 space-y-6">
+            <h2 className="text-xl font-semibold text-foreground border-b pb-3">
+              POST-ACCIDENT OUTCOMES
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label className="text-sm font-medium">Was the patient able to return to normal activities</Label>
+                <SearchableDropdown
+                  value={formData.return_to_normal_activities}
+                  onChange={(val) => handleFieldChange("return_to_normal_activities", val)}
+                  options={metaData?.yes_no_option}
+                  placeholder="Select"
+                  openKey="return_to_normal_activities"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label className="text-sm font-medium">Did the patient go to the hospital ?</Label>
+                <SearchableDropdown
+                  value={formData.did_the_patient_go_to_the_hospital}
+                  onChange={(val) => handleFieldChange("did_the_patient_go_to_the_hospital", val)}
+                  options={metaData?.yes_no_option}
+                  placeholder="Select"
+                  openKey="did_the_patient_go_to_the_hospital"
+                />
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label className="text-sm font-medium">if yes, give details</Label>
+              <Textarea
+                value={formData.outcome_if_yes_give_details}
+                onChange={(e) =>
+                  handleFieldChange("outcome_if_yes_give_details", e.target.value)
+                }
+                rows={3}
+                className="resize-none"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label className="text-sm font-medium">Did patient see health professional</Label>
+              <SearchableDropdown
+                value={formData.did_patient_see_health_professional}
+                onChange={(val) => handleFieldChange("did_patient_see_health_professional", val)}
+                options={metaData?.yes_no_option}
+                placeholder="Select"
+                openKey="did_patient_see_health_professional"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label className="text-sm font-medium">if yes, give details</Label>
+              <Textarea
+                value={formData.outcome_if_yes_give_details_2nd}
+                onChange={(e) =>
+                  handleFieldChange(
+                    "outcome_if_yes_give_details_2nd",
+                    e.target.value
+                  )
+                }
+                rows={3}
+                className="resize-none"
+              />
+            </div>
+
+            <div className="flex items-center justify-end space-x-2">
+              <Checkbox
+                id="post_additional"
+                checked={formData.post_accident_additional_sheets}
+                onCheckedChange={(checked) => handleFieldChange("post_accident_additional_sheets", checked)}
+              />
+              <Label htmlFor="post_additional" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                Additional Sheets Attached
+              </Label>
+            </div>
+          </div>
+
           {/* SECTION 7: Health Information */}
           <div className="bg-card rounded-lg shadow-sm border p-6 space-y-6">
             <h2 className="text-xl font-semibold text-foreground border-b pb-3">
-              Health Information
+              HEALTH FACILITY
             </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
               <div className="space-y-2">
                 <Label className="text-sm font-medium">Facility Name</Label>
                 <Input
@@ -1312,21 +1499,21 @@ export default function OCFProdPage() {
                   className="h-10"
                 />
               </div>
-              <div className="space-y-2">
-                <Label className="text-sm font-medium">
-                  Begun Any Treatment
-                </Label>
-                <Input
-                  value={formData.begun_ant_treatment}
-                  onChange={(e) =>
-                    handleFieldChange("begun_ant_treatment", e.target.value)
-                  }
-                  className="h-10"
-                />
-              </div>
               <div className="space-y-2 md:col-span-2">
                 <Label className="text-sm font-medium">
-                  Health Details (If Yes)
+                  Has this provider begun any treatment?
+                </Label>
+                <SearchableDropdown
+                  value={formData.begun_ant_treatment}
+                  onChange={(val) => handleFieldChange("begun_ant_treatment", val)}
+                  options={metaData?.yes_no_option}
+                  placeholder="Select"
+                  openKey="begun_ant_treatment"
+                />
+              </div>
+              <div className="space-y-2 md:col-span-4">
+                <Label className="text-sm font-medium">
+                  If yes, give details
                 </Label>
                 <Textarea
                   value={formData.health_if_yes_give_details}
@@ -1336,10 +1523,20 @@ export default function OCFProdPage() {
                       e.target.value
                     )
                   }
-                  rows={2}
+                  rows={3}
                   className="resize-none"
                 />
               </div>
+            </div>
+            <div className="flex items-center justify-end space-x-2">
+              <Checkbox
+                id="health_additional"
+                checked={formData.health_facility_additional_sheets}
+                onCheckedChange={(checked) => handleFieldChange("health_facility_additional_sheets", checked)}
+              />
+              <Label htmlFor="health_additional" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                Additional Sheets Attached
+              </Label>
             </div>
           </div>
 
@@ -1351,71 +1548,68 @@ export default function OCFProdPage() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               <div className="space-y-2">
                 <Label className="text-sm font-medium">Private Policy</Label>
-                <Input
+                <SearchableDropdown
                   value={formData.private_policy}
-                  onChange={(e) =>
-                    handleFieldChange("private_policy", e.target.value)
-                  }
-                  className="h-10"
+                  onChange={(val) => handleFieldChange("private_policy", val)}
+                  options={metaData?.yes_no_option}
+                  placeholder="Select"
+                  openKey="private_policy"
                 />
               </div>
               <div className="space-y-2">
                 <Label className="text-sm font-medium">Spouse Policy</Label>
-                <Input
+                <SearchableDropdown
                   value={formData.spouse_policy}
-                  onChange={(e) =>
-                    handleFieldChange("spouse_policy", e.target.value)
-                  }
-                  className="h-10"
+                  onChange={(val) => handleFieldChange("spouse_policy", val)}
+                  options={metaData?.yes_no_option}
+                  placeholder="Select"
+                  openKey="spouse_policy"
                 />
               </div>
               <div className="space-y-2">
                 <Label className="text-sm font-medium">
                   Claimant US Dependent
                 </Label>
-                <Input
+                <SearchableDropdown
                   value={formData.claimant_us_dependent}
-                  onChange={(e) =>
-                    handleFieldChange("claimant_us_dependent", e.target.value)
-                  }
-                  className="h-10"
+                  onChange={(val) => handleFieldChange("claimant_us_dependent", val)}
+                  options={metaData?.yes_no_option}
+                  placeholder="Select"
+                  openKey="claimant_us_dependent"
                 />
               </div>
               <div className="space-y-2">
                 <Label className="text-sm font-medium">
                   Claimant as Driver
                 </Label>
-                <Input
+                <SearchableDropdown
                   value={formData.claimant_as_a_drive}
-                  onChange={(e) =>
-                    handleFieldChange("claimant_as_a_drive", e.target.value)
-                  }
-                  className="h-10"
+                  onChange={(val) => handleFieldChange("claimant_as_a_drive", val)}
+                  options={metaData?.yes_no_option}
+                  placeholder="Select"
+                  openKey="claimant_as_a_drive"
                 />
               </div>
               <div className="space-y-2">
                 <Label className="text-sm font-medium">
                   Claimant Employer Policy
                 </Label>
-                <Input
+                <SearchableDropdown
                   value={formData.claimant_employer_policy}
-                  onChange={(e) =>
-                    handleFieldChange(
-                      "claimant_employer_policy",
-                      e.target.value
-                    )
-                  }
-                  className="h-10"
+                  onChange={(val) => handleFieldChange("claimant_employer_policy", val)}
+                  options={metaData?.yes_no_option}
+                  placeholder="Select"
+                  openKey="claimant_employer_policy"
                 />
               </div>
               <div className="space-y-2">
                 <Label className="text-sm font-medium">Policy Insuring</Label>
-                <Input
+                <SearchableDropdown
                   value={formData.policy_insuring}
-                  onChange={(e) =>
-                    handleFieldChange("policy_insuring", e.target.value)
-                  }
-                  className="h-10"
+                  onChange={(val) => handleFieldChange("policy_insuring", val)}
+                  options={metaData?.yes_no_option}
+                  placeholder="Select"
+                  openKey="policy_insuring"
                 />
               </div>
             </div>
@@ -1424,7 +1618,7 @@ export default function OCFProdPage() {
           {/* SECTION 9: Vehicle Information */}
           <div className="bg-card rounded-lg shadow-sm border p-6 space-y-6">
             <h2 className="text-xl font-semibold text-foreground border-b pb-3">
-              Vehicle Information
+              Insurance Company 1
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               <div className="space-y-2">
@@ -1487,17 +1681,12 @@ export default function OCFProdPage() {
                 <Label className="text-sm font-medium">
                   Were You Occupant at Time of Accident
                 </Label>
-                <Input
-                  value={
-                    formData.were_you_an_occupant_of_this_automobile_at_the_time_of_the_accident
-                  }
-                  onChange={(e) =>
-                    handleFieldChange(
-                      "were_you_an_occupant_of_this_automobile_at_the_time_of_the_accident",
-                      e.target.value
-                    )
-                  }
-                  className="h-10"
+                <SearchableDropdown
+                  value={formData.were_you_an_occupant_of_this_automobile_at_the_time_of_the_accident}
+                  onChange={(val) => handleFieldChange("were_you_an_occupant_of_this_automobile_at_the_time_of_the_accident", val)}
+                  options={metaData?.yes_no_option}
+                  placeholder="Select"
+                  openKey="were_you_an_occupant_of_this_automobile_at_the_time_of_the_accident"
                 />
               </div>
             </div>
@@ -1511,60 +1700,100 @@ export default function OCFProdPage() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="space-y-2">
                 <Label className="text-sm font-medium">Employed</Label>
-                <Input
+                <SearchableDropdown
                   value={formData.employed}
-                  onChange={(e) =>
-                    handleFieldChange("employed", e.target.value)
-                  }
-                  className="h-10"
+                  onChange={(val) => handleFieldChange("employed", val)}
+                  options={employmentMetadata?.employed}
+                  placeholder="Select"
+                  openKey="employed"
                 />
               </div>
               <div className="space-y-2">
                 <Label className="text-sm font-medium">Not Employed</Label>
-                <Input
+                <SearchableDropdown
                   value={formData.not_employed}
-                  onChange={(e) =>
-                    handleFieldChange("not_employed", e.target.value)
-                  }
-                  className="h-10"
+                  onChange={(val) => handleFieldChange("not_employed", val)}
+                  options={employmentMetadata?.not_employed}
+                  placeholder="Select"
+                  openKey="not_employed"
                 />
               </div>
-              <div className="space-y-2">
-                <Label className="text-sm font-medium">Unemployed And</Label>
-                <Input
-                  value={formData.un_employed_and}
-                  onChange={(e) =>
-                    handleFieldChange("un_employed_and", e.target.value)
+              {formData.not_employed === "Unemployed And" && (
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium">Unemployed And</Label>
+                  <SearchableDropdown
+                    value={formData.un_employed_and}
+                    onChange={(val) => handleFieldChange("un_employed_and", val)}
+                    options={employmentMetadata?.unemployed_and}
+                    placeholder="Select"
+                    openKey="un_employed_and"
+                  />
+                </div>
+              )}
+            </div>
+            {/* New Checkboxes for Student/Graduate & Caregiver */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4">
+              <div className="flex items-center space-x-2">
+                <Checkbox
+                  id="student_or_recent_graduate"
+                  checked={
+                    formData.student_or_recent_graduate === true ||
+                    formData.student_or_recent_graduate === "true"
                   }
-                  className="h-10"
+                  onCheckedChange={(checked) =>
+                    handleFieldChange("student_or_recent_graduate", checked)
+                  }
                 />
+                <Label htmlFor="student_or_recent_graduate">
+                  Student or recent graduate
+                </Label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <Checkbox
+                  id="caregiver"
+                  checked={
+                    formData.caregiver === true || formData.caregiver === "true"
+                  }
+                  onCheckedChange={(checked) =>
+                    handleFieldChange("caregiver", checked)
+                  }
+                />
+                <Label htmlFor="caregiver">Caregiver</Label>
               </div>
             </div>
           </div>
 
-          {/* SECTION 11: School Information */}
+          {/* SECTION 11: STUDENT ATTENDING SCHOOL */}
           <div className="bg-card rounded-lg shadow-sm border p-6 space-y-6">
-            <h2 className="text-xl font-semibold text-foreground border-b pb-3">
-              School Information
+            <h2 className="text-xl font-semibold text-foreground border-b pb-3 uppercase">
+              Student Attending School
             </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              <div className="space-y-2">
-                <Label className="text-sm font-medium">
-                  Claimant Attending School
-                </Label>
-                <Input
+
+            {/* Q1: Was the claimant attending school...? */}
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+              <Label className="text-sm font-medium flex-1">
+                Was the claimant attending school on a full-time basis at the time of the accident or had he/she completed education less than one year before the accident?
+              </Label>
+              <div className="w-full md:w-1/4">
+                <SearchableDropdown
                   value={formData.applicant_status_claimant_attending_school}
-                  onChange={(e) =>
+                  onChange={(val) =>
                     handleFieldChange(
                       "applicant_status_claimant_attending_school",
-                      e.target.value
+                      val
                     )
                   }
-                  className="h-10"
+                  options={metaData?.yes_no_option}
+                  placeholder="Select"
+                  openKey="applicant_status_claimant_attending_school"
                 />
               </div>
+            </div>
+
+            {/* Row 2: School Name, Address, City, Province */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
               <div className="space-y-2">
-                <Label className="text-sm font-medium">School Name</Label>
+                <Label className="text-sm font-medium">Name of School</Label>
                 <Input
                   value={formData.applicant_status_name_of_school}
                   onChange={(e) =>
@@ -1581,10 +1810,7 @@ export default function OCFProdPage() {
                 <Input
                   value={formData.applicant_status_address}
                   onChange={(e) =>
-                    handleFieldChange(
-                      "applicant_status_address",
-                      e.target.value
-                    )
+                    handleFieldChange("applicant_status_address", e.target.value)
                   }
                   className="h-10"
                 />
@@ -1604,14 +1830,15 @@ export default function OCFProdPage() {
                 <Input
                   value={formData.applicant_status_province}
                   onChange={(e) =>
-                    handleFieldChange(
-                      "applicant_status_province",
-                      e.target.value
-                    )
+                    handleFieldChange("applicant_status_province", e.target.value)
                   }
                   className="h-10"
                 />
               </div>
+            </div>
+
+            {/* Row 3: Postal Code, Data Last Attended, Program and Level, Projected Date */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
               <div className="space-y-2">
                 <Label className="text-sm font-medium">Postal Code</Label>
                 <Input
@@ -1626,9 +1853,7 @@ export default function OCFProdPage() {
                 />
               </div>
               <div className="space-y-2">
-                <Label className="text-sm font-medium">
-                  Last Attended Date
-                </Label>
+                <Label className="text-sm font-medium">Date Last Attended</Label>
                 <Input
                   type="date"
                   value={formData.applicant_status_data_last_attended_date}
@@ -1656,7 +1881,7 @@ export default function OCFProdPage() {
               </div>
               <div className="space-y-2">
                 <Label className="text-sm font-medium">
-                  Project Date for Completion
+                  Projected Date for completion
                 </Label>
                 <Input
                   type="date"
@@ -1670,131 +1895,167 @@ export default function OCFProdPage() {
                   className="h-10"
                 />
               </div>
-              <div className="space-y-2">
-                <Label className="text-sm font-medium">
-                  Is Claimant Attending School
-                </Label>
-                <Input
-                  value={
-                    formData.applicant_status_is_the_claimant_attending_school
-                  }
-                  onChange={(e) =>
-                    handleFieldChange(
-                      "applicant_status_is_the_claimant_attending_school",
-                      e.target.value
-                    )
-                  }
-                  className="h-10"
-                />
+            </div>
+
+            {/* Row 4: Is the claimant attending school? */}
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+              <Label className="text-sm font-medium">
+                Is the claimant attending school ?
+              </Label>
+              <div className="flex gap-4 w-full md:w-auto">
+                <div className="w-full md:w-[200px]">
+                  <SearchableDropdown
+                    value={
+                      formData.applicant_status_is_the_claimant_attending_school
+                    }
+                    onChange={(val) =>
+                      handleFieldChange(
+                        "applicant_status_is_the_claimant_attending_school",
+                        val
+                      )
+                    }
+                    options={metaData?.yes_no_option}
+                    placeholder="Select"
+                    openKey="applicant_status_is_the_claimant_attending_school"
+                  />
+                </div>
+                <div className="w-full md:w-[200px]">
+                  <Input
+                    type="date"
+                    value={
+                      formData.applicant_status_is_the_claimant_attending_school_date
+                    }
+                    onChange={(e) =>
+                      handleFieldChange(
+                        "applicant_status_is_the_claimant_attending_school_date",
+                        e.target.value
+                      )
+                    }
+                    className="h-10"
+                  />
+                </div>
               </div>
-              <div className="space-y-2">
-                <Label className="text-sm font-medium">
-                  Attending School Date
-                </Label>
-                <Input
-                  type="date"
-                  value={
-                    formData.applicant_status_is_the_claimant_attending_school_date
-                  }
-                  onChange={(e) =>
-                    handleFieldChange(
-                      "applicant_status_is_the_claimant_attending_school_date",
-                      e.target.value
-                    )
-                  }
-                  className="h-10"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label className="text-sm font-medium">
-                  Was Able to Return to School After Accident
-                </Label>
-                <Input
-                  value={
-                    formData.applicant_status_was_the_claimant_able_to_return_to_school_after_the_accident
-                  }
-                  onChange={(e) =>
-                    handleFieldChange(
-                      "applicant_status_was_the_claimant_able_to_return_to_school_after_the_accident",
-                      e.target.value
-                    )
-                  }
-                  className="h-10"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label className="text-sm font-medium">
-                  Return to School Date
-                </Label>
-                <Input
-                  type="date"
-                  value={
-                    formData.applicant_status_was_the_claimant_able_to_return_to_school_after_the_accident_date
-                  }
-                  onChange={(e) =>
-                    handleFieldChange(
-                      "applicant_status_was_the_claimant_able_to_return_to_school_after_the_accident_date",
-                      e.target.value
-                    )
-                  }
-                  className="h-10"
-                />
+            </div>
+
+            {/* Row 5: Was the claimant able to return to school... */}
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+              <Label className="text-sm font-medium">
+                Was the claimant able to return to school after the accident
+              </Label>
+              <div className="flex gap-4 w-full md:w-auto">
+                <div className="w-full md:w-[200px]">
+                  <SearchableDropdown
+                    value={
+                      formData.applicant_status_was_the_claimant_able_to_return_to_school_after_the_accident
+                    }
+                    onChange={(val) =>
+                      handleFieldChange(
+                        "applicant_status_was_the_claimant_able_to_return_to_school_after_the_accident",
+                        val
+                      )
+                    }
+                    options={metaData?.yes_no_option}
+                    placeholder="Select"
+                    openKey="applicant_status_was_the_claimant_able_to_return_to_school_after_the_accident"
+                  />
+                </div>
+                <div className="w-full md:w-[200px]">
+                  <Input
+                    type="date"
+                    value={
+                      formData.applicant_status_was_the_claimant_able_to_return_to_school_after_the_accident_date
+                    }
+                    onChange={(e) =>
+                      handleFieldChange(
+                        "applicant_status_was_the_claimant_able_to_return_to_school_after_the_accident_date",
+                        e.target.value
+                      )
+                    }
+                    className="h-10"
+                  />
+                </div>
               </div>
             </div>
           </div>
 
-          {/* SECTION 12: Caregiver Information */}
+          {/* SECTION 12: CAREGIVER */}
           <div className="bg-card rounded-lg shadow-sm border p-6 space-y-6">
-            <h2 className="text-xl font-semibold text-foreground border-b pb-3">
-              Caregiver Information
+            <h2 className="text-xl font-semibold text-foreground border-b pb-3 uppercase">
+              Caregiver
             </h2>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label className="text-sm font-medium">
-                  Caregiver At Time of Accident
-                </Label>
-                <Input
+            {/* Q1 */}
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+              <Label className="text-sm font-medium flex-1">
+                Was the claimant the main caregiver to people with him / her at the
+                time of the accident
+              </Label>
+              <div className="w-full md:w-1/4">
+                <SearchableDropdown
                   value={formData.caregiver_him_her_at_the_time_accident}
-                  onChange={(e) =>
+                  onChange={(val) =>
                     handleFieldChange(
                       "caregiver_him_her_at_the_time_accident",
-                      e.target.value
+                      val
                     )
                   }
-                  className="h-10"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label className="text-sm font-medium">
-                  Claimant Paid to Provide Care
-                </Label>
-                <Input
-                  value={
-                    formData.caregiver_claimant_paid_to_provide_care_to_these_people
-                  }
-                  onChange={(e) =>
-                    handleFieldChange(
-                      "caregiver_claimant_paid_to_provide_care_to_these_people",
-                      e.target.value
-                    )
-                  }
-                  className="h-10"
+                  options={metaData?.yes_no_option}
+                  placeholder="Select"
+                  openKey="caregiver_him_her_at_the_time_accident"
                 />
               </div>
             </div>
 
-            {[0, 1, 2, 3, 4].map((index) => (
-              <div
-                key={index}
-                className="bg-muted rounded-lg p-4 space-y-4 border"
-              >
-                <h3 className="font-medium text-foreground">
-                  Caregiver #{index + 1}
-                </h3>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div className="space-y-2">
-                    <Label className="text-sm font-medium">Name</Label>
+            {/* Q2 */}
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+              <Label className="text-sm font-medium flex-1">
+                Was the claimant paid to provide care to these people ?
+              </Label>
+              <div className="w-full md:w-1/4">
+                <SearchableDropdown
+                  value={
+                    formData.caregiver_claimant_paid_to_provide_care_to_these_people
+                  }
+                  onChange={(val) =>
+                    handleFieldChange(
+                      "caregiver_claimant_paid_to_provide_care_to_these_people",
+                      val
+                    )
+                  }
+                  options={metaData?.yes_no_option}
+                  placeholder="Select"
+                  openKey="caregiver_claimant_paid_to_provide_care_to_these_people"
+                />
+              </div>
+            </div>
+
+            {/* List of People */}
+            <div className="space-y-4 pt-4">
+              <h3 className="font-medium text-foreground">
+                List of people the claimant has taken care of at the time of the
+                accident
+              </h3>
+              <div className="grid grid-cols-12 gap-4">
+                <div className="col-span-5 md:col-span-6">
+                  <Label className="text-sm font-medium text-muted-foreground">
+                    Name
+                  </Label>
+                </div>
+                <div className="col-span-4 md:col-span-3">
+                  <Label className="text-sm font-medium text-muted-foreground">
+                    Date of Birth
+                  </Label>
+                </div>
+                <div className="col-span-3 md:col-span-3">
+                  <Label className="text-sm font-medium text-muted-foreground">
+                    Disabled?
+                  </Label>
+                </div>
+              </div>
+
+              {[0, 1, 2, 3, 4].map((index) => (
+                <div key={index} className="grid grid-cols-12 gap-4 items-center">
+                  <div className="col-span-5 md:col-span-6">
                     <Input
                       value={formData.caregiver_name[index] || ""}
                       onChange={(e) =>
@@ -1807,8 +2068,7 @@ export default function OCFProdPage() {
                       className="h-10"
                     />
                   </div>
-                  <div className="space-y-2">
-                    <Label className="text-sm font-medium">Date</Label>
+                  <div className="col-span-4 md:col-span-3">
                     <Input
                       type="date"
                       value={formData.caregiver_date[index] || ""}
@@ -1822,147 +2082,231 @@ export default function OCFProdPage() {
                       className="h-10"
                     />
                   </div>
-                  <div className="space-y-2">
-                    <Label className="text-sm font-medium">Disabled</Label>
-                    <Input
+                  <div className="col-span-3 md:col-span-3">
+                    <SearchableDropdown
                       value={formData.caregiver_disabled[index] || ""}
-                      onChange={(e) =>
-                        handleArrayFieldChange(
-                          "caregiver_disabled",
-                          index,
-                          e.target.value
-                        )
+                      onChange={(val) =>
+                        handleArrayFieldChange("caregiver_disabled", index, val)
                       }
-                      placeholder="Yes/No"
-                      className="h-10"
+                      options={metaData?.yes_no_option}
+                      placeholder="Select"
+                      openKey={`caregiver_disabled_${index}`}
                     />
                   </div>
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label className="text-sm font-medium">
-                  Patient Suffer Substantial to Engage in Caregiving
+            {/* Bottom Section */}
+            <div className="space-y-6 pt-4 border-t mt-4">
+              {/* Q3 */}
+              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <Label className="text-sm font-medium flex-1">
+                  As a result of patient`s injuries does the patient suffer a
+                  substantial inability to engage in the caregiving activities in which he/she
+                  engaged at the time of the accident ?
                 </Label>
-                <Input
-                  value={
-                    formData.patient_suffer_a_substantial_to_engage_in_the_caregiving
-                  }
-                  onChange={(e) =>
-                    handleFieldChange(
-                      "patient_suffer_a_substantial_to_engage_in_the_caregiving",
-                      e.target.value
-                    )
-                  }
-                  className="h-10"
-                />
+                <div className="w-full md:w-1/4">
+                  <SearchableDropdown
+                    value={
+                      formData.patient_suffer_a_substantial_to_engage_in_the_caregiving
+                    }
+                    onChange={(val) =>
+                      handleFieldChange(
+                        "patient_suffer_a_substantial_to_engage_in_the_caregiving",
+                        val
+                      )
+                    }
+                    options={metaData?.yes_no_option}
+                    placeholder="Select"
+                    openKey="patient_suffer_a_substantial_to_engage_in_the_caregiving"
+                  />
+                </div>
               </div>
+
+              {/* Q4 */}
+              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <Label className="text-sm font-medium flex-1">
+                  if yes to above, indicate the date and explain below
+                </Label>
+                <div className="w-full md:w-1/4">
+                  <Input
+                    type="date"
+                    value={
+                      formData.caregiver_if_yes_to_above_indicate_the_date_and_explain_below
+                    }
+                    onChange={(e) =>
+                      handleFieldChange(
+                        "caregiver_if_yes_to_above_indicate_the_date_and_explain_below",
+                        e.target.value
+                      )
+                    }
+                    className="h-10"
+                  />
+                </div>
+              </div>
+
+              {/* Explain Below Textarea */}
               <div className="space-y-2">
-                <Label className="text-sm font-medium">Indicate Date</Label>
-                <Input
-                  value={
-                    formData.caregiver_if_yes_to_above_indicate_the_date_and_explain_below
-                  }
-                  onChange={(e) =>
-                    handleFieldChange(
-                      "caregiver_if_yes_to_above_indicate_the_date_and_explain_below",
-                      e.target.value
-                    )
-                  }
-                  className="h-10"
-                />
-              </div>
-              <div className="space-y-2 md:col-span-2">
-                <Label className="text-sm font-medium">Explain Below</Label>
                 <Textarea
                   value={formData.caregiver_explain_below}
                   onChange={(e) =>
                     handleFieldChange("caregiver_explain_below", e.target.value)
                   }
-                  rows={3}
-                  className="resize-none"
+                  className="min-h-[100px]"
                 />
               </div>
-              <div className="space-y-2">
-                <Label className="text-sm font-medium">
-                  Did Claimant Return to Caregiving After Accident
+
+              {/* Q5 */}
+              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <Label className="text-sm font-medium flex-1">
+                  Did claimant return to caregiving after the accident
                 </Label>
-                <Input
-                  value={
-                    formData.caregiver_did_claimant_return_to_caregiving_after_the_accident
-                  }
-                  onChange={(e) =>
-                    handleFieldChange(
-                      "caregiver_did_claimant_return_to_caregiving_after_the_accident",
-                      e.target.value
-                    )
-                  }
-                  className="h-10"
-                />
+                <div className="w-full md:w-1/4">
+                  <SearchableDropdown
+                    value={
+                      formData.caregiver_did_claimant_return_to_caregiving_after_the_accident
+                    }
+                    onChange={(val) =>
+                      handleFieldChange(
+                        "caregiver_did_claimant_return_to_caregiving_after_the_accident",
+                        val
+                      )
+                    }
+                    options={metaData?.yes_no_option}
+                    placeholder="Select"
+                    openKey="caregiver_did_claimant_return_to_caregiving_after_the_accident"
+                  />
+                </div>
               </div>
-              <div className="space-y-2">
-                <Label className="text-sm font-medium">Return Date</Label>
-                <Input
-                  value={formData.caregiver_if_yes_to_above_inicate_return_date}
-                  onChange={(e) =>
-                    handleFieldChange(
-                      "caregiver_if_yes_to_above_inicate_return_date",
-                      e.target.value
-                    )
-                  }
-                  className="h-10"
-                />
+
+              {/* Q6 */}
+              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <Label className="text-sm font-medium flex-1">
+                  if yes to above , indicate return date
+                </Label>
+                <div className="w-full md:w-1/4">
+                  <Input
+                    type="date"
+                    value={
+                      formData.caregiver_if_yes_to_above_inicate_return_date
+                    }
+                    onChange={(e) =>
+                      handleFieldChange(
+                        "caregiver_if_yes_to_above_inicate_return_date",
+                        e.target.value
+                      )
+                    }
+                    className="h-10"
+                  />
+                </div>
+              </div>
+
+              {/* Additional Sheets Attached 2 */}
+              <div className="flex justify-end pt-2">
+                <div className="flex items-center space-x-2">
+                  <Label
+                    htmlFor="caregiver_additional_sheets_attached_2"
+                    className="font-normal text-muted-foreground"
+                  >
+                    Additional Sheets Attached
+                  </Label>
+                  <Checkbox
+                    id="caregiver_additional_sheets_attached_2"
+                    checked={
+                      formData.caregiver_additional_sheets_attached_2 === true ||
+                      formData.caregiver_additional_sheets_attached_2 === "true"
+                    }
+                    onCheckedChange={(checked) =>
+                      handleFieldChange(
+                        "caregiver_additional_sheets_attached_2",
+                        checked
+                      )
+                    }
+                  />
+                </div>
               </div>
             </div>
           </div>
 
           {/* SECTION 13: Employment Information */}
           <div className="bg-card rounded-lg shadow-sm border p-6 space-y-6">
-            <h2 className="text-xl font-semibold text-foreground border-b pb-3">
-              Employment Information
+            <h2 className="text-xl font-semibold text-foreground border-b pb-3 uppercase">
+              INCOME REPLACEMENT DETERMINATION (DETAILS OF CLAIMANT'S EMPLOYMENT FOR THE PAST 52 WEEKS)
             </h2>
 
-            {[0, 1, 2, 3, 4].map((index) => (
-              <div
-                key={index}
-                className="bg-muted rounded-lg p-4 space-y-4 border"
-              >
-                <h3 className="font-medium text-foreground">
-                  Employment #{index + 1}
-                </h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  <div className="space-y-2">
-                    <Label className="text-sm font-medium">Date From</Label>
-                    <Input
-                      type="date"
-                      value={formData.date_from[index] || ""}
-                      onChange={(e) =>
-                        handleArrayFieldChange(
-                          "date_from",
-                          index,
-                          e.target.value
-                        )
-                      }
-                      className="h-10"
-                    />
+            {/* Table Header */}
+            <div className="hidden md:grid grid-cols-12 gap-2 text-center items-end bg-muted/50 p-2 rounded">
+              <div className="col-span-3">
+                <Label className="text-sm font-semibold">
+                  Date (Year/Month/Day) <br /> From To
+                </Label>
+              </div>
+              <div className="col-span-3 border-l border-indigo-500 pl-2">
+                <Label className="text-sm font-semibold">
+                  Name and address of Most Recent Employer
+                </Label>
+              </div>
+              <div className="col-span-2 border-l border-indigo-500 pl-2">
+                <Label className="text-sm font-semibold">
+                  Position / Essential Task
+                </Label>
+              </div>
+              <div className="col-span-2 border-l border-indigo-500 pl-2">
+                <Label className="text-sm font-semibold">
+                  No. of Hours Per Week
+                </Label>
+              </div>
+              <div className="col-span-2 border-l border-indigo-500 pl-2">
+                <Label className="text-sm font-semibold">
+                  Gross Income for the Period
+                </Label>
+              </div>
+            </div>
+
+            {/* Table Rows */}
+            <div className="space-y-2">
+              {[0, 1, 2, 3, 4].map((index) => (
+                <div
+                  key={index}
+                  className="grid grid-cols-12 gap-2 items-center border-b md:border-none pb-4 md:pb-0"
+                >
+                  {/* Mobile Headers */}
+                  <div className="col-span-12 md:hidden">
+                    <h3 className="font-medium text-foreground py-2">
+                      Employment Details #{index + 1}
+                    </h3>
                   </div>
-                  <div className="space-y-2">
-                    <Label className="text-sm font-medium">Date To</Label>
-                    <Input
-                      type="date"
-                      value={formData.date_to[index] || ""}
-                      onChange={(e) =>
-                        handleArrayFieldChange("date_to", index, e.target.value)
-                      }
-                      className="h-10"
-                    />
+
+                  {/* Date From/To */}
+                  <div className="col-span-12 md:col-span-3 flex gap-4 pr-2">
+                    <div className="flex-1">
+                      <DatePicker
+                        value={formData.date_from[index] || ""}
+                        onChange={(val) =>
+                          handleArrayFieldChange("date_from", index, val)
+                        }
+                        placeholder="Pick a date"
+                        openKey={`date_from_${index}`}
+                      />
+                    </div>
+                    <div className="flex-1">
+                      <DatePicker
+                        value={formData.date_to[index] || ""}
+                        onChange={(val) =>
+                          handleArrayFieldChange("date_to", index, val)
+                        }
+                        placeholder="Pick a date"
+                        openKey={`date_to_${index}`}
+                      />
+                    </div>
                   </div>
-                  <div className="space-y-2">
-                    <Label className="text-sm font-medium">
-                      Employer Name/Address
-                    </Label>
+
+                  {/* Employer Name/Address */}
+                  <div className="col-span-12 md:col-span-3 border-l border-indigo-500 pl-2">
+                    <div className="md:hidden">
+                      <Label className="text-xs">Employer</Label>
+                    </div>
                     <Input
                       value={formData.employer_name_address[index] || ""}
                       onChange={(e) =>
@@ -1975,8 +2319,12 @@ export default function OCFProdPage() {
                       className="h-10"
                     />
                   </div>
-                  <div className="space-y-2">
-                    <Label className="text-sm font-medium">Position/Task</Label>
+
+                  {/* Position */}
+                  <div className="col-span-12 md:col-span-2 border-l border-indigo-500 pl-2">
+                    <div className="md:hidden">
+                      <Label className="text-xs">Position</Label>
+                    </div>
                     <Input
                       value={formData.position_task[index] || ""}
                       onChange={(e) =>
@@ -1989,10 +2337,12 @@ export default function OCFProdPage() {
                       className="h-10"
                     />
                   </div>
-                  <div className="space-y-2">
-                    <Label className="text-sm font-medium">
-                      Hours Per Week
-                    </Label>
+
+                  {/* Hours */}
+                  <div className="col-span-12 md:col-span-2 border-l border-indigo-500 pl-2">
+                    <div className="md:hidden">
+                      <Label className="text-xs">Hours</Label>
+                    </div>
                     <Input
                       value={formData.hours_per_week[index] || ""}
                       onChange={(e) =>
@@ -2005,8 +2355,12 @@ export default function OCFProdPage() {
                       className="h-10"
                     />
                   </div>
-                  <div className="space-y-2">
-                    <Label className="text-sm font-medium">Gross Income</Label>
+
+                  {/* Gross Income */}
+                  <div className="col-span-12 md:col-span-2 border-l border-indigo-500 pl-2">
+                    <div className="md:hidden">
+                      <Label className="text-xs">Gross Income</Label>
+                    </div>
                     <Input
                       value={formData.gross_income[index] || ""}
                       onChange={(e) =>
@@ -2016,123 +2370,191 @@ export default function OCFProdPage() {
                           e.target.value
                         )
                       }
+                      placeholder="$0.00"
                       className="h-10"
                     />
                   </div>
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label className="text-sm font-medium">
-                  Income Injuries Private From Working
+            {/* Additional Sheets Attached */}
+            <div className="flex justify-end pt-2">
+              <div className="flex items-center space-x-2">
+                <Label
+                  htmlFor="employment_additional_sheets_attached"
+                  className="font-normal text-muted-foreground"
+                >
+                  Additional Sheets Attached
                 </Label>
-                <Input
-                  value={formData.income_injuries_private_him_her_from_working}
-                  onChange={(e) =>
-                    handleFieldChange(
-                      "income_injuries_private_him_her_from_working",
-                      e.target.value
-                    )
+                <Checkbox
+                  id="employment_additional_sheets_attached"
+                  checked={
+                    formData.employment_additional_sheets_attached === true ||
+                    formData.employment_additional_sheets_attached === "true"
                   }
-                  className="h-10"
+                  onCheckedChange={(checked) =>
+                    handleFieldChange("employment_additional_sheets_attached", checked)
+                  }
                 />
               </div>
-              <div className="space-y-2">
-                <Label className="text-sm font-medium">
-                  Income Form What Date
+            </div>
+
+            {/* Bottom Section */}
+            <div className="space-y-6 pt-4 border-t mt-4">
+              {/* Q1 */}
+              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <Label className="text-sm font-medium flex-1">
+                  Do the claimant`s injuries prevent him/her from working
                 </Label>
-                <Input
-                  type="date"
-                  value={formData.income_form_what_date}
-                  onChange={(e) =>
-                    handleFieldChange("income_form_what_date", e.target.value)
-                  }
-                  className="h-10"
-                />
+                <div className="w-full md:w-1/4">
+                  <SearchableDropdown
+                    value={
+                      formData.income_injuries_private_him_her_from_working
+                    }
+                    onChange={(val) =>
+                      handleFieldChange(
+                        "income_injuries_private_him_her_from_working",
+                        val
+                      )
+                    }
+                    options={metaData?.yes_no_option}
+                    placeholder="Select"
+                    openKey="income_injuries_private_him_her_from_working"
+                  />
+                </div>
               </div>
-              <div className="space-y-2">
-                <Label className="text-sm font-medium">
-                  Were You Able to Return to Work Since Accident
+
+              {/* Q2 */}
+              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <Label className="text-sm font-medium flex-1">
+                  From what date ?
                 </Label>
-                <Input
-                  value={
-                    formData.were_you_able_to_return_to_work_since_the_accident
-                  }
-                  onChange={(e) =>
-                    handleFieldChange(
-                      "were_you_able_to_return_to_work_since_the_accident",
-                      e.target.value
-                    )
-                  }
-                  className="h-10"
-                />
+                <div className="w-full md:w-1/4">
+                  <Input
+                    type="date"
+                    value={formData.income_form_what_date}
+                    onChange={(e) =>
+                      handleFieldChange(
+                        "income_form_what_date",
+                        e.target.value
+                      )
+                    }
+                    className="h-10"
+                  />
+                </div>
               </div>
-              <div className="space-y-2">
-                <Label className="text-sm font-medium">Income When Date</Label>
-                <Input
-                  type="date"
-                  value={formData.income_when_date}
-                  onChange={(e) =>
-                    handleFieldChange("income_when_date", e.target.value)
-                  }
-                  className="h-10"
-                />
-              </div>
-              <div className="space-y-2 md:col-span-2">
-                <Label className="text-sm font-medium">
-                  Amount of Claimants Benefit Based on Past Income
+
+              {/* Q3 */}
+              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <Label className="text-sm font-medium flex-1">
+                  At any period since the accident, were you able to return to work since the accident?
                 </Label>
-                <Input
-                  value={
-                    formData.The_amount_of_claimants_benefit_id_based_on_his_her_past_income
-                  }
-                  onChange={(e) =>
-                    handleFieldChange(
-                      "The_amount_of_claimants_benefit_id_based_on_his_her_past_income",
-                      e.target.value
-                    )
-                  }
-                  className="h-10"
-                />
+                <div className="w-full md:w-1/4">
+                  <SearchableDropdown
+                    value={
+                      formData.were_you_able_to_return_to_work_since_the_accident
+                    }
+                    onChange={(val) =>
+                      handleFieldChange(
+                        "were_you_able_to_return_to_work_since_the_accident",
+                        val
+                      )
+                    }
+                    options={metaData?.yes_no_option}
+                    placeholder="Select"
+                    openKey="were_you_able_to_return_to_work_since_the_accident"
+                  />
+                </div>
+              </div>
+
+              {/* Q4 */}
+              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <Label className="text-sm font-medium flex-1">
+                  When ?
+                </Label>
+                <div className="w-full md:w-1/4">
+                  <Input
+                    type="date"
+                    value={formData.income_when_date}
+                    onChange={(e) =>
+                      handleFieldChange("income_when_date", e.target.value)
+                    }
+                    className="h-10"
+                  />
+                </div>
+              </div>
+
+              {/* Q5 */}
+              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <Label className="text-sm font-medium flex-1">
+                  The amount of claimant`s benefit is based on his/her past income . During which of the following periods did he/she have the highest average weekly income ?
+                </Label>
+                <div className="w-full md:w-1/4">
+                  <SearchableDropdown
+                    value={
+                      formData.The_amount_of_claimants_benefit_id_based_on_his_her_past_income
+                    }
+                    onChange={(val) =>
+                      handleFieldChange(
+                        "The_amount_of_claimants_benefit_id_based_on_his_her_past_income",
+                        val
+                      )
+                    }
+                    options={metaData?.yes_no_option}
+                    placeholder="Select"
+                    openKey="The_amount_of_claimants_benefit_id_based_on_his_her_past_income"
+                  />
+                </div>
               </div>
             </div>
           </div>
 
           {/* SECTION 14: Other Insurance & Benefits */}
           <div className="bg-card rounded-lg shadow-sm border p-6 space-y-6">
-            <h2 className="text-xl font-semibold text-foreground border-b pb-3">
-              Other Insurance & Benefits
+            <h2 className="text-xl font-semibold text-foreground border-b pb-3 uppercase">
+              OTHER INSURANCE OR COLLATERAL PAYMENTS
             </h2>
 
-            <div className="space-y-2">
-              <Label className="text-sm font-medium">
-                Other Insurance or Spouse Dependent
+            {/* Q1: Other Benefit Plan */}
+            <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
+              <Label className="text-sm font-medium flex-1 pt-2">
+                Does the applicant his /her spouse or anyone he/she is dependent
+                on (e.g parents) have any other benefit plan that covers
+                him/her (e.g group or private,union disability medical or dental
+                etc ?
               </Label>
-              <Input
-                value={formData.other_insurance_or_spouse_dependent}
-                onChange={(e) =>
-                  handleFieldChange(
-                    "other_insurance_or_spouse_dependent",
-                    e.target.value
-                  )
-                }
-                className="h-10"
-              />
+              <div className="w-full md:w-1/4">
+                <SearchableDropdown
+                  value={formData.other_insurance_or_spouse_dependent}
+                  onChange={(val) =>
+                    handleFieldChange("other_insurance_or_spouse_dependent", val)
+                  }
+                  options={metaData?.yes_no_option}
+                  placeholder="Select"
+                  openKey="other_insurance_or_spouse_dependent"
+                />
+              </div>
             </div>
 
-            {[0, 1].map((index) => (
-              <div
-                key={index}
-                className="bg-muted rounded-lg p-4 space-y-4 border"
-              >
-                <h3 className="font-medium text-foreground">
-                  Benefit #{index + 1}
-                </h3>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div className="space-y-2">
-                    <Label className="text-sm font-medium">
+            {/* Benefit Payer Grid */}
+            <div className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <Label className="hidden md:block text-sm font-medium">
+                  Name of Benefit Payer
+                </Label>
+                <Label className="hidden md:block text-sm font-medium">
+                  Type of Coverage
+                </Label>
+                <Label className="hidden md:block text-sm font-medium">
+                  Policy or Certificate No
+                </Label>
+              </div>
+
+              {[0, 1].map((index) => (
+                <div key={index} className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="space-y-2 md:space-y-0">
+                    <Label className="md:hidden text-sm font-medium">
                       Name of Benefit Payer
                     </Label>
                     <Input
@@ -2147,8 +2569,8 @@ export default function OCFProdPage() {
                       className="h-10"
                     />
                   </div>
-                  <div className="space-y-2">
-                    <Label className="text-sm font-medium">
+                  <div className="space-y-2 md:space-y-0">
+                    <Label className="md:hidden text-sm font-medium">
                       Type of Coverage
                     </Label>
                     <Input
@@ -2163,9 +2585,9 @@ export default function OCFProdPage() {
                       className="h-10"
                     />
                   </div>
-                  <div className="space-y-2">
-                    <Label className="text-sm font-medium">
-                      Policy or Certificate No
+                  <div className="space-y-2 md:space-y-0">
+                    <Label className="md:hidden text-sm font-medium">
+                      Policy or Certifucate No
                     </Label>
                     <Input
                       value={formData.policy_or_certifucate_no[index] || ""}
@@ -2180,131 +2602,167 @@ export default function OCFProdPage() {
                     />
                   </div>
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              <div className="space-y-2">
-                <Label className="text-sm font-medium">
-                  Other Disability Benefit Plan
+            {/* Q2: Disability Income */}
+            <div className="space-y-4">
+              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <Label className="text-sm font-medium flex-1">
+                  During the past 52 weeks , did the claimant receive any income
+                  from a disability benefit Plan
                 </Label>
-                <Input
-                  value={formData.other_disability_benift_plan}
-                  onChange={(e) =>
-                    handleFieldChange(
-                      "other_disability_benift_plan",
-                      e.target.value
-                    )
-                  }
-                  className="h-10"
-                />
+                <div className="w-full md:w-1/4">
+                  <SearchableDropdown
+                    value={formData.other_disability_benift_plan}
+                    onChange={(val) =>
+                      handleFieldChange("other_disability_benift_plan", val)
+                    }
+                    options={metaData?.yes_no_option}
+                    placeholder="Select"
+                    openKey="other_disability_benift_plan"
+                  />
+                </div>
               </div>
-              <div className="space-y-2">
-                <Label className="text-sm font-medium">Other Form Date</Label>
-                <Input
-                  type="date"
-                  value={formData.other_form_date}
-                  onChange={(e) =>
-                    handleFieldChange("other_form_date", e.target.value)
-                  }
-                  className="h-10"
-                />
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium">From Date</Label>
+                  <DatePicker
+                    value={formData.other_form_date}
+                    onChange={(val) => handleFieldChange("other_form_date", val)}
+                    placeholder="dd/mm/yyyy"
+                    openKey="other_form_date"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium">To Date</Label>
+                  <DatePicker
+                    value={formData.other_to_date}
+                    onChange={(val) => handleFieldChange("other_to_date", val)}
+                    placeholder="dd/mm/yyyy"
+                    openKey="other_to_date"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium">
+                    Total Amount Received
+                  </Label>
+                  <Input
+                    value={formData.other_total_amount_recived}
+                    onChange={(e) =>
+                      handleFieldChange(
+                        "other_total_amount_recived",
+                        e.target.value
+                      )
+                    }
+                    className="h-10"
+                  />
+                </div>
               </div>
-              <div className="space-y-2">
-                <Label className="text-sm font-medium">Other To Date</Label>
-                <Input
-                  type="date"
-                  value={formData.other_to_date}
-                  onChange={(e) =>
-                    handleFieldChange("other_to_date", e.target.value)
-                  }
-                  className="h-10"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label className="text-sm font-medium">
-                  Other Total Amount Received
+            </div>
+
+            {/* Q3: Employment Insurance */}
+            <div className="space-y-4">
+              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <Label className="text-sm font-medium flex-1">
+                  Is the claimant receiving Employment Insurance Benefit ?
                 </Label>
-                <Input
-                  value={formData.other_total_amount_recived}
-                  onChange={(e) =>
-                    handleFieldChange(
-                      "other_total_amount_recived",
-                      e.target.value
-                    )
-                  }
-                  className="h-10"
-                />
+                <div className="w-full md:w-1/4">
+                  <SearchableDropdown
+                    value={formData.other_receiving_employment_insurance}
+                    onChange={(val) =>
+                      handleFieldChange(
+                        "other_receiving_employment_insurance",
+                        val
+                      )
+                    }
+                    options={metaData?.yes_no_option}
+                    placeholder="Select"
+                    openKey="other_receiving_employment_insurance"
+                  />
+                </div>
               </div>
-              <div className="space-y-2">
-                <Label className="text-sm font-medium">
-                  Receiving Employment Insurance
-                </Label>
-                <Input
-                  value={formData.other_receiving_employment_insurance}
-                  onChange={(e) =>
-                    handleFieldChange(
-                      "other_receiving_employment_insurance",
-                      e.target.value
-                    )
-                  }
-                  className="h-10"
-                />
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium">From Date</Label>
+                  <DatePicker
+                    value={formData.other_form_date1}
+                    onChange={(val) => handleFieldChange("other_form_date1", val)}
+                    placeholder="dd/mm/yyyy"
+                    openKey="other_form_date1"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium">To Date</Label>
+                  <DatePicker
+                    value={formData.other_to_date1}
+                    onChange={(val) => handleFieldChange("other_to_date1", val)}
+                    placeholder="dd/mm/yyyy"
+                    openKey="other_to_date1"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium">
+                    Total Amount Received
+                  </Label>
+                  <Input
+                    value={formData.other_total_amount_recived1}
+                    onChange={(e) =>
+                      handleFieldChange(
+                        "other_total_amount_recived1",
+                        e.target.value
+                      )
+                    }
+                    className="h-10"
+                  />
+                </div>
               </div>
-              <div className="space-y-2">
-                <Label className="text-sm font-medium">
-                  Employment Insurance From Date
-                </Label>
-                <Input
-                  type="date"
-                  value={formData.other_form_date1}
-                  onChange={(e) =>
-                    handleFieldChange("other_form_date1", e.target.value)
-                  }
-                  className="h-10"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label className="text-sm font-medium">
-                  Employment Insurance To Date
-                </Label>
-                <Input
-                  type="date"
-                  value={formData.other_to_date1}
-                  onChange={(e) =>
-                    handleFieldChange("other_to_date1", e.target.value)
-                  }
-                  className="h-10"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label className="text-sm font-medium">
-                  Employment Insurance Total Amount
-                </Label>
-                <Input
-                  value={formData.other_total_amount_recived1}
-                  onChange={(e) =>
-                    handleFieldChange(
-                      "other_total_amount_recived1",
-                      e.target.value
-                    )
-                  }
-                  className="h-10"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label className="text-sm font-medium">
-                  Receiving Social Assistance Benefits
-                </Label>
-                <Input
+            </div>
+
+            {/* Q4: Social Assistance */}
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+              <Label className="text-sm font-medium flex-1">
+                Is the claimant receiving Social Assistance Benefits (Welfare) ?
+              </Label>
+              <div className="w-full md:w-1/4">
+                <SearchableDropdown
                   value={formData.other_receiving_social_assistance_benfits}
-                  onChange={(e) =>
+                  onChange={(val) =>
                     handleFieldChange(
                       "other_receiving_social_assistance_benfits",
-                      e.target.value
+                      val
                     )
                   }
-                  className="h-10"
+                  options={metaData?.yes_no_option}
+                  placeholder="Select"
+                  openKey="other_receiving_social_assistance_benfits"
+                />
+              </div>
+            </div>
+
+            {/* Additional Sheets Attached */}
+            <div className="flex justify-end pt-2">
+              <div className="flex items-center space-x-2">
+                <Label
+                  htmlFor="other_insurance_additional_sheets"
+                  className="font-normal text-muted-foreground"
+                >
+                  Additional Sheets Attached
+                </Label>
+                <Checkbox
+                  id="other_insurance_additional_sheets"
+                  checked={
+                    formData.other_insurance_additional_sheets === true ||
+                    formData.other_insurance_additional_sheets === "true"
+                  }
+                  onCheckedChange={(checked) =>
+                    handleFieldChange(
+                      "other_insurance_additional_sheets",
+                      checked
+                    )
+                  }
                 />
               </div>
             </div>
@@ -2362,6 +2820,6 @@ export default function OCFProdPage() {
           </div>
         </form>
       </main>
-    </div>
+    </div >
   );
 }

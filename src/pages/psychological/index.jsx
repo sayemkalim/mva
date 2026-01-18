@@ -52,7 +52,7 @@ const Psychological = () => {
   return (
     <div className="flex flex-col">
       <Navbar2 />
-      <Billing/>
+      <Billing />
       <NavbarItem title="Psychological" breadcrumbs={breadcrumbs} />
 
       <div className="px-4">

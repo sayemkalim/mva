@@ -50,7 +50,7 @@ export function Navbar2() {
   const { theme, setTheme } = useTheme();
   const [loadingAction, setLoadingAction] = useState({});
   const [selectedIds, setSelectedIds] = useState([]);
-  const [notificationFilter, setNotificationFilter] = useState("all"); 
+  const [notificationFilter, setNotificationFilter] = useState("all");
   const [selectedNotification, setSelectedNotification] = useState(null);
   const [dialogOpen, setDialogOpen] = useState(false);
 
@@ -270,7 +270,7 @@ export function Navbar2() {
   const notificationCount = unreadCountData || allNotifications?.length || 0;
 
   return (
-    <nav className="flex items-center justify-between px-4 py-2 bg-muted">
+    <nav className="sticky top-0 z-50 w-full flex items-center justify-between px-4 py-2 bg-muted border-b">
       {/* Left side: SidebarTrigger */}
       <div className="flex items-center">
         <SidebarTrigger className="mr-4" />
@@ -403,7 +403,7 @@ export function Navbar2() {
                     type="checkbox"
                     checked={
                       selectedIds.length ===
-                        filteredNotifications.filter((n) => !n.is_read).length &&
+                      filteredNotifications.filter((n) => !n.is_read).length &&
                       selectedIds.length > 0
                     }
                     onChange={(e) => {
@@ -456,19 +456,18 @@ export function Navbar2() {
                     {notificationFilter === "all"
                       ? "No notifications yet"
                       : notificationFilter === "action"
-                      ? "No action notifications"
-                      : "No normal notifications"}
+                        ? "No action notifications"
+                        : "No normal notifications"}
                   </p>
                 </div>
               ) : (
                 filteredNotifications.map((n) => (
                   <div
                     key={n.notificationId || n.id}
-                    className={`p-3 rounded-lg border transition-colors ${
-                      n.is_read
+                    className={`p-3 rounded-lg border transition-colors ${n.is_read
                         ? "bg-muted border-gray-200"
                         : "bg-blue-50 border-blue-200"
-                    } hover:bg-gray-100`}
+                      } hover:bg-gray-100`}
                   >
                     <div className="flex items-start gap-3">
                       {/* Checkbox for unread notifications */}
@@ -521,7 +520,7 @@ export function Navbar2() {
                               className="bg-blue-500 hover:bg-blue-600 text-white text-xs px-4 py-1 h-7"
                             >
                               {loadingAction[n.id || n.notificationId] ===
-                              "accept"
+                                "accept"
                                 ? "..."
                                 : "Accept"}
                             </Button>
@@ -535,7 +534,7 @@ export function Navbar2() {
                               className="bg-red-500 hover:bg-red-600 text-white text-xs px-4 py-1 h-7"
                             >
                               {loadingAction[n.id || n.notificationId] ===
-                              "reject"
+                                "reject"
                                 ? "..."
                                 : "Reject"}
                             </Button>
@@ -600,8 +599,8 @@ export function Navbar2() {
             theme === "light"
               ? "Switch to Dark Mode"
               : theme === "dark"
-              ? "Switch to Light Mode"
-              : "Switch to Light/Dark Mode"
+                ? "Switch to Light Mode"
+                : "Switch to Light/Dark Mode"
           }
         >
           <Button

@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { format, isValid } from "date-fns";
 import ActionMenu from "@/components/action_menu";
-import { Pencil, Printer, Trash2 } from "lucide-react";
+import { Import, Pencil, Printer, Trash2 } from "lucide-react";
 import CustomTable from "@/components/custom_table";
 import Typography from "@/components/typography";
 import { useEffect, useState } from "react";
@@ -155,6 +155,12 @@ const PsychologicalTable = ({ slug, setBlogsLength }) => {
 
   return (
     <>
+      <div className="flex justify-end mb-4">
+        <Button variant="outline" className="gap-2">
+          <Import className="h-4 w-4" />
+          Import
+        </Button>
+      </div>
       <CustomTable
         columns={columns}
         data={sections}
