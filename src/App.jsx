@@ -6,13 +6,14 @@ import NotificationContainer from "./components/notification-container";
 
 const App = () => {
   return (
-    <ThemeProvider>
-      <NotificationProvider>
-        <Toaster position="top-center" richColors />
-        <NotificationContainer />
-        <Router />
-      </NotificationProvider>
-    </ThemeProvider>
+    // <ThemeProvider>
+    //   <NotificationProvider>
+    //     <Toaster position="top-center" richColors />
+    //     <NotificationContainer />
+    //     <Router />
+    //   </NotificationProvider>
+    // </ThemeProvider>
+    <div className="text-red-500">Hello World</div>
   );
 };
 

@@ -10,6 +10,8 @@ import { toast } from "sonner";
 import { Navbar2 } from "@/components/navbar2";
 import { createOcfProd6, updateOcfProd6 } from "../../helpers/createOcfProd6";
 import { fetchOcfProd6ById } from "../../helpers/fetchOcfProd6ById";
+import Billing from "@/components/billing";
+import { formatPhoneNumber } from "@/utils/formatters";
 
 export default function OCFProd6Page() {
   const { id, slug } = useParams();
@@ -27,7 +29,6 @@ export default function OCFProd6Page() {
     enabled: Boolean(isEditMode && id),
   });
 
-  // ocfResp => { id, name: "ocf-6", data: { applicant, items }, slug, ... }
   const ocfRecord = ocfResp?.data || null;
 
   const [formData, setFormData] = useState({
@@ -159,6 +160,7 @@ export default function OCFProd6Page() {
   return (
     <div className="min-h-screen bg-muted">
       <Navbar2 />
+      <Billing />
 
       <nav className="bg-card border-b px-6 py-4 text-sm text-muted-foreground">
         <div className="flex items-center gap-2">
@@ -189,7 +191,7 @@ export default function OCFProd6Page() {
           <h1 className="text-3xl font-bold text-foreground">
             {isEditMode ? "Edit OCF-PROD-6" : "New OCF-PROD-6"}
           </h1>
-          <div className="text-sm text-gray-500">{isEditMode.toString()}</div>
+
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
@@ -247,12 +249,18 @@ export default function OCFProd6Page() {
               <Field
                 label="Home Telephone"
                 value={formData.applicant.home_tel}
-                onChange={(v) => handleApplicantChange("home_tel", v)}
+                placeholder="(888) 888-8888"
+                onChange={(v) =>
+                  handleApplicantChange("home_tel", formatPhoneNumber(v))
+                }
               />
               <Field
                 label="Work Telephone"
                 value={formData.applicant.work_tel}
-                onChange={(v) => handleApplicantChange("work_tel", v)}
+                placeholder="(888) 888-8888"
+                onChange={(v) =>
+                  handleApplicantChange("work_tel", formatPhoneNumber(v))
+                }
               />
               <Field
                 label="Ext"
@@ -395,7 +403,7 @@ function Grid({ children }) {
   );
 }
 
-function Field({ label, value, onChange, type = "text", required = false }) {
+function Field({ label, value, onChange, type = "text", required = false, placeholder }) {
   return (
     <div className="space-y-2">
       <Label className="text-sm font-semibold text-foreground">
@@ -407,7 +415,7 @@ function Field({ label, value, onChange, type = "text", required = false }) {
         value={value || ""}
         onChange={(e) => onChange(e.target.value)}
         className="h-12 px-4 border-input focus:ring-2 focus:ring-primary focus:border-primary transition-all"
-        placeholder={label}
+        placeholder={placeholder || label}
       />
     </div>
   );

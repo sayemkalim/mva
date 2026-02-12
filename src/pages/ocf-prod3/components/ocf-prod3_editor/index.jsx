@@ -11,6 +11,7 @@ import { Navbar2 } from "@/components/navbar2";
 import { fetchOcfProd3ById } from "../../helpers/fetchOcfProd3ById";
 import { createOcfProd3, updateOcfProd3 } from "../../helpers/createOcfProd3";
 import Billing from "@/components/billing";
+import { formatPhoneNumber } from "@/utils/formatters";
 
 export default function OCFProd5Page() {
   const { id, slug } = useParams();
@@ -145,7 +146,7 @@ export default function OCFProd5Page() {
   return (
     <div className="min-h-screen bg-muted">
       <Navbar2 />
-<Billing/>
+      <Billing />
       <nav className="bg-card border-b px-6 py-4 text-sm text-muted-foreground">
         <div className="flex items-center gap-2">
           <button
@@ -229,12 +230,18 @@ export default function OCFProd5Page() {
               <Field
                 label="Home Telephone"
                 value={formData.home_tel}
-                onChange={(v) => handleFieldChange("home_tel", v)}
+                placeholder="(888) 888-8888"
+                onChange={(v) =>
+                  handleFieldChange("home_tel", formatPhoneNumber(v))
+                }
               />
               <Field
                 label="Work Telephone"
                 value={formData.work_tel}
-                onChange={(v) => handleFieldChange("work_tel", v)}
+                placeholder="(888) 888-8888"
+                onChange={(v) =>
+                  handleFieldChange("work_tel", formatPhoneNumber(v))
+                }
               />
               <Field
                 label="Ext"
@@ -312,15 +319,23 @@ export default function OCFProd5Page() {
               <Field
                 label="Insurance Company Telephone"
                 value={formData.name_of_insurancecompany_telephone}
+                placeholder="(888) 888-8888"
                 onChange={(v) =>
-                  handleFieldChange("name_of_insurancecompany_telephone", v)
+                  handleFieldChange(
+                    "name_of_insurancecompany_telephone",
+                    formatPhoneNumber(v)
+                  )
                 }
               />
               <Field
                 label="Insurance Company Fax Number"
                 value={formData.name_of_insurancecompany_faxnumber}
+                placeholder="(888) 888-8888"
                 onChange={(v) =>
-                  handleFieldChange("name_of_insurancecompany_faxnumber", v)
+                  handleFieldChange(
+                    "name_of_insurancecompany_faxnumber",
+                    formatPhoneNumber(v)
+                  )
                 }
               />
             </Grid>
@@ -378,7 +393,7 @@ function Grid({ children }) {
   );
 }
 
-function Field({ label, value, onChange, type = "text", required = false }) {
+function Field({ label, value, onChange, type = "text", required = false, placeholder }) {
   return (
     <div className="space-y-2">
       <Label className="text-sm font-semibold text-foreground">
@@ -390,7 +405,7 @@ function Field({ label, value, onChange, type = "text", required = false }) {
         value={value || ""}
         onChange={(e) => onChange(e.target.value)}
         className="h-12 px-4 border-input focus:ring-2 focus:ring-primary focus:border-primary transition-all"
-        placeholder={label}
+        placeholder={placeholder || label}
       />
     </div>
   );

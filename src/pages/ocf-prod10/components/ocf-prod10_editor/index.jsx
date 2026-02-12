@@ -140,7 +140,7 @@ export default function OCFProd10Page() {
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    const data = formData; // { applicant: {...} }
+    const data = formData;
     console.log("📤 Final OCF‑10 data:", data);
 
     const recordId = ocfResp?.id;
@@ -168,7 +168,7 @@ export default function OCFProd10Page() {
   return (
     <div className="min-h-screen bg-muted">
       <Navbar2 />
-<Billing/>
+      <Billing />
       <nav className="bg-card border-b px-6 py-4 text-sm text-muted-foreground">
         <div className="flex items-center gap-2">
           <button
@@ -193,7 +193,7 @@ export default function OCFProd10Page() {
         </div>
       </nav>
 
-      <main className="container mx-auto px-6 py-8 max-w-5xl">
+      <main className="container mx-auto px-6 py-8 max-w-6xl">
         <div className="flex items-center justify-between mb-8">
           <h1 className="text-3xl font-bold text-foreground">
             {isEditMode ? "Edit OCF-PROD-10" : "New OCF-PROD-10"}
