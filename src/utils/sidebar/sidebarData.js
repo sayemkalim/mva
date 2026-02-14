@@ -465,13 +465,13 @@ export const getEditModeData = (slug) => ({
           permission: "representive_referral",
         },
         {
-          title: "Primary Ehc",
+          title: "Primary EHC",
           url: `/dashboard/workstation/edit/${slug}/primary-ehc`,
           icon: Heart,
           permission: "primary_ehc",
         },
         {
-          title: "Secondary Ehc",
+          title: "Secondary EHC",
           url: `/dashboard/workstation/edit/${slug}/secondary-ehc`,
           icon: Heart,
           permission: "secondary_ehc",

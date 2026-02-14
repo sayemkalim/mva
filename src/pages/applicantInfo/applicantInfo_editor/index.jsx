@@ -799,7 +799,7 @@ export default function ApplicantInformation() {
 
               <div className="space-y-2">
                 <Label htmlFor="dob" className="text-foreground font-medium">
-                  DOB
+                  Date of Birth
                 </Label>
                 <Input
                   id="dob"

@@ -352,7 +352,7 @@ export default function RepresentativeReferral() {
   return (
     <div className="min-h-screen bg-muted">
       <Navbar2 />
-     <Billing/>
+      <Billing />
 
       <div className="bg-card border-b px-6 py-4">
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
@@ -459,7 +459,7 @@ export default function RepresentativeReferral() {
                     value={formData.initial}
                     onChange={handleChange}
                     placeholder="M"
-                    maxLength={1}
+
                     className="bg-muted border-input"
                   />
                 </div>
@@ -549,140 +549,140 @@ export default function RepresentativeReferral() {
                   />
                 </div>
               </div>
-            </div>
 
-            {/* Representative Address */}
-            <div className="space-y-6 pt-6 border-t">
-              <h2 className="text-xl font-semibold text-foreground">
-                Representative Address
-              </h2>
+              {/* Nested Representative Address */}
+              <div className="space-y-4">
+                <h3 className="text-lg font-medium text-foreground">
+                  Representative Address
+                </h3>
 
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                {/* Unit Number */}
-                <div className="space-y-2">
-                  <Label className="text-foreground font-medium">
-                    Unit Number
-                  </Label>
-                  <Input
-                    value={formData.representative_address.unit_number}
-                    onChange={(e) =>
-                      handleAddressChange(
-                        "representative_address",
-                        "unit_number",
-                        e.target.value
-                      )
-                    }
-                    placeholder="5B"
-                    className="bg-muted border-input"
-                  />
-                </div>
+                <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                  {/* Unit Number */}
+                  <div className="space-y-2">
+                    <Label className="text-sm text-muted-foreground font-medium">
+                      Unit Number
+                    </Label>
+                    <Input
+                      value={formData.representative_address.unit_number}
+                      onChange={(e) =>
+                        handleAddressChange(
+                          "representative_address",
+                          "unit_number",
+                          e.target.value
+                        )
+                      }
+                      placeholder="5B"
+                      className="bg-muted border-input h-9 text-sm"
+                    />
+                  </div>
 
-                {/* Street Number */}
-                <div className="space-y-2">
-                  <Label className="text-foreground font-medium">
-                    Street Number
-                  </Label>
-                  <Input
-                    value={formData.representative_address.street_number}
-                    onChange={(e) =>
-                      handleAddressChange(
-                        "representative_address",
-                        "street_number",
-                        e.target.value
-                      )
-                    }
-                    placeholder="221"
-                    className="bg-muted border-input"
-                  />
-                </div>
+                  {/* Street Number */}
+                  <div className="space-y-2">
+                    <Label className="text-sm text-muted-foreground font-medium">
+                      Street Number
+                    </Label>
+                    <Input
+                      value={formData.representative_address.street_number}
+                      onChange={(e) =>
+                        handleAddressChange(
+                          "representative_address",
+                          "street_number",
+                          e.target.value
+                        )
+                      }
+                      placeholder="221"
+                      className="bg-muted border-input h-9 text-sm"
+                    />
+                  </div>
 
-                {/* Street Name */}
-                <div className="space-y-2">
-                  <Label className="text-foreground font-medium">
-                    Street Name
-                  </Label>
-                  <Input
-                    value={formData.representative_address.street_name}
-                    onChange={(e) =>
-                      handleAddressChange(
-                        "representative_address",
-                        "street_name",
-                        e.target.value
-                      )
-                    }
-                    placeholder="King Street West"
-                    className="bg-muted border-input"
-                  />
-                </div>
+                  {/* Street Name */}
+                  <div className="space-y-2">
+                    <Label className="text-sm text-muted-foreground font-medium">
+                      Street Name
+                    </Label>
+                    <Input
+                      value={formData.representative_address.street_name}
+                      onChange={(e) =>
+                        handleAddressChange(
+                          "representative_address",
+                          "street_name",
+                          e.target.value
+                        )
+                      }
+                      placeholder="King Street West"
+                      className="bg-muted border-input h-9 text-sm"
+                    />
+                  </div>
 
-                {/* City */}
-                <div className="space-y-2">
-                  <Label className="text-foreground font-medium">City</Label>
-                  <Input
-                    value={formData.representative_address.city}
-                    onChange={(e) =>
-                      handleAddressChange(
-                        "representative_address",
-                        "city",
-                        e.target.value
-                      )
-                    }
-                    placeholder="Toronto"
-                    className="bg-muted border-input"
-                  />
-                </div>
+                  {/* City */}
+                  <div className="space-y-2">
+                    <Label className="text-sm text-muted-foreground font-medium">City</Label>
+                    <Input
+                      value={formData.representative_address.city}
+                      onChange={(e) =>
+                        handleAddressChange(
+                          "representative_address",
+                          "city",
+                          e.target.value
+                        )
+                      }
+                      placeholder="Toronto"
+                      className="bg-muted border-input h-9 text-sm"
+                    />
+                  </div>
 
-                {/* Province */}
-                <div className="space-y-2">
-                  <Label className="text-foreground font-medium">Province</Label>
-                  <Input
-                    value={formData.representative_address.province}
-                    onChange={(e) =>
-                      handleAddressChange(
-                        "representative_address",
-                        "province",
-                        e.target.value
-                      )
-                    }
-                    placeholder="Ontario"
-                    className="bg-muted border-input"
-                  />
-                </div>
+                  {/* Province */}
+                  <div className="space-y-2">
+                    <Label className="text-sm text-muted-foreground font-medium">Province</Label>
+                    <Input
+                      value={formData.representative_address.province}
+                      onChange={(e) =>
+                        handleAddressChange(
+                          "representative_address",
+                          "province",
+                          e.target.value
+                        )
+                      }
+                      placeholder="Ontario"
+                      className="bg-muted border-input h-9 text-sm"
+                    />
+                  </div>
 
-                {/* Postal Code */}
-                <div className="space-y-2">
-                  <Label className="text-foreground font-medium">
-                    Postal Code
-                  </Label>
-                  <Input
-                    value={formData.representative_address.postal_code}
-                    onChange={(e) =>
-                      handleAddressChange(
-                        "representative_address",
-                        "postal_code",
-                        e.target.value
-                      )
-                    }
-                    placeholder="M5H 1K5"
-                    className="bg-muted border-input"
-                  />
-                </div>
+                  {/* Postal Code */}
+                  <div className="space-y-2">
+                    <Label className="text-sm text-muted-foreground font-medium">
+                      Postal Code
+                    </Label>
+                    <Input
+                      value={formData.representative_address.postal_code}
+                      onChange={(e) =>
+                        handleAddressChange(
+                          "representative_address",
+                          "postal_code",
+                          e.target.value
+                        )
+                      }
+                      placeholder="M5H 1K5"
+                      className="bg-muted border-input h-9 text-sm"
+                    />
+                  </div>
 
-                {/* Country */}
-                <div className="space-y-2">
-                  <Label className="text-foreground font-medium">Country</Label>
-                  <Input
-                    value={formData.representative_address.country}
-                    onChange={(e) =>
-                      handleAddressChange(
-                        "representative_address",
-                        "country",
-                        e.target.value
-                      )
-                    }
-                    placeholder="Canada"
-                    className="bg-muted border-input"
-                  />
+                  {/* Country */}
+                  <div className="space-y-2">
+                    <Label className="text-sm text-muted-foreground font-medium">Country</Label>
+                    <Input
+                      value={formData.representative_address.country}
+                      onChange={(e) =>
+                        handleAddressChange(
+                          "representative_address",
+                          "country",
+                          e.target.value
+                        )
+                      }
+                      placeholder="Canada"
+                      className="bg-muted border-input h-9 text-sm"
+                    />
+                  </div>
                 </div>
               </div>
             </div>
@@ -806,133 +806,140 @@ export default function RepresentativeReferral() {
                   />
                 </div>
               </div>
-            </div>
 
-            {/* Referral Address */}
-            <div className="space-y-6 pt-6 border-t">
-              <h2 className="text-xl font-semibold text-foreground">
-                Referral Address
-              </h2>
+              {/* Nested Referral Address */}
+              <div className="space-y-4">
+                <h3 className="text-lg font-medium text-foreground">
+                  Referral Address
+                </h3>
 
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div className="space-y-2">
-                  <Label className="text-foreground font-medium">
-                    Unit Number
-                  </Label>
-                  <Input
-                    value={formData.referral_address.unit_number}
-                    onChange={(e) =>
-                      handleAddressChange(
-                        "referral_address",
-                        "unit_number",
-                        e.target.value
-                      )
-                    }
-                    placeholder="5B"
-                    className="bg-muted border-input"
-                  />
-                </div>
+                <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                  {/* Unit Number */}
+                  <div className="space-y-2">
+                    <Label className="text-sm text-muted-foreground font-medium">
+                      Unit Number
+                    </Label>
+                    <Input
+                      value={formData.referral_address.unit_number}
+                      onChange={(e) =>
+                        handleAddressChange(
+                          "referral_address",
+                          "unit_number",
+                          e.target.value
+                        )
+                      }
+                      placeholder="5B"
+                      className="bg-muted border-input h-9 text-sm"
+                    />
+                  </div>
 
-                <div className="space-y-2">
-                  <Label className="text-foreground font-medium">
-                    Street Number
-                  </Label>
-                  <Input
-                    value={formData.referral_address.street_number}
-                    onChange={(e) =>
-                      handleAddressChange(
-                        "referral_address",
-                        "street_number",
-                        e.target.value
-                      )
-                    }
-                    placeholder="221"
-                    className="bg-muted border-input"
-                  />
-                </div>
+                  {/* Street Number */}
+                  <div className="space-y-2">
+                    <Label className="text-sm text-muted-foreground font-medium">
+                      Street Number
+                    </Label>
+                    <Input
+                      value={formData.referral_address.street_number}
+                      onChange={(e) =>
+                        handleAddressChange(
+                          "referral_address",
+                          "street_number",
+                          e.target.value
+                        )
+                      }
+                      placeholder="221"
+                      className="bg-muted border-input h-9 text-sm"
+                    />
+                  </div>
 
-                <div className="space-y-2">
-                  <Label className="text-foreground font-medium">
-                    Street Name
-                  </Label>
-                  <Input
-                    value={formData.referral_address.street_name}
-                    onChange={(e) =>
-                      handleAddressChange(
-                        "referral_address",
-                        "street_name",
-                        e.target.value
-                      )
-                    }
-                    placeholder="King Street West"
-                    className="bg-muted border-input"
-                  />
-                </div>
+                  {/* Street Name */}
+                  <div className="space-y-2">
+                    <Label className="text-sm text-muted-foreground font-medium">
+                      Street Name
+                    </Label>
+                    <Input
+                      value={formData.referral_address.street_name}
+                      onChange={(e) =>
+                        handleAddressChange(
+                          "referral_address",
+                          "street_name",
+                          e.target.value
+                        )
+                      }
+                      placeholder="King Street West"
+                      className="bg-muted border-input h-9 text-sm"
+                    />
+                  </div>
 
-                <div className="space-y-2">
-                  <Label className="text-foreground font-medium">City</Label>
-                  <Input
-                    value={formData.referral_address.city}
-                    onChange={(e) =>
-                      handleAddressChange(
-                        "referral_address",
-                        "city",
-                        e.target.value
-                      )
-                    }
-                    placeholder="Toronto"
-                    className="bg-muted border-input"
-                  />
-                </div>
+                  {/* City */}
+                  <div className="space-y-2">
+                    <Label className="text-sm text-muted-foreground font-medium">City</Label>
+                    <Input
+                      value={formData.referral_address.city}
+                      onChange={(e) =>
+                        handleAddressChange(
+                          "referral_address",
+                          "city",
+                          e.target.value
+                        )
+                      }
+                      placeholder="Toronto"
+                      className="bg-muted border-input h-9 text-sm"
+                    />
+                  </div>
 
-                <div className="space-y-2">
-                  <Label className="text-foreground font-medium">Province</Label>
-                  <Input
-                    value={formData.referral_address.province}
-                    onChange={(e) =>
-                      handleAddressChange(
-                        "referral_address",
-                        "province",
-                        e.target.value
-                      )
-                    }
-                    placeholder="Ontario"
-                    className="bg-muted border-input"
-                  />
-                </div>
+                  {/* Province */}
+                  <div className="space-y-2">
+                    <Label className="text-sm text-muted-foreground font-medium">Province</Label>
+                    <Input
+                      value={formData.referral_address.province}
+                      onChange={(e) =>
+                        handleAddressChange(
+                          "referral_address",
+                          "province",
+                          e.target.value
+                        )
+                      }
+                      placeholder="Ontario"
+                      className="bg-muted border-input h-9 text-sm"
+                    />
+                  </div>
 
-                <div className="space-y-2">
-                  <Label className="text-foreground font-medium">
-                    Postal Code
-                  </Label>
-                  <Input
-                    value={formData.referral_address.postal_code}
-                    onChange={(e) =>
-                      handleAddressChange(
-                        "referral_address",
-                        "postal_code",
-                        e.target.value
-                      )
-                    }
-                    placeholder="M5H 1K5"
-                    className="bg-muted border-input"
-                  />
-                </div>
+                  {/* Postal Code */}
+                  <div className="space-y-2">
+                    <Label className="text-sm text-muted-foreground font-medium">
+                      Postal Code
+                    </Label>
+                    <Input
+                      value={formData.referral_address.postal_code}
+                      onChange={(e) =>
+                        handleAddressChange(
+                          "referral_address",
+                          "postal_code",
+                          e.target.value
+                        )
+                      }
+                      placeholder="M5H 1K5"
+                      className="bg-muted border-input h-9 text-sm"
+                    />
+                  </div>
 
-                <div className="space-y-2">
-                  <Label className="text-foreground font-medium">Country</Label>
-                  <Input
-                    value={formData.referral_address.country}
-                    onChange={(e) =>
-                      handleAddressChange(
-                        "referral_address",
-                        "country",
-                        e.target.value
-                      )
-                    }
-                    placeholder="Canada"
-                    className="bg-muted border-input"
-                  />
+                  {/* Country */}
+                  <div className="space-y-2">
+                    <Label className="text-sm text-muted-foreground font-medium">Country</Label>
+                    <Input
+                      value={formData.referral_address.country}
+                      onChange={(e) =>
+                        handleAddressChange(
+                          "referral_address",
+                          "country",
+                          e.target.value
+                        )
+                      }
+                      placeholder="Canada"
+                      className="bg-muted border-input h-9 text-sm"
+                    />
+                  </div>
                 </div>
               </div>
             </div>

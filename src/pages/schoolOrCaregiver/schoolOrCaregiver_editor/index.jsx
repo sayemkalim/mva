@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Loader2, ChevronRight, ChevronsUpDown, Check } from "lucide-react";
+import { Loader2, ChevronRight, ChevronsUpDown, Check, Plus, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { fetchSchoolCaregiverBySlug } from "../helpers/fetchSchoolCaregiverBySlug";
 import { getSchoolCaregiverMeta } from "../helpers/fetchISchoolCaregiverMetadata";
@@ -83,11 +83,10 @@ function SearchableDropdown({
                 onSelect={() => handleSelect(opt.id)}
               >
                 <Check
-                  className={`mr-2 h-4 w-4 ${
-                    String(value) === String(opt.id)
-                      ? "opacity-100"
-                      : "opacity-0"
-                  }`}
+                  className={`mr-2 h-4 w-4 ${String(value) === String(opt.id)
+                    ? "opacity-100"
+                    : "opacity-0"
+                    }`}
                 />
                 {opt.name}
               </CommandItem>
@@ -202,7 +201,51 @@ export default function SchoolCaregiver() {
     caregiver_name_5: "",
     caregiver_dob_5: "",
     caregiver_disabled_5: null,
+
+    caregiver_name_6: "",
+    caregiver_dob_6: "",
+    caregiver_disabled_6: null,
+
+    caregiver_name_7: "",
+    caregiver_dob_7: "",
+    caregiver_disabled_7: null,
+
+    caregiver_name_8: "",
+    caregiver_dob_8: "",
+    caregiver_disabled_8: null,
+
+    caregiver_name_9: "",
+    caregiver_dob_9: "",
+    caregiver_disabled_9: null,
+
+    caregiver_name_10: "",
+    caregiver_dob_10: "",
+    caregiver_disabled_10: null,
   });
+
+  // Number of caregiver forms to show
+  const [visibleCaregivers, setVisibleCaregivers] = useState(1);
+
+  const removeCaregiver = (numToRemove) => {
+    if (visibleCaregivers <= 1) return;
+
+    setFormData((prev) => {
+      const newData = { ...prev };
+      // Shift data from higher indices down
+      for (let i = numToRemove; i < 10; i++) {
+        newData[`caregiver_name_${i}`] = prev[`caregiver_name_${i + 1}`] || "";
+        newData[`caregiver_dob_${i}`] = prev[`caregiver_dob_${i + 1}`] || "";
+        newData[`caregiver_disabled_${i}`] = prev[`caregiver_disabled_${i + 1}`] || null;
+      }
+      // Clear the last potential index data
+      newData[`caregiver_name_10`] = "";
+      newData[`caregiver_dob_10`] = "";
+      newData[`caregiver_disabled_10`] = null;
+      return newData;
+    });
+
+    setVisibleCaregivers((prev) => Math.max(1, prev - 1));
+  };
 
   // parent-managed popover open state
   const [popoverOpen, setPopoverOpen] = useState({});
@@ -278,8 +321,37 @@ export default function SchoolCaregiver() {
         caregiver_name_5: schoolCaregiverData.caregiver_name_5 ?? "",
         caregiver_dob_5: schoolCaregiverData.caregiver_dob_5 ?? "",
         caregiver_disabled_5: schoolCaregiverData.caregiver_disabled_5 ?? null,
+
+        caregiver_name_6: schoolCaregiverData.caregiver_name_6 ?? "",
+        caregiver_dob_6: schoolCaregiverData.caregiver_dob_6 ?? "",
+        caregiver_disabled_6: schoolCaregiverData.caregiver_disabled_6 ?? null,
+
+        caregiver_name_7: schoolCaregiverData.caregiver_name_7 ?? "",
+        caregiver_dob_7: schoolCaregiverData.caregiver_dob_7 ?? "",
+        caregiver_disabled_7: schoolCaregiverData.caregiver_disabled_7 ?? null,
+
+        caregiver_name_8: schoolCaregiverData.caregiver_name_8 ?? "",
+        caregiver_dob_8: schoolCaregiverData.caregiver_dob_8 ?? "",
+        caregiver_disabled_8: schoolCaregiverData.caregiver_disabled_8 ?? null,
+
+        caregiver_name_9: schoolCaregiverData.caregiver_name_9 ?? "",
+        caregiver_dob_9: schoolCaregiverData.caregiver_dob_9 ?? "",
+        caregiver_disabled_9: schoolCaregiverData.caregiver_disabled_9 ?? null,
+
+        caregiver_name_10: schoolCaregiverData.caregiver_name_10 ?? "",
+        caregiver_dob_10: schoolCaregiverData.caregiver_dob_10 ?? "",
+        caregiver_disabled_10: schoolCaregiverData.caregiver_disabled_10 ?? null,
       };
     });
+
+    // Update visibleCaregivers based on how many have data
+    let lastFilledIndex = 1;
+    for (let i = 1; i <= 10; i++) {
+      if (schoolCaregiverData[`caregiver_name_${i}`]) {
+        lastFilledIndex = i;
+      }
+    }
+    setVisibleCaregivers(Math.min(10, lastFilledIndex + 1));
   }, [schoolCaregiverData]);
 
   const handleChange = (e) => {
@@ -346,6 +418,26 @@ export default function SchoolCaregiver() {
       caregiver_name_5: formData.caregiver_name_5 || null,
       caregiver_dob_5: formData.caregiver_dob_5 || null,
       caregiver_disabled_5: formData.caregiver_disabled_5 || null,
+
+      caregiver_name_6: formData.caregiver_name_6 || null,
+      caregiver_dob_6: formData.caregiver_dob_6 || null,
+      caregiver_disabled_6: formData.caregiver_disabled_6 || null,
+
+      caregiver_name_7: formData.caregiver_name_7 || null,
+      caregiver_dob_7: formData.caregiver_dob_7 || null,
+      caregiver_disabled_7: formData.caregiver_disabled_7 || null,
+
+      caregiver_name_8: formData.caregiver_name_8 || null,
+      caregiver_dob_8: formData.caregiver_dob_8 || null,
+      caregiver_disabled_8: formData.caregiver_disabled_8 || null,
+
+      caregiver_name_9: formData.caregiver_name_9 || null,
+      caregiver_dob_9: formData.caregiver_dob_9 || null,
+      caregiver_disabled_9: formData.caregiver_disabled_9 || null,
+
+      caregiver_name_10: formData.caregiver_name_10 || null,
+      caregiver_dob_10: formData.caregiver_dob_10 || null,
+      caregiver_disabled_10: formData.caregiver_disabled_10 || null,
     };
 
     console.log(
@@ -401,7 +493,7 @@ export default function SchoolCaregiver() {
   return (
     <div className="min-h-screen bg-muted">
       <Navbar2 />
-  <Billing/>
+      <Billing />
 
       {/* Breadcrumb */}
       <div className="bg-card border-b px-6 py-4">
@@ -428,14 +520,14 @@ export default function SchoolCaregiver() {
       <div className="container mx-auto px-6 py-8 max-w-7xl">
         <div className="bg-card rounded-lg shadow-sm border p-8">
           <h1 className="text-2xl font-bold mb-8 text-foreground uppercase">
-            School or Caregiver Information
+            School / College or Caregiver Information
           </h1>
 
           <form onSubmit={handleSubmit} className="space-y-8">
             {/* School Information Section */}
             <div className="space-y-6">
               <h2 className="text-xl font-semibold text-foreground">
-                School Information
+                School / College Information
               </h2>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -467,7 +559,7 @@ export default function SchoolCaregiver() {
                     htmlFor="school_name"
                     className="text-foreground font-medium"
                   >
-                    School Name
+                    School / College Name
                   </Label>
                   <Input
                     id="school_name"
@@ -561,7 +653,7 @@ export default function SchoolCaregiver() {
                     htmlFor="returned_to_school_id"
                     className="text-foreground font-medium"
                   >
-                    Returned to School
+                    Returned to School / College
                   </Label>
                   <SearchableDropdown
                     popoverKey="returned_to_school"
@@ -582,7 +674,7 @@ export default function SchoolCaregiver() {
             {/* School Address Section */}
             <div className="space-y-6 pt-6 border-t">
               <h2 className="text-xl font-semibold text-foreground">
-                School Address
+                School / College Address
               </h2>
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -758,72 +850,100 @@ export default function SchoolCaregiver() {
               </div>
             </div>
 
-            {/* Caregivers Section */}
             <div className="space-y-6 pt-6 border-t">
-              <h2 className="text-xl font-semibold text-foreground">
-                Caregivers
-              </h2>
+              <div className="flex items-center justify-between">
+                <h2 className="text-xl font-semibold text-foreground">
+                  Caregivers
+                </h2>
+                {visibleCaregivers < 10 && (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setVisibleCaregivers((prev) => Math.min(10, prev + 1))}
+                    className="flex items-center gap-2"
+                  >
+                    <Plus className="w-4 h-4" /> Add Caregiver
+                  </Button>
+                )}
+              </div>
 
-              {[1, 2, 3, 4, 5].map((num) => (
-                <div
-                  key={num}
-                  className="border border-gray-200 p-6 rounded-lg space-y-4 "
-                >
-                  <h3 className="font-semibold text-foreground">
-                    Caregiver {num}
-                  </h3>
-
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    {/* Caregiver Name */}
-                    <div className="space-y-2">
-                      <Label className="text-foreground font-medium">Name</Label>
-                      <Input
-                        name={`caregiver_name_${num}`}
-                        value={formData[`caregiver_name_${num}`]}
-                        onChange={handleChange}
-                        placeholder="John Doe"
-                        className="bg-card border-input"
-                      />
+              {[...Array(visibleCaregivers)].map((_, i) => {
+                const num = i + 1;
+                return (
+                  <div
+                    key={num}
+                    className="border border-gray-200 p-6 rounded-lg space-y-4 "
+                  >
+                    <div className="flex items-center justify-between">
+                      <h3 className="font-semibold text-foreground">
+                        Caregiver {num}
+                      </h3>
+                      {visibleCaregivers > 1 && (
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => removeCaregiver(num)}
+                          className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      )}
                     </div>
 
-                    {/* Caregiver DOB */}
-                    <div className="space-y-2">
-                      <Label className="text-foreground font-medium">
-                        Date of Birth
-                      </Label>
-                      <Input
-                        type="date"
-                        name={`caregiver_dob_${num}`}
-                        value={formData[`caregiver_dob_${num}`]}
-                        onChange={handleChange}
-                        className="bg-card border-input"
-                      />
-                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      {/* Caregiver Name */}
+                      <div className="space-y-2">
+                        <Label className="text-foreground font-medium">Name</Label>
+                        <Input
+                          name={`caregiver_name_${num}`}
+                          value={formData[`caregiver_name_${num}`]}
+                          onChange={handleChange}
+                          placeholder="John Doe"
+                          className="bg-card border-input"
+                        />
+                      </div>
 
-                    {/* Caregiver Disabled */}
-                    <div className="space-y-2">
-                      <Label className="text-foreground font-medium">
-                        Disabled
-                      </Label>
-                      <SearchableDropdown
-                        popoverKey={`caregiver_disabled_${num}`}
-                        popoverOpen={popoverOpen}
-                        setPopoverOpen={setPopoverOpen}
-                        value={
-                          formData[`caregiver_disabled_${num}`]?.toString() ??
-                          ""
-                        }
-                        onValueChange={(value) =>
-                          handleSelectChange(`caregiver_disabled_${num}`, value)
-                        }
-                        options={yesNoOptions}
-                        placeholder="Select option"
-                        label="Disabled"
-                      />
+                      {/* Caregiver DOB */}
+                      <div className="space-y-2">
+                        <Label className="text-foreground font-medium">
+                          Date of Birth
+                        </Label>
+                        <Input
+                          type="date"
+                          name={`caregiver_dob_${num}`}
+                          value={formData[`caregiver_dob_${num}`]}
+                          onChange={handleChange}
+                          className="bg-card border-input"
+                        />
+                      </div>
+
+                      {/* Caregiver Disabled */}
+                      <div className="space-y-2">
+                        <Label className="text-foreground font-medium">
+                          Disabled
+                        </Label>
+                        <SearchableDropdown
+                          popoverKey={`caregiver_disabled_${num}`}
+                          popoverOpen={popoverOpen}
+                          setPopoverOpen={setPopoverOpen}
+                          value={
+                            formData[`caregiver_disabled_${num}`]?.toString() ??
+                            ""
+                          }
+                          onValueChange={(value) =>
+                            handleSelectChange(`caregiver_disabled_${num}`, value)
+                          }
+                          options={yesNoOptions}
+                          placeholder="Select option"
+                          label="Disabled"
+                        />
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
 
             {/* Submit Buttons */}

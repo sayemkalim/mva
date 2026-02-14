@@ -165,7 +165,7 @@ export default function TPAdjusterForm() {
   return (
     <div className="min-h-screen bg-muted">
       <Navbar2 />
-     <Billing/>
+      <Billing />
       {/* Breadcrumb */}
       <div className="bg-card border-b px-6 py-4">
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
@@ -193,7 +193,7 @@ export default function TPAdjusterForm() {
           <form onSubmit={handleSubmit} className="space-y-8">
             <div className="flex justify-between items-center">
               <h2 className="text-3xl font-extrabold text-foreground">
-                TP Adjuster Records
+                BI Adjuster
               </h2>
 
               <Button

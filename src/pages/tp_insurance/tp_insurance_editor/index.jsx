@@ -160,8 +160,8 @@ export default function TPInsurerForm() {
     <div className="min-h-screen bg-muted">
       <Navbar2 />
 
-      
-   <Billing/>
+
+      <Billing />
 
       {/* Breadcrumb */}
       <div className="bg-card border-b px-6 py-4">
@@ -190,7 +190,7 @@ export default function TPInsurerForm() {
           <form onSubmit={handleSubmit} className="space-y-8">
             <div className="flex justify-between items-center">
               <h2 className="text-3xl font-extrabold text-foreground">
-                TP Insurer Records
+                Third Party Insurer Records
               </h2>
 
               {/* Add Insurer → sirf naya block add, form submit nahi */}
@@ -228,9 +228,9 @@ export default function TPInsurerForm() {
                   <div className="space-y-2">
                     <Label
                       className="text-foreground font-medium cursor-pointer"
-                      htmlFor={`firm_name_${idx}`}
+                      htmlFor={`first_name_${idx}`}
                     >
-                      Firm Name
+                      First Name
                     </Label>
                     <Input
                       id={`firm_name_${idx}`}

@@ -81,11 +81,10 @@ function SearchableDropdown({
                     className="cursor-pointer"
                   >
                     <Check
-                      className={`mr-2 w-5 h-5 ${
-                        String(option.id) === String(value)
+                      className={`mr-2 w-5 h-5 ${String(option.id) === String(value)
                           ? "opacity-100"
                           : "opacity-0"
-                      }`}
+                        }`}
                     />
                     {option.name}
                   </CommandItem>
@@ -173,22 +172,22 @@ export default function OwnerInfoForm() {
 
     const owners =
       Array.isArray(fetchedOwner.OwnerInformation) &&
-      fetchedOwner.OwnerInformation.length > 0
+        fetchedOwner.OwnerInformation.length > 0
         ? fetchedOwner.OwnerInformation.map((o) => ({
-            ...emptyOwner,
-            ...o,
-            address: { ...emptyAddress, ...(o.address || {}) },
-          }))
+          ...emptyOwner,
+          ...o,
+          address: { ...emptyAddress, ...(o.address || {}) },
+        }))
         : [{ ...emptyOwner }];
 
     const directors =
       Array.isArray(fetchedOwner.DirectorInformation) &&
-      fetchedOwner.DirectorInformation.length > 0
+        fetchedOwner.DirectorInformation.length > 0
         ? fetchedOwner.DirectorInformation.map((d) => ({
-            ...emptyDirector,
-            ...d,
-            address: { ...emptyAddress, ...(d.address || {}) },
-          }))
+          ...emptyDirector,
+          ...d,
+          address: { ...emptyAddress, ...(d.address || {}) },
+        }))
         : [{ ...emptyDirector }];
 
     setForm({
@@ -411,7 +410,7 @@ export default function OwnerInfoForm() {
   return (
     <div className="min-h-screen bg-muted">
       <Navbar2 />
-<Billing/>
+      <Billing />
       <div className="bg-card border-b px-6 py-4">
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
           <button
@@ -684,162 +683,172 @@ export default function OwnerInfoForm() {
             </div>
 
             {/* DIRECTOR INFORMATION */}
-            <div className="space-y-6">
-              <div className="flex items-center justify-between">
-                <h3 className="text-2xl font-bold text-foreground">Directors</h3>
-                <Button
-                  type="button"
-                  onClick={addDirector}
-                  variant="outline"
-                  size="sm"
-                  className="flex items-center gap-2"
-                >
-                  <Plus className="w-4 h-4" /> Add Director
-                </Button>
-              </div>
-
-              <div className="space-y-6">
-                {form.DirectorInformation.map((director, index) => (
-                  <div
-                    key={director.id ?? index}
-                    className="border rounded-2xl p-6  space-y-4 relative"
-                  >
-                    <div className="flex items-center justify-between mb-4">
-                      <h4 className="text-lg font-semibold">
-                        Director {index + 1}
-                      </h4>
-                      <Button
-                        type="button"
-                        onClick={() => removeDirector(index)}
-                        variant="destructive"
-                        size="sm"
-                        disabled={directorDeleteMutation.isPending}
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </Button>
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                      <div className="space-y-2">
-                        <Label>First Name</Label>
-                        <Input
-                          value={director.first_name}
-                          onChange={(e) =>
-                            updateDirector(index, "first_name", e.target.value)
-                          }
-                          className="h-9 bg-card border-input"
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label>Last Name</Label>
-                        <Input
-                          value={director.last_name}
-                          onChange={(e) =>
-                            updateDirector(index, "last_name", e.target.value)
-                          }
-                          className="h-9 bg-card border-input"
-                        />
-                      </div>
-
-                      <div className="space-y-2">
-                        <Label>Unit Number</Label>
-                        <Input
-                          value={director.address.unit_number}
-                          onChange={(e) =>
-                            updateDirectorAddress(
-                              index,
-                              "unit_number",
-                              e.target.value
-                            )
-                          }
-                          className="h-9 bg-card border-input"
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label>Street Number</Label>
-                        <Input
-                          value={director.address.street_number}
-                          onChange={(e) =>
-                            updateDirectorAddress(
-                              index,
-                              "street_number",
-                              e.target.value
-                            )
-                          }
-                          className="h-9 bg-card border-input"
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label>Street Name</Label>
-                        <Input
-                          value={director.address.street_name}
-                          onChange={(e) =>
-                            updateDirectorAddress(
-                              index,
-                              "street_name",
-                              e.target.value
-                            )
-                          }
-                          className="h-9 bg-card border-input"
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label>City</Label>
-                        <Input
-                          value={director.address.city}
-                          onChange={(e) =>
-                            updateDirectorAddress(index, "city", e.target.value)
-                          }
-                          className="h-9 bg-card border-input"
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label>Province</Label>
-                        <Input
-                          value={director.address.province}
-                          onChange={(e) =>
-                            updateDirectorAddress(
-                              index,
-                              "province",
-                              e.target.value
-                            )
-                          }
-                          className="h-9 bg-card border-input"
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label>Postal Code</Label>
-                        <Input
-                          value={director.address.postal_code}
-                          onChange={(e) =>
-                            updateDirectorAddress(
-                              index,
-                              "postal_code",
-                              e.target.value
-                            )
-                          }
-                          className="h-9 bg-card border-input"
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label>Country</Label>
-                        <Input
-                          value={director.address.country}
-                          onChange={(e) =>
-                            updateDirectorAddress(
-                              index,
-                              "country",
-                              e.target.value
-                            )
-                          }
-                          className="h-9 bg-card border-input"
-                        />
-                      </div>
-                    </div>
+            {form.OwnerInformation.some((owner) => {
+              const opt = typeOfOwnershipOptions.find(
+                (o) => String(o.id) === String(owner.type_of_ownership_id)
+              );
+              const label = opt?.name?.toLowerCase() || "";
+              return label.includes("corporation") || label.includes("corp");
+            }) && (
+                <div className="space-y-6">
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-2xl font-bold text-foreground">
+                      Directors
+                    </h3>
+                    <Button
+                      type="button"
+                      onClick={addDirector}
+                      variant="outline"
+                      size="sm"
+                      className="flex items-center gap-2"
+                    >
+                      <Plus className="w-4 h-4" /> Add Director
+                    </Button>
                   </div>
-                ))}
-              </div>
-            </div>
+
+                  <div className="space-y-6">
+                    {form.DirectorInformation.map((director, index) => (
+                      <div
+                        key={director.id ?? index}
+                        className="border rounded-2xl p-6  space-y-4 relative"
+                      >
+                        <div className="flex items-center justify-between mb-4">
+                          <h4 className="text-lg font-semibold">
+                            Director {index + 1}
+                          </h4>
+                          <Button
+                            type="button"
+                            onClick={() => removeDirector(index)}
+                            variant="destructive"
+                            size="sm"
+                            disabled={directorDeleteMutation.isPending}
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                          <div className="space-y-2">
+                            <Label>First Name</Label>
+                            <Input
+                              value={director.first_name}
+                              onChange={(e) =>
+                                updateDirector(index, "first_name", e.target.value)
+                              }
+                              className="h-9 bg-card border-input"
+                            />
+                          </div>
+                          <div className="space-y-2">
+                            <Label>Last Name</Label>
+                            <Input
+                              value={director.last_name}
+                              onChange={(e) =>
+                                updateDirector(index, "last_name", e.target.value)
+                              }
+                              className="h-9 bg-card border-input"
+                            />
+                          </div>
+
+                          <div className="space-y-2">
+                            <Label>Unit Number</Label>
+                            <Input
+                              value={director.address.unit_number}
+                              onChange={(e) =>
+                                updateDirectorAddress(
+                                  index,
+                                  "unit_number",
+                                  e.target.value
+                                )
+                              }
+                              className="h-9 bg-card border-input"
+                            />
+                          </div>
+                          <div className="space-y-2">
+                            <Label>Street Number</Label>
+                            <Input
+                              value={director.address.street_number}
+                              onChange={(e) =>
+                                updateDirectorAddress(
+                                  index,
+                                  "street_number",
+                                  e.target.value
+                                )
+                              }
+                              className="h-9 bg-card border-input"
+                            />
+                          </div>
+                          <div className="space-y-2">
+                            <Label>Street Name</Label>
+                            <Input
+                              value={director.address.street_name}
+                              onChange={(e) =>
+                                updateDirectorAddress(
+                                  index,
+                                  "street_name",
+                                  e.target.value
+                                )
+                              }
+                              className="h-9 bg-card border-input"
+                            />
+                          </div>
+                          <div className="space-y-2">
+                            <Label>City</Label>
+                            <Input
+                              value={director.address.city}
+                              onChange={(e) =>
+                                updateDirectorAddress(index, "city", e.target.value)
+                              }
+                              className="h-9 bg-card border-input"
+                            />
+                          </div>
+                          <div className="space-y-2">
+                            <Label>Province</Label>
+                            <Input
+                              value={director.address.province}
+                              onChange={(e) =>
+                                updateDirectorAddress(
+                                  index,
+                                  "province",
+                                  e.target.value
+                                )
+                              }
+                              className="h-9 bg-card border-input"
+                            />
+                          </div>
+                          <div className="space-y-2">
+                            <Label>Postal Code</Label>
+                            <Input
+                              value={director.address.postal_code}
+                              onChange={(e) =>
+                                updateDirectorAddress(
+                                  index,
+                                  "postal_code",
+                                  e.target.value
+                                )
+                              }
+                              className="h-9 bg-card border-input"
+                            />
+                          </div>
+                          <div className="space-y-2">
+                            <Label>Country</Label>
+                            <Input
+                              value={director.address.country}
+                              onChange={(e) =>
+                                updateDirectorAddress(
+                                  index,
+                                  "country",
+                                  e.target.value
+                                )
+                              }
+                              className="h-9 bg-card border-input"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
 
             <Button type="submit" size="lg" disabled={createMutation.isPending}>
               {createMutation.isPending ? "Saving..." : "Save"}

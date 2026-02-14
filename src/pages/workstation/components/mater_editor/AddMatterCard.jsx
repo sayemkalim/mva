@@ -47,7 +47,7 @@ const AddMatterCard = ({
     intake_date: "",
     conflict_search_date: "",
     file_status_id: null,
-    claim_status_id: null,
+    claim_status_id: [],
     non_engagement_issued_id: [],
     non_engagement_date: "",
     claim_type_id: [],
@@ -131,6 +131,9 @@ const AddMatterCard = ({
           initialData.non_engagement_issued_id
         )
           ? initialData.non_engagement_issued_id
+          : [],
+        claim_status_id: Array.isArray(initialData.claim_status_id)
+          ? initialData.claim_status_id
           : [],
         claim_type_id: Array.isArray(initialData.claim_type_id)
           ? initialData.claim_type_id
@@ -501,9 +504,9 @@ const AddMatterCard = ({
                   <label className="block font-medium mb-2 text-foreground">
                     Claim Status
                   </label>
-                  <SearchableDropdown
-                    value={formData.claim_status_id}
-                    onSelect={handleDropdownChange}
+                  <MultiSelectDropdown
+                    selected={formData.claim_status_id}
+                    onToggle={toggleMultiSelect}
                     options={metadata.claim_status}
                     placeholder="Select claim status"
                     popoverKey="claim_status"
@@ -527,22 +530,24 @@ const AddMatterCard = ({
                 </div>
 
                 {/* Non Engagement Date */}
-                <div>
-                  <label
-                    htmlFor="non_engagement_date"
-                    className="block font-medium mb-2 text-foreground"
-                  >
-                    Non Engagement Date
-                  </label>
-                  <Input
-                    type="date"
-                    id="non_engagement_date"
-                    name="non_engagement_date"
-                    value={formData.non_engagement_date}
-                    onChange={handleInputChange}
-                    className="bg-muted"
-                  />
-                </div>
+                {formData.non_engagement_issued_id?.length > 0 && (
+                  <div>
+                    <label
+                      htmlFor="non_engagement_date"
+                      className="block font-medium mb-2 text-foreground"
+                    >
+                      Non Engagement Date
+                    </label>
+                    <Input
+                      type="date"
+                      id="non_engagement_date"
+                      name="non_engagement_date"
+                      value={formData.non_engagement_date}
+                      onChange={handleInputChange}
+                      className="bg-muted"
+                    />
+                  </div>
+                )}
 
                 {/* Claim Type (Multi-select) */}
                 <div>
@@ -639,14 +644,28 @@ const AddMatterCard = ({
                   <label className="block font-medium mb-2 text-foreground">
                     At Fault
                   </label>
-                  <SearchableDropdown
-                    value={formData.at_fault_id}
-                    onSelect={handleDropdownChange}
-                    options={metadata.yes_no_option}
-                    placeholder="Select yes or no"
-                    popoverKey="at_fault"
-                    fieldName="at_fault_id"
-                  />
+                  <div className="flex items-center gap-6 mt-4">
+                    {metadata.yes_no_option?.map((opt) => (
+                      <div key={opt.id} className="flex items-center gap-2">
+                        <Checkbox
+                          id={`at_fault_${opt.id}`}
+                          checked={formData.at_fault_id === opt.id}
+                          onCheckedChange={(checked) => {
+                            setFormData((p) => ({
+                              ...p,
+                              at_fault_id: checked ? opt.id : null,
+                            }));
+                          }}
+                        />
+                        <label
+                          htmlFor={`at_fault_${opt.id}`}
+                          className="text-sm font-medium leading-none cursor-pointer"
+                        >
+                          {opt.name}
+                        </label>
+                      </div>
+                    ))}
+                  </div>
                 </div>
 
                 {/* Category */}
@@ -1516,9 +1535,9 @@ const AddMatterCard = ({
 
             {/* ===== ADDRESS SECTION ===== */}
             <section>
-              <h2 className="font-semibold text-xl mb-6 border-b pb-2 uppercase text-foreground">
+              {/* <h2 className="font-semibold text-xl mb-6 border-b pb-2 uppercase text-foreground">
                 Address
-              </h2>
+              </h2> */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 {/* Unit Number */}
                 <div>

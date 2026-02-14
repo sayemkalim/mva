@@ -6,8 +6,12 @@ import {
   SidebarContent,
   SidebarFooter,
   SidebarHeader,
+  SidebarMenu,
+  SidebarMenuItem,
+  SidebarMenuButton,
   SidebarRail,
 } from "@/components/ui/sidebar";
+import { PlusSquare } from "lucide-react";
 import { Input } from "./ui/input";
 import {
   data,
@@ -18,10 +22,11 @@ import { filterItemsByPermissions } from "@/utils/sidebar/filterItemsByRole";
 import { getPermissions } from "@/utils/permissions";
 import { useEffect, useState, useMemo } from "react";
 import { getItem } from "@/utils/local_storage";
-import { useLocation, useParams } from "react-router-dom";
+import { useLocation, useParams, useNavigate } from "react-router-dom";
 
 export function AppSidebar({ ...props }) {
   const location = useLocation();
+  const navigate = useNavigate();
   const { slug, id } = useParams();
   const [permissions, setPermissions] = useState([]);
   const [activeSection, setActiveSection] = useState("Initial");
@@ -98,10 +103,23 @@ export function AppSidebar({ ...props }) {
   }, [isEditMode, activeSection, routeParam]);
 
   const userInfo = sidebarData.user;
-  const filteredNavMain = filterItemsByPermissions(
-    sidebarData.navMain,
-    permissions
-  );
+  const filteredNavMain = useMemo(() => {
+    const filtered = filterItemsByPermissions(sidebarData.navMain, permissions);
+
+    // If "Dashboard" exists, inject "Add Matter" right after it
+    if (permissions.includes("workstation") && filtered.length > 0 && filtered[0].title === "Dashboard") {
+      const addMatterItem = {
+        title: "Add Matter",
+        url: "/dashboard/workstation/add",
+        icon: PlusSquare,
+        isActive: location.pathname === "/dashboard/workstation/add",
+        items: [],
+      };
+      return [filtered[0], addMatterItem, ...filtered.slice(1)];
+    }
+
+    return filtered;
+  }, [sidebarData.navMain, permissions, location.pathname]);
 
   return (
     <Sidebar collapsible="icon" {...props}>

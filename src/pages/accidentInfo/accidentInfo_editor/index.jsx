@@ -525,8 +525,7 @@ export default function AccidentalInformation() {
                     htmlFor="accident_occur_while_you_were_id"
                     className="text-foreground font-medium"
                   >
-                    Accident Occur While You Were
-                  </Label>
+                    Accident Occur while you were at work                  </Label>
                   <SearchableDropdown
                     value={formData.accident_occur_while_you_were_id}
                     options={metadata?.yes_no_option}

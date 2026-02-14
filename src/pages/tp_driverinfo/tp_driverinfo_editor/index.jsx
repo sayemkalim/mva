@@ -74,8 +74,8 @@ function SearchableDropdown({
                   >
                     <Check
                       className={`mr-2 w-5 h-5 ${String(option.id) === String(value)
-                          ? "opacity-100"
-                          : "opacity-0"
+                        ? "opacity-100"
+                        : "opacity-0"
                         }`}
                     />
                     {option.name}
@@ -263,7 +263,7 @@ export default function DriverInfoForm() {
   return (
     <div className="min-h-screen bg-muted">
       <Navbar2 />
-<Billing/>
+      <Billing />
       {/* Breadcrumb */}
       <div className="bg-card border-b px-6 py-4">
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
@@ -284,7 +284,7 @@ export default function DriverInfoForm() {
           <span className="text-foreground font-medium">Driver Information</span>
         </div>
       </div>
-  
+
       {/* Main Content */}
       <div className="container mx-auto px-6 py-8 max-w-7xl">
         <div className="bg-card rounded-lg shadow-sm border p-8">
@@ -309,8 +309,7 @@ export default function DriverInfoForm() {
                   }
                 />
                 <Label htmlFor="policy_same_yes" className="font-medium">
-                  Policy holder same as applicant
-                </Label>
+                  Policy holder same as Driver                </Label>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-4">
@@ -505,7 +504,7 @@ export default function DriverInfoForm() {
                 />
 
                 <div className="space-y-2">
-                  <Label htmlFor="dl_searched_date">DL Searched Date</Label>
+                  <Label htmlFor="dl_searched_date">DL Search Date</Label>
                   <Input
                     id="dl_searched_date"
                     type="date"
