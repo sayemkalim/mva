@@ -100,11 +100,10 @@ function SearchableDropdown({
                 onSelect={() => handleSelect(opt.id)}
               >
                 <Check
-                  className={`mr-2 h-4 w-4 ${
-                    String(value) === String(opt.id)
+                  className={`mr-2 h-4 w-4 ${String(value) === String(opt.id)
                       ? "opacity-100"
                       : "opacity-0"
-                  }`}
+                    }`}
                 />
                 {opt.name}
               </CommandItem>
@@ -197,8 +196,8 @@ export default function Identification() {
         } else {
           toast.error(
             apiResponse?.response?.message ||
-              apiResponse?.message ||
-              "Failed to save identification."
+            apiResponse?.message ||
+            "Failed to save identification."
           );
           console.error("Create identification response:", apiResponse);
         }
@@ -274,20 +273,26 @@ export default function Identification() {
 
   const handleSelectChange = (index, field, value) => {
     setIdentifications((prev) =>
-      prev.map((item, i) =>
-        i === index ? { ...item, [field]: Number(value) } : item
-      )
+      prev.map((item, i) => {
+        if (i !== index) return item;
+        const numericValue = value === "" ? null : Number(value);
+        const finalValue = item[field] === numericValue ? null : numericValue;
+        return { ...item, [field]: finalValue };
+      })
     );
   };
 
   const handleTypeChange = (index, value) => {
-    const selectedType = metadata?.type?.find((t) => t.id === Number(value));
+    const numericValue = value === "" ? null : Number(value);
     setIdentifications((prev) =>
-      prev.map((item, i) =>
-        i === index
-          ? { ...item, identification_type: selectedType?.name || "" }
-          : item
-      )
+      prev.map((item, i) => {
+        if (i !== index) return item;
+        const selectedType = metadata?.type?.find((t) => t.id === numericValue);
+        const newTypeName = selectedType?.name || "";
+        // If the same type is selected again, we clear it (unselect)
+        const finalTypeName = item.identification_type === newTypeName ? "" : newTypeName;
+        return { ...item, identification_type: finalTypeName };
+      })
     );
   };
 
@@ -302,12 +307,12 @@ export default function Identification() {
         prev.map((item, i) =>
           i === index
             ? {
-                ...item,
-                file: file,
-                fileName: file.name,
-                filePreview: previewUrl,
-                isUploading: true,
-              }
+              ...item,
+              file: file,
+              fileName: file.name,
+              filePreview: previewUrl,
+              isUploading: true,
+            }
             : item
         )
       );
@@ -323,12 +328,12 @@ export default function Identification() {
           prev.map((item, i) =>
             i === index
               ? {
-                  ...item,
-                  file: null,
-                  fileName: "",
-                  filePreview: null,
-                  isUploading: false,
-                }
+                ...item,
+                file: null,
+                fileName: "",
+                filePreview: null,
+                isUploading: false,
+              }
               : item
           )
         );
@@ -341,12 +346,12 @@ export default function Identification() {
       prev.map((item, i) =>
         i === index
           ? {
-              ...item,
-              file: null,
-              fileName: "",
-              filePreview: null,
-              attachment_id: null,
-            }
+            ...item,
+            file: null,
+            fileName: "",
+            filePreview: null,
+            attachment_id: null,
+          }
           : item
       )
     );
@@ -501,7 +506,7 @@ export default function Identification() {
   return (
     <div className="min-h-screen bg-muted">
       <Navbar2 />
-      <Billing/>
+      <Billing />
 
       <div className="bg-card border-b px-6 py-4">
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
@@ -705,15 +710,14 @@ export default function Identification() {
                       )}
                     </Label>
                     <div
-                      className={`relative border-2 border-dashed rounded-lg transition-all ${
-                        identification.isUploading
+                      className={`relative border-2 border-dashed rounded-lg transition-all ${identification.isUploading
                           ? "border-blue-500 bg-blue-50"
                           : identification.isDragging
-                          ? "border-blue-500 bg-blue-50"
-                          : identification.filePreview
-                          ? "border-green-500 bg-green-50/50"
-                          : "border-input bg-card hover:border-gray-400"
-                      }`}
+                            ? "border-blue-500 bg-blue-50"
+                            : identification.filePreview
+                              ? "border-green-500 bg-green-50/50"
+                              : "border-input bg-card hover:border-gray-400"
+                        }`}
                     >
                       <input
                         id={`file_${index}`}
@@ -905,7 +909,7 @@ export default function Identification() {
                     alt="Full Preview"
                     className="max-w-full max-h-[70vh] object-contain rounded-lg"
                   />
-        
+
                   <button
                     onClick={() => {
                       const link = document.createElement("a");

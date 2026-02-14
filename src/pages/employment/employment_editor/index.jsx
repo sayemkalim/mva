@@ -294,16 +294,18 @@ export default function Employment() {
   const handleSelectChange = (name, value) => {
     setFormData((prev) => {
       const numeric = value === "" ? null : Number(value);
+      const isCurrentlySelected = prev[name] === numeric;
+      const finalValue = isCurrentlySelected ? null : numeric;
 
       let next = {
         ...prev,
-        [name]: numeric,
+        [name]: finalValue,
       };
-      if (name === "employed_id" && numeric) {
+      if (name === "employed_id" && finalValue) {
         next.not_employed_id = null;
         next.unemployed_and_id = null;
       }
-      if (name === "not_employed_id" && !numeric) {
+      if (name === "not_employed_id" && !finalValue) {
         next.unemployed_and_id = null;
       }
       return next;
@@ -323,11 +325,15 @@ export default function Employment() {
   const handleIncomeSelectChange = (index, field, value) => {
     setFormData((prev) => ({
       ...prev,
-      other_income: prev.other_income.map((item, i) =>
-        i === index
-          ? { ...item, [field]: value === "" ? null : Number(value) }
-          : item
-      ),
+      other_income: prev.other_income.map((item, i) => {
+        if (i !== index) return item;
+        const numeric = value === "" ? null : Number(value);
+        const isCurrentlySelected = item[field] === numeric;
+        return {
+          ...item,
+          [field]: isCurrentlySelected ? null : numeric,
+        };
+      }),
     }));
   };
 
@@ -437,7 +443,7 @@ export default function Employment() {
   return (
     <div className="min-h-screen bg-muted">
       <Navbar2 />
-      <Billing/>
+      <Billing />
 
       <div className="bg-card border-b px-6 py-4">
         <div className="flex items-center gap-2 text-sm text-muted-foreground">

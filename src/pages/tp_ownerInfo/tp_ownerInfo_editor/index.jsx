@@ -75,15 +75,16 @@ function SearchableDropdown({
                     key={option.id}
                     value={option.name}
                     onSelect={() => {
-                      onChange(option.id);
+                      const newVal = String(option.id) === String(value) ? "" : option.id;
+                      onChange(newVal);
                       setOpen(false);
                     }}
                     className="cursor-pointer"
                   >
                     <Check
                       className={`mr-2 w-5 h-5 ${String(option.id) === String(value)
-                          ? "opacity-100"
-                          : "opacity-0"
+                        ? "opacity-100"
+                        : "opacity-0"
                         }`}
                     />
                     {option.name}

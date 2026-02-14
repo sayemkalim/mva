@@ -234,12 +234,13 @@ export default function AccidentalInformation() {
   const handleSelectChange = (name, value) => {
     setFormData((prev) => ({
       ...prev,
-      [name]: Number(value),
+      [name]: value === null ? null : Number(value),
     }));
   };
 
   const handleDropdownSelect = (fieldName, id, popoverKey) => {
-    handleSelectChange(fieldName, id);
+    const newValue = formData[fieldName] === Number(id) ? null : Number(id);
+    handleSelectChange(fieldName, newValue);
     setPopoverOpen((prev) => ({ ...prev, [popoverKey]: false }));
   };
 

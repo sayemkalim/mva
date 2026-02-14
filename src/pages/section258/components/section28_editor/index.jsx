@@ -297,14 +297,20 @@ export default function Section258Form() {
 
   const handleMainSearchSelect = (fieldName, value, popKey) => {
     if (fieldName === "documents_requested_by_the_insurer_id") {
-      setMainForm((prev) => ({
-        ...prev,
-        documents_requested_by_the_insurer_id: value,
-        expanded: !!value,
-      }));
+      setMainForm((prev) => {
+        const newVal = prev[fieldName] === value ? "" : value;
+        return {
+          ...prev,
+          documents_requested_by_the_insurer_id: newVal,
+          expanded: !!newVal,
+        };
+      });
       setPopoverOpen((p) => ({ ...p, [popKey]: false }));
     } else {
-      setMainForm((prev) => ({ ...prev, [fieldName]: value }));
+      setMainForm((prev) => ({
+        ...prev,
+        [fieldName]: prev[fieldName] === value ? "" : value,
+      }));
       setPopoverOpen((p) => ({ ...p, [popKey]: false }));
     }
   };
@@ -344,17 +350,19 @@ export default function Section258Form() {
   // Additional documents handlers
   const handleDocSearchSelect = (idx, fieldName, value, popKey) => {
     setDocumentsRequested((prev) =>
-      prev.map((item, i) =>
-        i === idx
-          ? fieldName === "documents_requested_by_the_insurer_id"
-            ? {
-              ...item,
-              [fieldName]: value,
-              expanded: !!value,
-            }
-            : { ...item, [fieldName]: value }
-          : item
-      )
+      prev.map((item, i) => {
+        if (i !== idx) return item;
+
+        const newVal = item[fieldName] === value ? "" : value;
+        if (fieldName === "documents_requested_by_the_insurer_id") {
+          return {
+            ...item,
+            [fieldName]: newVal,
+            expanded: !!newVal,
+          };
+        }
+        return { ...item, [fieldName]: newVal };
+      })
     );
     if (popKey) {
       setPopoverOpen((p) => ({ ...p, [popKey]: false }));

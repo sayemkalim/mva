@@ -454,7 +454,7 @@ export default function LatEditor() {
       toast.success(
         id ? "LAT data updated successfully" : "LAT data saved successfully"
       );
-      navigate(-1); 
+      navigate(-1);
     },
     onError: (err) => {
       console.error("Mutation Error:", err);
@@ -471,7 +471,11 @@ export default function LatEditor() {
   };
 
   const handleDropdownSelect = (field, val, popoverKey) => {
-    setForm((prev) => ({ ...prev, [field]: String(val) }));
+    const stringVal = String(val);
+    setForm((prev) => ({
+      ...prev,
+      [field]: prev[field] === stringVal ? "" : stringVal,
+    }));
     setPopoverOpen((p) => ({ ...p, [popoverKey]: false }));
   };
 

@@ -318,30 +318,42 @@ export default function Section33() {
 
   const handleMainSearchSelect = (fieldName, value, popKey) => {
     if (fieldName === "documents_requested_by_the_insurer_id") {
-      setMainForm((prev) => ({
-        ...prev,
-        documents_requested_by_the_insurer_id: value,
-        expanded: !!value,
-      }));
+      setMainForm((prev) => {
+        const newVal = prev[fieldName] === value ? "" : value;
+        return {
+          ...prev,
+          documents_requested_by_the_insurer_id: newVal,
+          expanded: !!newVal,
+        };
+      });
       setPopoverOpen((p) => ({ ...p, [popKey]: false }));
     } else if (fieldName === "s33_req_status_id") {
-      const statusName = getLabel(value, meta.insurance_section_request);
-      setMainForm((prev) => ({ 
-        ...prev, 
-        s33_req_status_id: value,
-        s33_req_status_name: statusName 
-      }));
+      setMainForm((prev) => {
+        const newVal = prev[fieldName] === value ? "" : value;
+        const statusName = newVal ? getLabel(newVal, meta.insurance_section_request) : "";
+        return {
+          ...prev,
+          s33_req_status_id: newVal,
+          s33_req_status_name: statusName,
+        };
+      });
       setPopoverOpen((p) => ({ ...p, [popKey]: false }));
     } else if (fieldName === "request_status_id") {
-      const statusName = getLabel(value, meta.insurance_status);
-      setMainForm((prev) => ({ 
-        ...prev, 
-        request_status_id: value,
-        request_status_name: statusName 
-      }));
+      setMainForm((prev) => {
+        const newVal = prev[fieldName] === value ? "" : value;
+        const statusName = newVal ? getLabel(newVal, meta.insurance_status) : "";
+        return {
+          ...prev,
+          request_status_id: newVal,
+          request_status_name: statusName,
+        };
+      });
       setPopoverOpen((p) => ({ ...p, [popKey]: false }));
     } else {
-      setMainForm((prev) => ({ ...prev, [fieldName]: value }));
+      setMainForm((prev) => ({
+        ...prev,
+        [fieldName]: prev[fieldName] === value ? "" : value,
+      }));
       setPopoverOpen((p) => ({ ...p, [popKey]: false }));
     }
   };
@@ -381,21 +393,22 @@ export default function Section33() {
     setDocumentsRequested((prev) =>
       prev.map((item, i) => {
         if (i === idx) {
+          const newVal = item[fieldName] === value ? "" : value;
           if (fieldName === "documents_requested_by_the_insurer_id") {
             return {
               ...item,
-              [fieldName]: value,
-              expanded: !!value,
+              [fieldName]: newVal,
+              expanded: !!newVal,
             };
           } else if (fieldName === "request_status_id") {
-            const statusName = getLabel(value, meta.insurance_status);
-            return { 
-              ...item, 
-              request_status_id: value,
-              request_status_name: statusName 
+            const statusName = newVal ? getLabel(newVal, meta.insurance_status) : "";
+            return {
+              ...item,
+              request_status_id: newVal,
+              request_status_name: statusName,
             };
           } else {
-            return { ...item, [fieldName]: value };
+            return { ...item, [fieldName]: newVal };
           }
         }
         return item;
@@ -654,7 +667,7 @@ export default function Section33() {
   return (
     <div className="min-h-screen bg-muted">
       <Navbar2 />
-      <Billing/>
+      <Billing />
       <div className="bg-card border-b px-6 py-4">
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
           <button

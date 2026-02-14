@@ -67,7 +67,8 @@ function SearchableDropdown({
                     key={option.id}
                     value={option.name}
                     onSelect={() => {
-                      onChange(option.id);
+                      const newVal = String(option.id) === String(value) ? "" : option.id;
+                      onChange(newVal);
                       setOpen(false);
                     }}
                     className="cursor-pointer"

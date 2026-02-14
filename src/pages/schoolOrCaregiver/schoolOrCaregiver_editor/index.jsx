@@ -374,9 +374,10 @@ export default function SchoolCaregiver() {
 
   // accepts string value from SearchableDropdown; convert to Number or null
   const handleSelectChange = (name, value) => {
+    const numericValue = value === "" ? null : Number(value);
     setFormData((prev) => ({
       ...prev,
-      [name]: value === "" ? null : Number(value),
+      [name]: prev[name] === numericValue ? null : numericValue,
     }));
   };
 

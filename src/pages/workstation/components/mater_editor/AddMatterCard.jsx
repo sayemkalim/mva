@@ -149,7 +149,10 @@ const AddMatterCard = ({
   };
 
   const handleDropdownChange = (fieldName, value, popoverKey) => {
-    setFormData((p) => ({ ...p, [fieldName]: value }));
+    setFormData((p) => ({
+      ...p,
+      [fieldName]: p[fieldName] === value ? null : value,
+    }));
     setPopoverOpen((p) => ({ ...p, [popoverKey]: false }));
   };
 

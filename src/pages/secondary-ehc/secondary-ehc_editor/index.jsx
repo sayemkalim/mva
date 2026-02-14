@@ -236,7 +236,11 @@ export default function SecondaryEhc() {
   };
 
   const handleSelectChange = (name, value, popoverKey) => {
-    setFormData((prev) => ({ ...prev, [name]: Number(value) }));
+    const numericValue = value === "" ? null : Number(value);
+    setFormData((prev) => ({
+      ...prev,
+      [name]: prev[name] === numericValue ? null : numericValue,
+    }));
     setPopoverOpen((p) => ({ ...p, [popoverKey]: false }));
   };
 
@@ -316,7 +320,7 @@ export default function SecondaryEhc() {
   return (
     <div className="min-h-screen bg-muted">
       <Navbar2 />
-    <Billing/>
+      <Billing />
 
       <div className="bg-card border-b px-6 py-4">
         <div className="flex items-center gap-2 text-sm text-muted-foreground">

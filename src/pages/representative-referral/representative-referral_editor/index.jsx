@@ -271,7 +271,7 @@ export default function RepresentativeReferral() {
   const handleSelectChange = (fieldName, selectedId, popoverKey) => {
     setFormData((prev) => ({
       ...prev,
-      [fieldName]: selectedId,
+      [fieldName]: prev[fieldName] === selectedId ? null : selectedId,
     }));
     setPopoverOpen((p) => ({ ...p, [popoverKey]: false }));
   };

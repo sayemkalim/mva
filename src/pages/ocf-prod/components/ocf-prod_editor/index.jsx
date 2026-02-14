@@ -282,8 +282,9 @@ export default function OCFProdPage() {
                   <CommandItem
                     key={option.id}
                     value={option.name}
-                    onSelect={(currentValue) => {
-                      onChange(option.name);
+                    onSelect={() => {
+                      const newVal = value === option.name ? "" : option.name;
+                      onChange(newVal);
                       toggleOpen(openKey, false);
                     }}
                   >

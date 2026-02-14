@@ -141,8 +141,8 @@ export default function Vehicle() {
         } else {
           toast.error(
             apiResponse?.response?.message ||
-              apiResponse?.message ||
-              "Failed to save vehicle information."
+            apiResponse?.message ||
+            "Failed to save vehicle information."
           );
           console.error("Create vehicle response:", apiResponse);
         }
@@ -245,7 +245,11 @@ export default function Vehicle() {
   };
 
   const handleSelectChange = (name, value) => {
-    setFormData((prev) => ({ ...prev, [name]: Number(value) }));
+    const numericValue = value === null ? null : Number(value);
+    setFormData((prev) => ({
+      ...prev,
+      [name]: prev[name] === numericValue ? null : numericValue,
+    }));
   };
 
   // ✅ File select hote hi automatic upload
@@ -447,9 +451,8 @@ export default function Vehicle() {
                     className="cursor-pointer flex items-center"
                   >
                     <Check
-                      className={`mr-2 h-4 w-4 ${
-                        value === opt.id ? "opacity-100" : "opacity-0"
-                      }`}
+                      className={`mr-2 h-4 w-4 ${value === opt.id ? "opacity-100" : "opacity-0"
+                        }`}
                     />
                     {opt.name}
                   </CommandItem>
@@ -531,7 +534,7 @@ export default function Vehicle() {
             {/* ✅ Upload Success Message */}
             {formData[`${side}_attachment_id`] && !uploadingImages[side] && (
               <div className="mt-2 text-green-600 text-sm font-medium flex items-center justify-center">
-                <span className="mr-1"></span> Uploaded 
+                <span className="mr-1"></span> Uploaded
               </div>
             )}
           </div>
@@ -563,7 +566,7 @@ export default function Vehicle() {
   return (
     <div className="min-h-screen bg-muted">
       <Navbar2 />
-     <Billing/>
+      <Billing />
 
       <div className="bg-card border-b px-6 py-4">
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
@@ -826,7 +829,7 @@ export default function Vehicle() {
                 document.body.appendChild(link);
                 link.click();
                 document.body.removeChild(link);
-              
+
               }}
               className="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm inline-flex items-center gap-2"
             >

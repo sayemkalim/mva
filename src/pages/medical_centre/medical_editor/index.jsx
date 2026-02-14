@@ -61,7 +61,8 @@ const SearchableSelect = ({ label, options, value, onChange, placeholder }) => {
                   key={opt.id}
                   value={opt.name}
                   onSelect={() => {
-                    onChange(opt.id);
+                    const newVal = String(value) === String(opt.id) ? "" : opt.id;
+                    onChange(newVal);
                     setOpen(false);
                   }}
                   className="cursor-pointer"

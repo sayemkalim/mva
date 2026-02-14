@@ -68,17 +68,17 @@ function SearchableDropdown({
                     key={option.id}
                     value={option.name}
                     onSelect={() => {
-                      onChange(option.id);
+                      const newVal = String(option.id) === String(value) ? "" : option.id;
+                      onChange(newVal);
                       setOpen(false);
                     }}
                     className="cursor-pointer"
                   >
                     <Check
-                      className={`mr-2 w-5 h-5 ${
-                        String(option.id) === String(value)
+                      className={`mr-2 w-5 h-5 ${String(option.id) === String(value)
                           ? "opacity-100"
                           : "opacity-0"
-                      }`}
+                        }`}
                     />
                     {option.name}
                   </CommandItem>
@@ -214,7 +214,7 @@ export default function VehicleInfoForm() {
   return (
     <div className="min-h-screen bg-muted">
       <Navbar2 />
-      <Billing/>
+      <Billing />
       <div className="bg-card border-b px-6 py-4">
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
           <button
