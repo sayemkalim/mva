@@ -176,26 +176,46 @@ const TaskTable = ({ setTasksLength }) => {
 
   const { mutate: deleteTaskMutation, isLoading: isDeleting } = useMutation({
     mutationFn: (id) => deleteTask(id),
-    onSuccess: () => {
-      toast.success("Task deleted successfully.");
+    onSuccess: (data) => {
+      const resp = data?.response;
+      if (resp?.Apistatus === false) {
+        toast.error(resp?.message || "Validation failed");
+        return;
+      }
+      toast.success(resp?.message || "Task deleted successfully.");
       queryClient.invalidateQueries(["taskList"]);
       onCloseDialog();
     },
     onError: (error) => {
       console.error(error);
-      toast.error("Failed to delete task.");
+      const errorData = error.response?.data;
+      if (errorData?.Apistatus === false) {
+        toast.error(errorData?.message || "Validation failed");
+      } else {
+        toast.error(errorData?.message || "Failed to delete task.");
+      }
     },
   });
 
   const { mutate: updateStatusMutation } = useMutation({
     mutationFn: ({ id, status_id }) => updateStatus(id, { status_id }),
-    onSuccess: () => {
-      toast.success("Status updated successfully.");
+    onSuccess: (data) => {
+      const resp = data?.response;
+      if (resp?.Apistatus === false) {
+        toast.error(resp?.message || "Validation failed");
+        return;
+      }
+      toast.success(resp?.message || "Status updated successfully.");
       queryClient.invalidateQueries(["taskList"]);
     },
     onError: (error) => {
       console.error(error);
-      toast.error("Failed to update status.");
+      const errorData = error.response?.data;
+      if (errorData?.Apistatus === false) {
+        toast.error(errorData?.message || "Validation failed");
+      } else {
+        toast.error(errorData?.message || "Failed to update status.");
+      }
     },
   });
 
@@ -229,8 +249,8 @@ const TaskTable = ({ setTasksLength }) => {
       label: "Subject",
       render: (value) => <Typography variant="p">{value || "-"}</Typography>,
     },
-    
-    
+
+
     {
       key: "priority",
       label: "Priority",
@@ -424,7 +444,7 @@ const TaskTable = ({ setTasksLength }) => {
         data={tasks}
         isLoading={isLoading}
         error={error}
-        // onRowClick={handleRowClick}
+      // onRowClick={handleRowClick}
       />
 
       <Dialog open={openFilter} onOpenChange={setOpenFilter}>

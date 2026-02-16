@@ -679,29 +679,49 @@ export default function TaskPage() {
     mutationFn: (data) => {
       return createTask(data);
     },
-    onSuccess: () => {
-      toast.success("Task created successfully!");
+    onSuccess: (data) => {
+      const resp = data?.response;
+      if (resp?.Apistatus === false) {
+        toast.error(resp?.message || "Validation failed");
+        return;
+      }
+      toast.success(resp?.message || "Task created successfully!");
       queryClient.invalidateQueries(["taskList"]);
       navigate(-1);
     },
     onError: (error) => {
-      toast.error(error.response?.data?.message || "Failed to create Task");
+      const errorData = error.response?.data;
+      if (errorData?.Apistatus === false) {
+        toast.error(errorData?.message || "Validation failed");
+      } else {
+        toast.error(errorData?.message || "Failed to create Task");
+      }
     },
   });
 
   const updateMutation = useMutation({
-    mutationFn: (data) => {
-      return updateTask(slug, data);
+    mutationFn: (payload) => {
+      return updateTask(slug, payload);
     },
-    onSuccess: () => {
-      toast.success("Task updated successfully!");
+    onSuccess: (data) => {
+      const resp = data?.response;
+      if (resp?.Apistatus === false) {
+        toast.error(resp?.message || "Validation failed");
+        return;
+      }
+      toast.success(resp?.message || "Task updated successfully!");
       queryClient.invalidateQueries(["taskList"]);
       queryClient.invalidateQueries(["task", slug]);
       navigate(-1);
     },
     onError: (error) => {
       console.error("❌ Update Error:", error);
-      toast.error(error.response?.data?.message || "Failed to update task");
+      const errorData = error.response?.data;
+      if (errorData?.Apistatus === false) {
+        toast.error(errorData?.message || " failed");
+      } else {
+        toast.error(errorData?.message || "Failed to update task");
+      }
     },
   });
 
@@ -828,7 +848,6 @@ export default function TaskPage() {
   });
 
   const [uploadedFiles, setUploadedFiles] = useState([]);
-  // ✅ NEW: State to store contact name for edit mode
   const [contactName, setContactName] = useState("");
 
   useEffect(() => {

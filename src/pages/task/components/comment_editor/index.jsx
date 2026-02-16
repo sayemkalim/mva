@@ -140,7 +140,12 @@ const CommentPage = () => {
   const { mutate: postCommentMutation, isPending: isPosting } = useMutation({
     mutationFn: (data) => postComment(id, data),
     onSuccess: (response) => {
-      toast.success("Comment posted ✓");
+      const resp = response?.response;
+      if (resp?.Apistatus === false) {
+        toast.error(resp?.message || "Validation failed");
+        return;
+      }
+      toast.success(resp?.message || "Comment posted ✓");
       setComment("");
       setUploadedFiles([]);
       setReplyingTo(null);
@@ -149,9 +154,12 @@ const CommentPage = () => {
     },
     onError: (error) => {
       console.error("Comment error:", error);
-      const errorMessage =
-        error.response?.data?.message || "Failed to post comment";
-      toast.error(errorMessage);
+      const errorData = error.response?.data;
+      if (errorData?.Apistatus === false) {
+        toast.error(errorData?.message || "Validation failed");
+      } else {
+        toast.error(errorData?.message || "Failed to post comment");
+      }
     },
   });
 
@@ -178,9 +186,8 @@ const CommentPage = () => {
   const handleReplyClick = (commentItem) => {
     setReplyingTo({
       id: commentItem.id,
-      userName: `${commentItem.user?.first_name || ""} ${
-        commentItem.user?.last_name || ""
-      }`.trim(),
+      userName: `${commentItem.user?.first_name || ""} ${commentItem.user?.last_name || ""
+        }`.trim(),
       comment: commentItem.comment?.substring(0, 50) || "Attachment",
     });
     textareaRef.current?.focus();
