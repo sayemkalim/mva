@@ -81,7 +81,12 @@ export default function ClientDocumentPage() {
         return createClient({ slug, ...data });
       }
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
+      const resp = data?.response;
+      if (resp?.Apistatus === false) {
+        toast.error(resp?.message || "Validation failed");
+        return;
+      }
       toast.success(
         id
           ? "Client Document updated successfully!"
@@ -89,14 +94,19 @@ export default function ClientDocumentPage() {
       );
       // navigate(`/dashboard/workstation/edit/${slug}`);
     },
-    onError: (err) => {
-      console.error("Mutation Error:", err);
-      toast.error(
-        err.message ||
-        (id
-          ? "Failed to update Client Document"
-          : "Failed to save Client Document")
-      );
+    onError: (error) => {
+      console.error("Mutation Error:", error);
+      const errorData = error.response?.data;
+      if (errorData?.Apistatus === false) {
+        toast.error(errorData?.message || "Validation failed");
+      } else {
+        toast.error(
+          errorData?.message ||
+          (id
+            ? "Failed to update Client Document"
+            : "Failed to save Client Document")
+        );
+      }
     },
   });
 
@@ -293,8 +303,8 @@ export default function ClientDocumentPage() {
               </Label>
               <div
                 className={`relative border-2 border-dashed rounded-lg transition-all overflow-hidden ${filePreview
-                    ? "border-green-500 bg-green-50/50"
-                    : "border-input bg-muted hover:border-gray-400 hover:bg-gray-100"
+                  ? "border-green-500 bg-green-50/50"
+                  : "border-input bg-muted hover:border-gray-400 hover:bg-gray-100"
                   } ${uploadMutation.isLoading
                     ? "pointer-events-none opacity-70"
                     : ""

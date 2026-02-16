@@ -84,22 +84,42 @@ export default function TPInsurerForm() {
   // SAVE mutation
   const mutation = useMutation({
     mutationFn: (data) => createTpInsurance({ slug, data }),
-    onSuccess: () => {
-      toast.success("TP Insurer data saved successfully!");
+    onSuccess: (data) => {
+      const resp = data?.response;
+      if (resp?.Apistatus === false) {
+        toast.error(resp?.message || "Validation failed");
+        return;
+      }
+      toast.success(resp?.message || "TP Insurer data saved successfully!");
     },
     onError: (error) => {
-      toast.error(error.message || "Failed to save data");
+      const errorData = error.response?.data;
+      if (errorData?.Apistatus === false) {
+        toast.error(errorData?.message || "Validation failed");
+      } else {
+        toast.error(errorData?.message || "Failed to save data");
+      }
     },
   });
 
   // DELETE mutation
   const deleteMutation = useMutation({
     mutationFn: (id) => deleteTpInsurance(id),
-    onSuccess: () => {
-      toast.success("Record deleted successfully!");
+    onSuccess: (data) => {
+      const resp = data?.response;
+      if (resp?.Apistatus === false) {
+        toast.error(resp?.message || "Validation failed");
+        return;
+      }
+      toast.success(resp?.message || "Record deleted successfully!");
     },
     onError: (error) => {
-      toast.error(error.message || "Failed to delete record");
+      const errorData = error.response?.data;
+      if (errorData?.Apistatus === false) {
+        toast.error(errorData?.message || "Validation failed");
+      } else {
+        toast.error(errorData?.message || "Failed to delete record");
+      }
     },
   });
 

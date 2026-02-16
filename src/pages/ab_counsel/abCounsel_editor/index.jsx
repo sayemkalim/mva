@@ -90,12 +90,22 @@ export default function AbCounselPage() {
 
   const saveMutation = useMutation({
     mutationFn: createAbCounsel,
-    onSuccess: () => {
-      toast.success("Counsel data saved!");
+    onSuccess: (data) => {
+      const resp = data?.response;
+      if (resp?.Apistatus === false) {
+        toast.error(resp?.message || "Validation failed");
+        return;
+      }
+      toast.success(resp?.message || "Counsel data saved!");
       // navigate("/dashboard/workstation");
     },
-    onError: () => {
-      toast.error("Failed to save counsel data");
+    onError: (error) => {
+      const errorData = error.response?.data;
+      if (errorData?.Apistatus === false) {
+        toast.error(errorData?.message || "Validation failed");
+      } else {
+        toast.error(errorData?.message || "Failed to save counsel data");
+      }
     },
   });
 
@@ -201,7 +211,7 @@ export default function AbCounselPage() {
   return (
     <div className="min-h-screen bg-muted">
       <Navbar2 />
-     <Billing/>
+      <Billing />
 
       {/* Breadcrumb */}
       <nav className="bg-card border-b px-6 py-4 text-sm text-muted-foreground">

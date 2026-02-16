@@ -152,23 +152,43 @@ export default function HospitalReportPage() {
 
   const saveMutation = useMutation({
     mutationFn: createHospitalReport,
-    onSuccess: () => {
-      toast.success("Hospital Report data saved successfully!");
+    onSuccess: (data) => {
+      const resp = data?.response;
+      if (resp?.Apistatus === false) {
+        toast.error(resp?.message || "Validation failed");
+        return;
+      }
+      toast.success(resp?.message || "Hospital Report data saved successfully!");
       queryClient.invalidateQueries(["hospitalReport", slug]);
     },
-    onError: () => {
-      toast.error("Failed to save Hospital Report data");
+    onError: (error) => {
+      const errorData = error.response?.data;
+      if (errorData?.Apistatus === false) {
+        toast.error(errorData?.message || "Validation failed");
+      } else {
+        toast.error(errorData?.message || "Failed to save Hospital Report data");
+      }
     },
   });
 
   const deleteMutation = useMutation({
     mutationFn: deleteHospitalReport,
-    onSuccess: () => {
-      toast.success("Record deleted successfully!");
+    onSuccess: (data) => {
+      const resp = data?.response;
+      if (resp?.Apistatus === false) {
+        toast.error(resp?.message || "Validation failed");
+        return;
+      }
+      toast.success(resp?.message || "Record deleted successfully!");
       queryClient.invalidateQueries(["hospitalReport", slug]);
     },
-    onError: () => {
-      toast.error("Failed to delete record");
+    onError: (error) => {
+      const errorData = error.response?.data;
+      if (errorData?.Apistatus === false) {
+        toast.error(errorData?.message || "Validation failed");
+      } else {
+        toast.error(errorData?.message || "Failed to delete record");
+      }
     },
   });
 

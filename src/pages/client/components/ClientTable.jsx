@@ -47,13 +47,23 @@ const ClientTable = ({ slug, setBlogsLength, params = {} }) => {
 
   const { mutate: deleteSectionMutation, isLoading: isDeleting } = useMutation({
     mutationFn: (id) => deleteClient(id),
-    onSuccess: () => {
-      toast.success("Client deleted successfully.");
+    onSuccess: (data) => {
+      const resp = data?.response;
+      if (resp?.Apistatus === false) {
+        toast.error(resp?.message || "Validation failed");
+        return;
+      }
+      toast.success(resp?.message || "Client deleted successfully.");
       queryClient.invalidateQueries(["clientlist", slug]);
       onCloseDialog();
     },
-    onError: () => {
-      toast.error("Failed to delete Client.");
+    onError: (error) => {
+      const errorData = error.response?.data;
+      if (errorData?.Apistatus === false) {
+        toast.error(errorData?.message || "Validation failed");
+      } else {
+        toast.error(errorData?.message || "Failed to delete Client.");
+      }
     },
   });
 

@@ -42,13 +42,23 @@ const MasterTable = ({ slug, setMasterLength, onEdit, params }) => {
 
   const { mutate: deleteMasterMutation, isLoading: isDeleting } = useMutation({
     mutationFn: (id) => deleteMaster(id),
-    onSuccess: () => {
-      toast.success("Master record deleted successfully.");
+    onSuccess: (data) => {
+      const resp = data?.response;
+      if (resp?.Apistatus === false) {
+        toast.error(resp?.message || "Validation failed");
+        return;
+      }
+      toast.success(resp?.message || "Master record deleted successfully.");
       queryClient.invalidateQueries(["masterList", slug]);
       onCloseDialog();
     },
-    onError: () => {
-      toast.error("Failed to delete master record.");
+    onError: (error) => {
+      const errorData = error.response?.data;
+      if (errorData?.Apistatus === false) {
+        toast.error(errorData?.message || "Validation failed");
+      } else {
+        toast.error(errorData?.message || "Failed to delete master record.");
+      }
     },
   });
 
@@ -64,7 +74,7 @@ const MasterTable = ({ slug, setMasterLength, onEdit, params }) => {
       // Optimistically update to the new value
       queryClient.setQueryData(["masterList", slug], (old) => {
         if (!old?.response?.data) return old;
-        
+
         return {
           ...old,
           response: {
@@ -79,16 +89,27 @@ const MasterTable = ({ slug, setMasterLength, onEdit, params }) => {
       // Return context with previous data
       return { previousData };
     },
-    onSuccess: () => {
-      toast.success("Status updated successfully.");
+    onSuccess: (data) => {
+      const resp = data?.response;
+      if (resp?.Apistatus === false) {
+        toast.error(resp?.message || "Validation failed");
+        queryClient.invalidateQueries(["masterList", slug]); // Invalidate on error/failure
+        return;
+      }
+      toast.success(resp?.message || "Status updated successfully.");
       queryClient.invalidateQueries(["masterList", slug]);
     },
-    onError: (err, variables, context) => {
+    onError: (error, variables, context) => {
       // Rollback to previous data on error
       if (context?.previousData) {
         queryClient.setQueryData(["masterList", slug], context.previousData);
       }
-      toast.error("Failed to update status.");
+      const errorData = error.response?.data;
+      if (errorData?.Apistatus === false) {
+        toast.error(errorData?.message || "Validation failed");
+      } else {
+        toast.error(errorData?.message || "Failed to update status.");
+      }
     },
   });
 

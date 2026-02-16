@@ -60,16 +60,22 @@ export default function Insurance() {
   });
   const createMutation = useMutation({
     mutationFn: createInsurance,
-    onSuccess: (apiResponse) => {
-      console.log("✅ Success Response:", apiResponse);
-
-      if (apiResponse?.response?.Apistatus) {
-        toast.success("Insurance information saved successfully!");
+    onSuccess: (data) => {
+      const resp = data?.response;
+      if (resp?.Apistatus === false) {
+        toast.error(resp?.message || "Validation failed");
+        return;
       }
+      toast.success(resp?.message || "Insurance information saved successfully!");
     },
     onError: (error) => {
       console.error("Mutation Error:", error);
-      toast.error("Failed to save information. Please try again.");
+      const errorData = error.response?.data;
+      if (errorData?.Apistatus === false) {
+        toast.error(errorData?.message || "Validation failed");
+      } else {
+        toast.error(errorData?.message || "Failed to save information. Please try again.");
+      }
     },
   });
 
@@ -279,7 +285,7 @@ export default function Insurance() {
   return (
     <div className="min-h-screen bg-muted">
       <Navbar2 />
-      <Billing/>
+      <Billing />
 
       {/* Breadcrumb */}
       <div className="bg-card border-b px-6 py-4">
