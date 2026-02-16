@@ -134,15 +134,22 @@ export default function RepresentativeReferral() {
 
   const createMutation = useMutation({
     mutationFn: createRepresentativeReferral,
-    onSuccess: (apiResponse) => {
-      if (apiResponse?.response?.Apistatus) {
-        toast.success(
-          "Representative & Referral information saved successfully!"
-        );
+    onSuccess: (data) => {
+      const resp = data?.response || data;
+      if (resp?.Apistatus === false) {
+        toast.error(resp?.message || "Validation failed");
+        return;
       }
+      toast.success(resp?.message || "Representative & Referral information saved successfully!");
     },
-    onError: () => {
-      toast.error("Failed to save information. Please try again.");
+    onError: (error) => {
+      console.error("Mutation Error:", error);
+      const errorData = error.response?.data;
+      if (errorData?.Apistatus === false) {
+        toast.error(errorData?.message || "Validation failed");
+      } else {
+        toast.error(errorData?.message || "Failed to save information");
+      }
     },
   });
 

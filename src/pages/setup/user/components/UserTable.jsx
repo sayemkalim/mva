@@ -47,13 +47,23 @@ const UserTable = ({ setUsersLength, params }) => {
 
   const { mutate: deleteUserMutation, isLoading: isDeleting } = useMutation({
     mutationFn: (id) => deleteUser(id),
-    onSuccess: () => {
-      toast.success("User deleted successfully.");
+    onSuccess: (data) => {
+      const resp = data?.response;
+      if (resp?.Apistatus === false) {
+        toast.error(resp?.message || "Validation failed");
+        return;
+      }
+      toast.success(resp?.message || "User deleted successfully.");
       queryClient.invalidateQueries(["userList"]);
       onCloseDialog();
     },
-    onError: () => {
-      toast.error("Failed to delete user.");
+    onError: (error) => {
+      const errorData = error.response?.data;
+      if (errorData?.Apistatus === false) {
+        toast.error(errorData?.message || "Validation failed");
+      } else {
+        toast.error(errorData?.message || "Failed to delete user.");
+      }
     },
   });
 
@@ -66,8 +76,8 @@ const UserTable = ({ setUsersLength, params }) => {
   const users = Array.isArray(apiUserResponse?.response?.data)
     ? apiUserResponse.response.data
     : Array.isArray(apiUserResponse?.response)
-    ? apiUserResponse.response
-    : [];
+      ? apiUserResponse.response
+      : [];
 
   // Filter users based on search
   const filteredUsers = users.filter((user) => {
@@ -130,11 +140,10 @@ const UserTable = ({ setUsersLength, params }) => {
       label: "Status",
       render: (value) => (
         <span
-          className={`px-2 py-1 rounded-full text-xs font-medium ${
-            value === true || value === 1
+          className={`px-2 py-1 rounded-full text-xs font-medium ${value === true || value === 1
               ? "bg-green-100 text-green-800"
               : "bg-red-100 text-red-800"
-          }`}
+            }`}
         >
           {value === true || value === 1 ? "Active" : "Inactive"}
         </span>
@@ -189,9 +198,8 @@ const UserTable = ({ setUsersLength, params }) => {
         onOpen={openDelete}
         onClose={onCloseDialog}
         title={
-          `${selectedUser?.first_name || ""} ${
-            selectedUser?.last_name || ""
-          }`.trim() || "this user"
+          `${selectedUser?.first_name || ""} ${selectedUser?.last_name || ""
+            }`.trim() || "this user"
         }
         modalType="Delete"
         onDelete={onDelete}

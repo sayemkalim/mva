@@ -123,33 +123,22 @@ export default function Vehicle() {
 
   const createMutation = useMutation({
     mutationFn: createVechile,
-    onSuccess: (apiResponse) => {
-      const apiStatus =
-        apiResponse?.response?.Apistatus ?? apiResponse?.Apistatus ?? false;
-      if (apiStatus === true) {
-        toast.success("Vehicle information saved successfully!");
-      } else {
-        const errors = apiResponse?.response?.errors ?? apiResponse?.errors;
-        if (errors && typeof errors === "object") {
-          const messages = [];
-          Object.entries(errors).forEach(([k, v]) => {
-            if (Array.isArray(v)) messages.push(`${k}: ${v.join(", ")}`);
-            else messages.push(`${k}: ${String(v)}`);
-          });
-          toast.error(messages.join(" — "));
-          console.error("API errors:", errors);
-        } else {
-          toast.error(
-            apiResponse?.response?.message ||
-            apiResponse?.message ||
-            "Failed to save vehicle information."
-          );
-          console.error("Create vehicle response:", apiResponse);
-        }
+    onSuccess: (data) => {
+      const resp = data?.response || data;
+      if (resp?.Apistatus === false) {
+        toast.error(resp?.message || "Validation failed");
+        return;
       }
+      toast.success(resp?.message || "Vehicle information saved successfully!");
     },
-    onError: () => {
-      toast.error("Failed to save information. Please try again.");
+    onError: (error) => {
+      console.error("Mutation Error:", error);
+      const errorData = error.response?.data;
+      if (errorData?.Apistatus === false) {
+        toast.error(errorData?.message || "Validation failed");
+      } else {
+        toast.error(errorData?.message || "Failed to save vehicle information");
+      }
     },
   });
 

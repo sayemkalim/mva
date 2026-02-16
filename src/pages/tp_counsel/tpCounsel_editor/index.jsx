@@ -90,12 +90,23 @@ export default function TpCounselForm() {
 
   const saveMutation = useMutation({
     mutationFn: createTpCounsel,
-    onSuccess: () => {
-      toast.success("Counsel data saved!");
+    onSuccess: (data) => {
+      const resp = data?.response;
+      if (resp?.Apistatus === false) {
+        toast.error(resp?.message || "Validation failed");
+        return;
+      }
+      toast.success(resp?.message || "Counsel data saved!");
       // navigate("/dashboard/workstation");
     },
-    onError: () => {
-      toast.error("Failed to save counsel data");
+    onError: (error) => {
+      console.error("Mutation Error:", error);
+      const errorData = error.response?.data;
+      if (errorData?.Apistatus === false) {
+        toast.error(errorData?.message || "Validation failed");
+      } else {
+        toast.error(errorData?.message || "Failed to save counsel data");
+      }
     },
   });
 

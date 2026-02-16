@@ -162,6 +162,7 @@ export default function PhysiotherapyPage() {
       queryClient.invalidateQueries(["physiotherapy", slug]);
     },
     onError: (error) => {
+      console.error("Mutation Error:", error);
       const errorData = error.response?.data;
       if (errorData?.Apistatus === false) {
         toast.error(errorData?.message || "Validation failed");
@@ -183,6 +184,7 @@ export default function PhysiotherapyPage() {
       queryClient.invalidateQueries(["physiotherapy", slug]);
     },
     onError: (error) => {
+      console.error("Mutation Error:", error);
       const errorData = error.response?.data;
       if (errorData?.Apistatus === false) {
         toast.error(errorData?.message || "Validation failed");

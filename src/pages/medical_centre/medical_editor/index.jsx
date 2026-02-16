@@ -136,11 +136,22 @@ export default function MedicalCentrePage() {
 
   const mutation = useMutation({
     mutationFn: (data) => createMedicalCentre({ slug, data }),
-    onSuccess: () => {
-      toast.success("Medical records saved successfully!");
+    onSuccess: (data) => {
+      const resp = data?.response || data;
+      if (resp?.Apistatus === false) {
+        toast.error(resp?.message || "Validation failed");
+        return;
+      }
+      toast.success(resp?.message || "Medical records saved successfully!");
     },
     onError: (error) => {
-      toast.error(error.message || "Failed to save medical data");
+      console.error("Mutation Error:", error);
+      const errorData = error.response?.data;
+      if (errorData?.Apistatus === false) {
+        toast.error(errorData?.message || "Validation failed");
+      } else {
+        toast.error(errorData?.message || "Failed to save medical data");
+      }
     },
   });
 

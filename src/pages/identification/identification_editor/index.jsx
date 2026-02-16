@@ -101,8 +101,8 @@ function SearchableDropdown({
               >
                 <Check
                   className={`mr-2 h-4 w-4 ${String(value) === String(opt.id)
-                      ? "opacity-100"
-                      : "opacity-0"
+                    ? "opacity-100"
+                    : "opacity-0"
                     }`}
                 />
                 {opt.name}
@@ -178,33 +178,22 @@ export default function Identification() {
 
   const createMutation = useMutation({
     mutationFn: createIdentification,
-    onSuccess: (apiResponse) => {
-      const apiStatus =
-        apiResponse?.response?.Apistatus ?? apiResponse?.Apistatus ?? false;
-      if (apiStatus === true) {
-        toast.success("Identification saved successfully!");
-      } else {
-        const errors = apiResponse?.response?.errors ?? apiResponse?.errors;
-        if (errors && typeof errors === "object") {
-          const messages = [];
-          Object.entries(errors).forEach(([k, v]) => {
-            if (Array.isArray(v)) messages.push(`${k}: ${v.join(", ")}`);
-            else messages.push(`${k}: ${String(v)}`);
-          });
-          toast.error(messages.join(" — "));
-          console.error("API errors:", errors);
-        } else {
-          toast.error(
-            apiResponse?.response?.message ||
-            apiResponse?.message ||
-            "Failed to save identification."
-          );
-          console.error("Create identification response:", apiResponse);
-        }
+    onSuccess: (data) => {
+      const resp = data?.response || data;
+      if (resp?.Apistatus === false) {
+        toast.error(resp?.message || "Validation failed");
+        return;
       }
+      toast.success(resp?.message || "Identification saved successfully!");
     },
-    onError: () => {
-      toast.error("Failed to save identification. Please try again.");
+    onError: (error) => {
+      console.error("Mutation Error:", error);
+      const errorData = error.response?.data;
+      if (errorData?.Apistatus === false) {
+        toast.error(errorData?.message || "Validation failed");
+      } else {
+        toast.error(errorData?.message || "Failed to save identification");
+      }
     },
   });
 
@@ -711,12 +700,12 @@ export default function Identification() {
                     </Label>
                     <div
                       className={`relative border-2 border-dashed rounded-lg transition-all ${identification.isUploading
+                        ? "border-blue-500 bg-blue-50"
+                        : identification.isDragging
                           ? "border-blue-500 bg-blue-50"
-                          : identification.isDragging
-                            ? "border-blue-500 bg-blue-50"
-                            : identification.filePreview
-                              ? "border-green-500 bg-green-50/50"
-                              : "border-input bg-card hover:border-gray-400"
+                          : identification.filePreview
+                            ? "border-green-500 bg-green-50/50"
+                            : "border-input bg-card hover:border-gray-400"
                         }`}
                     >
                       <input

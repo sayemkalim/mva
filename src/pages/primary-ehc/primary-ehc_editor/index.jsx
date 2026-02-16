@@ -133,13 +133,22 @@ export default function PrimaryEhc() {
 
   const createMutation = useMutation({
     mutationFn: createPrimaryEhc,
-    onSuccess: (apiResponse) => {
-      if (apiResponse?.response?.Apistatus) {
-        toast.success("Primary EHC information saved successfully!");
+    onSuccess: (data) => {
+      const resp = data?.response || data;
+      if (resp?.Apistatus === false) {
+        toast.error(resp?.message || "Validation failed");
+        return;
       }
+      toast.success(resp?.message || "Primary EHC information saved successfully!");
     },
-    onError: () => {
-      toast.error("Failed to save information. Please try again.");
+    onError: (error) => {
+      console.error("Mutation Error:", error);
+      const errorData = error.response?.data;
+      if (errorData?.Apistatus === false) {
+        toast.error(errorData?.message || "Validation failed");
+      } else {
+        toast.error(errorData?.message || "Failed to save primary EHC information");
+      }
     },
   });
 

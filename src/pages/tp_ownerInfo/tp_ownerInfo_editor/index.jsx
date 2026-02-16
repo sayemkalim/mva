@@ -221,10 +221,42 @@ export default function OwnerInfoForm() {
 
   const ownerDeleteMutation = useMutation({
     mutationFn: (id) => deleteOwnerInfo(id),
+    onSuccess: (data) => {
+      const resp = data?.response;
+      if (resp?.Apistatus === false) {
+        toast.error(resp?.message || "Validation failed");
+        return;
+      }
+    },
+    onError: (error) => {
+      console.error("Mutation Error:", error);
+      const errorData = error.response?.data;
+      if (errorData?.Apistatus === false) {
+        toast.error(errorData?.message || "Validation failed");
+      } else {
+        toast.error(errorData?.message || "Failed to delete owner");
+      }
+    },
   });
 
   const directorDeleteMutation = useMutation({
     mutationFn: (id) => deleteOwnerDirector(id),
+    onSuccess: (data) => {
+      const resp = data?.response;
+      if (resp?.Apistatus === false) {
+        toast.error(resp?.message || "Validation failed");
+        return;
+      }
+    },
+    onError: (error) => {
+      console.error("Mutation Error:", error);
+      const errorData = error.response?.data;
+      if (errorData?.Apistatus === false) {
+        toast.error(errorData?.message || "Validation failed");
+      } else {
+        toast.error(errorData?.message || "Failed to delete director");
+      }
+    },
   });
 
   const addOwner = () => {
@@ -379,12 +411,23 @@ export default function OwnerInfoForm() {
 
   const createMutation = useMutation({
     mutationFn: (payload) => createOwnerInfo({ slug, data: payload }),
-    onSuccess: () => {
-      toast.success("Owner information saved successfully!");
+    onSuccess: (data) => {
+      const resp = data?.response;
+      if (resp?.Apistatus === false) {
+        toast.error(resp?.message || "Validation failed");
+        return;
+      }
+      toast.success(resp?.message || "Owner information saved successfully!");
       // navigate("/dashboard/workstation");
     },
     onError: (error) => {
-      toast.error(error?.message || "Failed to save owner information");
+      console.error("Mutation Error:", error);
+      const errorData = error.response?.data;
+      if (errorData?.Apistatus === false) {
+        toast.error(errorData?.message || "Validation failed");
+      } else {
+        toast.error(errorData?.message || "Failed to save owner information");
+      }
     },
   });
 

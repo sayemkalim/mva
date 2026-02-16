@@ -52,15 +52,24 @@ export default function AddUser() {
 
   const createMutation = useMutation({
     mutationFn: addUser,
-    onSuccess: (apiResponse) => {
-      if (apiResponse?.response?.Apistatus || apiResponse?.response) {
-        toast.success("User created successfully!");
-        queryClient.invalidateQueries(["userList"]);
-        navigate("/dashboard/setup/user");
+    onSuccess: (data) => {
+      const resp = data?.response;
+      if (resp?.Apistatus === false) {
+        toast.error(resp?.message || "Validation failed");
+        return;
       }
+      toast.success(resp?.message || "User created successfully!");
+      queryClient.invalidateQueries(["userList"]);
+      navigate("/dashboard/setup/user");
     },
     onError: (error) => {
-      toast.error(error?.message || "Failed to create user. Please try again.");
+      console.error("Mutation Error:", error);
+      const errorData = error.response?.data;
+      if (errorData?.Apistatus === false) {
+        toast.error(errorData?.message || "Validation failed");
+      } else {
+        toast.error(errorData?.message || "Failed to create user. Please try again.");
+      }
     },
   });
 

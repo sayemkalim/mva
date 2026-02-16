@@ -72,22 +72,44 @@ export default function TPAdjusterForm() {
   // ---------- SAVE MUTATION ----------
   const saveMutation = useMutation({
     mutationFn: (data) => createTpAdjuster({ slug, data }),
-    onSuccess: () => {
-      toast.success("TP Adjuster data saved successfully!");
+    onSuccess: (data) => {
+      const resp = data?.response;
+      if (resp?.Apistatus === false) {
+        toast.error(resp?.message || "Validation failed");
+        return;
+      }
+      toast.success(resp?.message || "TP Adjuster data saved successfully!");
       // navigate("/dashboard/workstation");
     },
     onError: (error) => {
-      toast.error(error?.message || "Failed to save adjuster data");
+      console.error("Mutation Error:", error);
+      const errorData = error.response?.data;
+      if (errorData?.Apistatus === false) {
+        toast.error(errorData?.message || "Validation failed");
+      } else {
+        toast.error(errorData?.message || "Failed to save adjuster data");
+      }
     },
   });
 
   const deleteMutation = useMutation({
     mutationFn: (id) => deleteTpAdjuster(id),
-    onSuccess: () => {
-      toast.success("Adjuster record deleted");
+    onSuccess: (data) => {
+      const resp = data?.response;
+      if (resp?.Apistatus === false) {
+        toast.error(resp?.message || "Validation failed");
+        return;
+      }
+      toast.success(resp?.message || "Adjuster record deleted");
     },
     onError: (error) => {
-      toast.error(error?.message || "Failed to delete record");
+      console.error("Mutation Error:", error);
+      const errorData = error.response?.data;
+      if (errorData?.Apistatus === false) {
+        toast.error(errorData?.message || "Validation failed");
+      } else {
+        toast.error(errorData?.message || "Failed to delete record");
+      }
     },
   });
 

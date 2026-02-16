@@ -235,11 +235,22 @@ export default function DriverInfoForm() {
   };
   const createMutation = useMutation({
     mutationFn: (payload) => createDriverInfo({ slug, data: payload }),
-    onSuccess: () => {
-      toast.success("Driver information saved successfully!");
+    onSuccess: (data) => {
+      const resp = data?.response;
+      if (resp?.Apistatus === false) {
+        toast.error(resp?.message || "Validation failed");
+        return;
+      }
+      toast.success(resp?.message || "Driver information saved successfully!");
     },
     onError: (error) => {
-      toast.error(error?.message || "Failed to save driver information");
+      console.error("Mutation Error:", error);
+      const errorData = error.response?.data;
+      if (errorData?.Apistatus === false) {
+        toast.error(errorData?.message || "Validation failed");
+      } else {
+        toast.error(errorData?.message || "Failed to save driver information");
+      }
     },
   });
   if (loadingDriver || loadingMeta) {

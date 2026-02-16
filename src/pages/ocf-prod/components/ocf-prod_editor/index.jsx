@@ -58,15 +58,24 @@ export default function OCFProdPage() {
       isEdit
         ? updateOcfProd(idOrSlug, data)
         : createOcfProd({ slug: idOrSlug, data }),
-    onSuccess: (res) => {
-      const r = res?.data || res?.response || res;
-      toast.success(r?.message || "Form saved");
+    onSuccess: (data) => {
+      const resp = data?.response || data;
+      if (resp?.Apistatus === false) {
+        toast.error(resp?.message || "Validation failed");
+        return;
+      }
+      toast.success(resp?.message || "Form saved successfully!");
       queryClient.invalidateQueries(["ocfProd", id]);
       navigate(-1);
     },
-    onError: (err) => {
-      console.error(err);
-      toast.error("Failed to save OCF-PROD");
+    onError: (error) => {
+      console.error("Mutation Error:", error);
+      const errorData = error.response?.data;
+      if (errorData?.Apistatus === false) {
+        toast.error(errorData?.message || "Validation failed");
+      } else {
+        toast.error(errorData?.message || "Failed to save OCF-PROD");
+      }
     },
   });
 

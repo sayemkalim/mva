@@ -105,39 +105,48 @@ export default function EditUser() {
 
   const updateMutation = useMutation({
     mutationFn: (data) => updateUser(id, data),
-    onSuccess: async (apiResponse) => {
-      if (apiResponse?.response?.Apistatus || apiResponse?.response) {
-        toast.success("User updated successfully!");
-        
-        // Invalidate user-related queries
-        await queryClient.invalidateQueries(["userList"]);
-        await queryClient.invalidateQueries(["user", id]);
-        await queryClient.invalidateQueries(["userMeta"]);
-        
-        // Check if the current logged-in user is the one being edited
-        const currentUserId = getItem("userId");
-        if (currentUserId && String(currentUserId) === String(id)) {
-          // Check if the role was changed
-          if (originalRoleId && formData.role_id && originalRoleId !== formData.role_id) {
-            // Update the stored role ID
-            const { setItem } = await import("@/utils/local_storage");
-            setItem({ userRole: formData.role_id });
-            
-            // Refresh permissions from API
-            await refreshUserPermissions();
-            
-            // Invalidate all queries to force components to refetch
-            await queryClient.invalidateQueries();
-            
-            toast.info("Your role and permissions have been updated");
-          }
-        }
-        
-        navigate("/dashboard/setup/user");
+    onSuccess: async (data) => {
+      const resp = data?.response;
+      if (resp?.Apistatus === false) {
+        toast.error(resp?.message || "Validation failed");
+        return;
       }
+      toast.success(resp?.message || "User updated successfully!");
+
+      // Invalidate user-related queries
+      await queryClient.invalidateQueries(["userList"]);
+      await queryClient.invalidateQueries(["user", id]);
+      await queryClient.invalidateQueries(["userMeta"]);
+
+      // Check if the current logged-in user is the one being edited
+      const currentUserId = getItem("userId");
+      if (currentUserId && String(currentUserId) === String(id)) {
+        // Check if the role was changed
+        if (originalRoleId && formData.role_id && originalRoleId !== formData.role_id) {
+          // Update the stored role ID
+          const { setItem } = await import("@/utils/local_storage");
+          setItem({ userRole: formData.role_id });
+
+          // Refresh permissions from API
+          await refreshUserPermissions();
+
+          // Invalidate all queries to force components to refetch
+          await queryClient.invalidateQueries();
+
+          toast.info("Your role and permissions have been updated");
+        }
+      }
+
+      navigate("/dashboard/setup/user");
     },
     onError: (error) => {
-      toast.error(error?.message || "Failed to update user. Please try again.");
+      console.error("Mutation Error:", error);
+      const errorData = error.response?.data;
+      if (errorData?.Apistatus === false) {
+        toast.error(errorData?.message || "Validation failed");
+      } else {
+        toast.error(errorData?.message || "Failed to update user. Please try again.");
+      }
     },
   });
 

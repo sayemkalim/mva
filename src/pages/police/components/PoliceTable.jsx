@@ -47,13 +47,24 @@ const PoliceTable = ({ slug, setBlogsLength, params = {} }) => {
 
   const { mutate: deleteSectionMutation, isLoading: isDeleting } = useMutation({
     mutationFn: (id) => deletePolice(id),
-    onSuccess: () => {
-      toast.success("policeList deleted successfully.");
+    onSuccess: (data) => {
+      const resp = data?.response || data;
+      if (resp?.Apistatus === false) {
+        toast.error(resp?.message || "Validation failed");
+        return;
+      }
+      toast.success(resp?.message || "Record deleted successfully!");
       queryClient.invalidateQueries(["policeList", slug]);
       onCloseDialog();
     },
-    onError: () => {
-      toast.error("Failed to delete policeList.");
+    onError: (error) => {
+      console.error("Mutation Error:", error);
+      const errorData = error.response?.data;
+      if (errorData?.Apistatus === false) {
+        toast.error(errorData?.message || "Validation failed");
+      } else {
+        toast.error(errorData?.message || "Failed to delete record");
+      }
     },
   });
 

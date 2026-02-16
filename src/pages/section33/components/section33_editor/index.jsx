@@ -191,20 +191,46 @@ export default function Section33() {
 
   const deleteCommMutation = useMutation({
     mutationFn: (commId) => deleteSectionCommunication(commId),
-    onSuccess: () => {
-      toast.success("Communication deleted successfully!");
+    onSuccess: (data) => {
+      const resp = data?.response;
+      if (resp?.Apistatus === false) {
+        toast.error(resp?.message || "Validation failed");
+        return;
+      }
+      toast.success(resp?.message || "Communication deleted successfully!");
       queryClient.invalidateQueries(["section33", id]);
     },
-    onError: (e) => toast.error(e.message || "Failed to delete communication"),
+    onError: (error) => {
+      console.error("Mutation Error:", error);
+      const errorData = error.response?.data;
+      if (errorData?.Apistatus === false) {
+        toast.error(errorData?.message || "Validation failed");
+      } else {
+        toast.error(errorData?.message || "Failed to delete communication");
+      }
+    },
   });
 
   const deleteDocMutation = useMutation({
     mutationFn: (docId) => deleteSectiondocument(docId),
-    onSuccess: () => {
-      toast.success("Document deleted successfully!");
+    onSuccess: (data) => {
+      const resp = data?.response;
+      if (resp?.Apistatus === false) {
+        toast.error(resp?.message || "Validation failed");
+        return;
+      }
+      toast.success(resp?.message || "Document deleted successfully!");
       queryClient.invalidateQueries(["section33", id]);
     },
-    onError: (e) => toast.error(e.message || "Failed to delete document"),
+    onError: (error) => {
+      console.error("Mutation Error:", error);
+      const errorData = error.response?.data;
+      if (errorData?.Apistatus === false) {
+        toast.error(errorData?.message || "Validation failed");
+      } else {
+        toast.error(errorData?.message || "Failed to delete document");
+      }
+    },
   });
 
   const [mainForm, setMainForm] = useState({
@@ -514,18 +540,12 @@ export default function Section33() {
     },
 
     onError: (error) => {
-      if (
-        error?.response?.data?.message &&
-        typeof error.response.data.message === "object"
-      ) {
-        const errorMessages = Object.values(error.response.data.message)
-          .flat()
-          .join("\n");
-        toast.error(errorMessages);
+      console.error("Mutation Error:", error);
+      const errorData = error.response?.data;
+      if (errorData?.Apistatus === false) {
+        toast.error(errorData?.message || "Validation failed");
       } else {
-        const errMsg =
-          error?.message || "Something went wrong. Please try again.";
-        toast.error(errMsg);
+        toast.error(errorData?.message || "Operation failed. Please try again.");
       }
     },
   });

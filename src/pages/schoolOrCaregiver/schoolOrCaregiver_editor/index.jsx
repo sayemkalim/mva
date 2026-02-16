@@ -142,22 +142,22 @@ export default function SchoolCaregiver() {
 
   const createMutation = useMutation({
     mutationFn: createSchoolorCaregiver,
-    onSuccess: (apiResponse) => {
-      if (apiResponse?.response?.Apistatus) {
-        toast.success("School/Caregiver information saved successfully!");
-      } else {
-        const errs = apiResponse?.response?.errors ?? apiResponse?.errors;
-        if (errs) {
-          console.error("API errors:", errs);
-          toast.error("Server returned validation errors. Check console.");
-        } else {
-          toast.error(apiResponse?.response?.message || "Save failed");
-        }
+    onSuccess: (data) => {
+      const resp = data?.response || data;
+      if (resp?.Apistatus === false) {
+        toast.error(resp?.message || "Validation failed");
+        return;
       }
+      toast.success(resp?.message || "School/Caregiver information saved successfully!");
     },
     onError: (error) => {
-      console.error("❌ Mutation Error:", error);
-      toast.error("Failed to save information. Please try again.");
+      console.error("Mutation Error:", error);
+      const errorData = error.response?.data;
+      if (errorData?.Apistatus === false) {
+        toast.error(errorData?.message || "Validation failed");
+      } else {
+        toast.error(errorData?.message || "Failed to save school/caregiver information");
+      }
     },
   });
 

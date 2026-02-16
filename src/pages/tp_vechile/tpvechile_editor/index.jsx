@@ -76,8 +76,8 @@ function SearchableDropdown({
                   >
                     <Check
                       className={`mr-2 w-5 h-5 ${String(option.id) === String(value)
-                          ? "opacity-100"
-                          : "opacity-0"
+                        ? "opacity-100"
+                        : "opacity-0"
                         }`}
                     />
                     {option.name}
@@ -167,11 +167,22 @@ export default function VehicleInfoForm() {
 
   const createVehicleMutation = useMutation({
     mutationFn: (payload) => createTpVechile({ slug, data: payload }),
-    onSuccess: (response) => {
-      toast.success("Vehicle information saved successfully!");
+    onSuccess: (data) => {
+      const resp = data?.response;
+      if (resp?.Apistatus === false) {
+        toast.error(resp?.message || "Validation failed");
+        return;
+      }
+      toast.success(resp?.message || "Vehicle information saved successfully!");
     },
     onError: (error) => {
-      toast.error(error?.message || "Failed to save vehicle information");
+      console.error("Mutation Error:", error);
+      const errorData = error.response?.data;
+      if (errorData?.Apistatus === false) {
+        toast.error(errorData?.message || "Validation failed");
+      } else {
+        toast.error(errorData?.message || "Failed to save vehicle information");
+      }
     },
   });
 

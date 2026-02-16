@@ -142,23 +142,45 @@ export default function FamilyDoctorPage() {
 
   const saveMutation = useMutation({
     mutationFn: createFamilyDoctor,
-    onSuccess: () => {
-      toast.success("Family Doctor data saved successfully!");
+    onSuccess: (data) => {
+      const resp = data?.response;
+      if (resp?.Apistatus === false) {
+        toast.error(resp?.message || "Validation failed");
+        return;
+      }
+      toast.success(resp?.message || "Family Doctor data saved successfully!");
       queryClient.invalidateQueries(["familyDoctor", slug]);
     },
-    onError: () => {
-      toast.error("Failed to save Family Doctor data");
+    onError: (error) => {
+      console.error("Mutation Error:", error);
+      const errorData = error.response?.data;
+      if (errorData?.Apistatus === false) {
+        toast.error(errorData?.message || "Validation failed");
+      } else {
+        toast.error(errorData?.message || "Failed to save Family Doctor data");
+      }
     },
   });
 
   const deleteMutation = useMutation({
     mutationFn: deleteFamilyDoctor,
-    onSuccess: () => {
-      toast.success("Record deleted successfully!");
+    onSuccess: (data) => {
+      const resp = data?.response;
+      if (resp?.Apistatus === false) {
+        toast.error(resp?.message || "Validation failed");
+        return;
+      }
+      toast.success(resp?.message || "Record deleted successfully!");
       queryClient.invalidateQueries(["familyDoctor", slug]);
     },
-    onError: () => {
-      toast.error("Failed to delete record");
+    onError: (error) => {
+      console.error("Mutation Error:", error);
+      const errorData = error.response?.data;
+      if (errorData?.Apistatus === false) {
+        toast.error(errorData?.message || "Validation failed");
+      } else {
+        toast.error(errorData?.message || "Failed to delete record");
+      }
     },
   });
 

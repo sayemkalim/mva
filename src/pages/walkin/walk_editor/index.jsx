@@ -150,23 +150,45 @@ export default function WalkPage() {
 
   const saveMutation = useMutation({
     mutationFn: createWalk,
-    onSuccess: () => {
-      toast.success("Walk data saved successfully!");
+    onSuccess: (data) => {
+      const resp = data?.response;
+      if (resp?.Apistatus === false) {
+        toast.error(resp?.message || "Validation failed");
+        return;
+      }
+      toast.success(resp?.message || "Walk data saved successfully!");
       queryClient.invalidateQueries(["walk", slug]);
     },
-    onError: () => {
-      toast.error("Failed to save Walk data");
+    onError: (error) => {
+      console.error("Mutation Error:", error);
+      const errorData = error.response?.data;
+      if (errorData?.Apistatus === false) {
+        toast.error(errorData?.message || "Validation failed");
+      } else {
+        toast.error(errorData?.message || "Failed to save Walk data");
+      }
     },
   });
 
   const deleteMutation = useMutation({
     mutationFn: deleteWalk,
-    onSuccess: () => {
-      toast.success("Record deleted successfully!");
+    onSuccess: (data) => {
+      const resp = data?.response;
+      if (resp?.Apistatus === false) {
+        toast.error(resp?.message || "Validation failed");
+        return;
+      }
+      toast.success(resp?.message || "Record deleted successfully!");
       queryClient.invalidateQueries(["walk", slug]);
     },
-    onError: () => {
-      toast.error("Failed to delete record");
+    onError: (error) => {
+      console.error("Mutation Error:", error);
+      const errorData = error.response?.data;
+      if (errorData?.Apistatus === false) {
+        toast.error(errorData?.message || "Validation failed");
+      } else {
+        toast.error(errorData?.message || "Failed to delete record");
+      }
     },
   });
 

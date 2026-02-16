@@ -64,14 +64,23 @@ export default function Adjuster() {
   // Create mutation for saving adjusters
   const createMutation = useMutation({
     mutationFn: createAdjuster,
-    onSuccess: (apiResponse) => {
-      if (apiResponse?.response?.Apistatus) {
-        toast.success("Adjuster information saved successfully!");
-        // navigate(`/dashboard/workstation/edit/${slug}/next-page`);
+    onSuccess: (data) => {
+      const resp = data?.response;
+      if (resp?.Apistatus === false) {
+        toast.error(resp?.message || "Validation failed");
+        return;
       }
+      toast.success(resp?.message || "Adjuster information saved successfully!");
+      // navigate(`/dashboard/workstation/edit/${slug}/next-page`);
     },
     onError: (error) => {
-      toast.error("Failed to save information. Please try again.");
+      console.error("Mutation Error:", error);
+      const errorData = error.response?.data;
+      if (errorData?.Apistatus === false) {
+        toast.error(errorData?.message || "Validation failed");
+      } else {
+        toast.error(errorData?.message || "Failed to save information. Please try again.");
+      }
     },
   });
 
@@ -79,11 +88,21 @@ export default function Adjuster() {
   const deleteMutation = useMutation({
     mutationFn: async (id) => deleteAdjuster(id),
     onSuccess: (data, id) => {
+      const resp = data?.response;
+      if (resp?.Apistatus === false) {
+        toast.error(resp?.message || "Validation failed");
+        return;
+      }
       setAdjusters((prev) => prev.filter((adj) => adj.id !== id));
-      toast.success("Adjuster deleted successfully!");
+      toast.success(resp?.message || "Adjuster deleted successfully!");
     },
-    onError: () => {
-      toast.error("Failed to delete adjuster. Please try again.");
+    onError: (error) => {
+      const errorData = error.response?.data;
+      if (errorData?.Apistatus === false) {
+        toast.error(errorData?.message || "Validation failed");
+      } else {
+        toast.error(errorData?.message || "Failed to delete adjuster. Please try again.");
+      }
     },
   });
 
@@ -259,7 +278,7 @@ export default function Adjuster() {
   return (
     <div className="min-h-screen bg-muted">
       <Navbar2 />
-     <Billing/>
+      <Billing />
       <div className="bg-card border-b px-6 py-4">
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
           <button

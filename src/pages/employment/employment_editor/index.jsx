@@ -149,34 +149,22 @@ export default function Employment() {
 
   const createMutation = useMutation({
     mutationFn: createEmployment,
-    onSuccess: (apiResponse) => {
-      const apiStatus =
-        apiResponse?.response?.Apistatus ?? apiResponse?.Apistatus ?? false;
-      if (apiStatus === true) {
-        toast.success("Employment information saved successfully!");
-      } else {
-        const errors = apiResponse?.response?.errors ?? apiResponse?.errors;
-        if (errors && typeof errors === "object") {
-          const messages = [];
-          Object.entries(errors).forEach(([k, v]) => {
-            if (Array.isArray(v)) messages.push(`${k}: ${v.join(", ")}`);
-            else messages.push(`${k}: ${String(v)}`);
-          });
-          toast.error(messages.join(" — "));
-          console.error("API errors:", errors);
-        } else {
-          toast.error(
-            apiResponse?.response?.message ||
-            apiResponse?.message ||
-            "Failed to save employment. Please try again."
-          );
-          console.error("Create employment response:", apiResponse);
-        }
+    onSuccess: (data) => {
+      const resp = data?.response || data;
+      if (resp?.Apistatus === false) {
+        toast.error(resp?.message || "Validation failed");
+        return;
       }
+      toast.success(resp?.message || "Employment information saved successfully!");
     },
     onError: (error) => {
-      toast.error("Failed to save employment. Please try again.");
-      console.error("createEmployment error:", error);
+      console.error("Mutation Error:", error);
+      const errorData = error.response?.data;
+      if (errorData?.Apistatus === false) {
+        toast.error(errorData?.message || "Validation failed");
+      } else {
+        toast.error(errorData?.message || "Failed to save employment information");
+      }
     },
   });
 
