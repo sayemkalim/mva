@@ -432,6 +432,16 @@ export default function Vehicle() {
             <CommandList>
               <CommandEmpty>No results found.</CommandEmpty>
               <CommandGroup>
+                <CommandItem
+                  onSelect={() => onSelect(fieldName, null, popoverKey)}
+                  className="cursor-pointer flex items-center italic text-muted-foreground"
+                >
+                  <Check
+                    className={`mr-2 h-4 w-4 ${!value ? "opacity-100" : "opacity-0"
+                      }`}
+                  />
+                  None
+                </CommandItem>
                 {options?.map((opt) => (
                   <CommandItem
                     key={opt.id}

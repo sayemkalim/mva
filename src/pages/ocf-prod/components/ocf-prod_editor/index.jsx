@@ -287,6 +287,21 @@ export default function OCFProdPage() {
             <CommandList>
               <CommandEmpty>No results found.</CommandEmpty>
               <CommandGroup>
+                <CommandItem
+                  onSelect={() => {
+                    onChange("");
+                    toggleOpen(openKey, false);
+                  }}
+                  className="italic text-muted-foreground"
+                >
+                  <Check
+                    className={cn(
+                      "mr-2 h-4 w-4",
+                      !value ? "opacity-100" : "opacity-0"
+                    )}
+                  />
+                  None
+                </CommandItem>
                 {options?.map((option) => (
                   <CommandItem
                     key={option.id}

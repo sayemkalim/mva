@@ -286,6 +286,16 @@ const AddMatterCard = ({
             <CommandList>
               <CommandEmpty>No results found.</CommandEmpty>
               <CommandGroup>
+                <CommandItem
+                  onSelect={() => onSelect(fieldName, null, popoverKey)}
+                  className="cursor-pointer italic text-muted-foreground"
+                >
+                  <Check
+                    className={`mr-2 h-4 w-4 ${!value ? "opacity-100" : "opacity-0"
+                      }`}
+                  />
+                  None
+                </CommandItem>
                 {options?.map((opt) => (
                   <CommandItem
                     key={opt.id}
@@ -325,31 +335,36 @@ const AddMatterCard = ({
         <PopoverTrigger asChild>
           <Button
             variant="outline"
-            className="w-full justify-start text-left font-normal min-h-10 bg-muted"
+            className="w-full justify-between text-left font-normal min-h-11 h-auto bg-muted py-2"
             type="button"
           >
-            {selected.length > 0 ? (
-              <div className="flex flex-wrap gap-1">
-                {selected.map((id) => {
+            <div className="flex flex-wrap gap-1 items-center flex-1">
+              {selected.length > 0 ? (
+                selected.map((id) => {
                   const option = options?.find((opt) => opt.id === id);
                   if (!option) return null;
                   return (
-                    <Badge key={id} variant="secondary" className="mr-1">
+                    <Badge
+                      key={id}
+                      variant="secondary"
+                      className="rounded-sm px-2 font-normal flex items-center gap-1"
+                    >
                       {option.name}
                       {/* <X
-                        className="ml-1 h-3 w-3 cursor-pointer"
+                        className="h-3 w-3 cursor-pointer text-muted-foreground hover:text-foreground"
                         onClick={(e) => {
                           e.stopPropagation();
-                          removeFromMultiSelect(fieldName, id);
+                          onToggle(fieldName, id);
                         }}
                       /> */}
                     </Badge>
                   );
-                })}
-              </div>
-            ) : (
-              placeholder
-            )}
+                })
+              ) : (
+                <span className="text-muted-foreground">{placeholder}</span>
+              )}
+            </div>
+            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
           </Button>
         </PopoverTrigger>
         <PopoverContent

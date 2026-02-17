@@ -62,6 +62,19 @@ function SearchableDropdown({
             <CommandList>
               <CommandEmpty>No results found.</CommandEmpty>
               <CommandGroup>
+                <CommandItem
+                  onSelect={() => {
+                    onChange("");
+                    setOpen(false);
+                  }}
+                  className="cursor-pointer italic text-muted-foreground"
+                >
+                  <Check
+                    className={`mr-2 w-5 h-5 ${!value ? "opacity-100" : "opacity-0"
+                      }`}
+                  />
+                  None
+                </CommandItem>
                 {(options || []).map((option) => (
                   <CommandItem
                     key={option.id}

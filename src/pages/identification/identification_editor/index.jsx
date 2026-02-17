@@ -93,6 +93,17 @@ function SearchableDropdown({
           <CommandInput placeholder={label.toLowerCase()} />
           <CommandEmpty>No results found.</CommandEmpty>
           <CommandGroup>
+            <CommandItem
+              value=""
+              onSelect={() => handleSelect("")}
+              className="italic text-muted-foreground"
+            >
+              <Check
+                className={`mr-2 h-4 w-4 ${!value ? "opacity-100" : "opacity-0"
+                  }`}
+              />
+              None
+            </CommandItem>
             {options.map((opt) => (
               <CommandItem
                 key={opt.id}
