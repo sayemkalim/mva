@@ -16,6 +16,7 @@ import {
   CommandGroup,
   CommandInput,
   CommandItem,
+  CommandList,
 } from "@/components/ui/command";
 import { Loader2, ChevronRight, Check } from "lucide-react";
 import { toast } from "sonner";
@@ -32,19 +33,18 @@ function cn(...inputs) {
   return twMerge(clsx(inputs));
 }
 
-const SearchableSelect = ({ label, options, value, onChange, placeholder }) => {
-  const [open, setOpen] = useState(false);
+const SearchableSelect = ({ label, options, value, onChange, placeholder, isOpen, onOpenChange }) => {
   const selected = options?.find((opt) => String(opt.id) === String(value));
 
   return (
     <div className="space-y-2">
       <Label className="text-foreground font-medium">{label}</Label>
-      <Popover open={open} onOpenChange={setOpen}>
+      <Popover open={isOpen} onOpenChange={onOpenChange}>
         <PopoverTrigger asChild>
           <Button
             variant="outline"
             role="combobox"
-            aria-expanded={open}
+            aria-expanded={isOpen}
             className="w-full justify-between h-11"
           >
             {selected ? selected.name : placeholder}
@@ -54,30 +54,47 @@ const SearchableSelect = ({ label, options, value, onChange, placeholder }) => {
         <PopoverContent className="w-[300px] p-0">
           <Command>
             <CommandInput placeholder={`Search ${label.toLowerCase()}...`} />
-            <CommandEmpty>No options found.</CommandEmpty>
-            <CommandGroup className="max-h-64 overflow-auto">
-              {options?.map((opt) => (
+            <CommandList>
+              <CommandEmpty>No options found.</CommandEmpty>
+              <CommandGroup className="max-h-64 overflow-auto">
                 <CommandItem
-                  key={opt.id}
-                  value={opt.name}
                   onSelect={() => {
-                    onChange(opt.id);
-                    setOpen(false);
+                    onChange("");
+                    onOpenChange(false);
                   }}
-                  className="cursor-pointer"
+                  className="cursor-pointer italic text-muted-foreground"
                 >
                   <Check
                     className={cn(
                       "mr-2 h-4 w-4",
-                      String(value) === String(opt.id)
-                        ? "opacity-100"
-                        : "opacity-0"
+                      !value ? "opacity-100" : "opacity-0"
                     )}
                   />
-                  {opt.name}
+                  None
                 </CommandItem>
-              ))}
-            </CommandGroup>
+                {options?.map((opt) => (
+                  <CommandItem
+                    key={opt.id}
+                    value={opt.name}
+                    onSelect={() => {
+                      onChange(opt.id);
+                      onOpenChange(false);
+                    }}
+                    className="cursor-pointer"
+                  >
+                    <Check
+                      className={cn(
+                        "mr-2 h-4 w-4",
+                        String(value) === String(opt.id)
+                          ? "opacity-100"
+                          : "opacity-0"
+                      )}
+                    />
+                    {opt.name}
+                  </CommandItem>
+                ))}
+              </CommandGroup>
+            </CommandList>
           </Command>
         </PopoverContent>
       </Popover>
@@ -88,6 +105,7 @@ const SearchableSelect = ({ label, options, value, onChange, placeholder }) => {
 export default function ScheduledPage() {
   const { slug } = useParams();
   const navigate = useNavigate();
+  const [openPopover, setOpenPopover] = useState(null);
 
   const {
     data: metaResponse,
@@ -160,7 +178,10 @@ export default function ScheduledPage() {
   };
 
   const handleSelectChange = (name, value) => {
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    setFormData((prev) => {
+      const finalValue = String(prev[name]) === String(value) ? "" : value;
+      return { ...prev, [name]: finalValue };
+    });
   };
 
   const handleSubmit = (e) => {
@@ -189,7 +210,7 @@ export default function ScheduledPage() {
     <div className="min-h-screen bg-muted">
       <Navbar2 />
 
-      <Billing/>
+      <Billing />
 
       {/* Breadcrumb Navigation */}
       <nav className="bg-card border-b px-6 py-4 text-sm text-muted-foreground">
@@ -238,6 +259,8 @@ export default function ScheduledPage() {
                   handleSelectChange("discovery_scheduled_id", val)
                 }
                 placeholder="Select option"
+                isOpen={openPopover === "discovery_scheduled_id"}
+                onOpenChange={(open) => setOpenPopover(open ? "discovery_scheduled_id" : null)}
               />
 
               {!isDiscoveryScheduledNo() && (
@@ -272,6 +295,8 @@ export default function ScheduledPage() {
                     handleSelectChange("informed_client_id", val)
                   }
                   placeholder="Select option"
+                  isOpen={openPopover === "informed_client_id"}
+                  onOpenChange={(open) => setOpenPopover(open ? "informed_client_id" : null)}
                 />
 
                 <div className="space-y-2">
@@ -293,6 +318,8 @@ export default function ScheduledPage() {
                     handleSelectChange("method_of_communication_id", val)
                   }
                   placeholder="Select method"
+                  isOpen={openPopover === "method_of_communication_id_client"}
+                  onOpenChange={(open) => setOpenPopover(open ? "method_of_communication_id_client" : null)}
                 />
               </div>
             </div>
@@ -327,6 +354,8 @@ export default function ScheduledPage() {
                     handleSelectChange("method_of_communication_id", val)
                   }
                   placeholder="Select method"
+                  isOpen={openPopover === "method_of_communication_id_opposing"}
+                  onOpenChange={(open) => setOpenPopover(open ? "method_of_communication_id_opposing" : null)}
                 />
               </div>
             </div>

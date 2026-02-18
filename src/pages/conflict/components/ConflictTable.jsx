@@ -178,7 +178,7 @@ const ConflictTable = ({ slug, setBlogsLength, params = {} }) => {
       <CustomDialog
         onOpen={openDelete}
         onClose={onCloseDialog}
-        title={selectedSection?.slug}
+        // title={selectedSection?.slug}
         modalType="Delete"
         onDelete={onDelete}
         id={selectedSection?.id}

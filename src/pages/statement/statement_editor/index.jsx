@@ -15,6 +15,7 @@ import {
   CommandGroup,
   CommandInput,
   CommandItem,
+  CommandList,
 } from "@/components/ui/command";
 import { Loader2, ChevronRight, Check } from "lucide-react";
 import { toast } from "sonner";
@@ -52,30 +53,47 @@ const SearchableSelect = ({ label, options, value, onChange, placeholder }) => {
         <PopoverContent className="w-[300px] p-0">
           <Command>
             <CommandInput placeholder={`Search ${label.toLowerCase()}...`} />
-            <CommandEmpty>No options found.</CommandEmpty>
-            <CommandGroup className="max-h-64 overflow-auto">
-              {options?.map((opt) => (
+            <CommandList>
+              <CommandEmpty>No options found.</CommandEmpty>
+              <CommandGroup className="max-h-64 overflow-auto">
                 <CommandItem
-                  key={opt.id}
-                  value={opt.name}
                   onSelect={() => {
-                    onChange(opt.id);
+                    onChange("");
                     setOpen(false);
                   }}
-                  className="cursor-pointer"
+                  className="cursor-pointer italic text-muted-foreground"
                 >
                   <Check
                     className={cn(
                       "mr-2 h-4 w-4",
-                      String(value) === String(opt.id)
-                        ? "opacity-100"
-                        : "opacity-0"
+                      !value ? "opacity-100" : "opacity-0"
                     )}
                   />
-                  {opt.name}
+                  None
                 </CommandItem>
-              ))}
-            </CommandGroup>
+                {options?.map((opt) => (
+                  <CommandItem
+                    key={opt.id}
+                    value={opt.name}
+                    onSelect={() => {
+                      onChange(opt.id);
+                      setOpen(false);
+                    }}
+                    className="cursor-pointer"
+                  >
+                    <Check
+                      className={cn(
+                        "mr-2 h-4 w-4",
+                        String(value) === String(opt.id)
+                          ? "opacity-100"
+                          : "opacity-0"
+                      )}
+                    />
+                    {opt.name}
+                  </CommandItem>
+                ))}
+              </CommandGroup>
+            </CommandList>
           </Command>
         </PopoverContent>
       </Popover>
@@ -140,7 +158,8 @@ export default function StatementOfDefencePage() {
 
   const handleSelectChange = (name, value) => {
     setFormData((prev) => {
-      const newData = { ...prev, [name]: value };
+      const finalValue = String(prev[name]) === String(value) ? "" : value;
+      const newData = { ...prev, [name]: finalValue };
 
       // Clear conditional fields when received_sod_id changes
       if (name === "received_sod_id") {
@@ -184,7 +203,7 @@ export default function StatementOfDefencePage() {
     <div className="min-h-screen bg-muted">
       <Navbar2 />
 
-     <Billing/>
+      <Billing />
 
       {/* Breadcrumb Navigation */}
       <nav className="bg-card border-b px-6 py-4 text-sm text-muted-foreground">

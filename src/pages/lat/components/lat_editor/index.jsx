@@ -47,7 +47,7 @@ const SearchableDropdown = ({
       <Popover
         open={popoverOpen[popoverKey]}
         onOpenChange={(open) =>
-          setPopoverOpen((p) => ({ ...p, [popoverKey]: open }))
+          setPopoverOpen(open ? { [popoverKey]: true } : {})
         }
       >
         <PopoverTrigger asChild>

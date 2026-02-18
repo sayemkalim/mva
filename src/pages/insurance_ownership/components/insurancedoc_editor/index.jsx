@@ -92,7 +92,7 @@ export default function InsuranceDocPage() {
           ? "Insurance Ownership updated successfully!"
           : "Insurance Ownership saved successfully!"
       );
-      // navigate(`/dashboard/workstation/edit/${slug}`);
+      navigate(-1);
     },
     onError: (err) => {
       console.error("Mutation Error:", err);
@@ -299,8 +299,8 @@ export default function InsuranceDocPage() {
               </Label>
               <div
                 className={`relative border-2 border-dashed rounded-lg transition-all overflow-hidden ${filePreview
-                    ? "border-green-500 bg-green-50/50"
-                    : "border-input bg-muted hover:border-gray-400 hover:bg-gray-100"
+                  ? "border-green-500 bg-green-50/50"
+                  : "border-input bg-muted hover:border-gray-400 hover:bg-gray-100"
                   } ${uploadMutation.isLoading
                     ? "pointer-events-none opacity-70"
                     : ""

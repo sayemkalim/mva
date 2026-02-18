@@ -21,8 +21,8 @@ const MatterTable = ({ setBlogsLength, params = {} }) => {
     isLoading,
     error,
   } = useQuery({
-    queryKey: ["workstationList", params.search],
-    queryFn: () => fetchWorkstationList({ search: params.search || "" }),
+    queryKey: ["workstationList", params],
+    queryFn: () => fetchWorkstationList({ ...params }),
   });
 
   const [openDelete, setOpenDelete] = useState(false);
@@ -141,7 +141,7 @@ const MatterTable = ({ setBlogsLength, params = {} }) => {
     },
     {
       key: "dob",
-      label: "DOB",
+      label: "Date of Birth",
       render: (value) => (
         <Typography variant="p">
           {value ? format(new Date(value), "dd/MM/yyyy") : "-"}

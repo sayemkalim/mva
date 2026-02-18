@@ -15,8 +15,9 @@ import {
   CommandGroup,
   CommandInput,
   CommandItem,
+  CommandList,
 } from "@/components/ui/command";
-import { Loader2, ChevronRight } from "lucide-react";
+import { Loader2, ChevronRight, Check } from "lucide-react";
 import { toast } from "sonner";
 import { getABMeta } from "../helpers/fetchABMeta";
 import { fetchAbCounselBySlug } from "../helpers/fetchAbCounselBySlug";
@@ -27,11 +28,13 @@ import { formatPhoneNumber } from "@/lib/utils";
 import Billing from "@/components/billing";
 
 const SearchableSelect = ({ label, options, value, onChange, placeholder }) => {
+  const [open, setOpen] = useState(false);
   const selected = options.find((opt) => String(opt.id) === String(value));
+
   return (
     <div className="space-y-2 max-w-sm">
       <Label className="text-foreground font-medium">{label}</Label>
-      <Popover>
+      <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
           <Button
             role="combobox"
@@ -46,18 +49,42 @@ const SearchableSelect = ({ label, options, value, onChange, placeholder }) => {
         <PopoverContent className="w-[300px] p-0">
           <Command>
             <CommandInput placeholder={`Search ${label.toLowerCase()}...`} />
-            <CommandEmpty>No options found.</CommandEmpty>
-            <CommandGroup>
-              {options.map((opt) => (
+            <CommandList>
+              <CommandEmpty>No options found.</CommandEmpty>
+              <CommandGroup>
                 <CommandItem
-                  key={opt.id}
-                  onSelect={() => onChange(opt.id)}
-                  value={opt.name}
+                  onSelect={() => {
+                    onChange("");
+                    setOpen(false);
+                  }}
+                  className="cursor-pointer italic text-muted-foreground"
                 >
-                  {opt.name}
+                  <Check
+                    className={`mr-2 h-4 w-4 ${!value ? "opacity-100" : "opacity-0"
+                      }`}
+                  />
+                  None
                 </CommandItem>
-              ))}
-            </CommandGroup>
+                {options.map((opt) => (
+                  <CommandItem
+                    key={opt.id}
+                    onSelect={() => {
+                      onChange(opt.id);
+                      setOpen(false);
+                    }}
+                    value={opt.name}
+                  >
+                    <Check
+                      className={`mr-2 h-4 w-4 ${String(value) === String(opt.id)
+                        ? "opacity-100"
+                        : "opacity-0"
+                        }`}
+                    />
+                    {opt.name}
+                  </CommandItem>
+                ))}
+              </CommandGroup>
+            </CommandList>
           </Command>
         </PopoverContent>
       </Popover>
@@ -180,10 +207,10 @@ export default function AbCounselPage() {
   };
 
   const handleSelectChange = (name, val) => {
-    setFormData((prev) => ({
-      ...prev,
-      [name]: val,
-    }));
+    setFormData((prev) => {
+      const finalValue = String(prev[name]) === String(val) ? "" : val;
+      return { ...prev, [name]: finalValue };
+    });
   };
 
   const handleSubmit = (e) => {

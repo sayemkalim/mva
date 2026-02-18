@@ -241,7 +241,7 @@ export default function TaxPage() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               <SearchableSelect
                 label="Tax Return Period"
-                options={meta.tax_return_period || []}
+                options={meta.tracking_tax_return_period || []}
                 value={formData.tax_return_period_id}
                 onChange={(val) =>
                   handleFieldChange("tax_return_period_id", val)

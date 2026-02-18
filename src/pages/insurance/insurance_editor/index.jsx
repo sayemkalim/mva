@@ -5,21 +5,113 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Loader2, ChevronRight } from "lucide-react";
+import {
+  Loader2,
+  ChevronRight,
+  Check,
+  ChevronsUpDown,
+} from "lucide-react";
 import { toast } from "sonner";
 import { fetchInsuranceBySlug } from "../helpers/fetchInsuranceBySlug";
 import { getABMeta } from "../helpers/fetchABMeta";
 import { createInsurance } from "../helpers/createInsurance";
 import { Navbar2 } from "@/components/navbar2";
 import Billing from "@/components/billing";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+} from "@/components/ui/command";
+
+function SearchableDropdown({
+  value,
+  onValueChange,
+  options = [],
+  placeholder = "Select",
+  label = "Search",
+  popoverKey,
+  popoverOpen,
+  setPopoverOpen,
+}) {
+  const selected = options.find((o) => String(o.id) === String(value)) || null;
+  const isOpen = !!(popoverOpen && popoverOpen[popoverKey]);
+
+  const handleSelect = (id) => {
+    const val = id?.toString?.() ?? id;
+    if (onValueChange) onValueChange(val);
+    if (setPopoverOpen && popoverKey) {
+      setPopoverOpen((prev = {}) => ({ ...prev, [popoverKey]: false }));
+    }
+  };
+
+  return (
+    <Popover
+      open={isOpen}
+      onOpenChange={(open) =>
+        setPopoverOpen &&
+        setPopoverOpen(open ? { [popoverKey]: true } : {})
+      }
+    >
+      <PopoverTrigger asChild>
+        <Button
+          variant="outline"
+          role="combobox"
+          className="w-full justify-between font-normal bg-card h-9 text-sm "
+          type="button"
+        >
+          {selected ? selected.name : placeholder}
+          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-60" />
+        </Button>
+      </PopoverTrigger>
+
+      <PopoverContent
+        className="w-[var(--radix-popover-trigger-width)] p-0"
+        align="start"
+      >
+        <Command>
+          <CommandInput placeholder={label.toLowerCase()} />
+          <CommandEmpty>No results found.</CommandEmpty>
+          <CommandGroup>
+            <CommandItem
+              value=""
+              onSelect={() => handleSelect("")}
+              className="italic text-muted-foreground"
+            >
+              <Check
+                className={`mr-2 h-4 w-4 ${!value ? "opacity-100" : "opacity-0"
+                  }`}
+              />
+              None
+            </CommandItem>
+            {options.map((opt) => (
+              <CommandItem
+                key={opt.id}
+                value={opt.name}
+                onSelect={() => handleSelect(opt.id)}
+              >
+                <Check
+                  className={`mr-2 h-4 w-4 ${String(value) === String(opt.id)
+                    ? "opacity-100"
+                    : "opacity-0"
+                    }`}
+                />
+                {opt.name}
+              </CommandItem>
+            ))}
+          </CommandGroup>
+        </Command>
+      </PopoverContent>
+    </Popover>
+  );
+}
 export default function Insurance() {
   const { slug } = useParams();
   const navigate = useNavigate();
@@ -96,6 +188,7 @@ export default function Insurance() {
     policy_no: "",
     claim_no: "",
   });
+  const [popoverOpen, setPopoverOpen] = useState({});
 
   useEffect(() => {
     if (!slug) {
@@ -173,10 +266,11 @@ export default function Insurance() {
     }));
   };
   const handleSelectChange = (name, value) => {
-    setFormData((prev) => ({
-      ...prev,
-      [name]: Number(value),
-    }));
+    setFormData((prev) => {
+      const numericValue = value === "" ? null : Number(value);
+      const finalValue = prev[name] === numericValue ? null : numericValue;
+      return { ...prev, [name]: finalValue };
+    });
   };
   const handleCheckboxChange = (checked) => {
     if (checked) {
@@ -369,33 +463,18 @@ export default function Insurance() {
                     >
                       Type of Ownership
                     </Label>
-                    <Select
+                    <SearchableDropdown
+                      popoverKey="type_of_ownership"
+                      popoverOpen={popoverOpen}
+                      setPopoverOpen={setPopoverOpen}
                       value={formData.type_of_ownership_id?.toString() || ""}
                       onValueChange={(value) =>
                         handleSelectChange("type_of_ownership_id", value)
                       }
-                    >
-                      <SelectTrigger className="w-full h-11 bg-card border-input">
-                        <SelectValue placeholder="Select type">
-                          {getSelectedOptionName(
-                            formData.type_of_ownership_id,
-                            metadata?.insurance_type_of_ownership
-                          ) || "Select type"}
-                        </SelectValue>
-                      </SelectTrigger>
-                      <SelectContent>
-                        {metadata?.insurance_type_of_ownership?.map(
-                          (option) => (
-                            <SelectItem
-                              key={option.id}
-                              value={option.id.toString()}
-                            >
-                              {option.name}
-                            </SelectItem>
-                          )
-                        )}
-                      </SelectContent>
-                    </Select>
+                      options={metadata?.insurance_type_of_ownership || []}
+                      placeholder="Select type"
+                      label="Type of ownership"
+                    />
                   </div>
                 )}
 

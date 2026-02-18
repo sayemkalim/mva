@@ -24,6 +24,7 @@ const CustomActionMenu = ({
   rowsPerPage = 25,
   disableBulkExport = true,
   onBulkExport,
+  hideSearch = false,
 }) => {
   return (
     <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between w-full my-3">
@@ -33,12 +34,14 @@ const CustomActionMenu = ({
         </Typography>
       </div>
       <div className="flex flex-wrap gap-2 md:gap-4 items-center">
-        <Input
-          placeholder="Search"
-          className={`min-w-[150px] ${disableBulkUpload ? "w-80" : "w-48"}`}
-          value={searchText}
-          onChange={handleSearch}
-        />
+        {!hideSearch && (
+          <Input
+            placeholder="Search"
+            className={`min-w-[150px] ${disableBulkUpload ? "w-80" : "w-48"}`}
+            value={searchText}
+            onChange={handleSearch}
+          />
+        )}
         {showDateRangePicker && (
           <DateRangePicker onChange={handleDateRangeChange} />
         )}

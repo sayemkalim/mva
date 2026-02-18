@@ -92,6 +92,17 @@ function ShadcnSelect({
           <CommandInput placeholder={label.toLowerCase()} />
           <CommandEmpty>No results found.</CommandEmpty>
           <CommandGroup>
+            <CommandItem
+              value=""
+              onSelect={() => handleSelect("")}
+              className="italic text-muted-foreground"
+            >
+              <Check
+                className={`mr-2 h-4 w-4 ${!value ? "opacity-100" : "opacity-0"
+                  }`}
+              />
+              None
+            </CommandItem>
             {options.map((opt) => (
               <CommandItem
                 key={opt.id}
@@ -458,18 +469,20 @@ export default function ApplicantInformation() {
   };
 
   const handleSelectChange = (name, value) => {
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value === "" ? "" : value,
-    }));
+    setFormData((prev) => {
+      const finalValue = prev[name] === value ? "" : value;
+      return { ...prev, [name]: finalValue };
+    });
   };
 
   const handleArrayChange = (arrayName, index, field, value) => {
     setFormData((prev) => ({
       ...prev,
-      [arrayName]: prev[arrayName].map((item, i) =>
-        i === index ? { ...item, [field]: value } : item
-      ),
+      [arrayName]: prev[arrayName].map((item, i) => {
+        if (i !== index) return item;
+        const finalValue = item[field] === value ? "" : value;
+        return { ...item, [field]: finalValue };
+      }),
     }));
   };
 

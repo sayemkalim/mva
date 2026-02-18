@@ -49,7 +49,7 @@ const AddMatterCard = ({
     file_status_id: null,
     claim_status_id: [],
     non_engagement_issued_id: [],
-    non_engagement_date: "",
+    non_engagement_date: {},
     claim_type_id: [],
     mig_status_id: null,
     ab_claim_settlement_approx_id: null,
@@ -124,6 +124,22 @@ const AddMatterCard = ({
           loadedMVAs = [];
         }
       }
+      let initialDates = {};
+      if (initialData.non_engagement_date) {
+        try {
+          const rawDates = typeof initialData.non_engagement_date === "string"
+            ? JSON.parse(initialData.non_engagement_date)
+            : initialData.non_engagement_date;
+          if (Array.isArray(rawDates)) {
+            rawDates.forEach((obj) => {
+              Object.assign(initialDates, obj);
+            });
+          }
+        } catch (e) {
+          console.error("Error parsing non_engagement_date:", e);
+        }
+      }
+
       setFormData({
         ...baseForm,
         ...initialData,
@@ -138,6 +154,7 @@ const AddMatterCard = ({
         claim_type_id: Array.isArray(initialData.claim_type_id)
           ? initialData.claim_type_id
           : [],
+        non_engagement_date: initialDates,
         other_mvas: loadedMVAs,
       });
     }
@@ -207,6 +224,19 @@ const AddMatterCard = ({
       return createMatter(data);
     },
     onSuccess: (response) => {
+      const data = response?.response || response?.data || response;
+
+      if (data?.Apistatus === false) {
+        if (data.errors) {
+          Object.values(data.errors).forEach((errArray) => {
+            errArray.forEach((msg) => toast.error(msg));
+          });
+        } else {
+          toast.error(data.message || "Validation failed");
+        }
+        return;
+      }
+
       toast.success(
         isEditMode
           ? "Matter updated successfully"
@@ -216,23 +246,38 @@ const AddMatterCard = ({
       if (isEditMode) {
         queryClient.invalidateQueries(["matter", initialData.slug]);
       } else {
-        console.log("Create matter response:", response);
-        const newSlug = response?.response?.slug || response?.data?.slug || response?.slug;
-        console.log("New slug:", newSlug);
+        const newSlug = data?.slug;
         if (newSlug) {
           navigate(`/dashboard/workstation/edit/${newSlug}`);
         }
       }
     },
     onError: (error) => {
-      toast.error(
-        error?.response?.data?.message ||
-        error?.message ||
-        (isEditMode ? "Failed to update matter" : "Failed to create matter")
-      );
+      const errorData = error.response?.data;
+      if (errorData?.Apistatus === false && errorData?.errors) {
+        Object.values(errorData.errors).forEach((errArray) => {
+          errArray.forEach((msg) => toast.error(msg));
+        });
+      } else {
+        toast.error(
+          errorData?.message ||
+          error?.message ||
+          (isEditMode ? "Failed to update matter" : "Failed to create matter")
+        );
+      }
     },
   });
 
+
+  const getNonEngagementKey = (name) => {
+    if (!name) return "";
+    const lower = name.toLowerCase();
+    if (lower.includes("ab claim")) return "for_ab_claim";
+    if (lower.includes("tort claim")) return "for_tort_claim";
+    if (lower.includes("ltd claim")) return "for_ltd_claim";
+    if (lower.includes("property damage")) return "for_property_damage_claim";
+    return lower.replace(/\s+/g, "_");
+  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -246,6 +291,24 @@ const AddMatterCard = ({
     Object.keys(payload).forEach((key) => {
       if (payload[key] === "") payload[key] = null;
     });
+
+    // Format non_engagement_date as an array of objects, only including those with values
+    if (formData.non_engagement_issued_id?.length > 0) {
+      const dateArray = [];
+      formData.non_engagement_issued_id.forEach((id) => {
+        const option = metadata.non_engagement_issued?.find((o) => o.id === id);
+        if (option) {
+          const key = getNonEngagementKey(option.name);
+          const dateVal = formData.non_engagement_date?.[key];
+          if (dateVal && dateVal.trim() !== "") {
+            dateArray.push({ [key]: dateVal });
+          }
+        }
+      });
+      payload.non_engagement_date = dateArray;
+    } else {
+      payload.non_engagement_date = [];
+    }
 
     mutation.mutate(payload);
   };
@@ -548,24 +611,36 @@ const AddMatterCard = ({
                 </div>
 
                 {/* Non Engagement Date */}
-                {formData.non_engagement_issued_id?.length > 0 && (
-                  <div>
-                    <label
-                      htmlFor="non_engagement_date"
-                      className="block font-medium mb-2 text-foreground"
-                    >
-                      Non Engagement Date
-                    </label>
-                    <Input
-                      type="date"
-                      id="non_engagement_date"
-                      name="non_engagement_date"
-                      value={formData.non_engagement_date}
-                      onChange={handleInputChange}
-                      className="bg-muted"
-                    />
-                  </div>
-                )}
+                {formData.non_engagement_issued_id?.length > 0 &&
+                  formData.non_engagement_issued_id.map((id) => {
+                    const option = metadata.non_engagement_issued?.find(
+                      (o) => o.id === id
+                    );
+                    if (!option) return null;
+                    const key = getNonEngagementKey(option.name);
+
+                    return (
+                      <div key={id}>
+                        <label className="block font-medium mb-2 text-foreground">
+                          Non Engagement Date for {option.name}
+                        </label>
+                        <Input
+                          type="date"
+                          value={formData.non_engagement_date?.[key] || ""}
+                          onChange={(e) => {
+                            setFormData((p) => ({
+                              ...p,
+                              non_engagement_date: {
+                                ...p.non_engagement_date,
+                                [key]: e.target.value,
+                              },
+                            }));
+                          }}
+                          className="bg-muted"
+                        />
+                      </div>
+                    );
+                  })}
 
                 {/* Claim Type (Multi-select) */}
                 <div>

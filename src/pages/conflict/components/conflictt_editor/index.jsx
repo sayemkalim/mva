@@ -102,6 +102,8 @@ export default function ConflictSearchPage() {
           ? "Conflict Search updated successfully!"
           : "Conflict Search saved successfully!"
       );
+      navigate(-1);
+
       queryClient.invalidateQueries([
         "conflictlist",
         slug || location.state?.slug,
@@ -111,9 +113,9 @@ export default function ConflictSearchPage() {
       console.error("Mutation Error:", err);
       toast.error(
         err.message ||
-          (id
-            ? "Failed to update conflict search"
-            : "Failed to save conflict search")
+        (id
+          ? "Failed to update conflict search"
+          : "Failed to save conflict search")
       );
     },
   });
@@ -134,9 +136,8 @@ export default function ConflictSearchPage() {
       if (attachment?.path) {
         const fullUrl = attachment.path.startsWith("http")
           ? attachment.path
-          : `${
-              import.meta.env.VITE_API_URL || "https://mva-backend.vsrlaw.ca/"
-            }${attachment.path}`;
+          : `${import.meta.env.VITE_API_URL || "https://mva-backend.vsrlaw.ca/"
+          }${attachment.path}`;
 
         setFilePreview(fullUrl);
         setFileUrl(fullUrl);
@@ -237,7 +238,7 @@ export default function ConflictSearchPage() {
     <div className="min-h-screen bg-muted">
       <Navbar2 />
 
-<Billing/>
+      <Billing />
 
       {/* Breadcrumb Navigation */}
       <nav className="bg-card border-b px-6 py-4 text-sm text-muted-foreground">
@@ -317,15 +318,13 @@ export default function ConflictSearchPage() {
                 Upload File <span className="text-red-500">(Max 10MB)</span>
               </Label>
               <div
-                className={`relative border-2 border-dashed rounded-lg transition-all overflow-hidden ${
-                  filePreview
-                    ? "border-green-500 bg-green-50/50"
-                    : "border-input bg-muted hover:border-gray-400 hover:bg-gray-100"
-                } ${
-                  uploadMutation.isLoading
+                className={`relative border-2 border-dashed rounded-lg transition-all overflow-hidden ${filePreview
+                  ? "border-green-500 bg-green-50/50"
+                  : "border-input bg-muted hover:border-gray-400 hover:bg-gray-100"
+                  } ${uploadMutation.isLoading
                     ? "pointer-events-none opacity-70"
                     : ""
-                }`}
+                  }`}
                 style={{ minHeight: "250px" }}
               >
                 <input
@@ -367,12 +366,12 @@ export default function ConflictSearchPage() {
                           <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 rounded-lg transition-colors" />
                         </div>
                       ) : (
-                          <iframe
-                            src={fileUrl}
-                            title={fileName}
-                            className="w-full h-[300px] object-cover"
-                          />
-              
+                        <iframe
+                          src={fileUrl}
+                          title={fileName}
+                          className="w-full h-[300px] object-cover"
+                        />
+
                       )}
 
                       {fileUrl && (
@@ -388,7 +387,7 @@ export default function ConflictSearchPage() {
                             size="sm"
                             className="mt-2"
                           >
-                            Download 
+                            Download
                           </Button>
                         </a>
                       )}

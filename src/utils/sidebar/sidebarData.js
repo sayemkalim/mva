@@ -1000,18 +1000,23 @@ export const getEditModeData = (slug) => ({
       ],
     },
     {
-      title: "Insurance Examination",
-      url: `/dashboard/workstation/edit/${slug}/insurance-examination`,
-      icon: BadgeCheck,
-      items: [],
-      permission: "insurance_examination",
-    },
-    {
-      title: "VSR Insurance Examination",
-      url: `/dashboard/workstation/edit/${slug}/vsr-insurance-examination`,
-      icon: BookCheck,
-      items: [],
-      permission: "vsr_insurance_examination",
+      title: "Assessments",
+      url: ``,
+      icon: ClipboardList,
+      items: [
+        {
+          title: "Insurance Examination",
+          url: `/dashboard/workstation/edit/${slug}/insurance-examination`,
+          icon: BadgeCheck,
+          permission: "insurance_examination",
+        },
+        {
+          title: "VSR Insurance Examination",
+          url: `/dashboard/workstation/edit/${slug}/vsr-insurance-examination`,
+          icon: BookCheck,
+          permission: "vsr_insurance_examination",
+        },
+      ],
     },
     {
       title: "Tracking",
