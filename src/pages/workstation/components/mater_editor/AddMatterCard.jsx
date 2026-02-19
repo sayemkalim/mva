@@ -56,6 +56,7 @@ const AddMatterCard = ({
     tort_claim_settlement_approx_id: null,
     ltd_claim_settlement_approx_id: null,
     property_damage_claim_settlement_approx_id: null,
+    dog_bite_claim_settlement_approx_id: null,
     at_fault_id: null,
     category_id: null,
     file_location: "",
@@ -729,6 +730,21 @@ const AddMatterCard = ({
                   />
                 </div>
 
+                {/* Dog Bite Claim Settlement Approx. */}
+                <div>
+                  <label className="block font-medium mb-2 text-foreground">
+                    Dog Bite Claim Settlement Approx.
+                  </label>
+                  <SearchableDropdown
+                    value={formData.dog_bite_claim_settlement_approx_id}
+                    onSelect={handleDropdownChange}
+                    options={metadata.dog_bite_claim_settlement_approx}
+                    placeholder="Select Dog Bite claim approx."
+                    popoverKey="dog_bite_claim_settlement_approx"
+                    fieldName="dog_bite_claim_settlement_approx_id"
+                  />
+                </div>
+
                 {/* Property Damage Claim Settlement Approx. */}
 
 
@@ -764,8 +780,7 @@ const AddMatterCard = ({
                 {/* Category */}
                 <div>
                   <label className="block font-medium mb-2 text-foreground">
-                    Category
-                  </label>
+                    SABS Categories                  </label>
                   <SearchableDropdown
                     value={formData.category_id}
                     onSelect={handleDropdownChange}
@@ -1631,7 +1646,7 @@ const AddMatterCard = ({
               {/* <h2 className="font-semibold text-xl mb-6 border-b pb-2 uppercase text-foreground">
                 Address
               </h2> */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 {/* Unit Number */}
                 <div>
                   <label

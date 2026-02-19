@@ -531,7 +531,7 @@ export default function OwnerInfoForm() {
                       </Button>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                       <SearchableDropdown
                         label="Type of Ownership"
                         placeholder="Select Ownership Type"
@@ -784,7 +784,7 @@ export default function OwnerInfoForm() {
                           </Button>
                         </div>
 
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                           <div className="space-y-2">
                             <Label>First Name</Label>
                             <Input

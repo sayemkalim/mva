@@ -358,7 +358,24 @@ export default function TPInsurerForm() {
                 <h3 className="mt-4 mb-5 text-xl font-bold text-foreground">
                   Address
                 </h3>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                  <div className="space-y-2">
+                    <Label
+                      className="text-foreground font-medium cursor-pointer"
+                      htmlFor={`unit_number_${idx}`}
+                    >
+                      Unit Number
+                    </Label>
+                    <Input
+                      id={`unit_number_${idx}`}
+                      value={rec.address.unit_number}
+                      onChange={(e) =>
+                        updateAddressField(idx, "unit_number", e.target.value)
+                      }
+                      placeholder="Unit Number"
+                      className="h-9 bg-muted border-input"
+                    />
+                  </div>
                   <div className="space-y-2">
                     <Label
                       className="text-foreground font-medium cursor-pointer"

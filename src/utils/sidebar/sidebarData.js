@@ -516,7 +516,7 @@ export const getEditModeData = (slug) => ({
           permission: "vehicle",
         },
         {
-          title: "Section 33",
+          title: "s.33",
           url: `/dashboard/workstation/edit/${slug}/section-33-list`,
           icon: User,
           permission: "section_33",

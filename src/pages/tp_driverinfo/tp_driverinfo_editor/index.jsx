@@ -373,7 +373,7 @@ export default function DriverInfoForm() {
               <h3 className="text-xl font-bold text-foreground">
                 Primary Address
               </h3>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 <div className="space-y-2">
                   <Label htmlFor="unit_number_1">Unit Number</Label>
                   <Input
@@ -565,7 +565,7 @@ export default function DriverInfoForm() {
                   <h3 className="text-xl font-bold text-foreground mt-4">
                     Second Address
                   </h3>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                     <div className="space-y-2">
                       <Label htmlFor="unit_number_2">Unit Number</Label>
                       <Input

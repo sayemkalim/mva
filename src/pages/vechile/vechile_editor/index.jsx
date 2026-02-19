@@ -155,6 +155,10 @@ export default function Vehicle() {
     vehicle_model: "",
     vehicle_color: "",
     driver_licence_same_as_applicant_id: null,
+    driver_name: "",
+    driver_licence_state: "",
+    driver_licence_number: "",
+    driver_licence_expiry_date: "",
     front_side_attachment_id: null,
     back_side_attachment_id: null,
     left_side_attachment_id: null,
@@ -212,6 +216,11 @@ export default function Vehicle() {
         vehicle_color: vehicleData.vehicle_color || "",
         driver_licence_same_as_applicant_id:
           vehicleData.driver_licence_same_as_applicant_id || null,
+        driver_name: vehicleData.driver_name || "",
+        driver_licence_state: vehicleData.driver_licence_state || "",
+        driver_licence_number: vehicleData.driver_licence_number || "",
+        driver_licence_expiry_date:
+          vehicleData.driver_licence_expiry_date || "",
         front_side_attachment_id: vehicleData.front_side_attachment_id || null,
         back_side_attachment_id: vehicleData.back_side_attachment_id || null,
         left_side_attachment_id: vehicleData.left_side_attachment_id || null,
@@ -334,6 +343,10 @@ export default function Vehicle() {
       vehicle_color: formData.vehicle_color || null,
       driver_licence_same_as_applicant_id:
         formData.driver_licence_same_as_applicant_id || null,
+      driver_name: formData.driver_name || null,
+      driver_licence_state: formData.driver_licence_state || null,
+      driver_licence_number: formData.driver_licence_number || null,
+      driver_licence_expiry_date: formData.driver_licence_expiry_date || null,
       front_side_attachment_id: formData.front_side_attachment_id || null,
       back_side_attachment_id: formData.back_side_attachment_id || null,
       left_side_attachment_id: formData.left_side_attachment_id || null,
@@ -602,7 +615,7 @@ export default function Vehicle() {
                 Vehicle Details
               </h2>
 
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 {/* Plate Number */}
                 <div className="space-y-2">
                   <Label
@@ -757,6 +770,88 @@ export default function Vehicle() {
                     setPopoverOpen={setPopoverOpen}
                   />
                 </div>
+
+                {metadata?.yes_no_option?.find(
+                  (opt) =>
+                    opt.id === formData.driver_licence_same_as_applicant_id
+                )?.name === "No" && (
+                    <>
+                      {/* Driver Name */}
+                      <div className="space-y-2">
+                        <Label
+                          htmlFor="driver_name"
+                          className="text-foreground font-medium"
+                        >
+                          Name
+                        </Label>
+                        <Input
+                          id="driver_name"
+                          name="driver_name"
+                          type="text"
+                          value={formData.driver_name}
+                          onChange={handleChange}
+                          placeholder="Driver Name"
+                          className="h-9 bg-muted border-input"
+                        />
+                      </div>
+
+                      {/* Driver's Licence State */}
+                      <div className="space-y-2">
+                        <Label
+                          htmlFor="driver_licence_state"
+                          className="text-foreground font-medium"
+                        >
+                          Driver's Licence State
+                        </Label>
+                        <Input
+                          id="driver_licence_state"
+                          name="driver_licence_state"
+                          type="text"
+                          value={formData.driver_licence_state}
+                          onChange={handleChange}
+                          placeholder="State"
+                          className="h-9 bg-muted border-input"
+                        />
+                      </div>
+
+                      {/* Drivers Licence Number */}
+                      <div className="space-y-2">
+                        <Label
+                          htmlFor="driver_licence_number"
+                          className="text-foreground font-medium"
+                        >
+                          Drivers Licence Number
+                        </Label>
+                        <Input
+                          id="driver_licence_number"
+                          name="driver_licence_number"
+                          type="text"
+                          value={formData.driver_licence_number}
+                          onChange={handleChange}
+                          placeholder="Licence Number"
+                          className="h-9 bg-muted border-input"
+                        />
+                      </div>
+
+                      {/* Drivers Licence Expiry Date */}
+                      <div className="space-y-2">
+                        <Label
+                          htmlFor="driver_licence_expiry_date"
+                          className="text-foreground font-medium"
+                        >
+                          Drivers Licence Expiry Date
+                        </Label>
+                        <Input
+                          id="driver_licence_expiry_date"
+                          name="driver_licence_expiry_date"
+                          type="date"
+                          value={formData.driver_licence_expiry_date}
+                          onChange={handleChange}
+                          className="h-9 bg-muted border-input"
+                        />
+                      </div>
+                    </>
+                  )}
               </div>
             </div>
 

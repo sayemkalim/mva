@@ -178,6 +178,7 @@ export default function AccidentalInformation() {
     officer_name: "",
     badge_no: "",
     date_accident_reported_to_the_police: "",
+    police_report_number: "",
   });
 
   // ✅ Popover open state for all searchable dropdowns
@@ -229,6 +230,7 @@ export default function AccidentalInformation() {
         badge_no: accidentalInfoData.badge_no || "",
         date_accident_reported_to_the_police:
           accidentalInfoData.date_accident_reported_to_the_police || "",
+        police_report_number: accidentalInfoData.police_report_number || "",
       });
     }
   }, [accidentalInfoData]);
@@ -283,6 +285,7 @@ export default function AccidentalInformation() {
       badge_no: formData.badge_no || null,
       date_accident_reported_to_the_police:
         formData.date_accident_reported_to_the_police || null,
+      police_report_number: formData.police_report_number || null,
     };
 
     console.log(
@@ -374,7 +377,7 @@ export default function AccidentalInformation() {
                 Accident Details
               </h2>
 
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 {/* Date of Accident */}
                 <div className="space-y-2">
                   <Label
@@ -806,6 +809,24 @@ export default function AccidentalInformation() {
                     type="date"
                     value={formData.date_accident_reported_to_the_police}
                     onChange={handleChange}
+                    className="bg-muted border-input"
+                  />
+                </div>
+
+                {/* Police Report Number */}
+                <div className="space-y-2">
+                  <Label
+                    htmlFor="police_report_number"
+                    className="text-foreground font-medium"
+                  >
+                    Police Report Number
+                  </Label>
+                  <Input
+                    id="police_report_number"
+                    name="police_report_number"
+                    value={formData.police_report_number}
+                    onChange={handleChange}
+                    placeholder="Enter police report number"
                     className="bg-muted border-input"
                   />
                 </div>

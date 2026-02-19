@@ -217,6 +217,7 @@ export default function Identification() {
       identification_type: "",
       identification_country: "",
       identification_number: "",
+      expiry_date: "",
       file: null,
       fileName: "",
       filePreview: null,
@@ -252,6 +253,7 @@ export default function Identification() {
           identification_type: item.identification_type || "",
           identification_country: item.identification_country || "",
           identification_number: item.identification_number || "",
+          expiry_date: item.expiry_date ? item.expiry_date.split("T")[0] : "",
           file: null,
           // ✅ Backend se filename aur preview URL set karna
           fileName: item.attachment
@@ -411,6 +413,7 @@ export default function Identification() {
         identification_type: "",
         identification_country: "",
         identification_number: "",
+        expiry_date: "",
         file: null,
         fileName: "",
         filePreview: null,
@@ -459,6 +462,7 @@ export default function Identification() {
         identification_type: item.identification_type || null,
         identification_country: item.identification_country || null,
         identification_number: item.identification_number || null,
+        expiry_date: item.expiry_date || null,
       }));
     createMutation.mutate({
       slug: slug,
@@ -694,6 +698,29 @@ export default function Identification() {
                         )
                       }
                       placeholder="A12345678"
+                      className="w-full h-9 bg-card border-input"
+                    />
+                  </div>
+
+                  {/* Expiry Date */}
+                  <div className="space-y-2">
+                    <Label
+                      htmlFor={`expiry_date_${index}`}
+                      className="text-foreground font-medium"
+                    >
+                      Expiry Date
+                    </Label>
+                    <Input
+                      id={`expiry_date_${index}`}
+                      type="date"
+                      value={identification.expiry_date}
+                      onChange={(e) =>
+                        handleChange(
+                          index,
+                          "expiry_date",
+                          e.target.value
+                        )
+                      }
                       className="w-full h-9 bg-card border-input"
                     />
                   </div>

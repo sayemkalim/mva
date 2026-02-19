@@ -502,7 +502,7 @@ export default function Insurance() {
             <div className="space-y-6 pt-6 border-t">
               <h2 className="text-xl font-semibold text-foreground">Address</h2>
 
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 <div className="space-y-2">
                   <Label className="text-foreground font-medium">
                     Unit Number

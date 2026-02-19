@@ -573,7 +573,7 @@ export default function RepresentativeReferral() {
                   Representative Address
                 </h3>
 
-                <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                   {/* Unit Number */}
                   <div className="space-y-2">
                     <Label className="text-sm text-muted-foreground font-medium">
@@ -830,7 +830,7 @@ export default function RepresentativeReferral() {
                   Referral Address
                 </h3>
 
-                <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                   {/* Unit Number */}
                   <div className="space-y-2">
                     <Label className="text-sm text-muted-foreground font-medium">

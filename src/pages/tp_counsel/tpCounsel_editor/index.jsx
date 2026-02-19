@@ -285,7 +285,7 @@ export default function TpCounselForm() {
           </div>
 
           {/* Address Fields */}
-          <div className="grid grid-cols-1 md:grid-cols-7 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             <div className="space-y-2">
               <Label>Unit Number</Label>
               <Input
