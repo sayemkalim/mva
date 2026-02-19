@@ -257,7 +257,6 @@ export default function ApplicantInformation() {
       postal_code: "",
       country: "",
     },
-    sameascurrent: false,
     mailing_address: {
       unit_number: "",
       street_number: "",
@@ -266,7 +265,7 @@ export default function ApplicantInformation() {
       province: "",
       postal_code: "",
       country: "",
-
+      sameascurrent: false,
     },
     family_member_first_name: "",
     family_member_middle_name: "",
@@ -305,15 +304,21 @@ export default function ApplicantInformation() {
         },
       }));
     } else {
-      if (mailingAddressBackup) {
-        setFormData(prev => ({
-          ...prev,
-          mailing_address: {
-            ...mailingAddressBackup,
-            sameascurrent: false,
-          },
-        }));
-      }
+      setFormData(prev => ({
+        ...prev,
+        mailing_address: {
+          ...(mailingAddressBackup || {
+            unit_number: "",
+            street_number: "",
+            street_name: "",
+            city: "",
+            province: "",
+            postal_code: "",
+            country: "Canada",
+          }),
+          sameascurrent: false,
+        },
+      }));
     }
   };
 
@@ -394,7 +399,7 @@ export default function ApplicantInformation() {
           province: applicantData.mailing_address?.province ?? "",
           postal_code: applicantData.mailing_address?.postal_code ?? "",
           country: applicantData.mailing_address?.country ?? "",
-          sameascurrent: applicantData.mailingaddress?.sameascurrent ?? false,
+          sameascurrent: applicantData.mailing_address?.sameascurrent ?? false,
         },
         family_member_first_name: applicantData.family_member_first_name ?? "",
         family_member_middle_name:
@@ -698,394 +703,399 @@ export default function ApplicantInformation() {
           </h1>
 
           <form onSubmit={handleSubmit} className="space-y-8">
-            {/* Row 1 */}
-            <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-              <div className="space-y-2">
-                <Label
-                  htmlFor="gender_id"
-                  className="text-foreground font-medium"
-                >
-                  Gender
-                </Label>
-                <ShadcnSelect
-                  popoverKey="gender"
-                  popoverOpen={popoverOpen}
-                  setPopoverOpen={setPopoverOpen}
-                  value={formData.gender_id}
-                  onValueChange={(val) => handleSelectChange("gender_id", val)}
-                  options={metadata?.contact_gender || []}
-                  placeholder="Select gender"
-                  label="Gender"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label
-                  htmlFor="last_name"
-                  className="text-foreground font-medium"
-                >
-                  Last Name<span className="text-red-600">*</span>
-                </Label>
-                <Input
-                  id="last_name"
-                  name="last_name"
-                  value={formData.last_name}
-                  onChange={handleChange}
-                  placeholder="Doe"
-                  className="w-full h-9 bg-muted border-input"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label
-                  htmlFor="first_name"
-                  className="text-foreground font-medium"
-                >
-                  First Name<span className="text-red-600">*</span>
-                </Label>
-                <Input
-                  id="first_name"
-                  name="first_name"
-                  value={formData.first_name}
-                  onChange={handleChange}
-                  placeholder="John"
-                  className="w-full h-9 bg-muted border-input"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label
-                  htmlFor="middle_name"
-                  className="text-foreground font-medium"
-                >
-                  Middle Name
-                </Label>
-                <Input
-                  id="middle_name"
-                  name="middle_name"
-                  value={formData.middle_name}
-                  onChange={handleChange}
-                  placeholder="Michael"
-                  className="w-full h-9 bg-muted border-input"
-                />
-              </div>
-
-
-            </div>
-
-            {/* Row 2 */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-
-              <div className="space-y-2">
-                <Label htmlFor="email" className="text-foreground font-medium">
-                  Email
-                </Label>
-                <Input
-                  id="email"
-                  name="email"
-                  type="email"
-                  value={formData.email}
-                  onChange={handleChange}
-                  placeholder="john.doe@example.com"
-                  className="w-full h-9 bg-muted border-input"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label
-                  htmlFor="marital_status_id"
-                  className="text-foreground font-medium"
-                >
-                  Marital Status
-                </Label>
-                <ShadcnSelect
-                  popoverKey="marital_status"
-                  popoverOpen={popoverOpen}
-                  setPopoverOpen={setPopoverOpen}
-                  value={formData.marital_status_id}
-                  onValueChange={(val) =>
-                    handleSelectChange("marital_status_id", val)
-                  }
-                  options={metadata?.marital_status || []}
-                  placeholder="Select status"
-                  label="Marital Status"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="dob" className="text-foreground font-medium">
-                  Date of Birth
-                </Label>
-                <Input
-                  id="dob"
-                  name="dob"
-                  type="date"
-                  value={formData.dob}
-                  onChange={handleChange}
-                  className="w-full h-9 bg-muted border-input"
-                />
-              </div>
-            </div>
-
-            {/* Row 3 */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              <div className="space-y-2">
-                <Label
-                  htmlFor="canadian_resident_id"
-                  className="text-foreground font-medium"
-                >
-                  Canadian Resident
-                </Label>
-                <ShadcnSelect
-                  popoverKey="canadian_resident"
-                  popoverOpen={popoverOpen}
-                  setPopoverOpen={setPopoverOpen}
-                  value={formData.canadian_resident_id}
-                  onValueChange={(val) =>
-                    handleSelectChange("canadian_resident_id", val)
-                  }
-                  options={metadata?.yes_no_option || []}
-                  placeholder="Select option"
-                  label="Canadian Resident"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label
-                  htmlFor="resident_status_id"
-                  className="text-foreground font-medium"
-                >
-                  Resident Status
-                </Label>
-                <ShadcnSelect
-                  popoverKey="resident_status"
-                  popoverOpen={popoverOpen}
-                  setPopoverOpen={setPopoverOpen}
-                  value={formData.resident_status_id}
-                  onValueChange={(val) =>
-                    handleSelectChange("resident_status_id", val)
-                  }
-                  options={metadata?.resident_status || []}
-                  placeholder="Select status"
-                  label="Resident Status"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label
-                  htmlFor="language_spoken"
-                  className="text-foreground font-medium"
-                >
-                  Language Spoken
-                </Label>
-                <Input
-                  id="language_spoken"
-                  name="language_spoken"
-                  value={formData.language_spoken}
-                  onChange={handleChange}
-                  placeholder="English"
-                  className="w-full h-9 bg-muted border-input"
-                />
-              </div>
-            </div>
-
-            {/* Row 4 */}
-            <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-              <div className="space-y-2">
-                <Label
-                  htmlFor="contact_method_id"
-                  className="text-foreground font-medium"
-                >
-                  Contact Method
-                </Label>
-                <ShadcnSelect
-                  popoverKey="contact_method"
-                  popoverOpen={popoverOpen}
-                  setPopoverOpen={setPopoverOpen}
-                  value={formData.contact_method_id}
-                  onValueChange={(val) =>
-                    handleSelectChange("contact_method_id", val)
-                  }
-                  options={metadata?.contact_method || []}
-                  placeholder="Select method"
-                  label="Contact Method"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label
-                  htmlFor="telephone"
-                  className="text-foreground font-medium"
-                >
-                  Telephone
-                </Label>
-                <Input
-                  id="telephone"
-                  name="telephone"
-                  value={formData.telephone}
-                  onChange={(e) => setFormData(prev => ({ ...prev, telephone: formatPhoneNumber(e.target.value) }))}
-                  placeholder="(888) 888-8888"
-                  className="w-full h-9 bg-muted border-input"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="ext" className="text-foreground font-medium">
-                  Ext
-                </Label>
-                <Input
-                  id="ext"
-                  name="ext"
-                  value={formData.ext}
-                  onChange={handleChange}
-                  placeholder="2"
-                  className="w-full h-9 bg-muted border-input"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="fax" className="text-foreground font-medium">
-                  Fax
-                </Label>
-                <Input
-                  id="fax"
-                  name="fax"
-                  value={formData.fax}
-                  onChange={(e) => setFormData(prev => ({ ...prev, fax: formatPhoneNumber(e.target.value) }))}
-                  placeholder="(888) 888-8888"
-                  className="w-full h-9 bg-muted border-input"
-                />
-              </div>
-            </div>
-
-            {/* Photo Upload */}
-
-            <div className="space-y-2">
-              <Label className="text-foreground font-medium">
-                Applicant Photo <span className="text-red-500">(Max 1MB)</span>
-              </Label>
-              <div
-                className={`relative border-2 border-dashed rounded-lg transition-all overflow-hidden ${formData.filePreview
-                  ? "border-green-500 bg-green-50/50 h-[200px]"
-                  : "border-input bg-muted hover:border-gray-400 hover:bg-gray-100 h-[200px]"
-                  }`}
-              >
-                <input
-                  id="applicant_photo"
-                  type="file"
-                  className="hidden"
-                  onChange={(e) => {
-                    const file = e.target.files?.[0];
-                    if (file) handleFileChange(file);
-                  }}
-                  accept="image/*"
-                />
-
-                {formData.filePreview ? (
-                  <div className="relative h-full flex flex-col items-center justify-center p-4">
-                    {/* Action Buttons - Remove & Download */}
-                    <div className="absolute top-3 right-3 z-10 flex gap-2">
-                      {/* Download Button */}
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          const link = document.createElement("a");
-                          link.href = formData.filePreview;
-                          link.download = formData.fileName || "applicant-photo.png";
-                          link.target = "_blank";
-                          document.body.appendChild(link);
-                          link.click();
-                          document.body.removeChild(link);
-                          // toast.success("Photo download started!");
-                        }}
-                        className="w-8 h-8 bg-blue-500 hover:bg-blue-600 text-white rounded-full flex items-center justify-center transition-colors shadow-md"
-                        title="Download Photo"
-                      >
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          className="w-4 h-4"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="2"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                        >
-                          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                          <polyline points="7 10 12 15 17 10" />
-                          <line x1="12" y1="15" x2="12" y2="3" />
-                        </svg>
-                      </button>
-
-                      {/* Remove Button */}
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          removeFile();
-                        }}
-                        className="w-8 h-8 bg-red-500 hover:bg-red-600 text-white rounded-full flex items-center justify-center transition-colors shadow-md"
-                        title="Remove Photo"
-                      >
-                        <X className="w-4 h-4" />
-                      </button>
-                    </div>
-
-                    <div
-                      className="flex flex-col items-center justify-center gap-3 cursor-pointer group"
-                      onClick={() => setIsPreviewOpen(true)}
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+              <div className="lg:col-span-9 space-y-6">
+                {/* Row 1 */}
+                <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+                  <div className="space-y-2">
+                    <Label
+                      htmlFor="gender_id"
+                      className="text-foreground font-medium"
                     >
-                      <div className="relative">
-                        <img
-                          src={formData.filePreview}
-                          alt="Preview"
-                          className="w-28 h-28 object-cover rounded-xl border-2 border-green-500 shadow-md group-hover:shadow-lg transition-shadow"
-                        />
-                        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 rounded-xl transition-colors flex items-center justify-center">
-                          <Eye className="w-6 h-6 text-white opacity-0 group-hover:opacity-100 transition-opacity" />
+                      Gender
+                    </Label>
+                    <ShadcnSelect
+                      popoverKey="gender"
+                      popoverOpen={popoverOpen}
+                      setPopoverOpen={setPopoverOpen}
+                      value={formData.gender_id}
+                      onValueChange={(val) => handleSelectChange("gender_id", val)}
+                      options={metadata?.contact_gender || []}
+                      placeholder="Select gender"
+                      label="Gender"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label
+                      htmlFor="last_name"
+                      className="text-foreground font-medium"
+                    >
+                      Last Name<span className="text-red-600">*</span>
+                    </Label>
+                    <Input
+                      id="last_name"
+                      name="last_name"
+                      value={formData.last_name}
+                      onChange={handleChange}
+                      placeholder="Doe"
+                      className="w-full h-9 bg-muted border-input"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label
+                      htmlFor="first_name"
+                      className="text-foreground font-medium"
+                    >
+                      First Name<span className="text-red-600">*</span>
+                    </Label>
+                    <Input
+                      id="first_name"
+                      name="first_name"
+                      value={formData.first_name}
+                      onChange={handleChange}
+                      placeholder="John"
+                      className="w-full h-9 bg-muted border-input"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label
+                      htmlFor="middle_name"
+                      className="text-foreground font-medium"
+                    >
+                      Middle Name
+                    </Label>
+                    <Input
+                      id="middle_name"
+                      name="middle_name"
+                      value={formData.middle_name}
+                      onChange={handleChange}
+                      placeholder="Michael"
+                      className="w-full h-9 bg-muted border-input"
+                    />
+                  </div>
+
+
+                </div>
+
+                {/* Row 2 */}
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+                  <div className="space-y-2">
+                    <Label htmlFor="email" className="text-foreground font-medium">
+                      Email
+                    </Label>
+                    <Input
+                      id="email"
+                      name="email"
+                      type="email"
+                      value={formData.email}
+                      onChange={handleChange}
+                      placeholder="john.doe@example.com"
+                      className="w-full h-9 bg-muted border-input"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label
+                      htmlFor="marital_status_id"
+                      className="text-foreground font-medium"
+                    >
+                      Marital Status
+                    </Label>
+                    <ShadcnSelect
+                      popoverKey="marital_status"
+                      popoverOpen={popoverOpen}
+                      setPopoverOpen={setPopoverOpen}
+                      value={formData.marital_status_id}
+                      onValueChange={(val) =>
+                        handleSelectChange("marital_status_id", val)
+                      }
+                      options={metadata?.marital_status || []}
+                      placeholder="Select status"
+                      label="Marital Status"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="dob" className="text-foreground font-medium">
+                      Date of Birth
+                    </Label>
+                    <Input
+                      id="dob"
+                      name="dob"
+                      type="date"
+                      value={formData.dob}
+                      onChange={handleChange}
+                      className="w-full h-9 bg-muted border-input"
+                    />
+                  </div>
+                </div>
+
+                {/* Row 3 */}
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                  <div className="space-y-2">
+                    <Label
+                      htmlFor="canadian_resident_id"
+                      className="text-foreground font-medium"
+                    >
+                      Canadian Resident
+                    </Label>
+                    <ShadcnSelect
+                      popoverKey="canadian_resident"
+                      popoverOpen={popoverOpen}
+                      setPopoverOpen={setPopoverOpen}
+                      value={formData.canadian_resident_id}
+                      onValueChange={(val) =>
+                        handleSelectChange("canadian_resident_id", val)
+                      }
+                      options={metadata?.yes_no_option || []}
+                      placeholder="Select option"
+                      label="Canadian Resident"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label
+                      htmlFor="resident_status_id"
+                      className="text-foreground font-medium"
+                    >
+                      Resident Status
+                    </Label>
+                    <ShadcnSelect
+                      popoverKey="resident_status"
+                      popoverOpen={popoverOpen}
+                      setPopoverOpen={setPopoverOpen}
+                      value={formData.resident_status_id}
+                      onValueChange={(val) =>
+                        handleSelectChange("resident_status_id", val)
+                      }
+                      options={metadata?.resident_status || []}
+                      placeholder="Select status"
+                      label="Resident Status"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label
+                      htmlFor="language_spoken"
+                      className="text-foreground font-medium"
+                    >
+                      Language Spoken
+                    </Label>
+                    <Input
+                      id="language_spoken"
+                      name="language_spoken"
+                      value={formData.language_spoken}
+                      onChange={handleChange}
+                      placeholder="English"
+                      className="w-full h-9 bg-muted border-input"
+                    />
+                  </div>
+                </div>
+
+                {/* Row 4 */}
+                <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+                  <div className="space-y-2">
+                    <Label
+                      htmlFor="contact_method_id"
+                      className="text-foreground font-medium"
+                    >
+                      Contact Method
+                    </Label>
+                    <ShadcnSelect
+                      popoverKey="contact_method"
+                      popoverOpen={popoverOpen}
+                      setPopoverOpen={setPopoverOpen}
+                      value={formData.contact_method_id}
+                      onValueChange={(val) =>
+                        handleSelectChange("contact_method_id", val)
+                      }
+                      options={metadata?.contact_method || []}
+                      placeholder="Select method"
+                      label="Contact Method"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label
+                      htmlFor="telephone"
+                      className="text-foreground font-medium"
+                    >
+                      Telephone
+                    </Label>
+                    <Input
+                      id="telephone"
+                      name="telephone"
+                      value={formData.telephone}
+                      onChange={(e) => setFormData(prev => ({ ...prev, telephone: formatPhoneNumber(e.target.value) }))}
+                      placeholder="(888) 888-8888"
+                      className="w-full h-9 bg-muted border-input"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="ext" className="text-foreground font-medium">
+                      Ext
+                    </Label>
+                    <Input
+                      id="ext"
+                      name="ext"
+                      value={formData.ext}
+                      onChange={handleChange}
+                      placeholder="2"
+                      className="w-full h-9 bg-muted border-input"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="fax" className="text-foreground font-medium">
+                      Fax
+                    </Label>
+                    <Input
+                      id="fax"
+                      name="fax"
+                      value={formData.fax}
+                      onChange={(e) => setFormData(prev => ({ ...prev, fax: formatPhoneNumber(e.target.value) }))}
+                      placeholder="(888) 888-8888"
+                      className="w-full h-9 bg-muted border-input"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div className="lg:col-span-3">
+                {/* Photo Upload */}
+
+                <div className="space-y-2">
+                  <Label className="text-foreground font-medium">
+                    Applicant Photo <span className="text-red-500">(Max 1MB)</span>
+                  </Label>
+                  <div
+                    className={`relative border-2 border-dashed rounded-lg transition-all overflow-hidden ${formData.filePreview
+                      ? "border-green-500 bg-green-50/50 h-[300px]"
+                      : "border-input bg-muted hover:border-gray-400 hover:bg-gray-100 h-[300px]"
+                      }`}
+                  >
+                    <input
+                      id="applicant_photo"
+                      type="file"
+                      className="hidden"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) handleFileChange(file);
+                      }}
+                      accept="image/*"
+                    />
+
+                    {formData.filePreview ? (
+                      <div className="relative h-full flex flex-col items-center justify-center p-1">
+                        {/* Action Buttons - Remove & Download */}
+                        <div className="absolute top-3 right-3 z-10 flex gap-2">
+                          {/* Download Button */}
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              const link = document.createElement("a");
+                              link.href = formData.filePreview;
+                              link.download = formData.fileName || "applicant-photo.png";
+                              link.target = "_blank";
+                              document.body.appendChild(link);
+                              link.click();
+                              document.body.removeChild(link);
+                              // toast.success("Photo download started!");
+                            }}
+                            className="w-8 h-8 bg-blue-500 hover:bg-blue-600 text-white rounded-full flex items-center justify-center transition-colors shadow-md"
+                            title="Download Photo"
+                          >
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              className="w-4 h-4"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke="currentColor"
+                              strokeWidth="2"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                            >
+                              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                              <polyline points="7 10 12 15 17 10" />
+                              <line x1="12" y1="15" x2="12" y2="3" />
+                            </svg>
+                          </button>
+
+                          {/* Remove Button */}
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              removeFile();
+                            }}
+                            className="w-8 h-8 bg-red-500 hover:bg-red-600 text-white rounded-full flex items-center justify-center transition-colors shadow-md"
+                            title="Remove Photo"
+                          >
+                            <X className="w-4 h-4" />
+                          </button>
+                        </div>
+
+                        <div
+                          className="flex flex-col items-center justify-center gap-3 cursor-pointer group"
+                          onClick={() => setIsPreviewOpen(true)}
+                        >
+                          <div className="relative">
+                            <img
+                              src={formData.filePreview}
+                              alt="Preview"
+                              className="w-52 h-52 object-cover rounded-xl border-2 border-green-500 shadow-md group-hover:shadow-lg transition-shadow"
+                            />
+                            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 rounded-xl transition-colors flex items-center justify-center">
+                              <Eye className="w-6 h-6 text-white opacity-0 group-hover:opacity-100 transition-opacity" />
+                            </div>
+                          </div>
+                          <div className="text-center">
+                            <p className="text-sm font-medium text-green-700">
+                              Photo Uploaded
+                            </p>
+                            <p className="text-xs text-muted-foreground mt-1 max-w-[150px] truncate">
+                              {formData.fileName}
+                            </p>
+                            <p className="text-xs text-green-600 mt-1 flex items-center gap-1 justify-center">
+                              <Eye className="w-3 h-3" />
+                              Click to view
+                            </p>
+                          </div>
                         </div>
                       </div>
-                      <div className="text-center">
-                        <p className="text-sm font-medium text-green-700">
-                          Photo Uploaded
-                        </p>
-                        <p className="text-xs text-muted-foreground mt-1 max-w-[150px] truncate">
-                          {formData.fileName}
-                        </p>
-                        <p className="text-xs text-green-600 mt-1 flex items-center gap-1 justify-center">
-                          <Eye className="w-3 h-3" />
-                          Click to view
-                        </p>
+                    ) : (
+                      <div
+                        className="h-full flex flex-col items-center justify-center cursor-pointer p-6 group"
+                        onClick={() =>
+                          document.getElementById("applicant_photo").click()
+                        }
+                      >
+                        <div className="flex flex-col items-center gap-3">
+                          <div className="w-20 h-20 rounded-full bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center group-hover:from-blue-50 group-hover:to-blue-100 transition-all">
+                            <Upload className="w-9 h-9 text-gray-400 group-hover:text-blue-500 transition-colors" />
+                          </div>
+                          <div className="text-center">
+                            <p className="text-base font-semibold text-foreground group-hover:text-blue-600 transition-colors">
+                              Upload
+                            </p>
+                            <p className="text-xs text-gray-500 mt-1">
+                              Drag and drop or click
+                            </p>
+                            <p className="text-xs text-gray-400 mt-1">
+                              PNG, JPG (Max 1MB)
+                            </p>
+                          </div>
+                        </div>
                       </div>
-                    </div>
+                    )}
                   </div>
-                ) : (
-                  <div
-                    className="h-full flex flex-col items-center justify-center cursor-pointer p-6 group"
-                    onClick={() =>
-                      document.getElementById("applicant_photo").click()
-                    }
-                  >
-                    <div className="flex flex-col items-center gap-3">
-                      <div className="w-20 h-20 rounded-full bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center group-hover:from-blue-50 group-hover:to-blue-100 transition-all">
-                        <Upload className="w-9 h-9 text-gray-400 group-hover:text-blue-500 transition-colors" />
-                      </div>
-                      <div className="text-center">
-                        <p className="text-base font-semibold text-foreground group-hover:text-blue-600 transition-colors">
-                          Upload
-                        </p>
-                        <p className="text-xs text-gray-500 mt-1">
-                          Drag and drop or click
-                        </p>
-                        <p className="text-xs text-gray-400 mt-1">
-                          PNG, JPG (Max 1MB)
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                )}
+                </div>
               </div>
             </div>
-
 
 
             <div className="space-y-6 pt-6 border-t">
@@ -1457,7 +1467,6 @@ export default function ApplicantInformation() {
               </div>
             </div>
 
-            {/* Mailing Address */}
             <div className="space-y-6 pt-6 border-t">
               <div className="flex items-center justify-between">
                 <h2 className="text-xl font-semibold text-foreground">
@@ -1473,138 +1482,140 @@ export default function ApplicantInformation() {
                     htmlFor="sameAsCurrentAddress"
                     className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
                   >
-                    Same as Current Address
+                    Same As Mailing Address
                   </Label>
                 </div>
               </div>
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <div className="space-y-2">
-                  <Label className="text-foreground font-medium">
-                    Unit Number
-                  </Label>
-                  <Input
-                    value={formData.mailing_address.unit_number}
-                    onChange={(e) =>
-                      handleAddressChange(
-                        "mailing_address",
-                        "unit_number",
-                        e.target.value
-                      )
-                    }
-                    placeholder="5B"
-                    className="w-full h-9 bg-muted border-input"
-                    disabled={formData.mailing_address?.sameascurrent ?? false}
-                  />
-                </div>
+              {!formData.mailing_address?.sameascurrent && (
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                  <div className="space-y-2">
+                    <Label className="text-foreground font-medium">
+                      Unit Number
+                    </Label>
+                    <Input
+                      value={formData.mailing_address.unit_number}
+                      onChange={(e) =>
+                        handleAddressChange(
+                          "mailing_address",
+                          "unit_number",
+                          e.target.value
+                        )
+                      }
+                      placeholder="5B"
+                      className="w-full h-9 bg-muted border-input"
+                      disabled={formData.mailing_address?.sameascurrent ?? false}
+                    />
+                  </div>
 
-                <div className="space-y-2">
-                  <Label className="text-foreground font-medium">
-                    Street Number
-                  </Label>
-                  <Input
-                    value={formData.mailing_address.street_number}
-                    onChange={(e) =>
-                      handleAddressChange(
-                        "mailing_address",
-                        "street_number",
-                        e.target.value
-                      )
-                    }
-                    placeholder="221"
-                    className="w-full h-9 bg-muted border-input"
-                    disabled={formData.mailing_address?.sameascurrent ?? false}
-                  />
-                </div>
+                  <div className="space-y-2">
+                    <Label className="text-foreground font-medium">
+                      Street Number
+                    </Label>
+                    <Input
+                      value={formData.mailing_address.street_number}
+                      onChange={(e) =>
+                        handleAddressChange(
+                          "mailing_address",
+                          "street_number",
+                          e.target.value
+                        )
+                      }
+                      placeholder="221"
+                      className="w-full h-9 bg-muted border-input"
+                      disabled={formData.mailing_address?.sameascurrent ?? false}
+                    />
+                  </div>
 
-                <div className="space-y-2">
-                  <Label className="text-foreground font-medium">
-                    Street Name
-                  </Label>
-                  <Input
-                    value={formData.mailing_address.street_name}
-                    onChange={(e) =>
-                      handleAddressChange(
-                        "mailing_address",
-                        "street_name",
-                        e.target.value
-                      )
-                    }
-                    placeholder="King Street West"
-                    className="w-full h-9 bg-muted border-input"
-                    disabled={formData.mailing_address?.sameascurrent ?? false}
-                  />
-                </div>
+                  <div className="space-y-2">
+                    <Label className="text-foreground font-medium">
+                      Street Name
+                    </Label>
+                    <Input
+                      value={formData.mailing_address.street_name}
+                      onChange={(e) =>
+                        handleAddressChange(
+                          "mailing_address",
+                          "street_name",
+                          e.target.value
+                        )
+                      }
+                      placeholder="King Street West"
+                      className="w-full h-9 bg-muted border-input"
+                      disabled={formData.mailing_address?.sameascurrent ?? false}
+                    />
+                  </div>
 
-                <div className="space-y-2">
-                  <Label className="text-foreground font-medium">City</Label>
-                  <Input
-                    value={formData.mailing_address.city}
-                    onChange={(e) =>
-                      handleAddressChange(
-                        "mailing_address",
-                        "city",
-                        e.target.value
-                      )
-                    }
-                    placeholder="Toronto"
-                    className="w-full h-9 bg-muted border-input"
-                    disabled={formData.mailing_address?.sameascurrent ?? false}
-                  />
-                </div>
+                  <div className="space-y-2">
+                    <Label className="text-foreground font-medium">City</Label>
+                    <Input
+                      value={formData.mailing_address.city}
+                      onChange={(e) =>
+                        handleAddressChange(
+                          "mailing_address",
+                          "city",
+                          e.target.value
+                        )
+                      }
+                      placeholder="Toronto"
+                      className="w-full h-9 bg-muted border-input"
+                      disabled={formData.mailing_address?.sameascurrent ?? false}
+                    />
+                  </div>
 
-                <div className="space-y-2">
-                  <Label className="text-foreground font-medium">Province</Label>
-                  <Input
-                    value={formData.mailing_address.province}
-                    onChange={(e) =>
-                      handleAddressChange(
-                        "mailing_address",
-                        "province",
-                        e.target.value
-                      )
-                    }
-                    placeholder="Ontario"
-                    className="w-full h-9 bg-muted border-input"
-                    disabled={formData.mailing_address?.sameascurrent ?? false}
-                  />
-                </div>
+                  <div className="space-y-2">
+                    <Label className="text-foreground font-medium">Province</Label>
+                    <Input
+                      value={formData.mailing_address.province}
+                      onChange={(e) =>
+                        handleAddressChange(
+                          "mailing_address",
+                          "province",
+                          e.target.value
+                        )
+                      }
+                      placeholder="Ontario"
+                      className="w-full h-9 bg-muted border-input"
+                      disabled={formData.mailing_address?.sameascurrent ?? false}
+                    />
+                  </div>
 
-                <div className="space-y-2">
-                  <Label className="text-foreground font-medium">
-                    Postal Code
-                  </Label>
-                  <Input
-                    value={formData.mailing_address.postal_code}
-                    onChange={(e) =>
-                      handleAddressChange(
-                        "mailing_address",
-                        "postal_code",
-                        e.target.value
-                      )
-                    }
-                    placeholder="M5H 1K5"
-                    className="w-full h-9 bg-muted border-input"
-                    disabled={formData.mailing_address?.sameascurrent ?? false}
-                  />
-                </div>
+                  <div className="space-y-2">
+                    <Label className="text-foreground font-medium">
+                      Postal Code
+                    </Label>
+                    <Input
+                      value={formData.mailing_address.postal_code}
+                      onChange={(e) =>
+                        handleAddressChange(
+                          "mailing_address",
+                          "postal_code",
+                          e.target.value
+                        )
+                      }
+                      placeholder="M5H 1K5"
+                      className="w-full h-9 bg-muted border-input"
+                      disabled={formData.mailing_address?.sameascurrent ?? false}
+                    />
+                  </div>
 
-                <div className="space-y-2">
-                  <Label className="text-foreground font-medium">Country</Label>
-                  <Input
-                    value={formData.mailing_address.country}
-                    onChange={(e) =>
-                      handleAddressChange(
-                        "mailing_address",
-                        "country",
-                        e.target.value
-                      )
-                    }
-                    placeholder="Canada"
-                    className="w-full h-9 bg-muted border-input"
-                    disabled={formData.mailing_address?.sameascurrent ?? false}
-                  />
+                  <div className="space-y-2">
+                    <Label className="text-foreground font-medium">Country</Label>
+                    <Input
+                      value={formData.mailing_address.country}
+                      onChange={(e) =>
+                        handleAddressChange(
+                          "mailing_address",
+                          "country",
+                          e.target.value
+                        )
+                      }
+                      placeholder="Canada"
+                      className="w-full h-9 bg-muted border-input"
+                      disabled={formData.mailing_address?.sameascurrent ?? false}
+                    />
+                  </div>
                 </div>
-              </div>
+              )}
             </div>
 
             {/* Family Member Information */}
@@ -2130,25 +2141,25 @@ export default function ApplicantInformation() {
             </div>
           </form>
         </div>
-      </div>
 
-      {/* Photo Preview Dialog */}
-      <Dialog open={isPreviewOpen} onOpenChange={setIsPreviewOpen}>
-        <DialogContent className="max-w-4xl">
-          <DialogHeader>
-            <DialogTitle>Applicant Photo Preview</DialogTitle>
-          </DialogHeader>
-          <div className="flex items-center justify-center p-4">
-            {formData.filePreview && (
-              <img
-                src={formData.filePreview}
-                alt="Full Preview"
-                className="max-w-full max-h-[70vh] object-contain rounded-lg"
-              />
-            )}
-          </div>
-        </DialogContent>
-      </Dialog>
-    </div>
+        {/* Photo Preview Dialog */}
+        <Dialog open={isPreviewOpen} onOpenChange={setIsPreviewOpen}>
+          <DialogContent className="max-w-4xl">
+            <DialogHeader>
+              <DialogTitle>Applicant Photo Preview</DialogTitle>
+            </DialogHeader>
+            <div className="flex items-center justify-center p-4">
+              {formData.filePreview && (
+                <img
+                  src={formData.filePreview}
+                  alt="Full Preview"
+                  className="max-w-full max-h-[70vh] object-contain rounded-lg"
+                />
+              )}
+            </div>
+          </DialogContent>
+        </Dialog>
+      </div >
+    </div >
   );
 }
