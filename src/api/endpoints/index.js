@@ -1,3 +1,4 @@
+import { sortFolders } from "@/pages/document-i/helpers/sortFolders";
 import { add } from "date-fns";
 import { de, th } from "date-fns/locale";
 
@@ -400,6 +401,8 @@ export const endpoints = {
   documentiDeleteDocument: "api/v2/file/document-i/document/delete",
   documentiRenameFolder: "api/v2/file/document-i/folders/rename",
   documentiDeleteFolder: "api/v2/file/document-i/folders/delete",
+  sortFolders: "api/v2/file/document-i/folders/sort",
+  sortDocuments: "api/v2/file/document-i/document/sort",
 
 };
 

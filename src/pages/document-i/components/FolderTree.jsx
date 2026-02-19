@@ -1,5 +1,23 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+} from '@dnd-kit/core';
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  verticalListSortingStrategy,
+} from '@dnd-kit/sortable';
+import {
+  useSortable,
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 import {
   ChevronRight,
   ChevronDown,
@@ -13,6 +31,7 @@ import {
   Edit2,
   Check,
   X,
+  GripVertical,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { format, isValid } from "date-fns";
@@ -33,13 +52,15 @@ import { Input } from "@/components/ui/input";
 import { deleteDocument } from "../helpers/deleteDocument";
 import { renameFolder } from "../helpers/renameFolder";
 import { deleteFolder } from "../helpers/deleteFolder";
+import { sortFolders } from "../helpers/sortFolders";
+import { sortDocuments } from "../helpers/sortDocuments";
 
 const safeFormat = (dateStr, formatStr) => {
   const dateObj = dateStr ? new Date(dateStr) : null;
   return dateObj && isValid(dateObj) ? format(dateObj, formatStr) : "-";
 };
 
-const DocumentItem = ({ document, slug }) => {
+const DocumentItem = ({ document, slug, dragAttributes, dragListeners, isDragging }) => {
   const queryClient = useQueryClient();
 
   const deleteMutation = useMutation({
@@ -67,6 +88,16 @@ const DocumentItem = ({ document, slug }) => {
 
   return (
     <div className="group flex items-center gap-3 py-2 px-3 ml-4 bg-gray-100 dark:hover:bg-blue-950/30 cursor-pointer transition-all duration-200 border border-transparent hover:border-gray-100 dark:hover:border-blue-800">
+      {/* Drag Handle for Documents */}
+      {dragAttributes && dragListeners && (
+        <div 
+          {...dragAttributes} 
+          {...dragListeners}
+          className="cursor-grab active:cursor-grabbing p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors"
+        >
+          <GripVertical className="h-3 w-3 text-gray-400" />
+        </div>
+      )}
       <div className="p-1.5 bg-blue-100 dark:bg-blue-900/50 group-hover:bg-blue-200 dark:group-hover:bg-blue-800/50 transition-colors">
         <FileText className="h-4 w-4 text-blue-600 dark:text-blue-400" />
       </div>
@@ -89,7 +120,8 @@ const DocumentItem = ({ document, slug }) => {
       </div>
       
       {/* Delete Button with Confirmation */}
-      <AlertDialog>
+      {!isDragging && (
+        <AlertDialog>
         <AlertDialogTrigger asChild>
           <Button
             variant="ghost"
@@ -120,13 +152,91 @@ const DocumentItem = ({ document, slug }) => {
               {deleteMutation.isPending ? "Deleting..." : "Delete"}
             </AlertDialogAction>
           </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+          </AlertDialogContent>
+        </AlertDialog>
+      )}
     </div>
   );
 };
 
-const FolderItem = ({ folder, level = 0, isSubFolder = false, slug }) => {
+const SortableDocumentItem = ({ document, slug, folderId }) => {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ 
+    id: `doc-${document.id}`,
+    data: {
+      type: 'document',
+      folderId: folderId,
+      document: document
+    }
+  });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+  };
+
+  return (
+    <div ref={setNodeRef} style={style}>
+      <DocumentItem
+        document={document}
+        slug={slug}
+        dragAttributes={attributes}
+        dragListeners={listeners}
+        isDragging={isDragging}
+      />
+    </div>
+  );
+};
+
+const SortableFolderItem = ({ folder, level = 0, isSubFolder = false, slug, parentId = null }) => {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: folder.id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+  };
+
+  return (
+    <div ref={setNodeRef} style={style}>
+      <FolderItem
+        folder={folder}
+        level={level}
+        isSubFolder={isSubFolder}
+        slug={slug}
+        parentId={parentId}
+        dragAttributes={attributes}
+        dragListeners={listeners}
+        isDragging={isDragging}
+      />
+    </div>
+  );
+};
+
+const FolderItem = ({ 
+  folder, 
+  level = 0, 
+  isSubFolder = false, 
+  slug, 
+  parentId = null, 
+  dragAttributes, 
+  dragListeners, 
+  isDragging 
+}) => {
   const [isOpen, setIsOpen] = useState(false);
   const [isRenaming, setIsRenaming] = useState(false);
   const [newName, setNewName] = useState(folder.name || "");
@@ -246,6 +356,13 @@ const FolderItem = ({ folder, level = 0, isSubFolder = false, slug }) => {
         )}
         onClick={toggleOpen}
       >
+        <div 
+          {...dragAttributes} 
+          {...dragListeners}
+          className="cursor-grab active:cursor-grabbing p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors"
+        >
+          <GripVertical className="h-4 w-4 text-gray-400" />
+        </div>
         <div
           className={cn(
             "w-5 h-5 flex items-center justify-center rounded transition-transform duration-200",
@@ -272,7 +389,6 @@ const FolderItem = ({ folder, level = 0, isSubFolder = false, slug }) => {
           <FolderIcon className={cn("h-5 w-5", folderColors.icon)} />
         </div>
         
-        {/* Folder Name - Inline Editing */}
         {isRenaming ? (
           <div className="flex items-center gap-2 flex-1">
             <Input
@@ -309,7 +425,6 @@ const FolderItem = ({ folder, level = 0, isSubFolder = false, slug }) => {
             <span className="text-sm font-semibold text-foreground truncate flex-1">
               {folder.name}
             </span>
-            {/* Action Buttons - Only show on hover */}
             <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
               <Button
                 variant="ghost"
@@ -391,20 +506,38 @@ const FolderItem = ({ folder, level = 0, isSubFolder = false, slug }) => {
               level > 0 && "ml-12"
             )}
           >
-            {hasSubFolders &&
-              folder.subFolders.map((subFolder) => (
-                <FolderItem
-                  key={`folder-${subFolder.id}`}
-                  folder={subFolder}
-                  level={level + 1}
-                  isSubFolder={true}
-                  slug={slug}
-                />
-              ))}
-            {hasDocuments &&
-              folder.documents.map((doc) => (
-                <DocumentItem key={`doc-${doc.id}`} document={doc} slug={slug} />
-              ))}
+            {hasSubFolders && (
+              <SortableContext
+                items={folder.subFolders.map(sf => sf.id)}
+                strategy={verticalListSortingStrategy}
+              >
+                {folder.subFolders.map((subFolder) => (
+                  <SortableFolderItem
+                    key={`folder-${subFolder.id}`}
+                    folder={subFolder}
+                    level={level + 1}
+                    isSubFolder={true}
+                    slug={slug}
+                    parentId={folder.id}
+                  />
+                ))}
+              </SortableContext>
+            )}
+            {hasDocuments && (
+              <SortableContext
+                items={folder.documents.map(doc => `doc-${doc.id}`)}
+                strategy={verticalListSortingStrategy}
+              >
+                {folder.documents.map((doc) => (
+                  <SortableDocumentItem 
+                    key={`doc-${doc.id}`} 
+                    document={doc} 
+                    slug={slug}
+                    folderId={folder.id}
+                  />
+                ))}
+              </SortableContext>
+            )}
           </div>
         )}
       </div>
@@ -413,6 +546,170 @@ const FolderItem = ({ folder, level = 0, isSubFolder = false, slug }) => {
 };
 
 const FolderTree = ({ folders = [], isLoading = false, slug }) => {
+  const [items, setItems] = useState(folders);
+  const queryClient = useQueryClient();
+  
+  useEffect(() => {
+    setItems(folders);
+  }, [folders]);
+
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
+  const sortFolderMutation = useMutation({
+    mutationFn: (sortData) => sortFolders(sortData),
+    onSuccess: (data) => {
+      const resp = data?.response;
+      if (resp?.ApiStatus === false) {
+        toast.error(resp?.message || "Failed to sort folders");
+        return;
+      }
+      toast.success("Folders reordered successfully!");
+      queryClient.invalidateQueries(["documenti-folders", slug]);
+      queryClient.invalidateQueries(["documenti-folders-dropdown", slug]);
+    },
+    onError: (error) => {
+      toast.error(error?.message || "Failed to sort folders");
+    },
+  });
+
+  const sortDocumentMutation = useMutation({
+    mutationFn: (sortData) => sortDocuments(sortData),
+    onSuccess: (data) => {
+      const resp = data?.response;
+      if (resp?.ApiStatus === false) {
+        toast.error(resp?.message || "Failed to sort documents");
+        return;
+      }
+      toast.success("Documents reordered successfully!");
+      queryClient.invalidateQueries(["documenti-folders", slug]);
+      queryClient.invalidateQueries(["documenti-folders-dropdown", slug]);
+    },
+    onError: (error) => {
+      toast.error(error?.message || "Failed to sort documents");
+    },
+  });
+  const handleDragEnd = (event) => {
+    const { active, over } = event;
+
+    if (!over || active.id === over.id) {
+      return;
+    }
+
+    const activeId = active.id;
+    const overId = over.id;
+    const activeType = active.data.current?.type;
+    
+    if (activeType === 'document' || activeId.toString().startsWith('doc-')) {
+      const activeDocId = activeType === 'document' ? 
+        active.data.current.document.id : 
+        parseInt(activeId.toString().replace('doc-', ''));
+      
+      const overDocId = overId.toString().startsWith('doc-') ? 
+        parseInt(overId.toString().replace('doc-', '')) :
+        over.data.current?.document?.id;
+
+      if (!overDocId) return;
+      let targetFolder = null;
+      
+      const findFolderWithDocuments = (folders, docId1, docId2) => {
+        for (let folder of folders) {
+          if (folder.documents && folder.documents.some(doc => doc.id === docId1 || doc.id === docId2)) {
+            return folder;
+          }
+          if (folder.subFolders && folder.subFolders.length > 0) {
+            for (let subFolder of folder.subFolders) {
+              if (subFolder.documents && subFolder.documents.some(doc => doc.id === docId1 || doc.id === docId2)) {
+                return subFolder;
+              }
+            }
+          }
+        }
+        return null;
+      };
+      
+      targetFolder = findFolderWithDocuments(items, activeDocId, overDocId);
+
+      if (!targetFolder || !targetFolder.documents) return;
+
+      const oldIndex = targetFolder.documents.findIndex(doc => doc.id === activeDocId);
+      const newIndex = targetFolder.documents.findIndex(doc => doc.id === overDocId);
+
+      if (oldIndex === -1 || newIndex === -1 || oldIndex === newIndex) return;
+
+      const reorderedDocuments = arrayMove(targetFolder.documents, oldIndex, newIndex);
+      
+      setItems(prevItems => 
+        prevItems.map(folder => 
+          folder.id === targetFolder.id 
+            ? { ...folder, documents: reorderedDocuments }
+            : folder
+        )
+      );
+
+      const sortData = reorderedDocuments.map((doc, index) => ({
+        id: doc.id,
+        sort: index + 1,
+      }));
+      sortDocumentMutation.mutate(sortData);
+      return;
+    }
+
+    const findContainer = (id) => {
+      const rootIndex = items.findIndex(folder => folder.id === id);
+      if (rootIndex !== -1) {
+        return { container: null, items: items, index: rootIndex };
+      }
+      for (let folder of items) {
+        if (folder.subFolders) {
+          const subIndex = folder.subFolders.findIndex(sf => sf.id === id);
+          if (subIndex !== -1) {
+            return { container: folder.id, items: folder.subFolders, index: subIndex };
+          }
+        }
+      }
+      return null;
+    };
+
+    const activeContainer = findContainer(active.id);
+    const overContainer = findContainer(over.id);
+
+    if (!activeContainer || !overContainer) {
+      return;
+    }
+    if (activeContainer.container !== overContainer.container) {
+      return;
+    }
+
+    const oldIndex = activeContainer.index;
+    const newIndex = overContainer.index;
+
+    if (oldIndex === newIndex) {
+      return;
+    }
+    const newItems = arrayMove(activeContainer.items, oldIndex, newIndex);
+    if (activeContainer.container === null) {
+      setItems(newItems);
+    } else {
+      setItems(prevItems => 
+        prevItems.map(folder => 
+          folder.id === activeContainer.container 
+            ? { ...folder, subFolders: newItems }
+            : folder
+        )
+      );
+    }
+    const sortData = newItems.map((item, index) => ({
+      id: item.id,
+      sort: index + 1,
+      parent_id: activeContainer.container,
+    }));
+    sortFolderMutation.mutate(sortData);
+  };
+
   if (isLoading) {
     return (
       <div className="space-y-3 p-4">
@@ -444,16 +741,28 @@ const FolderTree = ({ folders = [], isLoading = false, slug }) => {
   }
 
   return (
-    <div className="space-y-1 p-2">
-      {folders.map((folder) => (
-        <FolderItem
-          key={`folder-${folder.id}`}
-          folder={folder}
-          isSubFolder={false}
-          slug={slug}
-        />
-      ))}
-    </div>
+    <DndContext
+      sensors={sensors}
+      collisionDetection={closestCenter}
+      onDragEnd={handleDragEnd}
+    >
+      <div className="space-y-1 p-2">
+        <SortableContext
+          items={items.map(folder => folder.id)}
+          strategy={verticalListSortingStrategy}
+        >
+          {items.map((folder) => (
+            <SortableFolderItem
+              key={`folder-${folder.id}`}
+              folder={folder}
+              isSubFolder={false}
+              slug={slug}
+              parentId={null}
+            />
+          ))}
+        </SortableContext>
+      </div>
+    </DndContext>
   );
 };
 
