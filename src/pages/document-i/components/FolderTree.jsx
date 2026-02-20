@@ -26,15 +26,22 @@ import {
   FolderClosed,
   FolderArchive,
   FileText,
-  File,
   Trash2,
   Edit2,
   Check,
   X,
   GripVertical,
+  FileArchive,
+  FileVideo,
+  FileAudio,
+  FileSignature,
+  File,
+  FileCode,
+  FileJson,
+  FileSpreadsheet,
+  FileImage,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { format, isValid } from "date-fns";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import {
@@ -54,11 +61,6 @@ import { renameFolder } from "../helpers/renameFolder";
 import { deleteFolder } from "../helpers/deleteFolder";
 import { sortFolders } from "../helpers/sortFolders";
 import { sortDocuments } from "../helpers/sortDocuments";
-
-const safeFormat = (dateStr, formatStr) => {
-  const dateObj = dateStr ? new Date(dateStr) : null;
-  return dateObj && isValid(dateObj) ? format(dateObj, formatStr) : "-";
-};
 
 const DocumentItem = ({ document, slug, dragAttributes, dragListeners, isDragging }) => {
   const queryClient = useQueryClient();
@@ -80,6 +82,39 @@ const DocumentItem = ({ document, slug, dragAttributes, dragListeners, isDraggin
     },
   });
 
+const handleGetDocIcon = (type = "") => {
+  const ext = type.toLowerCase();
+
+  switch (ext) {
+    case "pdf":
+      return <FileText className="h-4 w-4 text-red-600 dark:text-red-400" />;
+
+    case "doc":
+    case "docx":
+    case "rtf":
+      return <FileText className="h-4 w-4 text-blue-600 dark:text-blue-400" />;
+
+    case "xls":
+    case "xlsx":
+    case "csv":
+      return <FileSpreadsheet className="h-4 w-4 text-green-600 dark:text-green-400" />;
+
+    case "txt":
+      return <FileText className="h-4 w-4 text-gray-600 dark:text-gray-400" />;
+
+    case "jpg":
+    case "jpeg":
+    case "png":
+    case "gif":
+    case "webp":
+    case "svg":
+      return <FileImage className="h-4 w-4 text-pink-600 dark:text-pink-400" />;
+
+    default:
+      return <File className="h-4 w-4 text-gray-500 dark:text-gray-400" />;
+  }
+};
+
   const handleDelete = () => {
     if (document.id) {
       deleteMutation.mutate(document.id);
@@ -88,7 +123,6 @@ const DocumentItem = ({ document, slug, dragAttributes, dragListeners, isDraggin
 
   return (
     <div className="group flex items-center gap-3 py-2 px-3 ml-4 bg-gray-100 dark:hover:bg-blue-950/30 cursor-pointer transition-all duration-200 border border-transparent hover:border-gray-100 dark:hover:border-blue-800">
-      {/* Drag Handle for Documents */}
       {dragAttributes && dragListeners && (
         <div 
           {...dragAttributes} 
@@ -99,7 +133,7 @@ const DocumentItem = ({ document, slug, dragAttributes, dragListeners, isDraggin
         </div>
       )}
       <div className="p-1.5 bg-blue-100 dark:bg-blue-900/50 group-hover:bg-blue-200 dark:group-hover:bg-blue-800/50 transition-colors">
-        <FileText className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+        {handleGetDocIcon(document.type || 'pdf')}
       </div>
       <div className="flex flex-col min-w-0 flex-1">
         <span className="text-sm font-medium text-foreground truncate">
@@ -107,7 +141,6 @@ const DocumentItem = ({ document, slug, dragAttributes, dragListeners, isDraggin
         </span>
       </div>
       
-      {/* Delete Button with Confirmation */}
       {!isDragging && (
         <AlertDialog>
         <AlertDialogTrigger asChild>
@@ -124,7 +157,7 @@ const DocumentItem = ({ document, slug, dragAttributes, dragListeners, isDraggin
           <AlertDialogHeader>
             <AlertDialogTitle>Delete Document</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to delete "{document.name || "Untitled Document"}"? 
+              Are you sure you want to delete "{document.title || "Untitled Document"}"? 
               This action cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
@@ -183,7 +216,7 @@ const SortableDocumentItem = ({ document, slug, folderId }) => {
   );
 };
 
-const SortableFolderItem = ({ folder, level = 0, isSubFolder = false, slug, parentId = null }) => {
+const SortableFolderItem = ({ folder, level = 0, isSubFolder = false, slug, parentId = null, count = 0 }) => {
   const {
     attributes,
     listeners,
@@ -210,6 +243,7 @@ const SortableFolderItem = ({ folder, level = 0, isSubFolder = false, slug, pare
         dragAttributes={attributes}
         dragListeners={listeners}
         isDragging={isDragging}
+        count={count}
       />
     </div>
   );
@@ -221,6 +255,7 @@ const FolderItem = ({
   isSubFolder = false, 
   slug, 
   parentId = null, 
+  count = 0,
   dragAttributes, 
   dragListeners, 
   isDragging 
@@ -240,7 +275,6 @@ const FolderItem = ({
       }
       toast.success("Folder renamed successfully!");
       setIsRenaming(false);
-      // Invalidate both queries to refresh the data
       queryClient.invalidateQueries(["documenti-folders", slug]);
       queryClient.invalidateQueries(["documenti-folders-dropdown", slug]);
     },
@@ -258,7 +292,6 @@ const FolderItem = ({
         return;
       }
       toast.success("Folder deleted successfully!");
-      // Invalidate both queries to refresh the data
       queryClient.invalidateQueries(["documenti-folders", slug]);
       queryClient.invalidateQueries(["documenti-folders-dropdown", slug]);
     },
@@ -411,6 +444,7 @@ const FolderItem = ({
         ) : (
           <>
             <span className="text-sm font-semibold text-foreground truncate flex-1">
+              {count > 0 && `${count}. `}
               {folder.name}
             </span>
             <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -426,8 +460,6 @@ const FolderItem = ({
               >
                 <Edit2 className="h-4 w-4" />
               </Button>
-              
-              {/* Delete Folder Button with Confirmation */}
               <AlertDialog>
                 <AlertDialogTrigger asChild>
                   <Button
@@ -739,13 +771,14 @@ const FolderTree = ({ folders = [], isLoading = false, slug }) => {
           items={items.map(folder => folder.id)}
           strategy={verticalListSortingStrategy}
         >
-          {items.map((folder) => (
+          {items.map((folder, index) => (
             <SortableFolderItem
               key={`folder-${folder.id}`}
               folder={folder}
               isSubFolder={false}
               slug={slug}
               parentId={null}
+              count={index + 1}
             />
           ))}
         </SortableContext>
