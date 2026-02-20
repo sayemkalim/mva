@@ -132,8 +132,8 @@ const handleGetDocIcon = (type = "") => {
           <GripVertical className="h-3 w-3 text-gray-400" />
         </div>
       )}
-      <div className="p-1.5 bg-blue-100 dark:bg-blue-900/50 group-hover:bg-blue-200 dark:group-hover:bg-blue-800/50 transition-colors">
-        {handleGetDocIcon(document.type || 'pdf')}
+      <div className="p-1.5 transition-colors">
+        {handleGetDocIcon(document?.attachment?.extension || 'pdf')}
       </div>
       <div className="flex flex-col min-w-0 flex-1">
         <span className="text-sm font-medium text-foreground truncate">
