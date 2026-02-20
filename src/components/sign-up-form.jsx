@@ -15,6 +15,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { apiService } from "@/api/api_service/apiService";
+import { formatPhoneNumber } from "@/lib/utils";
 import {
   User,
   Mail,
@@ -165,9 +166,15 @@ export function SignupForm() {
 
   const handleChange = (e) => {
     const { id, value, type, checked } = e.target;
+
+    let processedValue = value;
+    if (id === "phone_number") {
+      processedValue = formatPhoneNumber(value);
+    }
+
     setFormData({
       ...formData,
-      [id]: type === "checkbox" ? checked : value,
+      [id]: type === "checkbox" ? checked : processedValue,
     });
 
     if (validationErrors[id]) {
@@ -190,25 +197,39 @@ export function SignupForm() {
     }
   };
 
+  const validateForm = () => {
+    const errors = {};
+    if (!formData.first_name.trim()) errors.first_name = "First name is required";
+    if (!formData.last_name.trim()) errors.last_name = "Last name is required";
+    if (!formData.email.trim()) errors.email = "Email is required";
+    else if (!/^\S+@\S+\.\S+$/.test(formData.email)) errors.email = "Invalid email format";
+
+    if (!formData.country_code_id) errors.country_code_id = "Code required";
+    if (!formData.phone_number.trim()) errors.phone_number = "Phone number is required";
+
+    if (!formData.firm_name.trim()) errors.firm_name = "Firm name is required";
+    if (!formData.number_of_users) errors.number_of_users = "Number of users is required";
+    if (!formData.practice_area_id) errors.practice_area_id = "Practice area is required";
+    if (!formData.timezone_id) errors.timezone_id = "Timezone is required";
+
+    if (!formData.password) errors.password = "Password is required";
+    else if (formData.password.length < 6) errors.password = "Password must be at least 6 characters";
+
+    if (!formData.password_confirmation) errors.password_confirmation = "Password confirmation is required";
+    else if (formData.password !== formData.password_confirmation) errors.password_confirmation = "Passwords do not match";
+
+    if (!formData.terms_accepted) errors.terms_accepted = "Please accept the terms and conditions";
+
+    setValidationErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    if (formData.password.length < 6) {
-      toast.error("Password must be at least 6 characters");
+    if (!validateForm()) {
       return;
     }
-
-    if (formData.password !== formData.password_confirmation) {
-      toast.error("Passwords do not match");
-      return;
-    }
-
-    if (!formData.terms_accepted) {
-      toast.error("Please accept the terms and conditions");
-      return;
-    }
-
-    setValidationErrors({});
 
     const submissionData = {
       ...formData,
@@ -262,7 +283,7 @@ export function SignupForm() {
         {/* Name Fields */}
         <div className="grid grid-cols-2 gap-4">
           <div className="grid gap-3">
-            <Label htmlFor="first_name">First Name</Label>
+            <Label htmlFor="first_name">First Name <span className="text-red-500">*</span></Label>
             <div className="relative">
               <Input
                 id="first_name"
@@ -270,9 +291,8 @@ export function SignupForm() {
                 placeholder="John"
                 value={formData.first_name}
                 onChange={handleChange}
-                className={`pr-10 ${
-                  getFieldError("first_name") ? "border-red-500" : ""
-                }`}
+                className={`pr-10 ${getFieldError("first_name") ? "border-red-500" : ""
+                  }`}
                 required
               />
               <User className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -285,7 +305,7 @@ export function SignupForm() {
           </div>
 
           <div className="grid gap-3">
-            <Label htmlFor="last_name">Last Name</Label>
+            <Label htmlFor="last_name">Last Name <span className="text-red-500">*</span></Label>
             <Input
               id="last_name"
               type="text"
@@ -305,7 +325,7 @@ export function SignupForm() {
 
         {/* Email */}
         <div className="grid gap-3">
-          <Label htmlFor="email">Email</Label>
+          <Label htmlFor="email">Email <span className="text-red-500">*</span></Label>
           <div className="relative">
             <Input
               id="email"
@@ -313,9 +333,8 @@ export function SignupForm() {
               placeholder="m@example.com"
               value={formData.email}
               onChange={handleChange}
-              className={`pr-10 ${
-                getFieldError("email") ? "border-red-500" : ""
-              }`}
+              className={`pr-10 ${getFieldError("email") ? "border-red-500" : ""
+                }`}
               required
             />
             <Mail className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -331,7 +350,7 @@ export function SignupForm() {
 
         {/* Phone Number with Country Code */}
         <div className="grid gap-3">
-          <Label>Phone Number</Label>
+          <Label>Phone Number <span className="text-red-500">*</span></Label>
           <div className="grid grid-cols-5 gap-3">
             <div className="col-span-2">
               <Select
@@ -341,11 +360,10 @@ export function SignupForm() {
                 }
               >
                 <SelectTrigger
-                  className={
-                    getFieldError("country_code_id") ? "border-red-500" : ""
-                  }
+                  className={`w-full overflow-hidden whitespace-nowrap ${getFieldError("country_code_id") ? "border-red-500" : ""
+                    }`}
                 >
-                  <SelectValue placeholder="Select code" />
+                  <SelectValue placeholder="Code" />
                 </SelectTrigger>
                 <SelectContent>
                   {countryCodes.map((country) => (
@@ -379,7 +397,7 @@ export function SignupForm() {
 
         {/* Firm Name */}
         <div className="grid gap-3">
-          <Label htmlFor="firm_name">Firm Name</Label>
+          <Label htmlFor="firm_name">Firm Name <span className="text-red-500">*</span></Label>
           <div className="relative">
             <Input
               id="firm_name"
@@ -387,9 +405,8 @@ export function SignupForm() {
               placeholder="Your Firm Name"
               value={formData.firm_name}
               onChange={handleChange}
-              className={`pr-10 ${
-                getFieldError("firm_name") ? "border-red-500" : ""
-              }`}
+              className={`pr-10 ${getFieldError("firm_name") ? "border-red-500" : ""
+                }`}
               required
             />
             <Building2 className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -402,7 +419,7 @@ export function SignupForm() {
         {/* Number of Users & Practice Area */}
         <div className="grid grid-cols-2 gap-4">
           <div className="grid gap-3">
-            <Label htmlFor="number_of_users">Number of Users</Label>
+            <Label htmlFor="number_of_users">Number of Users <span className="text-red-500">*</span></Label>
             <div className="relative">
               <Input
                 id="number_of_users"
@@ -411,9 +428,8 @@ export function SignupForm() {
                 min="1"
                 value={formData.number_of_users}
                 onChange={handleChange}
-                className={`pr-10 ${
-                  getFieldError("number_of_users") ? "border-red-500" : ""
-                }`}
+                className={`pr-10 ${getFieldError("number_of_users") ? "border-red-500" : ""
+                  }`}
                 required
               />
               <Users className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -426,7 +442,7 @@ export function SignupForm() {
           </div>
 
           <div className="grid gap-3">
-            <Label>Practice Area</Label>
+            <Label>Practice Area <span className="text-red-500">*</span></Label>
             <Select
               value={formData.practice_area_id}
               onValueChange={(value) =>
@@ -434,9 +450,8 @@ export function SignupForm() {
               }
             >
               <SelectTrigger
-                className={
-                  getFieldError("practice_area_id") ? "border-red-500" : ""
-                }
+                className={`w-full overflow-hidden whitespace-nowrap ${getFieldError("practice_area_id") ? "border-red-500" : ""
+                  }`}
               >
                 <SelectValue placeholder="Select area" />
               </SelectTrigger>
@@ -458,13 +473,13 @@ export function SignupForm() {
 
         {/* TimeZone Field */}
         <div className="grid gap-3">
-          <Label>TimeZone</Label>
+          <Label>TimeZone <span className="text-red-500">*</span></Label>
           <Select
             value={formData.timezone_id}
             onValueChange={(value) => handleSelectChange("timezone_id", value)}
           >
             <SelectTrigger
-              className={getFieldError("timezone_id") ? "border-red-500" : ""}
+              className={`w-full overflow-hidden whitespace-nowrap ${getFieldError("timezone_id") ? "border-red-500" : ""}`}
             >
               <SelectValue placeholder="Select timezone" />
             </SelectTrigger>
@@ -485,7 +500,7 @@ export function SignupForm() {
 
         {/* Password Fields */}
         <div className="grid gap-3">
-          <Label htmlFor="password">Password</Label>
+          <Label htmlFor="password">Password <span className="text-red-500">*</span></Label>
           <div className="relative">
             <Input
               id="password"
@@ -493,9 +508,8 @@ export function SignupForm() {
               placeholder="Minimum 6 characters"
               value={formData.password}
               onChange={handleChange}
-              className={`pr-10 ${
-                getFieldError("password") ? "border-red-500" : ""
-              }`}
+              className={`pr-10 ${getFieldError("password") ? "border-red-500" : ""
+                }`}
               required
             />
             <button
@@ -516,7 +530,7 @@ export function SignupForm() {
         </div>
 
         <div className="grid gap-3">
-          <Label htmlFor="password_confirmation">Confirm Password</Label>
+          <Label htmlFor="password_confirmation">Confirm Password <span className="text-red-500">*</span></Label>
           <div className="relative">
             <Input
               id="password_confirmation"
@@ -524,9 +538,8 @@ export function SignupForm() {
               placeholder="Re-enter password"
               value={formData.password_confirmation}
               onChange={handleChange}
-              className={`pr-10 ${
-                getFieldError("password_confirmation") ? "border-red-500" : ""
-              }`}
+              className={`pr-10 ${getFieldError("password_confirmation") ? "border-red-500" : ""
+                }`}
               required
             />
             <button
@@ -558,7 +571,6 @@ export function SignupForm() {
             value={formData.heard_about_us}
             onChange={handleChange}
             className={getFieldError("heard_about_us") ? "border-red-500" : ""}
-            required
           />
           {getFieldError("heard_about_us") && (
             <p className="text-red-500 text-sm">
@@ -567,24 +579,35 @@ export function SignupForm() {
           )}
         </div>
 
-        {/* Terms & Conditions */}
-        <div className="flex items-center space-x-2">
-          <Checkbox
-            id="terms_accepted"
-            checked={formData.terms_accepted}
-            onCheckedChange={(checked) =>
-              setFormData({ ...formData, terms_accepted: checked })
-            }
-          />
-          <Label
-            htmlFor="terms_accepted"
-            className="text-sm font-normal cursor-pointer"
-          >
-            I accept the{" "}
-            <a href="/terms" className="underline hover:text-primary">
-              terms and conditions
-            </a>
-          </Label>
+        <div className="space-y-1">
+          <div className="flex items-center space-x-2">
+            <Checkbox
+              id="terms_accepted"
+              checked={formData.terms_accepted}
+              onCheckedChange={(checked) => {
+                setFormData({ ...formData, terms_accepted: checked });
+                if (checked && validationErrors.terms_accepted) {
+                  setValidationErrors({ ...validationErrors, terms_accepted: undefined });
+                }
+              }}
+              className={getFieldError("terms_accepted") ? "border-red-500" : ""}
+            />
+            <Label
+              htmlFor="terms_accepted"
+              className="text-sm font-normal cursor-pointer"
+            >
+              I accept the{" "}
+              <a href="/terms" className="underline hover:text-primary">
+                terms and conditions
+              </a>
+              <span className="text-red-500 ml-1">*</span>
+            </Label>
+          </div>
+          {getFieldError("terms_accepted") && (
+            <p className="text-red-500 text-sm mt-1">
+              {getFieldError("terms_accepted")}
+            </p>
+          )}
         </div>
 
         <Button
