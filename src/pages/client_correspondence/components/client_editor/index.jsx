@@ -39,6 +39,7 @@ import {
   updateClientCorrespondence,
 } from "../../helpers/createClient";
 import { getABMeta } from "../../helpers/fetchABMeta";
+import { fetchMatterBySlug } from "@/pages/workstation/helpers/fetchMatterBySlug";
 
 export default function CorrespondencePage() {
   const { slug, id } = useParams();
@@ -61,8 +62,15 @@ export default function CorrespondencePage() {
       queryKey: ["correspondenceData", id],
       queryFn: () => fetchLatById(id),
       enabled: !!id,
+      enabled: !!id,
       retry: 1,
     });
+
+  const { data: matterData } = useQuery({
+    queryKey: ["matterData", slug],
+    queryFn: () => fetchMatterBySlug(slug),
+    enabled: !!slug,
+  });
 
   const uploadMutation = useMutation({
     mutationFn: uploadAttachment,
@@ -142,6 +150,16 @@ export default function CorrespondencePage() {
   const [openType, setOpenType] = useState(false);
   const [openAction, setOpenAction] = useState(false);
   const [openStatus, setOpenStatus] = useState(false);
+
+  // Effect to populate matter from matterData if available
+  useEffect(() => {
+    if (matterData?.file_no && !formData.matter) {
+      setFormData((prev) => ({
+        ...prev,
+        matter: matterData.file_no,
+      }));
+    }
+  }, [matterData, formData.matter]);
 
   useEffect(() => {
     if (correspondenceData) {
@@ -657,8 +675,8 @@ export default function CorrespondencePage() {
               </Label>
               <div
                 className={`relative border-2 border-dashed rounded-lg transition-all overflow-hidden ${filePreview
-                    ? "border-green-500 bg-green-50/50"
-                    : "border-input bg-muted hover:border-gray-400 hover:bg-gray-100"
+                  ? "border-green-500 bg-green-50/50"
+                  : "border-input bg-muted hover:border-gray-400 hover:bg-gray-100"
                   } ${uploadMutation.isLoading
                     ? "pointer-events-none opacity-70"
                     : ""

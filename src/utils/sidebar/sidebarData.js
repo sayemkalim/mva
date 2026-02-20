@@ -583,7 +583,7 @@ export const getEditModeData = (slug) => ({
           permission: "tp_counsel",
         },
         {
-          title: "SOC",
+          title: "Pleadings",
           url: ``,
           icon: Radar,
           permission: "soc",
