@@ -20,7 +20,7 @@ import {
 import { handleFileDownload, isApiUrl } from "@/utils/sidebar/sidebarData";
 import { cn } from "@/lib/utils";
 
-// Recursive component for nested menu items
+// Recursive component for nested menu item
 function RecursiveMenuItems({ items, depth = 1 }) {
   const navigate = useNavigate();
   const location = useLocation();
