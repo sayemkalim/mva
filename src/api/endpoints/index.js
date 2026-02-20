@@ -1,3 +1,4 @@
+import { sortFolders } from "@/pages/document-i/helpers/sortFolders";
 import { add } from "date-fns";
 import { de, th } from "date-fns/locale";
 
@@ -391,7 +392,17 @@ export const endpoints = {
   //billing 
   billing: "api/v2/file/accounting/financial-status",
   createMedicalCentre: "api/v2/file/medical-centre",
-  medicalCentre: "api/v2/file/medical-centre/show"
+  medicalCentre: "api/v2/file/medical-centre/show",
+
+  // Document-i (Folder structure)
+  documentiFolderList: "api/v2/file/document-i/folders/list",
+  documentiFolderSave: "api/v2/file/document-i/folders/save",
+  documentiGetFolders: "api/v2/file/document-i/folders/get",
+  documentiDeleteDocument: "api/v2/file/document-i/document/delete",
+  documentiRenameFolder: "api/v2/file/document-i/folders/rename",
+  documentiDeleteFolder: "api/v2/file/document-i/folders/delete",
+  sortFolders: "api/v2/file/document-i/folders/sort",
+  sortDocuments: "api/v2/file/document-i/document/sort",
 
 };
 

@@ -135,6 +135,7 @@ import InternalEmail from "@/pages/internal_email";
 import ThirdPartyInvoice from "@/pages/third_party_invoice";
 import Invoice from "@/pages/invoice";
 import FinalSettlement from "@/pages/final_settlement";
+import DocumentI from "@/pages/document-i";
 
 const Router = () => {
   return (
@@ -568,6 +569,7 @@ const Router = () => {
             path="/dashboard/psychological/edit/:id"
             element={<PsychologicalPage />}
           />
+          <Route path="/dashboard/workstation/edit/:slug/documents-i" element={<DocumentI />} />
           <Route path="/dashboard/event" element={<Calender />} />
           <Route path="/dashboard/email" element={<Email />} />
           <Route path="/dashboard/account" element={<AccountPage />} />

@@ -49,6 +49,7 @@ import {
   LogOutIcon,
   Wallet,
   Banknote,
+  File,
 } from "lucide-react";
 import { getItem } from "../local_storage";
 
@@ -985,6 +986,13 @@ export const getEditModeData = (slug) => ({
           icon: User,
         },
       ],
+    },
+    {
+      title: "Documents I",
+      url: `/dashboard/workstation/edit/${slug}/documents-i`,
+      icon: File,
+      items: [],
+      permission: "documents",
     },
     {
       title: "Correspondence",
