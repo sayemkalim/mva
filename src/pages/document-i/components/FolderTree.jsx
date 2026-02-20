@@ -103,20 +103,8 @@ const DocumentItem = ({ document, slug, dragAttributes, dragListeners, isDraggin
       </div>
       <div className="flex flex-col min-w-0 flex-1">
         <span className="text-sm font-medium text-foreground truncate">
-          {document.name || "Untitled Document"}
+          {document.title || "Untitled Document"}
         </span>
-        <div className="flex items-center gap-2">
-          {document.date && (
-            <span className="text-xs text-muted-foreground">
-              {safeFormat(document.date, "MMM dd, yyyy")}
-            </span>
-          )}
-          {document.memo && (
-            <span className="text-xs text-muted-foreground truncate">
-              • {document.memo}
-            </span>
-          )}
-        </div>
       </div>
       
       {/* Delete Button with Confirmation */}
