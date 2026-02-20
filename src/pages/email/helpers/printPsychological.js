@@ -9,7 +9,7 @@ export const printPsychological = async (id) => {
       responseType: "blob",
     });
 
-    const url = window.URL.createObjectURL(new Blob([apiResponse.data]));
+    const url = window.URL.createObjectURL(new Blob([apiResponse.response]));
     const link = document.createElement("a");
     link.href = url;
     link.setAttribute("download", `OCF-1-Production-${id}.pdf`);

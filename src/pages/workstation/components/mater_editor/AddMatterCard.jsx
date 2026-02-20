@@ -142,6 +142,8 @@ const AddMatterCard = ({
         }
       }
 
+      console.log("INITIAL DATA previous_counsel_check RAW:", initialData.previous_counsel_check);
+      console.log("INITIAL DATA previous_counsel_check CONVERTED:", !!initialData.previous_counsel_check);
       setFormData({
         ...baseForm,
         ...initialData,
@@ -158,10 +160,7 @@ const AddMatterCard = ({
           : [],
         non_engagement_date: initialDates,
         other_mvas: loadedMVAs,
-        previous_counsel_check:
-          initialData.previous_counsel_check == 1 ||
-          initialData.previous_counsel_check === true ||
-          initialData.previous_counsel_check === "true",
+        previous_counsel_check: !!initialData.previous_counsel_check,
       });
     }
   }, [isEditMode, initialData]);
@@ -316,6 +315,9 @@ const AddMatterCard = ({
       payload.non_engagement_date = [];
     }
 
+    const finalPayload = { ...payload };
+    finalPayload.previous_counsel_check = formData.previous_counsel_check ? 1 : 0;
+    console.log("SUBMITTING PAYLOAD with previous_counsel_check:", finalPayload.previous_counsel_check);
     mutation.mutate(payload);
   };
 
@@ -1308,9 +1310,10 @@ const AddMatterCard = ({
                 <Checkbox
                   id="previous_counsel_check"
                   checked={formData.previous_counsel_check}
-                  onCheckedChange={(checked) =>
-                    setFormData((p) => ({ ...p, previous_counsel_check: checked }))
-                  }
+                  onCheckedChange={(checked) => {
+                    console.log("CHECKBOX CHANGED TO:", checked);
+                    setFormData((p) => ({ ...p, previous_counsel_check: checked }));
+                  }}
                 />
                 <label
                   htmlFor="previous_counsel_check"
@@ -1517,126 +1520,128 @@ const AddMatterCard = ({
             </section>
 
             {/* ===== ADDRESS SECTION ===== */}
-            <section>
-              {/* <h2 className="font-semibold text-xl mb-6 border-b pb-2 uppercase text-foreground">
-                Address
-              </h2> */}
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                {/* Unit Number */}
-                <div>
-                  <label
-                    htmlFor="unit_number"
-                    className="block font-medium mb-2 text-foreground"
-                  >
-                    Unit Number
-                  </label>
-                  <Input
-                    id="unit_number"
-                    name="unit_number"
-                    value={formData.unit_number}
-                    onChange={handleInputChange}
-                    maxLength={50}
-                    placeholder="Enter unit number"
-                    className="bg-muted"
-                  />
-                </div>
+            {formData.previous_counsel_check && (
+              <section>
+                {/* <h2 className="font-semibold text-xl mb-6 border-b pb-2 uppercase text-foreground">
+                  Address
+                </h2> */}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                  {/* Unit Number */}
+                  <div>
+                    <label
+                      htmlFor="unit_number"
+                      className="block font-medium mb-2 text-foreground"
+                    >
+                      Unit Number
+                    </label>
+                    <Input
+                      id="unit_number"
+                      name="unit_number"
+                      value={formData.unit_number}
+                      onChange={handleInputChange}
+                      maxLength={50}
+                      placeholder="Enter unit number"
+                      className="bg-muted"
+                    />
+                  </div>
 
-                {/* Street Number */}
-                <div>
-                  <label
-                    htmlFor="street_number"
-                    className="block font-medium mb-2 text-foreground"
-                  >
-                    Street Number
-                  </label>
-                  <Input
-                    id="street_number"
-                    name="street_number"
-                    value={formData.street_number}
-                    onChange={handleInputChange}
-                    maxLength={100}
-                    placeholder="Enter street number"
-                    className="bg-muted"
-                  />
-                </div>
+                  {/* Street Number */}
+                  <div>
+                    <label
+                      htmlFor="street_number"
+                      className="block font-medium mb-2 text-foreground"
+                    >
+                      Street Number
+                    </label>
+                    <Input
+                      id="street_number"
+                      name="street_number"
+                      value={formData.street_number}
+                      onChange={handleInputChange}
+                      maxLength={100}
+                      placeholder="Enter street number"
+                      className="bg-muted"
+                    />
+                  </div>
 
-                {/* Street Name */}
-                <div>
-                  <label
-                    htmlFor="street_name"
-                    className="block font-medium mb-2 text-foreground"
-                  >
-                    Street Name
-                  </label>
-                  <Input
-                    id="street_name"
-                    name="street_name"
-                    value={formData.street_name}
-                    onChange={handleInputChange}
-                    maxLength={100}
-                    placeholder="Enter street name"
-                    className="bg-muted"
-                  />
-                </div>
+                  {/* Street Name */}
+                  <div>
+                    <label
+                      htmlFor="street_name"
+                      className="block font-medium mb-2 text-foreground"
+                    >
+                      Street Name
+                    </label>
+                    <Input
+                      id="street_name"
+                      name="street_name"
+                      value={formData.street_name}
+                      onChange={handleInputChange}
+                      maxLength={100}
+                      placeholder="Enter street name"
+                      className="bg-muted"
+                    />
+                  </div>
 
-                {/* City */}
-                <div>
-                  <label
-                    htmlFor="city"
-                    className="block font-medium mb-2 text-foreground"
-                  >
-                    City
-                  </label>
-                  <Input
-                    id="city"
-                    name="city"
-                    value={formData.city}
-                    onChange={handleInputChange}
-                    maxLength={100}
-                    placeholder="Enter city"
-                    className="bg-muted"
-                  />
-                </div>
+                  {/* City */}
+                  <div>
+                    <label
+                      htmlFor="city"
+                      className="block font-medium mb-2 text-foreground"
+                    >
+                      City
+                    </label>
+                    <Input
+                      id="city"
+                      name="city"
+                      value={formData.city}
+                      onChange={handleInputChange}
+                      maxLength={100}
+                      placeholder="Enter city"
+                      className="bg-muted"
+                    />
+                  </div>
 
-                {/* Province */}
-                <div>
-                  <label
-                    htmlFor="province"
-                    className="block font-medium mb-2 text-foreground"
-                  >
-                    Province
-                  </label>
-                  <Input
-                    id="province"
-                    name="province"
-                    value={formData.province}
-                    onChange={handleInputChange}
-                    maxLength={100}
-                    placeholder="Enter province"
-                    className="bg-muted"
-                  />
-                </div>
+                  {/* Province */}
+                  <div>
+                    <label
+                      htmlFor="province"
+                      className="block font-medium mb-2 text-foreground"
+                    >
+                      Province
+                    </label>
+                    <Input
+                      id="province"
+                      name="province"
+                      value={formData.province}
+                      onChange={handleInputChange}
+                      maxLength={100}
+                      placeholder="Enter province"
+                      className="bg-muted"
+                    />
+                  </div>
 
-                {/* Postal Code */}
-                <div>
-                  <label
-                    htmlFor="postal_code"
-                    className="block font-medium mb-2 text-foreground"
-                  >
-                    Postal Code
-                  </label>
-                  <Input
-                    id="postal_code"
-                    name="postal_code"
-                    value={formData.postal_code}
-                    onChange={handleInputChange}
-                    maxLength={50}
-                    placeholder="Enter postal code"
-                    className="bg-muted"
-                  />
+                  {/* Postal Code */}
+                  <div>
+                    <label
+                      htmlFor="postal_code"
+                      className="block font-medium mb-2 text-foreground"
+                    >
+                      Postal Code
+                    </label>
+                    <Input
+                      id="postal_code"
+                      name="postal_code"
+                      value={formData.postal_code}
+                      onChange={handleInputChange}
+                      maxLength={50}
+                      placeholder="Enter postal code"
+                      className="bg-muted"
+                    />
+                  </div>
                 </div>
-              </div>
-            </section>
+              </section>
+            )}
 
             {/* ===== SUBMIT BUTTONS ===== */}
             <div className="flex justify-end gap-4 pt-6 border-t">

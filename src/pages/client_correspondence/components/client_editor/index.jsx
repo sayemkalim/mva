@@ -398,7 +398,7 @@ export default function CorrespondencePage() {
               Correspondence Details
             </h2>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <div className="space-y-2">
+              {/* <div className="space-y-2">
                 <Label className="text-foreground font-medium">
                   Serial Number
                 </Label>
@@ -410,7 +410,7 @@ export default function CorrespondencePage() {
                   className="h-11"
                   disabled={mutation.isLoading}
                 />
-              </div>
+              </div> */}
 
               <div className="space-y-2">
                 <Label className="text-foreground font-medium">

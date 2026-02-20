@@ -52,7 +52,6 @@ const OcfProdTable = ({ slug, setBlogsLength }) => {
     },
   });
 
-  // Add print mutation
   const { mutate: printMutation, isLoading: isPrinting } = useMutation({
     mutationFn: (id) => printOcfProd(id),
     onSuccess: () => {
