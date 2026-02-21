@@ -67,7 +67,7 @@ import { sortFolders } from "../helpers/sortFolders";
 import { sortDocuments } from "../helpers/sortDocuments";
 import { uploadAttachment } from "../helpers/uploadAttachment";
 
-const DocumentItem = ({ document, slug, dragAttributes, dragListeners, isDragging }) => {
+const DocumentItem = ({ document, slug, dragAttributes, dragListeners, isDragging, onDocumentClick }) => {
   const queryClient = useQueryClient();
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [fileData, setFileData] = useState(null);
@@ -312,8 +312,17 @@ const DocumentItem = ({ document, slug, dragAttributes, dragListeners, isDraggin
     }));
   };
 
+  const handleDocumentClick = () => {
+    if (onDocumentClick && !isDragging) {
+      onDocumentClick(document);
+    }
+  };
+
   return (
-    <div className="group flex items-center gap-3 py-2 px-3 ml-4 bg-gray-100 dark:hover:bg-blue-950/30 cursor-pointer transition-all duration-200 border border-transparent hover:border-gray-100 dark:hover:border-blue-800">
+    <div 
+      className="group flex items-center gap-3 py-2 px-3 ml-4 bg-gray-100 dark:hover:bg-blue-950/30 cursor-pointer transition-all duration-200 border border-transparent hover:border-gray-100 dark:hover:border-blue-800"
+      onClick={handleDocumentClick}
+    >
       {dragAttributes && dragListeners && (
         <div 
           {...dragAttributes} 
@@ -341,6 +350,7 @@ const DocumentItem = ({ document, slug, dragAttributes, dragListeners, isDraggin
                 size="icon"
                 className="h-8 w-8 text-blue-600 hover:text-blue-700 hover:bg-blue-50 dark:hover:bg-blue-950/20"
                 disabled={editMutation.isPending || deleteMutation.isPending || uploadFileMutation.isPending}
+                onClick={(e) => e.stopPropagation()}
               >
                 <Edit2 className="h-4 w-4" />
               </Button>
@@ -508,6 +518,7 @@ const DocumentItem = ({ document, slug, dragAttributes, dragListeners, isDraggin
                 size="icon"
                 className="h-8 w-8 text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/20"
                 disabled={deleteMutation.isPending || editMutation.isPending || uploadFileMutation.isPending}
+                onClick={(e) => e.stopPropagation()}
               >
                 <Trash2 className="h-4 w-4" />
               </Button>
@@ -540,7 +551,7 @@ const DocumentItem = ({ document, slug, dragAttributes, dragListeners, isDraggin
   );
 };
 
-const SortableDocumentItem = ({ document, slug, folderId }) => {
+const SortableDocumentItem = ({ document, slug, folderId, onDocumentClick }) => {
   const {
     attributes,
     listeners,
@@ -571,12 +582,13 @@ const SortableDocumentItem = ({ document, slug, folderId }) => {
         dragAttributes={attributes}
         dragListeners={listeners}
         isDragging={isDragging}
+        onDocumentClick={onDocumentClick}
       />
     </div>
   );
 };
 
-const SortableFolderItem = ({ folder, level = 0, isSubFolder = false, slug, parentId = null, count = 0 }) => {
+const SortableFolderItem = ({ folder, level = 0, isSubFolder = false, slug, parentId = null, count = 0, onDocumentClick }) => {
   const {
     attributes,
     listeners,
@@ -604,6 +616,7 @@ const SortableFolderItem = ({ folder, level = 0, isSubFolder = false, slug, pare
         dragListeners={listeners}
         isDragging={isDragging}
         count={count}
+        onDocumentClick={onDocumentClick}
       />
     </div>
   );
@@ -618,7 +631,8 @@ const FolderItem = ({
   count = 0,
   dragAttributes, 
   dragListeners, 
-  isDragging 
+  isDragging,
+  onDocumentClick
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [isRenaming, setIsRenaming] = useState(false);
@@ -899,6 +913,7 @@ const FolderItem = ({
                     isSubFolder={true}
                     slug={slug}
                     parentId={folder.id}
+                    onDocumentClick={onDocumentClick}
                   />
                 ))}
               </SortableContext>
@@ -914,6 +929,7 @@ const FolderItem = ({
                     document={doc} 
                     slug={slug}
                     folderId={folder.id}
+                    onDocumentClick={onDocumentClick}
                   />
                 ))}
               </SortableContext>
@@ -925,7 +941,7 @@ const FolderItem = ({
   );
 };
 
-const FolderTree = ({ folders = [], isLoading = false, slug }) => {
+const FolderTree = ({ folders = [], isLoading = false, slug, onDocumentClick }) => {
   const [items, setItems] = useState(folders);
   const queryClient = useQueryClient();
   
@@ -1139,6 +1155,7 @@ const FolderTree = ({ folders = [], isLoading = false, slug }) => {
               slug={slug}
               parentId={null}
               count={index + 1}
+              onDocumentClick={onDocumentClick}
             />
           ))}
         </SortableContext>
