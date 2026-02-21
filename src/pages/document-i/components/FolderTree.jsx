@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   DndContext,
@@ -40,6 +40,9 @@ import {
   FileJson,
   FileSpreadsheet,
   FileImage,
+  Upload,
+  Loader2,
+  FileIcon,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
@@ -57,13 +60,27 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Input } from "@/components/ui/input";
 import { deleteDocument } from "../helpers/deleteDocument";
+import { updateDocument } from "../helpers/updateDocument";
 import { renameFolder } from "../helpers/renameFolder";
 import { deleteFolder } from "../helpers/deleteFolder";
 import { sortFolders } from "../helpers/sortFolders";
 import { sortDocuments } from "../helpers/sortDocuments";
+import { uploadAttachment } from "../helpers/uploadAttachment";
 
-const DocumentItem = ({ document, slug, dragAttributes, dragListeners, isDragging }) => {
+const DocumentItem = ({ document, slug, dragAttributes, dragListeners, isDragging, onDocumentClick }) => {
   const queryClient = useQueryClient();
+  const [isEditOpen, setIsEditOpen] = useState(false);
+  const [fileData, setFileData] = useState(null);
+  const [previewUrl, setPreviewUrl] = useState(null);
+  const [isDraggingFile, setIsDraggingFile] = useState(false);
+  const fileInputRef = useRef(null);
+  const [editData, setEditData] = useState({
+    title: document.title || "",
+    attachment_id: document.attachment?.id || "",
+    doc_received_date: document.doc_received_date || "",
+    doc_deadline_date: document.doc_deadline_date || "",
+    memo: document.memo || "",
+  });
 
   const deleteMutation = useMutation({
     mutationFn: (documentId) => deleteDocument(documentId),
@@ -82,38 +99,88 @@ const DocumentItem = ({ document, slug, dragAttributes, dragListeners, isDraggin
     },
   });
 
-const handleGetDocIcon = (type = "") => {
-  const ext = type.toLowerCase();
+  const uploadFileMutation = useMutation({
+    mutationFn: (file) => uploadAttachment({ file }),
+    onSuccess: (data) => {
+      const attachmentId =
+        data?.response?.attachment?.id ||
+        data?.attachment?.id ||
+        data?.response?.id ||
+        data?.id;
 
-  switch (ext) {
-    case "pdf":
-      return <FileText className="h-4 w-4 text-red-600 dark:text-red-400" />;
+      if (attachmentId) {
+        setEditData((prev) => ({
+          ...prev,
+          attachment_id: attachmentId,
+        }));
+        setFileData((prev) => prev ? { ...prev, uploaded: true, uploading: false } : null);
+        toast.success("File uploaded successfully!");
+      } else {
+        toast.error("Upload successful but couldn't get attachment ID");
+        setFileData((prev) => prev ? { ...prev, uploading: false } : null);
+      }
+    },
+    onError: (error) => {
+      toast.error(error?.message || "Failed to upload attachment");
+      setFileData(null);
+      setPreviewUrl((prev) => {
+        if (prev) URL.revokeObjectURL(prev);
+        return null;
+      });
+    },
+  });
 
-    case "doc":
-    case "docx":
-    case "rtf":
-      return <FileText className="h-4 w-4 text-blue-600 dark:text-blue-400" />;
+  const editMutation = useMutation({
+    mutationFn: (data) => updateDocument(document.id, data),
+    onSuccess: (response) => {
+      const resp = response?.response;
+      if (resp?.ApiStatus === false) {
+        toast.error(resp?.message || "Failed to update document");
+        return;
+      }
+      toast.success("Document updated successfully!");
+      setIsEditOpen(false);
+      resetEditDialog();
+      queryClient.invalidateQueries(["documenti-folders", slug]);
+      queryClient.invalidateQueries(["documenti-folders-dropdown", slug]);
+    },
+    onError: (error) => {
+      toast.error(error?.message || "Failed to update document");
+    },
+  });
 
-    case "xls":
-    case "xlsx":
-    case "csv":
-      return <FileSpreadsheet className="h-4 w-4 text-green-600 dark:text-green-400" />;
+  const handleGetDocIcon = (type = "") => {
+    const ext = type.toLowerCase();
 
-    case "txt":
-      return <FileText className="h-4 w-4 text-gray-600 dark:text-gray-400" />;
+    switch (ext) {
+      case "pdf":
+        return <FileText className="h-4 w-4 text-red-600 dark:text-red-400" />;
 
-    case "jpg":
-    case "jpeg":
-    case "png":
-    case "gif":
-    case "webp":
-    case "svg":
-      return <FileImage className="h-4 w-4 text-pink-600 dark:text-pink-400" />;
+      case "doc":
+      case "docx":
+      case "rtf":
+        return <FileText className="h-4 w-4 text-blue-600 dark:text-blue-400" />;
 
-    default:
-      return <File className="h-4 w-4 text-gray-500 dark:text-gray-400" />;
-  }
-};
+      case "xls":
+      case "xlsx":
+      case "csv":
+        return <FileSpreadsheet className="h-4 w-4 text-green-600 dark:text-green-400" />;
+
+      case "txt":
+        return <FileText className="h-4 w-4 text-gray-600 dark:text-gray-400" />;
+
+      case "jpg":
+      case "jpeg":
+      case "png":
+      case "gif":
+      case "webp":
+      case "svg":
+        return <FileImage className="h-4 w-4 text-pink-600 dark:text-pink-400" />;
+
+      default:
+        return <File className="h-4 w-4 text-gray-500 dark:text-gray-400" />;
+    }
+  };
 
   const handleDelete = () => {
     if (document.id) {
@@ -121,8 +188,141 @@ const handleGetDocIcon = (type = "") => {
     }
   };
 
+  const resetEditDialog = () => {
+    setFileData(null);
+    setPreviewUrl((prev) => {
+      if (prev) URL.revokeObjectURL(prev);
+      return null;
+    });
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  };
+
+  const handleEditDialogChange = (open) => {
+    setIsEditOpen(open);
+    if (!open) {
+      resetEditDialog();
+    }
+  };
+
+  const handleDragEnter = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDraggingFile(true);
+  };
+
+  const handleDragLeave = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDraggingFile(false);
+  };
+
+  const handleDragOver = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+  };
+
+  const handleDrop = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDraggingFile(false);
+    const droppedFile = e.dataTransfer.files?.[0];
+    if (droppedFile) {
+      handleFile(droppedFile);
+    }
+  };
+
+  const handleFileInputChange = (e) => {
+    const selectedFile = e.target.files?.[0];
+    if (selectedFile) {
+      handleFile(selectedFile);
+    }
+    e.target.value = "";
+  };
+
+  const handleFileBoxClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleFile = async (file) => {
+    if (file.size > 10485760) {
+      toast.error("File size must be less than 10MB");
+      return;
+    }
+
+    // Create preview URL for images
+    const isImage = file.type.startsWith("image/");
+    if (isImage) {
+      const url = URL.createObjectURL(file);
+      setPreviewUrl(url);
+    } else {
+      setPreviewUrl(null);
+    }
+
+    setFileData({
+      name: file.name,
+      size: file.size,
+      type: file.type,
+      uploaded: false,
+      uploading: true,
+    });
+
+    try {
+      await uploadFileMutation.mutateAsync(file);
+    } catch (error) {
+      console.error("Upload failed:", error);
+    }
+  };
+
+  const removeFile = () => {
+    setFileData(null);
+    setPreviewUrl((prev) => {
+      if (prev) URL.revokeObjectURL(prev);
+      return null;
+    });
+    setEditData((prev) => ({
+      ...prev,
+      attachment_id: document.attachment?.id || "",
+    }));
+  };
+
+  const formatFileSize = (bytes) => {
+    if (bytes === 0) return "0 Bytes";
+    const k = 1024;
+    const sizes = ["Bytes", "KB", "MB", "GB"];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return Math.round((bytes / Math.pow(k, i)) * 100) / 100 + " " + sizes[i];
+  };
+
+  const isImageFile = (fileType) => {
+    return fileType && fileType.startsWith("image/");
+  };
+
+  const handleEditSubmit = () => {
+    if (!editData.title.trim()) {
+      toast.error("Document title is required");
+      return;
+    }
+    editMutation.mutate(editData);
+  };
+
+  const handleEditChange = (field, value) => {
+    setEditData((prev) => ({
+      ...prev,
+      [field]: value,
+    }));
+  };
+
+  const handleDocumentClick = () => {
+    if (onDocumentClick && !isDragging) {
+      onDocumentClick(document);
+    }
+  };
+
   return (
-    <div className="group flex items-center gap-3 py-2 px-3 ml-4 bg-gray-100 dark:hover:bg-blue-950/30 cursor-pointer transition-all duration-200 border border-transparent hover:border-gray-100 dark:hover:border-blue-800">
+    <div 
+      className="group flex items-center gap-3 py-2 px-3 ml-4 bg-gray-100 dark:hover:bg-blue-950/30 cursor-pointer transition-all duration-200 border border-transparent hover:border-gray-100 dark:hover:border-blue-800"
+      onClick={handleDocumentClick}
+    >
       {dragAttributes && dragListeners && (
         <div 
           {...dragAttributes} 
@@ -132,8 +332,8 @@ const handleGetDocIcon = (type = "") => {
           <GripVertical className="h-3 w-3 text-gray-400" />
         </div>
       )}
-      <div className="p-1.5 bg-blue-100 dark:bg-blue-900/50 group-hover:bg-blue-200 dark:group-hover:bg-blue-800/50 transition-colors">
-        {handleGetDocIcon(document.type || 'pdf')}
+      <div className="p-1.5 transition-colors">
+        {handleGetDocIcon(document?.attachment?.extension || 'pdf')}
       </div>
       <div className="flex flex-col min-w-0 flex-1">
         <span className="text-sm font-medium text-foreground truncate">
@@ -142,45 +342,216 @@ const handleGetDocIcon = (type = "") => {
       </div>
       
       {!isDragging && (
-        <AlertDialog>
-        <AlertDialogTrigger asChild>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/20"
-            disabled={deleteMutation.isPending}
-          >
-            <Trash2 className="h-4 w-4" />
-          </Button>
-        </AlertDialogTrigger>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Delete Document</AlertDialogTitle>
-            <AlertDialogDescription>
-              Are you sure you want to delete "{document.title || "Untitled Document"}"? 
-              This action cannot be undone.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel disabled={deleteMutation.isPending}>
-              Cancel
-            </AlertDialogCancel>
-            <AlertDialogAction
-              onClick={handleDelete}
-              disabled={deleteMutation.isPending}
-              className="bg-red-500 hover:bg-red-600"
-            >
-              {deleteMutation.isPending ? "Deleting..." : "Delete"}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
+        <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+          <AlertDialog open={isEditOpen} onOpenChange={handleEditDialogChange}>
+            <AlertDialogTrigger asChild>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8 text-blue-600 hover:text-blue-700 hover:bg-blue-50 dark:hover:bg-blue-950/20"
+                disabled={editMutation.isPending || deleteMutation.isPending || uploadFileMutation.isPending}
+                onClick={(e) => e.stopPropagation()}
+              >
+                <Edit2 className="h-4 w-4" />
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent className="min-w-5xl max-h-[90vh] overflow-y-auto">
+              <AlertDialogHeader>
+                <AlertDialogTitle>Edit Document</AlertDialogTitle>
+                <AlertDialogDescription>
+                  Update the document details and attachment
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <div className="space-y-4 py-4">
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-foreground">
+                    Document Title
+                  </label>
+                  <Input
+                    value={editData.title}
+                    onChange={(e) => handleEditChange("title", e.target.value)}
+                    placeholder="Enter document title"
+                    disabled={editMutation.isPending || uploadFileMutation.isPending}
+                  />
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium text-foreground">
+                      Received Date
+                    </label>
+                    <Input
+                      type="date"
+                      value={editData.doc_received_date}
+                      onChange={(e) => handleEditChange("doc_received_date", e.target.value)}
+                      disabled={editMutation.isPending || uploadFileMutation.isPending}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium text-foreground">
+                      Deadline Date
+                    </label>
+                    <Input
+                      type="date"
+                      value={editData.doc_deadline_date}
+                      onChange={(e) => handleEditChange("doc_deadline_date", e.target.value)}
+                      disabled={editMutation.isPending || uploadFileMutation.isPending}
+                    />
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-foreground">
+                    Memo
+                  </label>
+                  <Input
+                    value={editData.memo}
+                    onChange={(e) => handleEditChange("memo", e.target.value)}
+                    placeholder="Enter memo (optional)"
+                    disabled={editMutation.isPending || uploadFileMutation.isPending}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-foreground">
+                    Attachment <span className="text-destructive">*</span>
+                  </label>
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    onChange={handleFileInputChange}
+                    className="hidden"
+                    accept="*/*"
+                  />
+                  <div
+                    onDragEnter={handleDragEnter}
+                    onDragOver={handleDragOver}
+                    onDragLeave={handleDragLeave}
+                    onDrop={handleDrop}
+                    className={cn(
+                      "relative border-2 border-dashed rounded-lg transition-all",
+                      isDraggingFile && "border-primary bg-primary/10 scale-[1.02]",
+                      "border-input"
+                    )}
+                  >
+                    {!fileData ? (
+                      <div
+                        onClick={handleFileBoxClick}
+                        className="flex flex-col items-center justify-center space-y-2 py-6 cursor-pointer hover:bg-primary/5 rounded-lg transition-colors"
+                      >
+                        <div className="rounded-full bg-primary/10 p-3">
+                          <Upload className="h-6 w-6 text-primary" />
+                        </div>
+                        <div className="text-center">
+                          <p className="text-sm font-medium text-foreground">
+                            Click to upload or drag and drop
+                          </p>
+                          <p className="text-xs text-muted-foreground mt-1">
+                            All file types supported (max 10MB)
+                          </p>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="p-3">
+                        <div className="relative bg-card border rounded-lg overflow-hidden group">
+                          <button
+                            type="button"
+                            onClick={removeFile}
+                            disabled={fileData.uploading}
+                            className="absolute top-2 right-2 z-10 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-600 disabled:opacity-50"
+                          >
+                            <X className="h-4 w-4" />
+                          </button>
+
+                          {previewUrl && isImageFile(fileData.type) ? (
+                            <img
+                              src={previewUrl}
+                              alt="Preview"
+                              className="w-full h-40 object-cover"
+                            />
+                          ) : (
+                            <div className="bg-muted h-40 flex items-center justify-center">
+                              <FileIcon className="h-8 w-8 text-muted-foreground" />
+                            </div>
+                          )}
+
+                          <div className="p-3 space-y-2">
+                            <div className="flex items-center justify-between">
+                              <p className="text-sm font-medium truncate">
+                                {fileData.name}
+                              </p>
+                              {fileData.uploaded && (
+                                <Check className="h-4 w-4 text-green-500 shrink-0" />
+                              )}
+                            </div>
+                            <p className="text-xs text-muted-foreground">
+                              {formatFileSize(fileData.size)}
+                            </p>
+                            {fileData.uploading && (
+                              <div className="flex items-center gap-2 text-xs text-primary">
+                                <Loader2 className="h-3 w-3 animate-spin" />
+                                Uploading...
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+              <AlertDialogFooter>
+                <AlertDialogCancel disabled={editMutation.isPending || uploadFileMutation.isPending}>
+                  Cancel
+                </AlertDialogCancel>
+                <AlertDialogAction
+                  onClick={handleEditSubmit}
+                  disabled={editMutation.isPending || uploadFileMutation.isPending}
+                  className="bg-blue-500 hover:bg-blue-600"
+                >
+                  {editMutation.isPending ? "Saving..." : "Save Changes"}
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8 text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/20"
+                disabled={deleteMutation.isPending || editMutation.isPending || uploadFileMutation.isPending}
+                onClick={(e) => e.stopPropagation()}
+              >
+                <Trash2 className="h-4 w-4" />
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Delete Document</AlertDialogTitle>
+                <AlertDialogDescription>
+                  Are you sure you want to delete "{document.title || "Untitled Document"}"? 
+                  This action cannot be undone.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel disabled={deleteMutation.isPending}>
+                  Cancel
+                </AlertDialogCancel>
+                <AlertDialogAction
+                  onClick={handleDelete}
+                  disabled={deleteMutation.isPending}
+                  className="bg-red-500 hover:bg-red-600"
+                >
+                  {deleteMutation.isPending ? "Deleting..." : "Delete"}
+                </AlertDialogAction>
+              </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+          </div>
       )}
     </div>
   );
 };
 
-const SortableDocumentItem = ({ document, slug, folderId }) => {
+const SortableDocumentItem = ({ document, slug, folderId, onDocumentClick }) => {
   const {
     attributes,
     listeners,
@@ -211,12 +582,13 @@ const SortableDocumentItem = ({ document, slug, folderId }) => {
         dragAttributes={attributes}
         dragListeners={listeners}
         isDragging={isDragging}
+        onDocumentClick={onDocumentClick}
       />
     </div>
   );
 };
 
-const SortableFolderItem = ({ folder, level = 0, isSubFolder = false, slug, parentId = null, count = 0 }) => {
+const SortableFolderItem = ({ folder, level = 0, isSubFolder = false, slug, parentId = null, count = 0, onDocumentClick }) => {
   const {
     attributes,
     listeners,
@@ -244,6 +616,7 @@ const SortableFolderItem = ({ folder, level = 0, isSubFolder = false, slug, pare
         dragListeners={listeners}
         isDragging={isDragging}
         count={count}
+        onDocumentClick={onDocumentClick}
       />
     </div>
   );
@@ -258,7 +631,8 @@ const FolderItem = ({
   count = 0,
   dragAttributes, 
   dragListeners, 
-  isDragging 
+  isDragging,
+  onDocumentClick
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [isRenaming, setIsRenaming] = useState(false);
@@ -539,6 +913,7 @@ const FolderItem = ({
                     isSubFolder={true}
                     slug={slug}
                     parentId={folder.id}
+                    onDocumentClick={onDocumentClick}
                   />
                 ))}
               </SortableContext>
@@ -554,6 +929,7 @@ const FolderItem = ({
                     document={doc} 
                     slug={slug}
                     folderId={folder.id}
+                    onDocumentClick={onDocumentClick}
                   />
                 ))}
               </SortableContext>
@@ -565,7 +941,7 @@ const FolderItem = ({
   );
 };
 
-const FolderTree = ({ folders = [], isLoading = false, slug }) => {
+const FolderTree = ({ folders = [], isLoading = false, slug, onDocumentClick }) => {
   const [items, setItems] = useState(folders);
   const queryClient = useQueryClient();
   
@@ -779,6 +1155,7 @@ const FolderTree = ({ folders = [], isLoading = false, slug }) => {
               slug={slug}
               parentId={null}
               count={index + 1}
+              onDocumentClick={onDocumentClick}
             />
           ))}
         </SortableContext>
