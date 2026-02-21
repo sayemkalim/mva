@@ -12,13 +12,23 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import {
   Command,
   CommandEmpty,
   CommandGroup,
   CommandInput,
   CommandItem,
 } from "@/components/ui/command";
-import { Loader2, ChevronRight, Check, Plus, Minus } from "lucide-react";
+import { Loader2, ChevronRight, Check, Plus, Minus, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { getABMeta } from "../helpers/fetchABMeta";
 import { createMedicalCentre } from "../helpers/createMedicalCentre";
@@ -259,9 +269,33 @@ export default function MedicalCentrePage() {
     },
   });
 
+  const deleteServiceTypeMutation = useMutation({
+    mutationFn: async (id) => {
+      const response = await apiService({
+        endpoint: `api/v2/setup/master/delete/${id}`,
+        method: "DELETE",
+      });
+      return response;
+    },
+    onSuccess: (data) => {
+      const resp = data?.response || data;
+      if (resp?.Apistatus === false) {
+        toast.error(resp?.message || "Failed to delete service type");
+      } else {
+        toast.success(resp?.message || "Service type deleted successfully");
+        queryClient.invalidateQueries({ queryKey: ["medicalCentreMeta"] });
+      }
+    },
+    onError: (error) => {
+      console.error(error);
+      toast.error("Error deleting service type");
+    }
+  });
+
   const [servicesData, setServicesData] = useState({});
   const [expandedSections, setExpandedSections] = useState({ hospital: true });
   const [addPopoverOpen, setAddPopoverOpen] = useState(false);
+  const [deleteConfirm, setDeleteConfirm] = useState({ open: false, id: null, name: "" });
 
   useEffect(() => {
     if (medicalData) {
@@ -486,16 +520,57 @@ export default function MedicalCentrePage() {
                         key={type.id}
                         value={type.name}
                         onSelect={() => addAdditionalService(type)}
-                        className="cursor-pointer"
+                        className="cursor-pointer flex items-center justify-between group h-10"
                       >
-                        <Check className="mr-2 h-4 w-4 opacity-0" />
-                        {type.name}
+                        <div className="flex items-center">
+                          <Check className="mr-2 h-4 w-4 opacity-0" />
+                          {type.name}
+                        </div>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          className="h-8 w-8 p-0 opacity-0 group-hover:opacity-100 hover:bg-destructive/10 hover:text-destructive transition-all"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setDeleteConfirm({ open: true, id: type.id, name: type.name });
+                          }}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
                       </CommandItem>
                     ))}
                   </CommandGroup>
                 </Command>
               </PopoverContent>
             </Popover>
+
+            <AlertDialog
+              open={deleteConfirm.open}
+              onOpenChange={(open) => setDeleteConfirm(prev => ({ ...prev, open }))}
+            >
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    This will permanently delete the service type "{deleteConfirm.name}" from the system.
+                    This action cannot be undone.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                  <AlertDialogAction
+                    variant="destructive"
+                    onClick={() => {
+                      deleteServiceTypeMutation.mutate(deleteConfirm.id);
+                      setDeleteConfirm({ open: false, id: null, name: "" });
+                    }}
+                  >
+                    Delete
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
 
             <div className="flex gap-3">
               <Button variant="outline" onClick={() => navigate(-1)} type="button" className="w-full sm:w-auto h-11">Cancel</Button>
