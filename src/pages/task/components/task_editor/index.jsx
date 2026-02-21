@@ -1082,7 +1082,7 @@ export default function TaskPage() {
           </button>
           <ChevronRight className="w-4 h-4" />
           <button
-            onClick={() => navigate("/dashboard/tasks")}
+            onClick={() => navigate("/dashboard/task")}
             className="hover:text-foreground transition"
             type="button"
           >

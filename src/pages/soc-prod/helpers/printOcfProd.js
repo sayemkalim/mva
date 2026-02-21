@@ -1,5 +1,6 @@
 import { apiService } from "@/api/api_service/apiService";
 import { endpoints } from "@/api/endpoints";
+import { downloadFile } from "@/utils/fileDownload";
 
 export const printSocProd = async (id) => {
   try {
@@ -9,14 +10,13 @@ export const printSocProd = async (id) => {
       responseType: "blob",
     });
 
-    const url = window.URL.createObjectURL(new Blob([apiResponse.data]));
-    const link = document.createElement("a");
-    link.href = url;
-    link.setAttribute("download", `OCF-1-Production-${id}.pdf`);
-    document.body.appendChild(link);
-    link.click();
-    link.remove();
-    window.URL.revokeObjectURL(url);
+    if (apiResponse.response) {
+      downloadFile(
+        apiResponse.response,
+        apiResponse.headers,
+        `SOC-Draft-${id}`
+      );
+    }
 
     console.log("Print API response:", apiResponse);
     return apiResponse;

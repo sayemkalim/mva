@@ -1,4 +1,6 @@
-import { useState, useEffect } from "react";
+const fs = require('fs');
+
+const newCode = `import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiService } from "@/api/api_service/apiService";
@@ -54,7 +56,7 @@ const SearchableSelect = ({ label, options, value, onChange, placeholder }) => {
         </PopoverTrigger>
         <PopoverContent className="w-[300px] p-0">
           <Command>
-            <CommandInput placeholder={`Search ${label.toLowerCase()}...`} />
+            <CommandInput placeholder={\`Search \${label.toLowerCase()}...\`} />
             <CommandEmpty>No options found.</CommandEmpty>
             <CommandGroup className="max-h-64 overflow-auto">
               {options?.map((opt) => (
@@ -296,18 +298,18 @@ export default function MedicalCentrePage() {
   const updateField = (category, idx, fieldId, value) => {
     setServicesData(prev => ({
       ...prev,
-      [category]: prev[category].map((rec, i) => i === idx ? {
-        ...rec,
-        [fieldId]: (fieldId === "tel" || fieldId === "fax") ? formatPhoneNumber(value) : value
+      [category]: prev[category].map((rec, i) => i === idx ? { 
+        ...rec, 
+        [fieldId]: (fieldId === "tel" || fieldId === "fax") ? formatPhoneNumber(value) : value 
       } : rec)
     }));
   };
 
   const addAdditionalService = (type) => {
     const key = type.name.toLowerCase().replace(/ /g, '_');
-
+    
     if (servicesData[key]) {
-      toast.error(`${type.name} already exists.`);
+      toast.error(\`\${type.name} already exists.\`);
       setAddPopoverOpen(false);
       return;
     }
@@ -316,7 +318,7 @@ export default function MedicalCentrePage() {
       ...prev,
       [key]: [{ ...emptyRecord, service_type_id: type.id }]
     }));
-
+    
     setExpandedSections(prev => ({ ...prev, [key]: true }));
     setAddPopoverOpen(false);
   };
@@ -355,16 +357,16 @@ export default function MedicalCentrePage() {
         <h1 className="text-2xl font-bold mb-6 text-foreground">Medical Records</h1>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-
+          
           {Object.entries(servicesData).map(([key, records]) => {
             const config = categoryConfig[key];
-            const title = config?.title || key.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
-            const isExpanded = expandedSections[key] ?? false;
-
+            const title = config?.title || key.replace(/_/g, ' ').replace(/\\b\\w/g, c => c.toUpperCase());
+            const isExpanded = expandedSections[key] ?? true;
+            
             return (
               <div key={key} className="bg-card rounded-lg border border-border/50 overflow-hidden">
-                <div
-                  className={cn("flex justify-between items-center p-4 cursor-pointer hover:bg-muted/50 transition-colors", isExpanded && "border-b border-border/50")}
+                <div 
+                  className={cn("flex justify-between items-center p-4 cursor-pointer hover:bg-muted/50 transition-colors", isExpanded && "border-b border-border/50")} 
                   onClick={() => toggleSection(key)}
                 >
                   <h2 className="text-xl font-semibold text-foreground">{title}</h2>
@@ -372,7 +374,7 @@ export default function MedicalCentrePage() {
                     {isExpanded ? <Minus className="w-4 h-4" /> : <Plus className="w-4 h-4" />}
                   </Button>
                 </div>
-
+                
                 {isExpanded && (
                   <div className="p-6 space-y-6">
                     {records.map((rec, idx) => (
@@ -429,7 +431,7 @@ export default function MedicalCentrePage() {
                           </>
                         ) : (
                           (config?.fields || getDefaultFields()).map(field => (
-                            <div key={field.id} className={cn("space-y-2", field.colSpan && `lg:col-span-${field.colSpan}`)}>
+                            <div key={field.id} className={cn("space-y-2", field.colSpan && \`lg:col-span-\${field.colSpan}\`)}>
                               <Label className="text-foreground font-medium">{field.label}</Label>
                               {field.type === "textarea" ? (
                                 <Textarea value={rec[field.id] || ""} onChange={(e) => updateField(key, idx, field.id, e.target.value)} placeholder={field.label} rows={3} className="resize-none" />
@@ -474,7 +476,7 @@ export default function MedicalCentrePage() {
                             disabled={createTrackingMedicalCentreMutation.isLoading}
                             onClick={() => createTrackingMedicalCentreMutation.mutate(searchVal)}
                           >
-                            {createTrackingMedicalCentreMutation.isLoading ? "Creating..." : `Create "${searchVal}"`}
+                            {createTrackingMedicalCentreMutation.isLoading ? "Creating..." : \`Create "\${searchVal}"\`}
                           </Button>
                         </div>
                       )}
@@ -511,3 +513,6 @@ export default function MedicalCentrePage() {
     </div>
   );
 }
+`;
+
+fs.writeFileSync('/Users/sayemkalim/Downloads/mva/src/pages/medical_centre/medical_editor/index.jsx', newCode);

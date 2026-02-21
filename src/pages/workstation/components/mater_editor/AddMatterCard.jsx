@@ -90,6 +90,7 @@ const AddMatterCard = ({
     sent_by_id: null,
     shredded_date: "",
     shredded_by_id: null,
+    previous_counsel_check: false,
     paralegal_name: "",
     firm_name: "",
     counsel_name: "",
@@ -141,6 +142,8 @@ const AddMatterCard = ({
         }
       }
 
+      console.log("INITIAL DATA previous_counsel_check RAW:", initialData.previous_counsel_check);
+      console.log("INITIAL DATA previous_counsel_check CONVERTED:", !!initialData.previous_counsel_check);
       setFormData({
         ...baseForm,
         ...initialData,
@@ -157,6 +160,7 @@ const AddMatterCard = ({
           : [],
         non_engagement_date: initialDates,
         other_mvas: loadedMVAs,
+        previous_counsel_check: !!initialData.previous_counsel_check,
       });
     }
   }, [isEditMode, initialData]);
@@ -311,6 +315,9 @@ const AddMatterCard = ({
       payload.non_engagement_date = [];
     }
 
+    const finalPayload = { ...payload };
+    finalPayload.previous_counsel_check = formData.previous_counsel_check ? 1 : 0;
+    console.log("SUBMITTING PAYLOAD with previous_counsel_check:", finalPayload.previous_counsel_check);
     mutation.mutate(payload);
   };
 
@@ -906,8 +913,7 @@ const AddMatterCard = ({
             <section>
               <div className="flex justify-between items-center mb-6">
                 <h2 className="font-semibold text-xl uppercase text-foreground">
-                  Other MVAs
-                </h2>
+                  Other relted MVA's                 </h2>
                 <Button
                   type="button"
                   size="sm"
@@ -996,150 +1002,6 @@ const AddMatterCard = ({
               ))}
             </section>
 
-            {/* ===== FILE PROCESSING INFORMATION SECTION ===== */}
-            <section>
-              <h2 className="font-semibold text-xl mb-6 border-b pb-2 uppercase text-foreground">
-                File Processing Information
-              </h2>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                {/* AB Package Done */}
-                <div>
-                  <label className="block font-medium mb-2 text-foreground">
-                    AB Package Done
-                  </label>
-                  <SearchableDropdown
-                    value={formData.ab_package_done_id}
-                    onSelect={handleDropdownChange}
-                    options={metadata.yes_no_option}
-                    placeholder="Select yes or no"
-                    popoverKey="ab_package_done"
-                    fieldName="ab_package_done_id"
-                  />
-                </div>
-
-                {/* Date (for AB Package Done) */}
-                <div>
-                  <label
-                    htmlFor="date"
-                    className="block font-medium mb-2 text-foreground"
-                  >
-                    Date
-                  </label>
-                  <Input
-                    type="date"
-                    id="date"
-                    name="date"
-                    value={formData.date}
-                    onChange={handleInputChange}
-                    className="bg-muted"
-                  />
-                </div>
-
-                {/* By (for AB Package Done) */}
-                <div>
-                  <label
-                    htmlFor="by"
-                    className="block font-medium mb-2 text-foreground"
-                  >
-                    By
-                  </label>
-                  <Input
-                    id="by"
-                    name="by"
-                    value={formData.by}
-                    onChange={handleInputChange}
-                    maxLength={255}
-                    placeholder="Enter name"
-                    className="bg-muted"
-                  />
-                </div>
-
-                {/* Initial Meeting */}
-                <div>
-                  <label className="block font-medium mb-2 text-foreground">
-                    Initial Meeting
-                  </label>
-                  <SearchableDropdown
-                    value={formData.initial_meeting_id}
-                    onSelect={handleDropdownChange}
-                    options={metadata.yes_no_option}
-                    placeholder="Select yes or no"
-                    popoverKey="initial_meeting"
-                    fieldName="initial_meeting_id"
-                  />
-                </div>
-
-                {/* Date (for Initial Meeting) */}
-                <div>
-                  <label
-                    htmlFor="date_2nd"
-                    className="block font-medium mb-2 text-foreground"
-                  >
-                    Date
-                  </label>
-                  <Input
-                    type="date"
-                    id="date_2nd"
-                    name="date_2nd"
-                    value={formData.date_2nd}
-                    onChange={handleInputChange}
-                    className="bg-muted"
-                  />
-                </div>
-
-                {/* By (for Initial Meeting) */}
-                <div>
-                  <label
-                    htmlFor="by_2nd"
-                    className="block font-medium mb-2 text-foreground"
-                  >
-                    By
-                  </label>
-                  <Input
-                    id="by_2nd"
-                    name="by_2nd"
-                    value={formData.by_2nd}
-                    onChange={handleInputChange}
-                    maxLength={255}
-                    placeholder="Enter name"
-                    className="bg-muted"
-                  />
-                </div>
-
-                {/* Memo Review */}
-                <div>
-                  <label className="block font-medium mb-2 text-foreground">
-                    Memo Review
-                  </label>
-                  <SearchableDropdown
-                    value={formData.memo_review_id}
-                    onSelect={handleDropdownChange}
-                    options={metadata.yes_no_option}
-                    placeholder="Select yes or no"
-                    popoverKey="memo_review"
-                    fieldName="memo_review_id"
-                  />
-                </div>
-
-                {/* Date (for Memo Review) */}
-                <div>
-                  <label
-                    htmlFor="date_3rd"
-                    className="block font-medium mb-2 text-foreground"
-                  >
-                    Date
-                  </label>
-                  <Input
-                    type="date"
-                    id="date_3rd"
-                    name="date_3rd"
-                    value={formData.date_3rd}
-                    onChange={handleInputChange}
-                    className="bg-muted"
-                  />
-                </div>
-              </div>
-            </section>
 
             {/* ===== LEGAL FILE INFORMATION SECTION ===== */}
             <section>
@@ -1444,324 +1306,342 @@ const AddMatterCard = ({
 
             {/* ===== PREVIOUS COUNSEL SECTION ===== */}
             <section>
-              <h2 className="font-semibold text-xl mb-6 border-b pb-2 uppercase text-foreground">
-                Previous Counsel
-              </h2>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                {/* Paralegal Name */}
-                <div>
-                  <label
-                    htmlFor="paralegal_name"
-                    className="block font-medium mb-2 text-foreground"
-                  >
-                    Paralegal Name
-                  </label>
-                  <Input
-                    id="paralegal_name"
-                    name="paralegal_name"
-                    value={formData.paralegal_name}
-                    onChange={handleInputChange}
-                    maxLength={255}
-                    placeholder="Enter paralegal name"
-                    className="bg-muted"
-                  />
-                </div>
-
-                {/* Firm Name */}
-                <div>
-                  <label
-                    htmlFor="firm_name"
-                    className="block font-medium mb-2 text-foreground"
-                  >
-                    Firm Name
-                  </label>
-                  <Input
-                    id="firm_name"
-                    name="firm_name"
-                    value={formData.firm_name}
-                    onChange={handleInputChange}
-                    maxLength={255}
-                    placeholder="Enter firm name"
-                    className="bg-muted"
-                  />
-                </div>
-
-                {/* Counsel Name */}
-                <div>
-                  <label
-                    htmlFor="counsel_name"
-                    className="block font-medium mb-2 text-foreground"
-                  >
-                    Counsel Name
-                  </label>
-                  <Input
-                    id="counsel_name"
-                    name="counsel_name"
-                    value={formData.counsel_name}
-                    onChange={handleInputChange}
-                    maxLength={255}
-                    placeholder="Enter counsel name"
-                    className="bg-muted"
-                  />
-                </div>
-
-                {/* File Number */}
-                <div>
-                  <label
-                    htmlFor="file_number"
-                    className="block font-medium mb-2 text-foreground"
-                  >
-                    File Number
-                  </label>
-                  <Input
-                    id="file_number"
-                    name="file_number"
-                    value={formData.file_number}
-                    onChange={handleInputChange}
-                    maxLength={255}
-                    placeholder="Enter file number"
-                    className="bg-muted"
-                  />
-                </div>
-
-                {/* Work Telephone */}
-                <div>
-                  <label
-                    htmlFor="work_telephone"
-                    className="block font-medium mb-2 text-foreground"
-                  >
-                    Work Telephone
-                  </label>
-                  <Input
-                    id="work_telephone"
-                    name="work_telephone"
-                    value={formData.work_telephone}
-                    onChange={(e) => setFormData(p => ({ ...p, work_telephone: formatPhoneNumber(e.target.value) }))}
-                    maxLength={255}
-                    placeholder="(888) 888-8888"
-                    className="bg-muted"
-                  />
-                </div>
-
-                {/* Telephone */}
-                <div>
-                  <label
-                    htmlFor="telephone"
-                    className="block font-medium mb-2 text-foreground"
-                  >
-                    Telephone
-                  </label>
-                  <Input
-                    id="telephone"
-                    name="telephone"
-                    value={formData.telephone}
-                    onChange={(e) => setFormData(p => ({ ...p, telephone: formatPhoneNumber(e.target.value) }))}
-                    maxLength={255}
-                    placeholder="(888) 888-8888"
-                    className="bg-muted"
-                  />
-                </div>
-
-                {/* Ext */}
-                <div>
-                  <label
-                    htmlFor="ext"
-                    className="block font-medium mb-2 text-foreground"
-                  >
-                    Ext
-                  </label>
-                  <Input
-                    id="ext"
-                    name="ext"
-                    value={formData.ext}
-                    onChange={handleInputChange}
-                    maxLength={255}
-                    placeholder="Extension"
-                    className="bg-muted"
-                  />
-                </div>
-
-                {/* Fax */}
-                <div>
-                  <label
-                    htmlFor="fax"
-                    className="block font-medium mb-2 text-foreground"
-                  >
-                    Fax
-                  </label>
-                  <Input
-                    id="fax"
-                    name="fax"
-                    value={formData.fax}
-                    onChange={(e) => setFormData(p => ({ ...p, fax: formatPhoneNumber(e.target.value) }))}
-                    maxLength={255}
-                    placeholder="(888) 888-8888"
-                    className="bg-muted"
-                  />
-                </div>
-
-                {/* Email */}
-                <div>
-                  <label
-                    htmlFor="email"
-                    className="block font-medium mb-2 text-foreground"
-                  >
-                    Email
-                  </label>
-                  <Input
-                    type="email"
-                    id="email"
-                    name="email"
-                    value={formData.email}
-                    onChange={handleInputChange}
-                    maxLength={255}
-                    placeholder="email@example.com"
-                    className="bg-muted"
-                  />
-                </div>
-
-                {/* Lawyer Name */}
-                <div>
-                  <label
-                    htmlFor="lawyer_name"
-                    className="block font-medium mb-2 text-foreground"
-                  >
-                    Lawyer Name
-                  </label>
-                  <Input
-                    id="lawyer_name"
-                    name="lawyer_name"
-                    value={formData.lawyer_name}
-                    onChange={handleInputChange}
-                    maxLength={255}
-                    placeholder="Enter lawyer name"
-                    className="bg-muted"
-                  />
-                </div>
+              <div className="flex items-center space-x-2 mb-6 border-b pb-2">
+                <Checkbox
+                  id="previous_counsel_check"
+                  checked={formData.previous_counsel_check}
+                  onCheckedChange={(checked) => {
+                    console.log("CHECKBOX CHANGED TO:", checked);
+                    setFormData((p) => ({ ...p, previous_counsel_check: checked }));
+                  }}
+                />
+                <label
+                  htmlFor="previous_counsel_check"
+                  className="font-semibold text-xl uppercase text-foreground cursor-pointer"
+                >
+                  Previous Counsel
+                </label>
               </div>
+
+              {formData.previous_counsel_check && (
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  {/* Paralegal Name */}
+                  <div>
+                    <label
+                      htmlFor="paralegal_name"
+                      className="block font-medium mb-2 text-foreground"
+                    >
+                      Paralegal Name
+                    </label>
+                    <Input
+                      id="paralegal_name"
+                      name="paralegal_name"
+                      value={formData.paralegal_name}
+                      onChange={handleInputChange}
+                      maxLength={255}
+                      placeholder="Enter paralegal name"
+                      className="bg-muted"
+                    />
+                  </div>
+
+                  {/* Firm Name */}
+                  <div>
+                    <label
+                      htmlFor="firm_name"
+                      className="block font-medium mb-2 text-foreground"
+                    >
+                      Firm Name
+                    </label>
+                    <Input
+                      id="firm_name"
+                      name="firm_name"
+                      value={formData.firm_name}
+                      onChange={handleInputChange}
+                      maxLength={255}
+                      placeholder="Enter firm name"
+                      className="bg-muted"
+                    />
+                  </div>
+
+                  {/* Counsel Name */}
+                  <div>
+                    <label
+                      htmlFor="counsel_name"
+                      className="block font-medium mb-2 text-foreground"
+                    >
+                      Counsel Name
+                    </label>
+                    <Input
+                      id="counsel_name"
+                      name="counsel_name"
+                      value={formData.counsel_name}
+                      onChange={handleInputChange}
+                      maxLength={255}
+                      placeholder="Enter counsel name"
+                      className="bg-muted"
+                    />
+                  </div>
+
+                  {/* File Number */}
+                  <div>
+                    <label
+                      htmlFor="file_number"
+                      className="block font-medium mb-2 text-foreground"
+                    >
+                      File Number
+                    </label>
+                    <Input
+                      id="file_number"
+                      name="file_number"
+                      value={formData.file_number}
+                      onChange={handleInputChange}
+                      maxLength={255}
+                      placeholder="Enter file number"
+                      className="bg-muted"
+                    />
+                  </div>
+
+                  {/* Work Telephone */}
+                  <div>
+                    <label
+                      htmlFor="work_telephone"
+                      className="block font-medium mb-2 text-foreground"
+                    >
+                      Work Telephone
+                    </label>
+                    <Input
+                      id="work_telephone"
+                      name="work_telephone"
+                      value={formData.work_telephone}
+                      onChange={(e) => setFormData(p => ({ ...p, work_telephone: formatPhoneNumber(e.target.value) }))}
+                      maxLength={255}
+                      placeholder="(888) 888-8888"
+                      className="bg-muted"
+                    />
+                  </div>
+
+                  {/* Telephone */}
+                  <div>
+                    <label
+                      htmlFor="telephone"
+                      className="block font-medium mb-2 text-foreground"
+                    >
+                      Telephone
+                    </label>
+                    <Input
+                      id="telephone"
+                      name="telephone"
+                      value={formData.telephone}
+                      onChange={(e) => setFormData(p => ({ ...p, telephone: formatPhoneNumber(e.target.value) }))}
+                      maxLength={255}
+                      placeholder="(888) 888-8888"
+                      className="bg-muted"
+                    />
+                  </div>
+
+                  {/* Ext */}
+                  <div>
+                    <label
+                      htmlFor="ext"
+                      className="block font-medium mb-2 text-foreground"
+                    >
+                      Ext
+                    </label>
+                    <Input
+                      id="ext"
+                      name="ext"
+                      value={formData.ext}
+                      onChange={handleInputChange}
+                      maxLength={255}
+                      placeholder="Extension"
+                      className="bg-muted"
+                    />
+                  </div>
+
+                  {/* Fax */}
+                  <div>
+                    <label
+                      htmlFor="fax"
+                      className="block font-medium mb-2 text-foreground"
+                    >
+                      Fax
+                    </label>
+                    <Input
+                      id="fax"
+                      name="fax"
+                      value={formData.fax}
+                      onChange={(e) => setFormData(p => ({ ...p, fax: formatPhoneNumber(e.target.value) }))}
+                      maxLength={255}
+                      placeholder="(888) 888-8888"
+                      className="bg-muted"
+                    />
+                  </div>
+
+                  {/* Email */}
+                  <div>
+                    <label
+                      htmlFor="email"
+                      className="block font-medium mb-2 text-foreground"
+                    >
+                      Email
+                    </label>
+                    <Input
+                      type="email"
+                      id="email"
+                      name="email"
+                      value={formData.email}
+                      onChange={handleInputChange}
+                      maxLength={255}
+                      placeholder="email@example.com"
+                      className="bg-muted"
+                    />
+                  </div>
+
+                  {/* Lawyer Name */}
+                  <div>
+                    <label
+                      htmlFor="lawyer_name"
+                      className="block font-medium mb-2 text-foreground"
+                    >
+                      Lawyer Name
+                    </label>
+                    <Input
+                      id="lawyer_name"
+                      name="lawyer_name"
+                      value={formData.lawyer_name}
+                      onChange={handleInputChange}
+                      maxLength={255}
+                      placeholder="Enter lawyer name"
+                      className="bg-muted"
+                    />
+                  </div>
+                </div>
+              )}
             </section>
 
             {/* ===== ADDRESS SECTION ===== */}
-            <section>
-              {/* <h2 className="font-semibold text-xl mb-6 border-b pb-2 uppercase text-foreground">
-                Address
-              </h2> */}
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                {/* Unit Number */}
-                <div>
-                  <label
-                    htmlFor="unit_number"
-                    className="block font-medium mb-2 text-foreground"
-                  >
-                    Unit Number
-                  </label>
-                  <Input
-                    id="unit_number"
-                    name="unit_number"
-                    value={formData.unit_number}
-                    onChange={handleInputChange}
-                    maxLength={50}
-                    placeholder="Enter unit number"
-                    className="bg-muted"
-                  />
-                </div>
+            {formData.previous_counsel_check && (
+              <section>
+                {/* <h2 className="font-semibold text-xl mb-6 border-b pb-2 uppercase text-foreground">
+                  Address
+                </h2> */}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                  {/* Unit Number */}
+                  <div>
+                    <label
+                      htmlFor="unit_number"
+                      className="block font-medium mb-2 text-foreground"
+                    >
+                      Unit Number
+                    </label>
+                    <Input
+                      id="unit_number"
+                      name="unit_number"
+                      value={formData.unit_number}
+                      onChange={handleInputChange}
+                      maxLength={50}
+                      placeholder="Enter unit number"
+                      className="bg-muted"
+                    />
+                  </div>
 
-                {/* Street Number */}
-                <div>
-                  <label
-                    htmlFor="street_number"
-                    className="block font-medium mb-2 text-foreground"
-                  >
-                    Street Number
-                  </label>
-                  <Input
-                    id="street_number"
-                    name="street_number"
-                    value={formData.street_number}
-                    onChange={handleInputChange}
-                    maxLength={100}
-                    placeholder="Enter street number"
-                    className="bg-muted"
-                  />
-                </div>
+                  {/* Street Number */}
+                  <div>
+                    <label
+                      htmlFor="street_number"
+                      className="block font-medium mb-2 text-foreground"
+                    >
+                      Street Number
+                    </label>
+                    <Input
+                      id="street_number"
+                      name="street_number"
+                      value={formData.street_number}
+                      onChange={handleInputChange}
+                      maxLength={100}
+                      placeholder="Enter street number"
+                      className="bg-muted"
+                    />
+                  </div>
 
-                {/* Street Name */}
-                <div>
-                  <label
-                    htmlFor="street_name"
-                    className="block font-medium mb-2 text-foreground"
-                  >
-                    Street Name
-                  </label>
-                  <Input
-                    id="street_name"
-                    name="street_name"
-                    value={formData.street_name}
-                    onChange={handleInputChange}
-                    maxLength={100}
-                    placeholder="Enter street name"
-                    className="bg-muted"
-                  />
-                </div>
+                  {/* Street Name */}
+                  <div>
+                    <label
+                      htmlFor="street_name"
+                      className="block font-medium mb-2 text-foreground"
+                    >
+                      Street Name
+                    </label>
+                    <Input
+                      id="street_name"
+                      name="street_name"
+                      value={formData.street_name}
+                      onChange={handleInputChange}
+                      maxLength={100}
+                      placeholder="Enter street name"
+                      className="bg-muted"
+                    />
+                  </div>
 
-                {/* City */}
-                <div>
-                  <label
-                    htmlFor="city"
-                    className="block font-medium mb-2 text-foreground"
-                  >
-                    City
-                  </label>
-                  <Input
-                    id="city"
-                    name="city"
-                    value={formData.city}
-                    onChange={handleInputChange}
-                    maxLength={100}
-                    placeholder="Enter city"
-                    className="bg-muted"
-                  />
-                </div>
+                  {/* City */}
+                  <div>
+                    <label
+                      htmlFor="city"
+                      className="block font-medium mb-2 text-foreground"
+                    >
+                      City
+                    </label>
+                    <Input
+                      id="city"
+                      name="city"
+                      value={formData.city}
+                      onChange={handleInputChange}
+                      maxLength={100}
+                      placeholder="Enter city"
+                      className="bg-muted"
+                    />
+                  </div>
 
-                {/* Province */}
-                <div>
-                  <label
-                    htmlFor="province"
-                    className="block font-medium mb-2 text-foreground"
-                  >
-                    Province
-                  </label>
-                  <Input
-                    id="province"
-                    name="province"
-                    value={formData.province}
-                    onChange={handleInputChange}
-                    maxLength={100}
-                    placeholder="Enter province"
-                    className="bg-muted"
-                  />
-                </div>
+                  {/* Province */}
+                  <div>
+                    <label
+                      htmlFor="province"
+                      className="block font-medium mb-2 text-foreground"
+                    >
+                      Province
+                    </label>
+                    <Input
+                      id="province"
+                      name="province"
+                      value={formData.province}
+                      onChange={handleInputChange}
+                      maxLength={100}
+                      placeholder="Enter province"
+                      className="bg-muted"
+                    />
+                  </div>
 
-                {/* Postal Code */}
-                <div>
-                  <label
-                    htmlFor="postal_code"
-                    className="block font-medium mb-2 text-foreground"
-                  >
-                    Postal Code
-                  </label>
-                  <Input
-                    id="postal_code"
-                    name="postal_code"
-                    value={formData.postal_code}
-                    onChange={handleInputChange}
-                    maxLength={50}
-                    placeholder="Enter postal code"
-                    className="bg-muted"
-                  />
+                  {/* Postal Code */}
+                  <div>
+                    <label
+                      htmlFor="postal_code"
+                      className="block font-medium mb-2 text-foreground"
+                    >
+                      Postal Code
+                    </label>
+                    <Input
+                      id="postal_code"
+                      name="postal_code"
+                      value={formData.postal_code}
+                      onChange={handleInputChange}
+                      maxLength={50}
+                      placeholder="Enter postal code"
+                      className="bg-muted"
+                    />
+                  </div>
                 </div>
-              </div>
-            </section>
+              </section>
+            )}
 
             {/* ===== SUBMIT BUTTONS ===== */}
             <div className="flex justify-end gap-4 pt-6 border-t">

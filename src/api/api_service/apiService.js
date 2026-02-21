@@ -12,6 +12,7 @@ export const apiService = async ({
   customUrl,
   removeToken = false,
   signal,
+  responseType,
 }) => {
   try {
     const token = getItem("token");
@@ -32,10 +33,16 @@ export const apiService = async ({
       data,
       signal,
       headers: requestHeaders,
+      responseType,
     };
 
-    const { data: res } = await axios(requestObj);
-    return { response: res };
+    const response = await axios(requestObj);
+    return {
+      response: response.data,
+      headers: response.headers,
+      status: response.status,
+      raw: response
+    };
   } catch (error) {
     console.error(error, "backend endpoint error");
     return { success: false, error: true, ...(error || {}) };

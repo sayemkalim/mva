@@ -14,6 +14,7 @@ import {
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Loader2, Mail, CheckCircle, XCircle, Lock, Key } from "lucide-react";
 import { apiService } from "@/api/api_service/apiService";
+import { toast } from "sonner";
 
 const ForgotPassword = () => {
   const navigate = useNavigate();
@@ -37,13 +38,20 @@ const ForgotPassword = () => {
       });
     },
     onSuccess: (data) => {
-      if (data.response?.message) {
+      // Assuming apiResponse returns an Apistatus or success flag
+      const apiStatus = data?.Apistatus || data?.ApiApistatus || data?.response?.Apistatus || data?.response?.ApiApistatus;
+
+      if (apiStatus === true || data?.response?.message?.includes("sent")) {
         console.log("Password reset link sent successfully");
+        toast.success("Password reset link sent to your email!");
         setShowResetForm(true);
+      } else {
+        throw new Error(data?.message || data?.response?.message || "Failed to send reset link");
       }
     },
     onError: (error) => {
       console.error("Forgot password error:", error);
+      toast.error(error.message || "Failed to send reset link");
     },
   });
 
@@ -63,15 +71,21 @@ const ForgotPassword = () => {
       });
     },
     onSuccess: (data) => {
-      if (data.response?.message) {
+      const apiStatus = data?.Apistatus || data?.ApiApistatus || data?.response?.Apistatus || data?.response?.ApiApistatus;
+
+      if (apiStatus === true || data?.response?.message?.includes("success")) {
         console.log("Password reset successful");
+        toast.success("Password reset successful!");
         setTimeout(() => {
           navigate("/login");
         }, 2000);
+      } else {
+        throw new Error(data?.message || data?.response?.message || "Failed to reset password");
       }
     },
     onError: (error) => {
       console.error("Reset password error:", error);
+      toast.error(error.message || "Failed to reset password");
     },
   });
 
@@ -132,7 +146,7 @@ const ForgotPassword = () => {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100 px-4">
+    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100 dark:from-black dark:to-black px-4">
       <Card className="w-full max-w-md shadow-lg">
         <CardHeader className="space-y-1">
           <CardTitle className="text-2xl font-bold text-center">
@@ -296,8 +310,10 @@ const ForgotPassword = () => {
                 </Alert>
               )}
 
-              {resetPasswordMutation.isSuccess &&
-                resetPasswordMutation.data?.response?.success && (
+              {resetPasswordMutation.isSuccess && (() => {
+                const apiStatus = resetPasswordMutation.data?.Apistatus || resetPasswordMutation.data?.ApiApistatus || resetPasswordMutation.data?.response?.Apistatus || resetPasswordMutation.data?.response?.ApiApistatus;
+                return apiStatus === true || resetPasswordMutation.data?.response?.message?.includes("success");
+              })() && (
                   <Alert className="border-green-200 bg-green-50">
                     <CheckCircle className="h-4 w-4 text-green-600" />
                     <AlertDescription className="text-green-800">
