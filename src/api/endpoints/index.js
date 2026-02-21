@@ -399,6 +399,7 @@ export const endpoints = {
   documentiFolderSave: "api/v2/file/document-i/folders/save",
   documentiGetFolders: "api/v2/file/document-i/folders/get",
   documentiDeleteDocument: "api/v2/file/document-i/document/delete",
+  documentiUpdateDocument: "api/v2/file/document-i/folders/update",
   documentiRenameFolder: "api/v2/file/document-i/folders/rename",
   documentiDeleteFolder: "api/v2/file/document-i/folders/delete",
   sortFolders: "api/v2/file/document-i/folders/sort",
