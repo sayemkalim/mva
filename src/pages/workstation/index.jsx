@@ -16,8 +16,19 @@ import { Button } from "@/components/ui/button";
 import { X } from "lucide-react";
 
 
+import { useQuery } from "@tanstack/react-query";
+import { fetchMatterMetadata } from "./helpers/fetchMatterMetadata";
+
 const Matter = () => {
   const navigate = useNavigate();
+
+  const { data: metadataRes } = useQuery({
+    queryKey: ["matterMetadata"],
+    queryFn: fetchMatterMetadata,
+  });
+
+  const metadata = metadataRes?.response || metadataRes || {};
+  const statusOptions = metadata?.file_status || [];
 
   const paramInitialState = {
     page: 1,
@@ -89,7 +100,10 @@ const Matter = () => {
   ];
 
   const currentYear = new Date().getFullYear();
-  const years = Array.from({ length: 10 }, (_, i) => (currentYear - i).toString());
+  const years = Array.from(
+    { length: currentYear - 2000 + 1 },
+    (_, i) => (currentYear - i).toString()
+  );
 
   return (
     <div className="flex flex-col">
@@ -108,8 +122,11 @@ const Matter = () => {
                 <SelectValue placeholder="Status" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="Active">Active</SelectItem>
-                <SelectItem value="Closed">Closed</SelectItem>
+                {statusOptions.map((status) => (
+                  <SelectItem key={status.id} value={status.name}>
+                    {status.name}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>
@@ -135,7 +152,7 @@ const Matter = () => {
               <SelectTrigger className="h-9 w-full">
                 <SelectValue placeholder="Month" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="max-h-[300px]">
                 {months.map((m) => (
                   <SelectItem key={m.value} value={m.value}>
                     {m.label}
@@ -155,7 +172,7 @@ const Matter = () => {
               <SelectTrigger className="h-9 w-full">
                 <SelectValue placeholder="Year" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="max-h-[300px]">
                 {years.map((y) => (
                   <SelectItem key={y} value={y}>
                     {y}

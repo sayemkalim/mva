@@ -1,4 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useDebounce } from "@uidotdev/usehooks";
 import { format } from "date-fns";
 import {
   Eye,
@@ -8,6 +9,9 @@ import {
   Filter,
   CalendarIcon,
   X,
+  Check,
+  ChevronRight,
+  Loader2,
 } from "lucide-react";
 import { useEffect, useState, useMemo } from "react";
 import { useNavigate } from "react-router";
@@ -42,12 +46,20 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
 import { cn } from "@/lib/utils";
 
 import { fetchTaskList } from "../helpers/fetchTaskList";
 import { deleteTask } from "../helpers/deleteTask";
 import { getABMeta } from "../helpers/fetchABMeta";
-import { updateStatus } from "../helpers/createTask";
+import { updateStatus, searchContact } from "../helpers/createTask";
 
 const TaskTable = ({ setTasksLength }) => {
   const navigate = useNavigate();
@@ -65,6 +77,8 @@ const TaskTable = ({ setTasksLength }) => {
     from_date: null,
     to_date: null,
   });
+  const [clientSearchQuery, setClientSearchQuery] = useState("");
+  const debouncedClientSearch = useDebounce(clientSearchQuery, 500);
 
   // Build query params for API
   const buildQueryParams = (filterObj) => {
@@ -132,12 +146,17 @@ const TaskTable = ({ setTasksLength }) => {
       ? metaData.response.assignees
       : [];
   }, [metaData]);
-  const uniqueClients = useMemo(() => {
-    const clients = tasks
-      .map((task) => task.applicantInformations_name)
-      .filter((name) => name);
-    return [...new Set(clients)];
-  }, [tasks]);
+
+  const {
+    data: contactsResponse,
+    isLoading: isSearchingContacts,
+  } = useQuery({
+    queryKey: ["searchContacts", debouncedClientSearch],
+    queryFn: () => searchContact({ searchBar: debouncedClientSearch }),
+    enabled: debouncedClientSearch.length > 0,
+  });
+
+  const searchedContacts = contactsResponse?.response?.data || [];
 
   useEffect(() => {
     setTasksLength?.(tasks.length || 0);
@@ -163,6 +182,7 @@ const TaskTable = ({ setTasksLength }) => {
       from_date: null,
       to_date: null,
     });
+    setClientSearchQuery("");
   };
 
   const handleApplyFilters = () => {
@@ -462,29 +482,75 @@ const TaskTable = ({ setTasksLength }) => {
                 <Label htmlFor="client" className="text-base font-medium">
                   Client
                 </Label>
-                <Select
-                  value={filters.applicant_name}
-                  onValueChange={(value) =>
-                    setFilters((prev) => ({ ...prev, applicant_name: value }))
-                  }
-                >
-                  <SelectTrigger className="h-12 bg-muted w-full">
-                    <SelectValue placeholder="All clients" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {uniqueClients.length > 0 ? (
-                      uniqueClients.map((client, index) => (
-                        <SelectItem key={index} value={client}>
-                          {client}
-                        </SelectItem>
-                      ))
-                    ) : (
-                      <SelectItem value="no-data" disabled>
-                        No clients available
-                      </SelectItem>
-                    )}
-                  </SelectContent>
-                </Select>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      role="combobox"
+                      className="h-12 bg-muted w-full justify-between font-normal"
+                    >
+                      {filters.applicant_name ? (
+                        filters.applicant_name
+                      ) : (
+                        <span className="text-muted-foreground">Search client...</span>
+                      )}
+                      <ChevronRight className="ml-2 h-4 w-4 shrink-0 rotate-90 text-muted-foreground" />
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0" align="start">
+                    <Command shouldFilter={false}>
+                      <CommandInput
+                        placeholder="Type to search clients..."
+                        value={clientSearchQuery}
+                        onValueChange={setClientSearchQuery}
+                      />
+                      <CommandList>
+                        {isSearchingContacts && (
+                          <div className="flex items-center justify-center py-6">
+                            <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                            <span className="text-sm text-muted-foreground">Searching...</span>
+                          </div>
+                        )}
+                        {!isSearchingContacts && debouncedClientSearch && searchedContacts.length === 0 && (
+                          <CommandEmpty>No clients found.</CommandEmpty>
+                        )}
+                        {!isSearchingContacts && !debouncedClientSearch && (
+                          <div className="py-6 text-center text-sm text-muted-foreground">
+                            Start typing to search clients
+                          </div>
+                        )}
+
+                        <CommandGroup>
+                          {searchedContacts.length > 0 && searchedContacts.map((contact) => (
+                            <CommandItem
+                              key={contact.id}
+                              value={contact.contact_name}
+                              onSelect={() => {
+                                setFilters((prev) => ({
+                                  ...prev,
+                                  applicant_name: contact.contact_name,
+                                }));
+                                setClientSearchQuery(contact.contact_name);
+                              }}
+                              className="cursor-pointer"
+                            >
+                              <Check
+                                className={cn(
+                                  "mr-2 h-4 w-4",
+                                  filters.applicant_name === contact.contact_name ? "opacity-100" : "opacity-0"
+                                )}
+                              />
+                              <div className="flex flex-col">
+                                <span>{contact.contact_name}</span>
+                                <span className="text-[10px] text-muted-foreground">{contact.primary_email}</span>
+                              </div>
+                            </CommandItem>
+                          ))}
+                        </CommandGroup>
+                      </CommandList>
+                    </Command>
+                  </PopoverContent>
+                </Popover>
               </div>
 
               {/* Priority */}
@@ -492,32 +558,53 @@ const TaskTable = ({ setTasksLength }) => {
                 <Label htmlFor="priority" className="text-base font-medium">
                   Priority
                 </Label>
-                <Select
-                  value={filters.priority_id}
-                  onValueChange={(value) =>
-                    setFilters((prev) => ({ ...prev, priority_id: value }))
-                  }
-                >
-                  <SelectTrigger className="h-12 bg-muted w-full">
-                    <SelectValue placeholder="All priorities" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {taskPriorities.length > 0 ? (
-                      taskPriorities.map((priority) => (
-                        <SelectItem
-                          key={priority.id}
-                          value={priority.id?.toString()}
-                        >
-                          {priority.name}
-                        </SelectItem>
-                      ))
-                    ) : (
-                      <SelectItem value="no-data" disabled>
-                        No priorities available
-                      </SelectItem>
-                    )}
-                  </SelectContent>
-                </Select>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      role="combobox"
+                      className="h-12 bg-muted w-full justify-between font-normal"
+                    >
+                      {filters.priority_id ? (
+                        taskPriorities.find(p => String(p.id) === String(filters.priority_id))?.name
+                      ) : (
+                        <span className="text-muted-foreground">All priorities</span>
+                      )}
+                      <ChevronRight className="ml-2 h-4 w-4 shrink-0 rotate-90 text-muted-foreground" />
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0" align="start">
+                    <Command>
+                      <CommandInput placeholder="Search priority..." />
+                      <CommandList>
+                        <CommandEmpty>No priorities found.</CommandEmpty>
+                        <CommandGroup>
+                          {taskPriorities.map((priority) => (
+                            <CommandItem
+                              key={priority.id}
+                              value={priority.name}
+                              onSelect={() => {
+                                setFilters((prev) => ({
+                                  ...prev,
+                                  priority_id: String(priority.id),
+                                }));
+                              }}
+                              className="cursor-pointer"
+                            >
+                              <Check
+                                className={cn(
+                                  "mr-2 h-4 w-4",
+                                  String(filters.priority_id) === String(priority.id) ? "opacity-100" : "opacity-0"
+                                )}
+                              />
+                              {priority.name}
+                            </CommandItem>
+                          ))}
+                        </CommandGroup>
+                      </CommandList>
+                    </Command>
+                  </PopoverContent>
+                </Popover>
               </div>
 
               {/* Status */}
@@ -525,32 +612,53 @@ const TaskTable = ({ setTasksLength }) => {
                 <Label htmlFor="status" className="text-base font-medium">
                   Status
                 </Label>
-                <Select
-                  value={filters.status_id}
-                  onValueChange={(value) =>
-                    setFilters((prev) => ({ ...prev, status_id: value }))
-                  }
-                >
-                  <SelectTrigger className="h-12 bg-muted w-full">
-                    <SelectValue placeholder="All statuses" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {taskStatuses.length > 0 ? (
-                      taskStatuses.map((status) => (
-                        <SelectItem
-                          key={status.id}
-                          value={status.id?.toString() || ""}
-                        >
-                          {status.name}
-                        </SelectItem>
-                      ))
-                    ) : (
-                      <SelectItem value="no-data" disabled>
-                        No statuses available
-                      </SelectItem>
-                    )}
-                  </SelectContent>
-                </Select>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      role="combobox"
+                      className="h-12 bg-muted w-full justify-between font-normal"
+                    >
+                      {filters.status_id ? (
+                        taskStatuses.find(s => String(s.id) === String(filters.status_id))?.name
+                      ) : (
+                        <span className="text-muted-foreground">All statuses</span>
+                      )}
+                      <ChevronRight className="ml-2 h-4 w-4 shrink-0 rotate-90 text-muted-foreground" />
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0" align="start">
+                    <Command>
+                      <CommandInput placeholder="Search status..." />
+                      <CommandList>
+                        <CommandEmpty>No statuses found.</CommandEmpty>
+                        <CommandGroup>
+                          {taskStatuses.map((status) => (
+                            <CommandItem
+                              key={status.id}
+                              value={status.name}
+                              onSelect={() => {
+                                setFilters((prev) => ({
+                                  ...prev,
+                                  status_id: String(status.id),
+                                }));
+                              }}
+                              className="cursor-pointer"
+                            >
+                              <Check
+                                className={cn(
+                                  "mr-2 h-4 w-4",
+                                  String(filters.status_id) === String(status.id) ? "opacity-100" : "opacity-0"
+                                )}
+                              />
+                              {status.name}
+                            </CommandItem>
+                          ))}
+                        </CommandGroup>
+                      </CommandList>
+                    </Command>
+                  </PopoverContent>
+                </Popover>
               </div>
 
               {/* Assignee */}
@@ -558,32 +666,58 @@ const TaskTable = ({ setTasksLength }) => {
                 <Label htmlFor="assignee" className="text-base font-medium">
                   Assignee
                 </Label>
-                <Select
-                  value={filters.assigned_to}
-                  onValueChange={(value) =>
-                    setFilters((prev) => ({ ...prev, assigned_to: value }))
-                  }
-                >
-                  <SelectTrigger className="h-12 bg-muted w-full">
-                    <SelectValue placeholder="All assignees" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {assigneesList.length > 0 ? (
-                      assigneesList.map((assignee) => (
-                        <SelectItem
-                          key={assignee.id}
-                          value={assignee.id?.toString() || ""}
-                        >
-                          {assignee.name}
-                        </SelectItem>
-                      ))
-                    ) : (
-                      <SelectItem value="no-data" disabled>
-                        No assignees available
-                      </SelectItem>
-                    )}
-                  </SelectContent>
-                </Select>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      role="combobox"
+                      className="h-12 bg-muted w-full justify-between font-normal"
+                    >
+                      {filters.assigned_to ? (
+                        assigneesList.find(a => String(a.id) === String(filters.assigned_to))?.name
+                      ) : (
+                        <span className="text-muted-foreground">All assignees</span>
+                      )}
+                      <ChevronRight className="ml-2 h-4 w-4 shrink-0 rotate-90 text-muted-foreground" />
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0" align="start">
+                    <Command>
+                      <CommandInput placeholder="Search assignee..." />
+                      <CommandList>
+                        <CommandEmpty>No assignees found.</CommandEmpty>
+                        <CommandGroup>
+                          {assigneesList.map((assignee) => (
+                            <CommandItem
+                              key={assignee.id}
+                              value={assignee.name}
+                              onSelect={() => {
+                                setFilters((prev) => ({
+                                  ...prev,
+                                  assigned_to: String(assignee.id),
+                                }));
+                              }}
+                              className="cursor-pointer"
+                            >
+                              <Check
+                                className={cn(
+                                  "mr-2 h-4 w-4",
+                                  String(filters.assigned_to) === String(assignee.id) ? "opacity-100" : "opacity-0"
+                                )}
+                              />
+                              <div className="flex items-center gap-2">
+                                <div className="h-6 w-6 rounded-full overflow-hidden border">
+                                  <img src={assignee.profile} alt="" className="h-full w-full object-cover" />
+                                </div>
+                                <span>{assignee.name}</span>
+                              </div>
+                            </CommandItem>
+                          ))}
+                        </CommandGroup>
+                      </CommandList>
+                    </Command>
+                  </PopoverContent>
+                </Popover>
               </div>
 
               {/* From Date */}

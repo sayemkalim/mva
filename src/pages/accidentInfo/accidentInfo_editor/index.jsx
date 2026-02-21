@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Loader2, ChevronRight, ChevronsUpDown, Check } from "lucide-react";
+import { Loader2, ChevronRight, ChevronsUpDown, Check, MapPin } from "lucide-react";
 import { toast } from "sonner";
 import { getAccidentInfoMeta } from "../helpers/fetchAccidentInfoMetadata";
 import { fetchAccidentInfoBySlug } from "../helpers/fetchAccidentInfoBySlug";
@@ -256,6 +256,14 @@ export default function AccidentalInformation() {
     setPopoverOpen((prev) => ({ ...prev, [popoverKey]: false }));
   };
 
+  const fullAddress = [
+    formData.accident_location,
+    formData.city,
+    formData.province,
+  ]
+    .filter((v) => v && v.toString().trim() !== "")
+    .join(", ");
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -377,151 +385,200 @@ export default function AccidentalInformation() {
                 Accident Details
               </h2>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                {/* Date of Accident */}
-                <div className="space-y-2">
-                  <Label
-                    htmlFor="date_of_accident"
-                    className="text-foreground font-medium"
-                  >
-                    Date of Accident
-                  </Label>
-                  <Input
-                    id="date_of_accident"
-                    name="date_of_accident"
-                    type="date"
-                    value={formData.date_of_accident}
-                    onChange={handleChange}
-                    className="bg-muted border-input"
-                  />
+              <div className="grid grid-cols-1 lg:grid-cols-10 gap-8">
+                {/* Inputs area */}
+                <div className="lg:col-span-7 space-y-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {/* Date of Accident */}
+                    <div className="space-y-2">
+                      <Label
+                        htmlFor="date_of_accident"
+                        className="text-foreground font-medium"
+                      >
+                        Date of Accident
+                      </Label>
+                      <Input
+                        id="date_of_accident"
+                        name="date_of_accident"
+                        type="date"
+                        value={formData.date_of_accident}
+                        onChange={handleChange}
+                        className="bg-muted border-input"
+                      />
+                    </div>
+
+                    {/* Day of Accident - Searchable */}
+                    <div className="space-y-2">
+                      <Label
+                        htmlFor="day_of_accident_id"
+                        className="text-foreground font-medium"
+                      >
+                        Day of Accident
+                      </Label>
+                      <SearchableDropdown
+                        value={formData.day_of_accident_id}
+                        options={metadata?.accident_day}
+                        onSelect={handleDropdownSelect}
+                        placeholder="Select day"
+                        popoverKey="day_of_accident_id"
+                        fieldName="day_of_accident_id"
+                        popoverOpen={popoverOpen}
+                        setPopoverOpen={setPopoverOpen}
+                      />
+                    </div>
+
+                    {/* Time of Accident */}
+                    <div className="space-y-2">
+                      <Label
+                        htmlFor="time_of_accident"
+                        className="text-foreground font-medium"
+                      >
+                        Time of Accident
+                      </Label>
+                      <Input
+                        id="time_of_accident"
+                        name="time_of_accident"
+                        type="time"
+                        value={formData.time_of_accident}
+                        onChange={handleChange}
+                        className="bg-muted border-input"
+                      />
+                    </div>
+
+                    {/* Applicant Were A - Searchable */}
+                    <div className="space-y-2">
+                      <Label
+                        htmlFor="applicant_werea_id"
+                        className="text-foreground font-medium"
+                      >
+                        Applicant Were A
+                      </Label>
+                      <SearchableDropdown
+                        value={formData.applicant_werea_id}
+                        options={metadata?.accident_detail_applicant_were_a}
+                        onSelect={handleDropdownSelect}
+                        placeholder="Select type"
+                        popoverKey="applicant_werea_id"
+                        fieldName="applicant_werea_id"
+                        popoverOpen={popoverOpen}
+                        setPopoverOpen={setPopoverOpen}
+                      />
+                    </div>
+
+                    {/* Accident Location */}
+                    <div className="space-y-2">
+                      <Label
+                        htmlFor="accident_location"
+                        className="text-foreground font-medium"
+                      >
+                        Accident Location
+                      </Label>
+                      <Input
+                        id="accident_location"
+                        name="accident_location"
+                        value={formData.accident_location}
+                        onChange={handleChange}
+                        placeholder="Enter accident location"
+                        className="bg-muted border-input"
+                      />
+                    </div>
+
+                    {/* City */}
+                    <div className="space-y-2">
+                      <Label htmlFor="city" className="text-foreground font-medium">
+                        City
+                      </Label>
+                      <Input
+                        id="city"
+                        name="city"
+                        value={formData.city}
+                        onChange={handleChange}
+                        placeholder="Toronto"
+                        className="bg-muted border-input"
+                      />
+                    </div>
+
+                    {/* Province */}
+                    <div className="space-y-2">
+                      <Label
+                        htmlFor="province"
+                        className="text-foreground font-medium"
+                      >
+                        Province
+                      </Label>
+                      <Input
+                        id="province"
+                        name="province"
+                        value={formData.province}
+                        onChange={handleChange}
+                        placeholder="Ontario"
+                        className="bg-muted border-input"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Description - Full Width */}
+                  <div className="space-y-2">
+                    <Label
+                      htmlFor="description_of_the_accident"
+                      className="text-foreground font-medium"
+                    >
+                      Description of the Accident
+                    </Label>
+                    <Textarea
+                      id="description_of_the_accident"
+                      name="description_of_the_accident"
+                      value={formData.description_of_the_accident}
+                      onChange={handleChange}
+                      placeholder="Describe what happened..."
+                      rows={4}
+                      className="bg-muted border-input"
+                    />
+                  </div>
                 </div>
 
-                {/* Day of Accident - Searchable */}
-                <div className="space-y-2">
-                  <Label
-                    htmlFor="day_of_accident_id"
-                    className="text-foreground font-medium"
-                  >
-                    Day of Accident
-                  </Label>
-                  <SearchableDropdown
-                    value={formData.day_of_accident_id}
-                    options={metadata?.accident_day}
-                    onSelect={handleDropdownSelect}
-                    placeholder="Select day"
-                    popoverKey="day_of_accident_id"
-                    fieldName="day_of_accident_id"
-                    popoverOpen={popoverOpen}
-                    setPopoverOpen={setPopoverOpen}
-                  />
-                </div>
+                {/* Map Preview Area */}
+                <div className="lg:col-span-3">
+                  <div className="flex flex-col h-full min-h-[350px] border rounded-xl overflow-hidden shadow-sm bg-muted relative">
+                    <div className="bg-card px-4 py-2 border-b flex justify-between items-center">
+                      <div className="flex items-center gap-2 text-sm font-medium">
+                        <MapPin className="h-4 w-4 text-primary" />
+                        Location Preview
+                      </div>
+                      {fullAddress && (
+                        <Button
+                          variant="link"
+                          className="h-auto p-0 text-xs text-primary"
+                          onClick={() => window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(fullAddress)}`, '_blank')}
+                        >
+                          View External
+                        </Button>
+                      )}
+                    </div>
 
-                {/* Time of Accident */}
-                <div className="space-y-2">
-                  <Label
-                    htmlFor="time_of_accident"
-                    className="text-foreground font-medium"
-                  >
-                    Time of Accident
-                  </Label>
-                  <Input
-                    id="time_of_accident"
-                    name="time_of_accident"
-                    type="time"
-                    value={formData.time_of_accident}
-                    onChange={handleChange}
-                    className="bg-muted border-input"
-                  />
-                </div>
-
-                {/* Applicant Were A - Searchable */}
-                <div className="space-y-2">
-                  <Label
-                    htmlFor="applicant_werea_id"
-                    className="text-foreground font-medium"
-                  >
-                    Applicant Were A
-                  </Label>
-                  <SearchableDropdown
-                    value={formData.applicant_werea_id}
-                    options={metadata?.accident_detail_applicant_were_a}
-                    onSelect={handleDropdownSelect}
-                    placeholder="Select type"
-                    popoverKey="applicant_werea_id"
-                    fieldName="applicant_werea_id"
-                    popoverOpen={popoverOpen}
-                    setPopoverOpen={setPopoverOpen}
-                  />
-                </div>
-
-                {/* Accident Location */}
-                <div className="space-y-2">
-                  <Label
-                    htmlFor="accident_location"
-                    className="text-foreground font-medium"
-                  >
-                    Accident Location
-                  </Label>
-                  <Input
-                    id="accident_location"
-                    name="accident_location"
-                    value={formData.accident_location}
-                    onChange={handleChange}
-                    placeholder="Enter accident location"
-                    className="bg-muted border-input"
-                  />
-                </div>
-
-                {/* City */}
-                <div className="space-y-2">
-                  <Label htmlFor="city" className="text-foreground font-medium">
-                    City
-                  </Label>
-                  <Input
-                    id="city"
-                    name="city"
-                    value={formData.city}
-                    onChange={handleChange}
-                    placeholder="Toronto"
-                    className="bg-muted border-input"
-                  />
-                </div>
-
-                {/* Province */}
-                <div className="space-y-2">
-                  <Label
-                    htmlFor="province"
-                    className="text-foreground font-medium"
-                  >
-                    Province
-                  </Label>
-                  <Input
-                    id="province"
-                    name="province"
-                    value={formData.province}
-                    onChange={handleChange}
-                    placeholder="Ontario"
-                    className="bg-muted border-input"
-                  />
-                </div>
-
-                {/* Description - Full Width */}
-                <div className="space-y-2 md:col-span-3">
-                  <Label
-                    htmlFor="description_of_the_accident"
-                    className="text-foreground font-medium"
-                  >
-                    Description of the Accident
-                  </Label>
-                  <Textarea
-                    id="description_of_the_accident"
-                    name="description_of_the_accident"
-                    value={formData.description_of_the_accident}
-                    onChange={handleChange}
-                    placeholder="Describe what happened..."
-                    rows={4}
-                    className="bg-muted border-input"
-                  />
+                    <div className="flex-1 relative">
+                      {fullAddress ? (
+                        <iframe
+                          title="Accident Location Map"
+                          width="100%"
+                          height="100%"
+                          style={{ border: 0 }}
+                          src={`https://maps.google.com/maps?q=${encodeURIComponent(fullAddress)}&t=&z=15&ie=UTF8&iwloc=&output=embed`}
+                          allowFullScreen
+                        ></iframe>
+                      ) : (
+                        <div className="absolute inset-0 flex flex-col items-center justify-center p-6 text-center select-none">
+                          <div className="rounded-full bg-primary/10 p-4 mb-4">
+                            <MapPin className="h-8 w-8 text-primary/40" />
+                          </div>
+                          <p className="text-sm font-medium text-foreground">No Location Specified</p>
+                          <p className="text-xs text-muted-foreground mt-1 max-w-[180px]">
+                            Enter an address, city, or location to see it on the map.
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>

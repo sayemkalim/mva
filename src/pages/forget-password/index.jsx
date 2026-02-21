@@ -12,9 +12,10 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Loader2, Mail, CheckCircle, XCircle, Lock, Key } from "lucide-react";
+import { Loader2, Mail, CheckCircle, XCircle, Lock, Key, Eye, EyeOff } from "lucide-react";
 import { apiService } from "@/api/api_service/apiService";
 import { toast } from "sonner";
+import { cn } from "@/lib/utils";
 
 const ForgotPassword = () => {
   const navigate = useNavigate();
@@ -25,7 +26,9 @@ const ForgotPassword = () => {
     password: "",
     password_confirmation: "",
   });
-  const [passwordError, setPasswordError] = useState("");
+  const [errors, setErrors] = useState({});
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   // Forgot Password Mutation
   const forgotPasswordMutation = useMutation({
@@ -103,35 +106,55 @@ const ForgotPassword = () => {
 
   const handleEmailSubmit = (e) => {
     e.preventDefault();
-    if (!email) return;
+    if (!email) {
+      setErrors({ email: "Email is required" });
+      return;
+    }
+    setErrors({});
     forgotPasswordMutation.mutate(email);
+  };
+
+  const handleEmailChange = (val) => {
+    setEmail(val);
+    if (errors.email) {
+      setErrors((prev) => {
+        const next = { ...prev };
+        delete next.email;
+        return next;
+      });
+    }
   };
 
   const handleResetSubmit = (e) => {
     e.preventDefault();
+    const newErrors = {};
+
+    if (!resetData.otp_code) newErrors.otp_code = "OTP Code is required";
+    if (!resetData.password) newErrors.password = "New Password is required";
+    if (!resetData.password_confirmation)
+      newErrors.password_confirmation = "Password confirmation is required";
+
+    if (resetData.password) {
+      const passwordValidationError = validatePassword(resetData.password);
+      if (passwordValidationError) {
+        newErrors.password = passwordValidationError;
+      }
+    }
 
     if (
-      !resetData.otp_code ||
-      !resetData.password ||
-      !resetData.password_confirmation
+      resetData.password &&
+      resetData.password_confirmation &&
+      resetData.password !== resetData.password_confirmation
     ) {
+      newErrors.password_confirmation = "Passwords do not match";
+    }
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
       return;
     }
 
-    // Password validation
-    const passwordValidationError = validatePassword(resetData.password);
-    if (passwordValidationError) {
-      setPasswordError(passwordValidationError);
-      return;
-    }
-
-    // Check if passwords match
-    if (resetData.password !== resetData.password_confirmation) {
-      setPasswordError("Passwords do not match");
-      return;
-    }
-
-    setPasswordError("");
+    setErrors({});
     resetPasswordMutation.mutate(resetData);
   };
 
@@ -140,8 +163,12 @@ const ForgotPassword = () => {
       ...prev,
       [field]: value,
     }));
-    if (field === "password" || field === "password_confirmation") {
-      setPasswordError("");
+    if (errors[field]) {
+      setErrors((prev) => {
+        const next = { ...prev };
+        delete next[field];
+        return next;
+      });
     }
   };
 
@@ -163,23 +190,33 @@ const ForgotPassword = () => {
           {/* Email Form - Shows by default */}
           {!showResetForm && (
             <form onSubmit={handleEmailSubmit} className="space-y-4">
-              <div className="space-y-2">
+              <div className="space-y-1">
                 <Label htmlFor="email" className="text-sm font-medium">
                   Email Address
                 </Label>
                 <div className="relative">
-                  <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+                  <Mail className={cn(
+                    "absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 transition-colors",
+                    errors.email ? "text-red-500" : "text-gray-400"
+                  )} />
                   <Input
                     id="email"
                     type="email"
                     placeholder="Enter your email"
                     value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    className="pl-10"
-                    required
+                    onChange={(e) => handleEmailChange(e.target.value)}
+                    className={cn(
+                      "pl-10 h-11",
+                      errors.email && "border-red-500 focus-visible:ring-red-500"
+                    )}
                     disabled={forgotPasswordMutation.isPending}
                   />
                 </div>
+                {errors.email && (
+                  <p className="text-xs font-medium text-red-500 ml-1">
+                    {errors.email}
+                  </p>
+                )}
               </div>
 
               {forgotPasswordMutation.isError && (
@@ -228,12 +265,15 @@ const ForgotPassword = () => {
                 </AlertDescription>
               </Alert>
 
-              <div className="space-y-2">
+              <div className="space-y-1">
                 <Label htmlFor="otp" className="text-sm font-medium">
                   OTP Code
                 </Label>
                 <div className="relative">
-                  <Key className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+                  <Key className={cn(
+                    "absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 transition-colors",
+                    errors.otp_code ? "text-red-500" : "text-gray-400"
+                  )} />
                   <Input
                     id="otp"
                     type="text"
@@ -242,39 +282,93 @@ const ForgotPassword = () => {
                     onChange={(e) =>
                       handleResetDataChange("otp_code", e.target.value)
                     }
-                    className="pl-10"
-                    required
+                    className={cn(
+                      "pl-10 h-11",
+                      errors.otp_code && "border-red-500 focus-visible:ring-red-500"
+                    )}
                     disabled={resetPasswordMutation.isPending}
                     maxLength={6}
                   />
                 </div>
+                {errors.otp_code && (
+                  <p className="text-xs font-medium text-red-500 ml-1">
+                    {errors.otp_code}
+                  </p>
+                )}
               </div>
 
-              <div className="space-y-2">
+              <div className="space-y-1">
                 <Label htmlFor="password" className="text-sm font-medium">
                   New Password
                 </Label>
                 <div className="relative">
-                  <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+                  <Lock className={cn(
+                    "absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 transition-colors",
+                    errors.password ? "text-red-500" : (resetData.password && validatePassword(resetData.password) === "" ? "text-green-500" : "text-gray-400")
+                  )} />
                   <Input
                     id="password"
-                    type="password"
+                    type={showPassword ? "text" : "password"}
                     placeholder="Enter new password"
                     value={resetData.password}
                     onChange={(e) =>
                       handleResetDataChange("password", e.target.value)
                     }
-                    className="pl-10"
-                    required
+                    className={cn(
+                      "pl-10 pr-10 h-11 transition-colors",
+                      errors.password ? "border-red-500 focus-visible:ring-red-500" : (resetData.password && validatePassword(resetData.password) === "" && "border-green-500 focus-visible:ring-green-500")
+                    )}
                     disabled={resetPasswordMutation.isPending}
                   />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 focus:outline-none"
+                  >
+                    {showPassword ? (
+                      <EyeOff className="h-4 w-4" />
+                    ) : (
+                      <Eye className="h-4 w-4" />
+                    )}
+                  </button>
                 </div>
-                <p className="text-xs text-gray-500">
-                  Must include 1 uppercase, 1 lowercase, 1 number, and 1 symbol
-                </p>
+                <div className="flex flex-wrap items-center gap-x-2 gap-y-1 mt-1.5 ml-1">
+                  <span className="text-[10px] font-bold text-gray-500 mr-1">
+                    Must include:
+                  </span>
+                  <span className={cn(
+                    "text-[10px] font-medium transition-colors flex items-center gap-1",
+                    /[A-Z]/.test(resetData.password) ? "text-green-500" : "text-gray-400"
+                  )}>
+                    <span className="text-[8px]">●</span> Uppercase
+                  </span>
+                  <span className={cn(
+                    "text-[10px] font-medium transition-colors flex items-center gap-1",
+                    /[a-z]/.test(resetData.password) ? "text-green-500" : "text-gray-400"
+                  )}>
+                    <span className="text-[8px]">●</span> Lowercase
+                  </span>
+                  <span className={cn(
+                    "text-[10px] font-medium transition-colors flex items-center gap-1",
+                    /[0-9]/.test(resetData.password) ? "text-green-500" : "text-gray-400"
+                  )}>
+                    <span className="text-[8px]">●</span> Number
+                  </span>
+                  <span className={cn(
+                    "text-[10px] font-medium transition-colors flex items-center gap-1",
+                    /[!@#$%^&*(),.?":{}|<>]/.test(resetData.password) ? "text-green-500" : "text-gray-400"
+                  )}>
+                    <span className="text-[8px]">●</span> Symbol
+                  </span>
+                </div>
+                {errors.password && (
+                  <p className="text-xs font-medium text-red-500 ml-1 mt-1">
+                    {errors.password}
+                  </p>
+                )}
               </div>
 
-              <div className="space-y-2">
+              <div className="space-y-1">
                 <Label
                   htmlFor="password_confirmation"
                   className="text-sm font-medium"
@@ -282,10 +376,13 @@ const ForgotPassword = () => {
                   Confirm Password
                 </Label>
                 <div className="relative">
-                  <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+                  <Lock className={cn(
+                    "absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 transition-colors",
+                    errors.password_confirmation ? "text-red-500" : (resetData.password_confirmation && resetData.password === resetData.password_confirmation ? "text-green-500" : "text-gray-400")
+                  )} />
                   <Input
                     id="password_confirmation"
-                    type="password"
+                    type={showConfirmPassword ? "text" : "password"}
                     placeholder="Confirm new password"
                     value={resetData.password_confirmation}
                     onChange={(e) =>
@@ -294,21 +391,30 @@ const ForgotPassword = () => {
                         e.target.value
                       )
                     }
-                    className="pl-10"
-                    required
+                    className={cn(
+                      "pl-10 pr-10 h-11 transition-colors",
+                      errors.password_confirmation ? "border-red-500 focus-visible:ring-red-500" : (resetData.password_confirmation && resetData.password === resetData.password_confirmation && "border-green-500 focus-visible:ring-green-500")
+                    )}
                     disabled={resetPasswordMutation.isPending}
                   />
+                  <button
+                    type="button"
+                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 focus:outline-none"
+                  >
+                    {showConfirmPassword ? (
+                      <EyeOff className="h-4 w-4" />
+                    ) : (
+                      <Eye className="h-4 w-4" />
+                    )}
+                  </button>
                 </div>
+                {errors.password_confirmation && (
+                  <p className="text-xs font-medium text-red-500 ml-1">
+                    {errors.password_confirmation}
+                  </p>
+                )}
               </div>
-
-              {passwordError && (
-                <Alert className="border-red-200 bg-red-50">
-                  <XCircle className="h-4 w-4 text-red-600" />
-                  <AlertDescription className="text-red-800">
-                    {passwordError}
-                  </AlertDescription>
-                </Alert>
-              )}
 
               {resetPasswordMutation.isSuccess && (() => {
                 const apiStatus = resetPasswordMutation.data?.Apistatus || resetPasswordMutation.data?.ApiApistatus || resetPasswordMutation.data?.response?.Apistatus || resetPasswordMutation.data?.response?.ApiApistatus;

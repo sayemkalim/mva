@@ -30,7 +30,15 @@ import {
   X,
   FileIcon,
   Check,
+  Eye,
+  Download,
 } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { Calendar } from "@/components/ui/calendar";
@@ -126,7 +134,10 @@ const ContactSearch = ({ value, onChange, label, initialContactName }) => {
           </Button>
         </PopoverTrigger>
 
-        <PopoverContent className="w-[400px] p-0" align="start">
+        <PopoverContent
+          className="w-[var(--radix-popover-trigger-width)] p-0"
+          align="start"
+        >
           <Command shouldFilter={false}>
             <CommandInput
               placeholder="Type to search contacts..."
@@ -202,18 +213,23 @@ const ContactSearch = ({ value, onChange, label, initialContactName }) => {
   );
 };
 
-const SearchableSelect = ({ label, options, value, onChange, placeholder }) => {
+const SearchableSelect = ({ label, options, value, onChange, placeholder, required, error }) => {
   const selected = options.find((opt) => String(opt.id) === String(value));
 
   return (
     <div className="space-y-2">
-      <Label className="text-foreground font-medium">{label}</Label>
+      <Label className="text-foreground font-medium">
+        {label} {required && <span className="text-red-500">*</span>}
+      </Label>
       <Popover>
         <PopoverTrigger asChild>
           <Button
             role="combobox"
             variant="outline"
-            className="w-full justify-between h-11"
+            className={cn(
+              "w-full justify-between h-11",
+              error && "border-red-500 focus-visible:ring-red-500"
+            )}
             type="button"
           >
             {selected ? selected.name : placeholder}
@@ -221,54 +237,68 @@ const SearchableSelect = ({ label, options, value, onChange, placeholder }) => {
           </Button>
         </PopoverTrigger>
 
-        <PopoverContent className="w-[300px] p-0">
+        <PopoverContent
+          className="w-[var(--radix-popover-trigger-width)] p-0"
+          align="start"
+        >
           <Command>
             <CommandInput placeholder={`Search ${label.toLowerCase()}...`} />
-            <CommandEmpty>No options found.</CommandEmpty>
-            <CommandGroup>
-              {options && options.length > 0 ? (
-                options.map((opt) => (
-                  <CommandItem
-                    key={opt.id}
-                    onSelect={() => onChange(opt.id)}
-                    value={opt.name}
-                  >
-                    {opt.name}
-                  </CommandItem>
-                ))
-              ) : (
-                <div className="p-2 text-sm text-gray-500">
-                  No data available
-                </div>
-              )}
-            </CommandGroup>
+            <CommandList>
+              <CommandEmpty>No options found.</CommandEmpty>
+              <CommandGroup>
+                {options && options.length > 0 ? (
+                  options.map((opt) => (
+                    <CommandItem
+                      key={opt.id}
+                      onSelect={() => onChange(opt.id)}
+                      value={opt.name}
+                    >
+                      {opt.name}
+                    </CommandItem>
+                  ))
+                ) : (
+                  <div className="p-2 text-sm text-gray-500">
+                    No data available
+                  </div>
+                )}
+              </CommandGroup>
+            </CommandList>
           </Command>
         </PopoverContent>
       </Popover>
+      {error && <p className="text-xs font-medium text-red-500">{error}</p>}
     </div>
   );
 };
 
-const MultiSelect = ({ label, options, value, onChange, placeholder }) => {
+const MultiSelect = ({ label, options, value, onChange, placeholder, required, error }) => {
   const [open, setOpen] = useState(false);
-  const selectedItems = options.filter((opt) => value.includes(opt.id));
+  const selectedItems = options.filter((opt) =>
+    value?.some(val => String(val) === String(opt.id))
+  );
 
   const handleSelect = (selectedId) => {
-    const newValue = value.includes(selectedId)
-      ? value.filter((id) => id !== selectedId)
+    const isSelected = value?.some(val => String(val) === String(selectedId));
+    const newValue = isSelected
+      ? value.filter((id) => String(id) !== String(selectedId))
       : [...value, selectedId];
     onChange(newValue);
   };
 
   return (
     <div className="space-y-2">
-      <Label className="text-foreground font-medium">{label}</Label>
+      <Label className="text-foreground font-medium">
+        {label} {required && <span className="text-red-500">*</span>}
+      </Label>
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
           <Button
             role="combobox"
             variant="outline"
-            className="w-full justify-between h-auto min-h-11"
+            className={cn(
+              "w-full justify-between h-auto min-h-11",
+              error && "border-red-500 focus-visible:ring-red-500"
+            )}
             type="button"
           >
             <div className="flex flex-wrap gap-1">
@@ -289,39 +319,45 @@ const MultiSelect = ({ label, options, value, onChange, placeholder }) => {
           </Button>
         </PopoverTrigger>
 
-        <PopoverContent className="w-[300px] p-0">
+        <PopoverContent
+          className="w-[var(--radix-popover-trigger-width)] p-0"
+          align="start"
+        >
           <Command>
             <CommandInput placeholder={`Search ${label.toLowerCase()}...`} />
-            <CommandEmpty>No options found.</CommandEmpty>
-            <CommandGroup>
-              {options && options.length > 0 ? (
-                options.map((opt) => (
-                  <CommandItem
-                    key={opt.id}
-                    onSelect={() => handleSelect(opt.id)}
-                    value={opt.name}
-                  >
-                    <Checkbox
-                      checked={value.includes(opt.id)}
-                      className="mr-2"
-                    />
-                    {opt.name}
-                  </CommandItem>
-                ))
-              ) : (
-                <div className="p-2 text-sm text-gray-500">
-                  No data available
-                </div>
-              )}
-            </CommandGroup>
+            <CommandList>
+              <CommandEmpty>No options found.</CommandEmpty>
+              <CommandGroup>
+                {options && options.length > 0 ? (
+                  options.map((opt) => (
+                    <CommandItem
+                      key={opt.id}
+                      onSelect={() => handleSelect(opt.id)}
+                      value={opt.name}
+                    >
+                      <Checkbox
+                        checked={value?.some(val => String(val) === String(opt.id))}
+                        className="mr-2"
+                      />
+                      {opt.name}
+                    </CommandItem>
+                  ))
+                ) : (
+                  <div className="p-2 text-sm text-gray-500">
+                    No data available
+                  </div>
+                )}
+              </CommandGroup>
+            </CommandList>
           </Command>
         </PopoverContent>
       </Popover>
+      {error && <p className="text-xs font-medium text-red-500">{error}</p>}
     </div>
   );
 };
 
-const DatePicker = ({ label, value, onChange }) => {
+const DatePicker = ({ label, value, onChange, required, error }) => {
   const [date, setDate] = useState(value ? new Date(value) : undefined);
 
   useEffect(() => {
@@ -335,14 +371,17 @@ const DatePicker = ({ label, value, onChange }) => {
 
   return (
     <div className="space-y-2">
-      <Label className="text-foreground font-medium">{label}</Label>
+      <Label className="text-foreground font-medium">
+        {label} {required && <span className="text-red-500">*</span>}
+      </Label>
       <Popover>
         <PopoverTrigger asChild>
           <Button
             variant="outline"
             className={cn(
               "w-full justify-start text-left font-normal h-11",
-              !date && "text-muted-foreground"
+              !date && "text-muted-foreground",
+              error && "border-red-500 focus-visible:ring-red-500"
             )}
             type="button"
           >
@@ -359,11 +398,12 @@ const DatePicker = ({ label, value, onChange }) => {
           />
         </PopoverContent>
       </Popover>
+      {error && <p className="text-xs font-medium text-red-500">{error}</p>}
     </div>
   );
 };
 
-const DateTimePicker = ({ label, value, onChange }) => {
+const DateTimePicker = ({ label, value, onChange, required, error }) => {
   const [dateTime, setDateTime] = useState(value || "");
 
   useEffect(() => {
@@ -378,18 +418,22 @@ const DateTimePicker = ({ label, value, onChange }) => {
 
   return (
     <div className="space-y-2">
-      <Label className="text-foreground font-medium">{label}</Label>
+      <Label className="text-foreground font-medium">
+        {label} {required && <span className="text-red-500">*</span>}
+      </Label>
       <Input
         type="datetime-local"
         value={dateTime}
         onChange={handleChange}
-        className="h-11"
+        className={cn("h-11", error && "border-red-500 focus-visible:ring-red-500")}
       />
+      {error && <p className="text-xs font-medium text-red-500">{error}</p>}
     </div>
   );
 };
 
 const FileUploadBox = ({ files, onFilesChange, onUpload, onDelete }) => {
+  const [previewFile, setPreviewFile] = useState(null);
   const [isDragging, setIsDragging] = useState(false);
   const [previewUrls, setPreviewUrls] = useState({});
   const fileInputRef = useRef(null);
@@ -576,10 +620,26 @@ const FileUploadBox = ({ files, onFilesChange, onUpload, onDelete }) => {
                     )}
 
                     {file.uploaded && (
-                      <div className="absolute top-2 left-2 bg-green-500 text-white rounded-full p-1">
+                      <div className="absolute top-2 left-2 bg-green-500 text-white rounded-full p-1 shadow-sm">
                         <Check className="h-3 w-3" />
                       </div>
                     )}
+
+                    {/* Hover Overlay with Preview Icon */}
+                    {file.uploaded && !file.deleting && (
+                      <div
+                        className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center cursor-pointer"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setPreviewFile(file);
+                        }}
+                      >
+                        <div className="bg-white/20 backdrop-blur-md rounded-full p-3 border border-white/30 transform scale-90 group-hover:scale-100 transition-transform">
+                          <Eye className="h-6 w-6 text-white" />
+                        </div>
+                      </div>
+                    )}
+
                     {file.deleting && (
                       <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
                         <Loader2 className="h-6 w-6 animate-spin text-white" />
@@ -605,6 +665,33 @@ const FileUploadBox = ({ files, onFilesChange, onUpload, onDelete }) => {
                     {file.deleting && (
                       <p className="text-xs text-red-600">🗑️ Deleting...</p>
                     )}
+
+                    <div className="flex gap-2 mt-2 border-t pt-2">
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setPreviewFile(file);
+                        }}
+                        className="text-xs flex items-center gap-1 text-blue-600 hover:text-blue-800"
+                        title="Preview"
+                      >
+                        <Eye className="h-3 w-3" /> Preview
+                      </button>
+                      {(file.path || file.id) && (
+                        <a
+                          href={file.path || `${window.location.origin}/api/v2/attachment/${file.id}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          download={file.name}
+                          onClick={(e) => e.stopPropagation()}
+                          className="text-xs flex items-center gap-1 text-green-600 hover:text-green-800"
+                          title="Download"
+                        >
+                          <Download className="h-3 w-3" /> Download
+                        </a>
+                      )}
+                    </div>
                   </div>
                 </div>
               ))}
@@ -642,6 +729,60 @@ const FileUploadBox = ({ files, onFilesChange, onUpload, onDelete }) => {
           </div>
         )}
       </div>
+
+      <Dialog open={!!previewFile} onOpenChange={() => setPreviewFile(null)}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>File Preview: {previewFile?.name}</DialogTitle>
+          </DialogHeader>
+          <div className="flex justify-center p-4">
+            {previewFile && (
+              <>
+                {isImageFile(previewFile.type) ? (
+                  <img
+                    src={
+                      previewFile.fileObject
+                        ? URL.createObjectURL(previewFile.fileObject)
+                        : previewFile.path || `${window.location.origin}/api/v2/attachment/${previewFile.id}`
+                    }
+                    alt={previewFile.name}
+                    className="max-w-full max-h-[70vh] object-contain rounded-lg shadow-sm"
+                  />
+                ) : previewFile.type === "application/pdf" ? (
+                  <iframe
+                    src={
+                      previewFile.fileObject
+                        ? URL.createObjectURL(previewFile.fileObject)
+                        : previewFile.path || `${window.location.origin}/api/v2/attachment/${previewFile.id}`
+                    }
+                    className="w-full h-[70vh] rounded-lg border shadow-sm"
+                    title={previewFile.name}
+                  />
+                ) : (
+                  <div className="text-center py-20 flex flex-col items-center">
+                    <FileIcon className="h-20 w-20 text-gray-400" />
+                    <p className="mt-4 text-muted-foreground">
+                      Preview not available for this file type.
+                    </p>
+                    <p className="text-sm font-medium">{previewFile.name}</p>
+                    {(previewFile.path || previewFile.id) && (
+                      <a
+                        href={previewFile.path || `${window.location.origin}/api/v2/attachment/${previewFile.id}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        download={previewFile.name}
+                        className="mt-4 inline-flex items-center gap-2 bg-primary text-primary-foreground px-4 py-2 rounded-md hover:bg-primary/90 transition-colors shadow-sm"
+                      >
+                        <Download className="h-4 w-4" /> Download Instead
+                      </a>
+                    )}
+                  </div>
+                )}
+              </>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
@@ -731,6 +872,7 @@ export default function TaskPage() {
       console.log("✅ Upload Success Response:", response);
 
       const attachmentId = response?.response?.attachment?.id;
+      const path = response?.response?.attachment?.path;
       const fileName =
         response?.response?.attachment?.original_name || "Uploaded File";
       const fileExtension = response?.response?.attachment?.extension;
@@ -745,6 +887,7 @@ export default function TaskPage() {
               ? {
                 ...file,
                 id: attachmentId,
+                path: path,
                 name: fullFileName,
                 uploaded: true,
                 uploading: false,
@@ -849,6 +992,7 @@ export default function TaskPage() {
 
   const [uploadedFiles, setUploadedFiles] = useState([]);
   const [contactName, setContactName] = useState("");
+  const [errors, setErrors] = useState({});
 
   useEffect(() => {
     if (slug && !isEditMode) {
@@ -888,15 +1032,16 @@ export default function TaskPage() {
         due_date: taskData.due_date || "",
         priority_id: taskData.priority_id || "",
         utbms_code_id: taskData.utbms_code_id || "",
-        billable: taskData.billable || false,
-        notify_text: taskData.notify_text || false,
-        add_calendar_event: taskData.add_calendar_event || false,
-        trigger_appointment_reminders:
-          taskData.trigger_appointment_reminders || false,
+        billable: !!taskData.billable,
+        notify_text: !!taskData.notify_text,
+        add_calendar_event: !!taskData.add_calendar_event,
+        trigger_appointment_reminders: !!taskData.trigger_appointment_reminders,
         status_id: taskData.status_id || "",
-        assigned_to: Array.isArray(taskData.assigned_to)
-          ? taskData.assigned_to.map((user) => user.id)
-          : [],
+        assigned_to: Array.isArray(taskData.assignees)
+          ? taskData.assignees.map((user) => user.id)
+          : Array.isArray(taskData.assigned_to)
+            ? taskData.assigned_to.map((user) => user.id)
+            : [],
         reminders: Array.isArray(taskData.reminders)
           ? taskData.reminders.map((reminder) => ({
             id: reminder.id,
@@ -921,6 +1066,7 @@ export default function TaskPage() {
           name: att.original_name || "File",
           size: att.size || 0,
           type: att.mime_type || "",
+          path: att.path || null,
           uploaded: true,
           uploading: false,
         }));
@@ -934,6 +1080,13 @@ export default function TaskPage() {
       ...prev,
       [field]: value,
     }));
+    if (errors[field]) {
+      setErrors((prev) => {
+        const newErrors = { ...prev };
+        delete newErrors[field];
+        return newErrors;
+      });
+    }
   };
 
   const handleAddReminder = () => {
@@ -975,6 +1128,16 @@ export default function TaskPage() {
       ...prev,
       reminders: newReminders,
     }));
+
+    // Clear reminder error
+    const reminderErrorKey = `reminder_${index}_${field}`;
+    if (errors[reminderErrorKey]) {
+      setErrors((prev) => {
+        const newErrors = { ...prev };
+        delete newErrors[reminderErrorKey];
+        return newErrors;
+      });
+    }
   };
 
   const handleFilesChange = (newFiles) => {
@@ -992,10 +1155,40 @@ export default function TaskPage() {
     deleteAttachmentMutation.mutate(attachmentId);
   };
 
+  const validateForm = () => {
+    const newErrors = {};
+
+    if (!formData.type_id) newErrors.type_id = "Task Type is required";
+    if (!formData.subject?.trim()) newErrors.subject = "Subject is required";
+    if (!formData.due_date) newErrors.due_date = "Due Date is required";
+    if (!formData.status_id) newErrors.status_id = "Status is required";
+    if (!formData.priority_id) newErrors.priority_id = "Priority is required";
+    if (!formData.assigned_to || formData.assigned_to.length === 0) {
+      newErrors.assigned_to = "At least one assignee is required";
+    }
+
+    // Validate Reminders
+    if (formData.reminders && formData.reminders.length > 0) {
+      formData.reminders.forEach((reminder, index) => {
+        if (!reminder.type_id) {
+          newErrors[`reminder_${index}_type_id`] = "Reminder type is required";
+        }
+        if (!reminder.scheduled_at) {
+          newErrors[`reminder_${index}_scheduled_at`] =
+            "Scheduled date is required";
+        }
+      });
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!formData.type_id) {
-      toast.error("Please Select Task Type");
+
+    if (!validateForm()) {
+      toast.error("Please fix the errors in the form before submitting.");
       return;
     }
 
@@ -1118,23 +1311,30 @@ export default function TaskPage() {
                 value={formData.type_id}
                 onChange={(val) => handleFieldChange("type_id", val)}
                 placeholder="Select type"
+                required
+                error={errors.type_id}
               />
 
               <div className="space-y-2">
-                <Label className="text-foreground font-medium">Subject</Label>
+                <Label className="text-foreground font-medium">
+                  Subject <span className="text-red-500">*</span>
+                </Label>
                 <Input
                   type="text"
                   value={formData.subject}
                   onChange={(e) => handleFieldChange("subject", e.target.value)}
                   placeholder="Enter subject"
-                  className="h-11"
+                  className={cn("h-11", errors.subject && "border-red-500 focus-visible:ring-red-500")}
                 />
+                {errors.subject && <p className="text-xs font-medium text-red-500">{errors.subject}</p>}
               </div>
 
               <DatePicker
                 label="Due Date"
                 value={formData.due_date}
                 onChange={(val) => handleFieldChange("due_date", val)}
+                required
+                error={errors.due_date}
               />
             </div>
 
@@ -1160,6 +1360,8 @@ export default function TaskPage() {
                 value={formData.priority_id}
                 onChange={(val) => handleFieldChange("priority_id", val)}
                 placeholder="Select priority"
+                required
+                error={errors.priority_id}
               />
 
               <SearchableSelect
@@ -1176,6 +1378,8 @@ export default function TaskPage() {
                 value={formData.status_id}
                 onChange={(val) => handleFieldChange("status_id", val)}
                 placeholder="Select status"
+                required
+                error={errors.status_id}
               />
             </div>
 
@@ -1186,6 +1390,8 @@ export default function TaskPage() {
                 value={formData.assigned_to}
                 onChange={(val) => handleFieldChange("assigned_to", val)}
                 placeholder="Select users"
+                required
+                error={errors.assigned_to}
               />
             </div>
 
@@ -1321,6 +1527,8 @@ export default function TaskPage() {
                         handleReminderChange(index, "type_id", val)
                       }
                       placeholder="Select reminder type"
+                      required
+                      error={errors[`reminder_${index}_type_id`]}
                     />
 
                     <DateTimePicker
@@ -1329,6 +1537,8 @@ export default function TaskPage() {
                       onChange={(val) =>
                         handleReminderChange(index, "scheduled_at", val)
                       }
+                      required
+                      error={errors[`reminder_${index}_scheduled_at`]}
                     />
                   </div>
                 </div>

@@ -288,6 +288,7 @@ export default function ApplicantInformation() {
     },
     children: [{ first_name: "", middle_number: "", last_name: "", dob: "" }],
     meeting_clients: [{ date: "" }],
+    child_check: false,
   });
   const [popoverOpen, setPopoverOpen] = useState({});
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
@@ -320,6 +321,10 @@ export default function ApplicantInformation() {
         },
       }));
     }
+  };
+
+  const handleChildCheckChange = (checked) => {
+    setFormData((prev) => ({ ...prev, child_check: checked }));
   };
 
 
@@ -443,6 +448,7 @@ export default function ApplicantInformation() {
               date: m.date ? m.date.split("T")[0] : "",
             }))
             : [{ date: "" }],
+        child_check: applicantData.child_check === "true" || applicantData.child_check === true || applicantData.child_check === 1 || applicantData.child_check === "1" ? true : false,
       });
     }
   }, [applicantData]);
@@ -627,6 +633,7 @@ export default function ApplicantInformation() {
       meeting_clients: formData.meeting_clients
         .map((m) => (m.date ? { date: m.date } : null))
         .filter(Boolean),
+      child_check: formData.child_check,
     };
 
     console.log("📤 Final Payload:", JSON.stringify(payload, null, 2));
@@ -1936,27 +1943,39 @@ export default function ApplicantInformation() {
             {/* Children */}
             <div className="space-y-6 pt-6 border-t">
               <div className="flex items-center justify-between">
-                <h2 className="text-xl font-semibold text-foreground">
-                  Children
-                </h2>
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={() =>
-                    addArrayItem("children", {
-                      first_name: "",
-                      middle_number: "",
-                      last_name: "",
-                      dob: "",
-                    })
-                  }
-                >
-                  Add Child
-                </Button>
+                <div className="flex items-center gap-4">
+                  <h2 className="text-xl font-semibold text-foreground">
+                    Children
+                  </h2>
+                  <div className="flex items-center space-x-2">
+                    <Checkbox
+                      id="child_check"
+                      checked={formData.child_check}
+                      onCheckedChange={handleChildCheckChange}
+                    />
+
+                  </div>
+                </div>
+                {formData.child_check && (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() =>
+                      addArrayItem("children", {
+                        first_name: "",
+                        middle_number: "",
+                        last_name: "",
+                        dob: "",
+                      })
+                    }
+                  >
+                    Add Child
+                  </Button>
+                )}
               </div>
 
-              {formData.children.map((child, index) => (
+              {formData.child_check && formData.children.map((child, index) => (
                 <div
                   key={index}
                   className="space-y-6 p-6 border rounded-lg bg-muted"

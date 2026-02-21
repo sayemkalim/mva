@@ -242,14 +242,14 @@ export const data = {
       items: [],
       permission: "emails",
     },
-    {
-      title: "Reports",
-      url: "/dashboard/report",
-      icon: FileChartColumn,
-      isActive: false,
-      items: [],
-      permission: "reports",
-    },
+    // {
+    //   title: "Reports",
+    //   url: "/dashboard/report",
+    //   icon: FileChartColumn,
+    //   isActive: false,
+    //   items: [],
+    //   permission: "reports",
+    // },
     {
       title: "Generate Reports",
       url: ``,

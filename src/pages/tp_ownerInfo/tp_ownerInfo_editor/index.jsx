@@ -133,6 +133,7 @@ const emptyOwner = {
   drivers_licence_expiry_date: "",
   profile_search_id: "",
   profile_search_date: "",
+  dl_search_date: "",
 };
 
 const emptyDirector = {
@@ -701,6 +702,18 @@ export default function OwnerInfoForm() {
                               "drivers_licence_expiry_date",
                               e.target.value
                             )
+                          }
+                          className="h-9 bg-card border-input"
+                        />
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label>DL Search Date</Label>
+                        <Input
+                          type="date"
+                          value={owner.dl_search_date || ""}
+                          onChange={(e) =>
+                            updateOwner(index, "dl_search_date", e.target.value)
                           }
                           className="h-9 bg-card border-input"
                         />
