@@ -28,6 +28,7 @@ import { toast } from "sonner";
 import { format } from "date-fns";
 import { Calendar } from "@/components/ui/calendar";
 import { cn } from "@/lib/utils";
+import { FloatingInput, FloatingTextarea, FloatingWrapper } from "@/components/ui/floating-label";
 
 import { Navbar2 } from "@/components/navbar2";
 import Billing from "@/components/billing";
@@ -42,17 +43,16 @@ const SearchableSelect = ({ label, options, value, onChange, placeholder }) => {
   const selected = options.find((opt) => String(opt.id) === String(value));
 
   return (
-    <div className="space-y-2">
-      <Label className="text-foreground font-medium">{label}</Label>
+    <FloatingWrapper label={label} hasValue={!!selected} isFocused={open}>
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
           <Button
             role="combobox"
             variant="outline"
-            className="w-full justify-between h-11"
+            className="w-full justify-between font-normal h-[52px] bg-transparent border border-input"
           >
-            {selected ? selected.name : placeholder}
-            <ChevronRight className="ml-2 h-4 w-4 rotate-90" />
+            {selected ? selected.name : ""}
+            <ChevronRight className="ml-auto h-4 w-4 shrink-0 rotate-90" />
           </Button>
         </PopoverTrigger>
 
@@ -83,7 +83,7 @@ const SearchableSelect = ({ label, options, value, onChange, placeholder }) => {
           </Command>
         </PopoverContent>
       </Popover>
-    </div>
+    </FloatingWrapper>
   );
 };
 
@@ -113,8 +113,8 @@ const DatePicker = ({ label, value, onChange }) => {
               !date && "text-muted-foreground"
             )}
           >
-            <CalendarIcon className="mr-2 h-4 w-4" />
-            {date ? format(date, "PPP") : <span>Pick a date</span>}
+            {date ? format(date, "PPP") : ""}
+            <CalendarIcon className="ml-auto h-4 w-4 shrink-0 opacity-50" />
           </Button>
         </PopoverTrigger>
         <PopoverContent className="w-auto p-0" align="start">
@@ -441,25 +441,19 @@ export default function OhipPage() {
 
               {/* Row 4 */}
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <div className="space-y-2">
-                  <Label className="text-foreground font-medium">
-                    Invoice Amount
-                  </Label>
-                  <Input
-                    type="number"
-                    step="0.01"
-                    value={record.invoice_amount}
-                    onChange={(e) =>
-                      handleRecordChange(
-                        index,
-                        "invoice_amount",
-                        e.target.value
-                      )
-                    }
-                    placeholder="0.00"
-                    className="h-11"
-                  />
-                </div>
+                <FloatingInput
+                  label="Invoice Amount"
+                  type="number"
+                  step="0.01"
+                  value={record.invoice_amount}
+                  onChange={(e) =>
+                    handleRecordChange(
+                      index,
+                      "invoice_amount",
+                      e.target.value
+                    )
+                  }
+                />
 
                 <SearchableSelect
                   label="Invoice Status"
@@ -473,17 +467,14 @@ export default function OhipPage() {
               </div>
 
               {/* Note */}
-              <div className="space-y-2">
-                <Label className="text-foreground font-medium">Note</Label>
-                <Textarea
-                  value={record.note}
-                  onChange={(e) =>
-                    handleRecordChange(index, "note", e.target.value)
-                  }
-                  placeholder="Add notes..."
-                  rows={3}
-                />
-              </div>
+              <FloatingTextarea
+                label="Note"
+                value={record.note}
+                onChange={(e) =>
+                  handleRecordChange(index, "note", e.target.value)
+                }
+                rows={3}
+              />
             </div>
           ))}
 

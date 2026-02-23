@@ -3,8 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { FloatingInput, FloatingWrapper } from "@/components/ui/floating-label";
 import {
   Popover,
   PopoverTrigger,
@@ -28,6 +27,7 @@ import { formatPhoneNumber } from "@/lib/utils";
 import Billing from "@/components/billing";
 
 const SearchableDropdown = ({
+  label,
   value,
   options,
   onSelect,
@@ -40,23 +40,24 @@ const SearchableDropdown = ({
   const selectedOption = options?.find((opt) => opt.id === value);
 
   return (
-    <Popover
-      open={popoverOpen[popoverKey]}
-      onOpenChange={(open) =>
-        setPopoverOpen(open ? { [popoverKey]: true } : {})
-      }
-    >
-      <PopoverTrigger asChild>
-        <Button
-          variant="outline"
-          role="combobox"
-          className="w-full justify-between font-normal bg-muted"
-          type="button"
-        >
-          {selectedOption ? selectedOption.name : placeholder}
-          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-        </Button>
-      </PopoverTrigger>
+    <FloatingWrapper label={label} hasValue={!!selectedOption} isFocused={!!popoverOpen[popoverKey]}>
+      <Popover
+        open={popoverOpen[popoverKey]}
+        onOpenChange={(open) =>
+          setPopoverOpen(open ? { [popoverKey]: true } : {})
+        }
+      >
+        <PopoverTrigger asChild>
+          <Button
+            variant="outline"
+            role="combobox"
+            className="w-full justify-between font-normal h-[52px] bg-transparent border border-input"
+            type="button"
+          >
+            {selectedOption ? selectedOption.name : ""}
+            <ChevronsUpDown className="ml-auto h-4 w-4 shrink-0 opacity-50" />
+          </Button>
+        </PopoverTrigger>
       <PopoverContent
         className="w-[var(--radix-popover-trigger-width)] p-0"
         align="start"
@@ -95,6 +96,7 @@ const SearchableDropdown = ({
         </Command>
       </PopoverContent>
     </Popover>
+    </FloatingWrapper>
   );
 };
 
@@ -409,88 +411,44 @@ export default function RepresentativeReferral() {
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 {/* All inputs + searchable dropdown for relationship */}
                 {/* Last Name */}
-                <div className="space-y-2">
-                  <Label
-                    htmlFor="last_name"
-                    className="text-foreground font-medium"
-                  >
-                    Last Name
-                  </Label>
-                  <Input
+                                  <FloatingInput
+                    label="Last Name"
                     id="last_name"
                     name="last_name"
                     value={formData.last_name}
                     onChange={handleChange}
-                    placeholder="Harvard"
-                    className="bg-muted border-input"
                   />
-                </div>
 
                 {/* First Name */}
-                <div className="space-y-2">
-                  <Label
-                    htmlFor="first_name"
-                    className="text-foreground font-medium"
-                  >
-                    First Name
-                  </Label>
-                  <Input
+                                  <FloatingInput
+                    label="First Name"
                     id="first_name"
                     name="first_name"
                     value={formData.first_name}
                     onChange={handleChange}
-                    placeholder="Harvard"
-                    className="bg-muted border-input"
                   />
-                </div>
 
                 {/* Middle Name */}
-                <div className="space-y-2">
-                  <Label
-                    htmlFor="middle_name"
-                    className="text-foreground font-medium"
-                  >
-                    Middle Name
-                  </Label>
-                  <Input
+                                  <FloatingInput
+                    label="Middle Name"
                     id="middle_name"
                     name="middle_name"
                     value={formData.middle_name}
                     onChange={handleChange}
-                    placeholder="middle name"
-                    className="bg-muted border-input"
                   />
-                </div>
 
                 {/* Initial */}
-                <div className="space-y-2">
-                  <Label
-                    htmlFor="initial"
-                    className="text-foreground font-medium"
-                  >
-                    Initial
-                  </Label>
-                  <Input
+                                  <FloatingInput
+                    label="Initial"
                     id="initial"
                     name="initial"
                     value={formData.initial}
                     onChange={handleChange}
-                    placeholder="M"
-
-                    className="bg-muted border-input"
                   />
-                </div>
 
                 {/* Relationship to Applicant */}
-                <div className="space-y-2">
-                  <Label
-                    htmlFor="relationship_applicant_id"
-                    className="text-foreground font-medium"
-                  >
-                    Relationship to Applicant
-                  </Label>
-
-                  <SearchableDropdown
+                                  <SearchableDropdown
+                    label="Relationship to Applicant"
                     value={formData.relationship_applicant_id}
                     options={metadata.relationshipt_applicant || []}
                     onSelect={handleSelectChange}
@@ -500,69 +458,43 @@ export default function RepresentativeReferral() {
                     popoverOpen={popoverOpen}
                     setPopoverOpen={setPopoverOpen}
                   />
-                </div>
 
                 {/* Telephone */}
-                <div className="space-y-2">
-                  <Label
-                    htmlFor="telephone"
-                    className="text-foreground font-medium"
-                  >
-                    Telephone
-                  </Label>
-                  <Input
+                                  <FloatingInput
+                    label="Telephone"
                     id="telephone"
                     name="telephone"
                     value={formData.telephone}
                     onChange={(e) => setFormData(prev => ({ ...prev, telephone: formatPhoneNumber(e.target.value) }))}
-                    placeholder="(888) 888-8888"
-                    className="bg-muted border-input"
                   />
-                </div>
 
                 {/* Extension */}
-                <div className="space-y-2">
-                  <Label htmlFor="ext" className="text-foreground font-medium">
-                    Extension
-                  </Label>
-                  <Input
+                                  <FloatingInput
+                    label="Extension"
                     id="ext"
                     name="ext"
                     value={formData.ext}
                     onChange={handleChange}
-                    placeholder="1"
-                    className="bg-muted border-input"
                   />
-                </div>
 
                 {/* Fax */}
-                <div className="space-y-2">
-                  <Label htmlFor="fax" className="text-foreground font-medium">
-                    Fax
-                  </Label>
-                  <Input
+                                  <FloatingInput
+                    label="Fax"
                     id="fax"
                     name="fax"
                     value={formData.fax}
                     onChange={(e) => setFormData(prev => ({ ...prev, fax: formatPhoneNumber(e.target.value) }))}
-                    placeholder="(888) 888-8888"
-                    className="bg-muted border-input"
                   />
-                </div>
 
                 {/* Email */}
-                <div className="space-y-2 lg:col-span-2">
-                  <Label htmlFor="email" className="text-foreground font-medium">
-                    Email
-                  </Label>
-                  <Input
+                <div className="lg:col-span-2">
+                  <FloatingInput
+                    label="Email"
                     id="email"
                     name="email"
                     type="email"
                     value={formData.email}
                     onChange={handleChange}
-                    placeholder="admin@gmail.com"
-                    className="bg-muted border-input"
                   />
                 </div>
               </div>
@@ -575,11 +507,8 @@ export default function RepresentativeReferral() {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                   {/* Unit Number */}
-                  <div className="space-y-2">
-                    <Label className="text-sm text-muted-foreground font-medium">
-                      Unit Number
-                    </Label>
-                    <Input
+                                      <FloatingInput
+                      label="Unit Number"
                       value={formData.representative_address.unit_number}
                       onChange={(e) =>
                         handleAddressChange(
@@ -588,17 +517,11 @@ export default function RepresentativeReferral() {
                           e.target.value
                         )
                       }
-                      placeholder="5B"
-                      className="bg-muted border-input h-9 text-sm"
                     />
-                  </div>
 
                   {/* Street Number */}
-                  <div className="space-y-2">
-                    <Label className="text-sm text-muted-foreground font-medium">
-                      Street Number
-                    </Label>
-                    <Input
+                                      <FloatingInput
+                      label="Street Number"
                       value={formData.representative_address.street_number}
                       onChange={(e) =>
                         handleAddressChange(
@@ -607,17 +530,11 @@ export default function RepresentativeReferral() {
                           e.target.value
                         )
                       }
-                      placeholder="221"
-                      className="bg-muted border-input h-9 text-sm"
                     />
-                  </div>
 
                   {/* Street Name */}
-                  <div className="space-y-2">
-                    <Label className="text-sm text-muted-foreground font-medium">
-                      Street Name
-                    </Label>
-                    <Input
+                                      <FloatingInput
+                      label="Street Name"
                       value={formData.representative_address.street_name}
                       onChange={(e) =>
                         handleAddressChange(
@@ -626,15 +543,11 @@ export default function RepresentativeReferral() {
                           e.target.value
                         )
                       }
-                      placeholder="King Street West"
-                      className="bg-muted border-input h-9 text-sm"
                     />
-                  </div>
 
                   {/* City */}
-                  <div className="space-y-2">
-                    <Label className="text-sm text-muted-foreground font-medium">City</Label>
-                    <Input
+                                      <FloatingInput
+                      label="City"
                       value={formData.representative_address.city}
                       onChange={(e) =>
                         handleAddressChange(
@@ -643,15 +556,11 @@ export default function RepresentativeReferral() {
                           e.target.value
                         )
                       }
-                      placeholder="Toronto"
-                      className="bg-muted border-input h-9 text-sm"
                     />
-                  </div>
 
                   {/* Province */}
-                  <div className="space-y-2">
-                    <Label className="text-sm text-muted-foreground font-medium">Province</Label>
-                    <Input
+                                      <FloatingInput
+                      label="Province"
                       value={formData.representative_address.province}
                       onChange={(e) =>
                         handleAddressChange(
@@ -660,17 +569,11 @@ export default function RepresentativeReferral() {
                           e.target.value
                         )
                       }
-                      placeholder="Ontario"
-                      className="bg-muted border-input h-9 text-sm"
                     />
-                  </div>
 
                   {/* Postal Code */}
-                  <div className="space-y-2">
-                    <Label className="text-sm text-muted-foreground font-medium">
-                      Postal Code
-                    </Label>
-                    <Input
+                                      <FloatingInput
+                      label="Postal Code"
                       value={formData.representative_address.postal_code}
                       onChange={(e) =>
                         handleAddressChange(
@@ -679,15 +582,11 @@ export default function RepresentativeReferral() {
                           e.target.value
                         )
                       }
-                      placeholder="M5H 1K5"
-                      className="bg-muted border-input h-9 text-sm"
                     />
-                  </div>
 
                   {/* Country */}
-                  <div className="space-y-2">
-                    <Label className="text-sm text-muted-foreground font-medium">Country</Label>
-                    <Input
+                                      <FloatingInput
+                      label="Country"
                       value={formData.representative_address.country}
                       onChange={(e) =>
                         handleAddressChange(
@@ -696,10 +595,7 @@ export default function RepresentativeReferral() {
                           e.target.value
                         )
                       }
-                      placeholder="Canada"
-                      className="bg-muted border-input h-9 text-sm"
                     />
-                  </div>
                 </div>
               </div>
             </div>
@@ -712,15 +608,8 @@ export default function RepresentativeReferral() {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {/* Referral Type */}
-                <div className="space-y-2">
-                  <Label
-                    htmlFor="referral_type_id"
-                    className="text-foreground font-medium"
-                  >
-                    Referral Type
-                  </Label>
-
-                  <SearchableDropdown
+                                  <SearchableDropdown
+                    label="Referral Type"
                     value={formData.referral_type_id}
                     options={metadata.type || []}
                     onSelect={handleSelectChange}
@@ -730,98 +619,52 @@ export default function RepresentativeReferral() {
                     popoverOpen={popoverOpen}
                     setPopoverOpen={setPopoverOpen}
                   />
-                </div>
 
                 {/* Referral Name */}
-                <div className="space-y-2">
-                  <Label
-                    htmlFor="referral_name"
-                    className="text-foreground font-medium"
-                  >
-                    Referral Name
-                  </Label>
-                  <Input
+                                  <FloatingInput
+                    label="Referral Name"
                     id="referral_name"
                     name="referral_name"
                     value={formData.referral_name}
                     onChange={handleChange}
-                    placeholder="name"
-                    className="bg-muted border-input"
                   />
-                </div>
 
                 {/* Referral Telephone */}
-                <div className="space-y-2">
-                  <Label
-                    htmlFor="referral_telephone"
-                    className="text-foreground font-medium"
-                  >
-                    Telephone
-                  </Label>
-                  <Input
+                                  <FloatingInput
+                    label="Telephone"
                     id="referral_telephone"
                     name="referral_telephone"
                     value={formData.referral_telephone}
                     onChange={(e) => setFormData(prev => ({ ...prev, referral_telephone: formatPhoneNumber(e.target.value) }))}
-                    placeholder="(888) 888-8888"
-                    className="bg-muted border-input"
                   />
-                </div>
 
                 {/* Referral Extension */}
-                <div className="space-y-2">
-                  <Label
-                    htmlFor="referral_ext"
-                    className="text-foreground font-medium"
-                  >
-                    Extension
-                  </Label>
-                  <Input
+                                  <FloatingInput
+                    label="Extension"
                     id="referral_ext"
                     name="referral_ext"
                     value={formData.referral_ext}
                     onChange={handleChange}
-                    placeholder="1"
-                    className="bg-muted border-input"
                   />
-                </div>
 
                 {/* Referral Fax */}
-                <div className="space-y-2">
-                  <Label
-                    htmlFor="referral_fax"
-                    className="text-foreground font-medium"
-                  >
-                    Fax
-                  </Label>
-                  <Input
+                                  <FloatingInput
+                    label="Fax"
                     id="referral_fax"
                     name="referral_fax"
                     value={formData.referral_fax}
                     onChange={(e) => setFormData(prev => ({ ...prev, referral_fax: formatPhoneNumber(e.target.value) }))}
-                    placeholder="(888) 888-8888"
-                    className="bg-muted border-input"
                   />
-                </div>
 
                 {/* Referral Email */}
-                <div className="space-y-2">
-                  <Label
-                    htmlFor="referral_email"
-                    className="text-foreground font-medium"
-                  >
-                    Email
-                  </Label>
-                  <Input
+                                  <FloatingInput
+                    label="Email"
                     id="referral_email"
                     name="referral_email"
                     type="email"
                     value={formData.referral_email}
                     onChange={handleChange}
-                    placeholder="admin@gmail.com"
-                    className="bg-muted border-input"
                   />
-                </div>
               </div>
 
               {/* Nested Referral Address */}
@@ -832,11 +675,8 @@ export default function RepresentativeReferral() {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                   {/* Unit Number */}
-                  <div className="space-y-2">
-                    <Label className="text-sm text-muted-foreground font-medium">
-                      Unit Number
-                    </Label>
-                    <Input
+                                      <FloatingInput
+                      label="Unit Number"
                       value={formData.referral_address.unit_number}
                       onChange={(e) =>
                         handleAddressChange(
@@ -845,17 +685,11 @@ export default function RepresentativeReferral() {
                           e.target.value
                         )
                       }
-                      placeholder="5B"
-                      className="bg-muted border-input h-9 text-sm"
                     />
-                  </div>
 
                   {/* Street Number */}
-                  <div className="space-y-2">
-                    <Label className="text-sm text-muted-foreground font-medium">
-                      Street Number
-                    </Label>
-                    <Input
+                                      <FloatingInput
+                      label="Street Number"
                       value={formData.referral_address.street_number}
                       onChange={(e) =>
                         handleAddressChange(
@@ -864,17 +698,11 @@ export default function RepresentativeReferral() {
                           e.target.value
                         )
                       }
-                      placeholder="221"
-                      className="bg-muted border-input h-9 text-sm"
                     />
-                  </div>
 
                   {/* Street Name */}
-                  <div className="space-y-2">
-                    <Label className="text-sm text-muted-foreground font-medium">
-                      Street Name
-                    </Label>
-                    <Input
+                                      <FloatingInput
+                      label="Street Name"
                       value={formData.referral_address.street_name}
                       onChange={(e) =>
                         handleAddressChange(
@@ -883,15 +711,11 @@ export default function RepresentativeReferral() {
                           e.target.value
                         )
                       }
-                      placeholder="King Street West"
-                      className="bg-muted border-input h-9 text-sm"
                     />
-                  </div>
 
                   {/* City */}
-                  <div className="space-y-2">
-                    <Label className="text-sm text-muted-foreground font-medium">City</Label>
-                    <Input
+                                      <FloatingInput
+                      label="City"
                       value={formData.referral_address.city}
                       onChange={(e) =>
                         handleAddressChange(
@@ -900,15 +724,11 @@ export default function RepresentativeReferral() {
                           e.target.value
                         )
                       }
-                      placeholder="Toronto"
-                      className="bg-muted border-input h-9 text-sm"
                     />
-                  </div>
 
                   {/* Province */}
-                  <div className="space-y-2">
-                    <Label className="text-sm text-muted-foreground font-medium">Province</Label>
-                    <Input
+                                      <FloatingInput
+                      label="Province"
                       value={formData.referral_address.province}
                       onChange={(e) =>
                         handleAddressChange(
@@ -917,17 +737,11 @@ export default function RepresentativeReferral() {
                           e.target.value
                         )
                       }
-                      placeholder="Ontario"
-                      className="bg-muted border-input h-9 text-sm"
                     />
-                  </div>
 
                   {/* Postal Code */}
-                  <div className="space-y-2">
-                    <Label className="text-sm text-muted-foreground font-medium">
-                      Postal Code
-                    </Label>
-                    <Input
+                                      <FloatingInput
+                      label="Postal Code"
                       value={formData.referral_address.postal_code}
                       onChange={(e) =>
                         handleAddressChange(
@@ -936,15 +750,11 @@ export default function RepresentativeReferral() {
                           e.target.value
                         )
                       }
-                      placeholder="M5H 1K5"
-                      className="bg-muted border-input h-9 text-sm"
                     />
-                  </div>
 
                   {/* Country */}
-                  <div className="space-y-2">
-                    <Label className="text-sm text-muted-foreground font-medium">Country</Label>
-                    <Input
+                                      <FloatingInput
+                      label="Country"
                       value={formData.referral_address.country}
                       onChange={(e) =>
                         handleAddressChange(
@@ -953,10 +763,7 @@ export default function RepresentativeReferral() {
                           e.target.value
                         )
                       }
-                      placeholder="Canada"
-                      className="bg-muted border-input h-9 text-sm"
                     />
-                  </div>
                 </div>
               </div>
             </div>

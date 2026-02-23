@@ -6,6 +6,7 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { FloatingInput } from "@/components/ui/floating-label";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
   Select,
@@ -283,16 +284,14 @@ export function SignupForm() {
         {/* Name Fields */}
         <div className="grid grid-cols-2 gap-4">
           <div className="grid gap-3">
-            <Label htmlFor="first_name">First Name <span className="text-red-500">*</span></Label>
             <div className="relative">
-              <Input
+              <FloatingInput
                 id="first_name"
+                label="First Name"
                 type="text"
-                placeholder="John"
                 value={formData.first_name}
                 onChange={handleChange}
-                className={`pr-10 ${getFieldError("first_name") ? "border-red-500" : ""
-                  }`}
+                className={`pr-10 ${getFieldError("first_name") ? "border-red-500" : ""}`}
                 required
               />
               <User className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -305,11 +304,10 @@ export function SignupForm() {
           </div>
 
           <div className="grid gap-3">
-            <Label htmlFor="last_name">Last Name <span className="text-red-500">*</span></Label>
-            <Input
+            <FloatingInput
               id="last_name"
+              label="Last Name"
               type="text"
-              placeholder="Doe"
               value={formData.last_name}
               onChange={handleChange}
               className={getFieldError("last_name") ? "border-red-500" : ""}
@@ -325,16 +323,14 @@ export function SignupForm() {
 
         {/* Email */}
         <div className="grid gap-3">
-          <Label htmlFor="email">Email <span className="text-red-500">*</span></Label>
           <div className="relative">
-            <Input
+            <FloatingInput
               id="email"
+              label="Email"
               type="email"
-              placeholder="m@example.com"
               value={formData.email}
               onChange={handleChange}
-              className={`pr-10 ${getFieldError("email") ? "border-red-500" : ""
-                }`}
+              className={`pr-10 ${getFieldError("email") ? "border-red-500" : ""}`}
               required
             />
             <Mail className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -397,16 +393,14 @@ export function SignupForm() {
 
         {/* Firm Name */}
         <div className="grid gap-3">
-          <Label htmlFor="firm_name">Firm Name <span className="text-red-500">*</span></Label>
           <div className="relative">
-            <Input
+            <FloatingInput
               id="firm_name"
+              label="Firm Name"
               type="text"
-              placeholder="Your Firm Name"
               value={formData.firm_name}
               onChange={handleChange}
-              className={`pr-10 ${getFieldError("firm_name") ? "border-red-500" : ""
-                }`}
+              className={`pr-10 ${getFieldError("firm_name") ? "border-red-500" : ""}`}
               required
             />
             <Building2 className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -419,17 +413,15 @@ export function SignupForm() {
         {/* Number of Users & Practice Area */}
         <div className="grid grid-cols-2 gap-4">
           <div className="grid gap-3">
-            <Label htmlFor="number_of_users">Number of Users <span className="text-red-500">*</span></Label>
             <div className="relative">
-              <Input
+              <FloatingInput
                 id="number_of_users"
+                label="Number of Users"
                 type="number"
-                placeholder="10"
                 min="1"
                 value={formData.number_of_users}
                 onChange={handleChange}
-                className={`pr-10 ${getFieldError("number_of_users") ? "border-red-500" : ""
-                  }`}
+                className={`pr-10 ${getFieldError("number_of_users") ? "border-red-500" : ""}`}
                 required
               />
               <Users className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -500,16 +492,14 @@ export function SignupForm() {
 
         {/* Password Fields */}
         <div className="grid gap-3">
-          <Label htmlFor="password">Password <span className="text-red-500">*</span></Label>
           <div className="relative">
-            <Input
+            <FloatingInput
               id="password"
+              label="Password"
               type={showPassword ? "text" : "password"}
-              placeholder="Minimum 6 characters"
               value={formData.password}
               onChange={handleChange}
-              className={`pr-10 ${getFieldError("password") ? "border-red-500" : ""
-                }`}
+              className={`pr-10 ${getFieldError("password") ? "border-red-500" : ""}`}
               required
             />
             <button
@@ -530,16 +520,14 @@ export function SignupForm() {
         </div>
 
         <div className="grid gap-3">
-          <Label htmlFor="password_confirmation">Confirm Password <span className="text-red-500">*</span></Label>
           <div className="relative">
-            <Input
+            <FloatingInput
               id="password_confirmation"
+              label="Confirm Password"
               type={showConfirmPassword ? "text" : "password"}
-              placeholder="Re-enter password"
               value={formData.password_confirmation}
               onChange={handleChange}
-              className={`pr-10 ${getFieldError("password_confirmation") ? "border-red-500" : ""
-                }`}
+              className={`pr-10 ${getFieldError("password_confirmation") ? "border-red-500" : ""}`}
               required
             />
             <button
@@ -563,11 +551,10 @@ export function SignupForm() {
 
         {/* Heard About Us */}
         <div className="grid gap-3">
-          <Label htmlFor="heard_about_us">How did you hear about us?</Label>
-          <Input
+          <FloatingInput
             id="heard_about_us"
+            label="How did you hear about us?"
             type="text"
-            placeholder="e.g., Google, Friend, etc."
             value={formData.heard_about_us}
             onChange={handleChange}
             className={getFieldError("heard_about_us") ? "border-red-500" : ""}

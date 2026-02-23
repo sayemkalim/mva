@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
+import { FloatingWrapper } from "@/components/ui/floating-label";
 import {
   Popover,
   PopoverContent,
@@ -19,8 +19,6 @@ import { Loader2, ChevronRight, CalendarIcon } from "lucide-react";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { Calendar } from "@/components/ui/calendar";
-import { cn } from "@/lib/utils";
-
 import { Navbar2 } from "@/components/navbar2";
 import Billing from "@/components/billing";
 import { fetchOcf2BySlug } from "../helpers/fetchOcf2BySlug";
@@ -28,19 +26,19 @@ import { createOcf2 } from "../helpers/createOcf2";
 import { getABMeta } from "../helpers/fetchABMeta";
 
 const SearchableSelect = ({ label, options, value, onChange, placeholder }) => {
+  const [open, setOpen] = useState(false);
   const selected = options.find((opt) => String(opt.id) === String(value));
   return (
-    <div className="space-y-2">
-      <Label className="text-foreground font-medium">{label}</Label>
-      <Popover>
+    <FloatingWrapper label={label} hasValue={!!selected} isFocused={open}>
+      <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
           <Button
             role="combobox"
             variant="outline"
-            className="w-full justify-between h-11"
+            className="w-full justify-between font-normal h-[52px] bg-transparent border border-input"
           >
-            {selected ? selected.name : placeholder}
-            <ChevronRight className="ml-2 h-4 w-4 rotate-90" />
+            {selected ? selected.name : ""}
+            <ChevronRight className="ml-auto h-4 w-4 shrink-0 rotate-90" />
           </Button>
         </PopoverTrigger>
 
@@ -52,7 +50,10 @@ const SearchableSelect = ({ label, options, value, onChange, placeholder }) => {
               {options.map((opt) => (
                 <CommandItem
                   key={opt.id}
-                  onSelect={() => onChange(opt.id)}
+                  onSelect={() => {
+                    onChange(opt.id);
+                    setOpen(false);
+                  }}
                   value={opt.name}
                 >
                   {opt.name}
@@ -62,11 +63,12 @@ const SearchableSelect = ({ label, options, value, onChange, placeholder }) => {
           </Command>
         </PopoverContent>
       </Popover>
-    </div>
+    </FloatingWrapper>
   );
 };
 
 const DatePicker = ({ label, value, onChange }) => {
+  const [open, setOpen] = useState(false);
   const [date, setDate] = useState(value ? new Date(value) : undefined);
 
   useEffect(() => {
@@ -76,22 +78,19 @@ const DatePicker = ({ label, value, onChange }) => {
   const handleSelect = (selectedDate) => {
     setDate(selectedDate);
     onChange(selectedDate ? format(selectedDate, "yyyy-MM-dd") : "");
+    setOpen(false);
   };
 
   return (
-    <div className="space-y-2">
-      <Label className="text-foreground font-medium">{label}</Label>
-      <Popover>
+    <FloatingWrapper label={label} hasValue={!!date} isFocused={open}>
+      <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
           <Button
             variant="outline"
-            className={cn(
-              "w-full justify-start text-left font-normal h-11",
-              !date && "text-muted-foreground"
-            )}
+            className="w-full justify-start text-left font-normal h-[52px] bg-transparent border border-input"
           >
-            <CalendarIcon className="mr-2 h-4 w-4" />
-            {date ? format(date, "PPP") : <span>Pick a date</span>}
+            {date ? format(date, "PPP") : ""}
+            <CalendarIcon className="ml-auto h-4 w-4 shrink-0 opacity-50" />
           </Button>
         </PopoverTrigger>
         <PopoverContent className="w-auto p-0" align="start">
@@ -103,7 +102,7 @@ const DatePicker = ({ label, value, onChange }) => {
           />
         </PopoverContent>
       </Popover>
-    </div>
+    </FloatingWrapper>
   );
 };
 

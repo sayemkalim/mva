@@ -2,8 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { FloatingInput, FloatingTextarea, FloatingWrapper } from "@/components/ui/floating-label";
 import {
   Popover,
   PopoverTrigger,
@@ -21,7 +20,6 @@ import { Loader2, ChevronsUpDown, Check, ChevronRight } from "lucide-react";
 import { toast } from "sonner";
 import { fetchLatById } from "../../helpers/fetchLatById";
 import { getABMeta } from "../../helpers/fetchABMeta";
-import { Textarea } from "@/components/ui/textarea";
 import { Navbar2 } from "@/components/navbar2";
 import { CreateLat, updateLat } from "../../helpers/createSection";
 
@@ -42,8 +40,7 @@ const SearchableDropdown = ({
   );
 
   return (
-    <div className="space-y-2">
-      <Label className="text-foreground font-medium">{label}</Label>
+    <FloatingWrapper label={label} hasValue={!!selectedOption} isFocused={popoverOpen[popoverKey]}>
       <Popover
         open={popoverOpen[popoverKey]}
         onOpenChange={(open) =>
@@ -54,13 +51,13 @@ const SearchableDropdown = ({
           <Button
             variant="outline"
             role="combobox"
-            className={`w-full justify-between font-normal bg-muted h-11 ${disabled ? "cursor-not-allowed opacity-60" : ""
+            className={`w-full justify-between font-normal h-[52px] bg-transparent border border-input ${disabled ? "cursor-not-allowed opacity-60" : ""
               }`}
             type="button"
             disabled={disabled}
           >
-            {selectedOption ? selectedOption.name : placeholder}
-            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+            {selectedOption ? selectedOption.name : ""}
+            <ChevronsUpDown className="ml-auto h-4 w-4 shrink-0 opacity-50" />
           </Button>
         </PopoverTrigger>
         {!disabled && (
@@ -105,7 +102,7 @@ const SearchableDropdown = ({
           </PopoverContent>
         )}
       </Popover>
-    </div>
+    </FloatingWrapper>
   );
 };
 
@@ -607,17 +604,15 @@ export default function LatEditor() {
               );
             }
             return (
-              <div key={field.key} className="space-y-2">
-                <Label>{field.label}</Label>
-                <Input
-                  type={field.inputType}
-                  name={field.key}
-                  value={fieldValue}
-                  onChange={handleInputChange}
-                  placeholder={field.placeholder}
-                  disabled={mutation.isLoading}
-                />
-              </div>
+              <FloatingInput
+                key={field.key}
+                label={field.label}
+                type={field.inputType}
+                name={field.key}
+                value={fieldValue}
+                onChange={handleInputChange}
+                disabled={mutation.isLoading}
+              />
             );
           })}
         </div>
@@ -647,30 +642,27 @@ export default function LatEditor() {
               }
               if (field.type === "textarea") {
                 return (
-                  <div key={field.key} className="space-y-2 md:col-span-4">
-                    <Label>{field.label}</Label>
-                    <Textarea
+                  <div key={field.key} className="md:col-span-4">
+                    <FloatingTextarea
+                      label={field.label}
                       name={field.key}
                       value={fieldValue}
                       onChange={handleInputChange}
-                      placeholder={field.placeholder}
                       disabled={mutation.isLoading}
                     />
                   </div>
                 );
               }
               return (
-                <div key={field.key} className="space-y-2">
-                  <Label>{field.label}</Label>
-                  <Input
-                    type={field.inputType}
-                    name={field.key}
-                    value={fieldValue}
-                    onChange={handleInputChange}
-                    placeholder={field.placeholder}
-                    disabled={mutation.isLoading}
-                  />
-                </div>
+                <FloatingInput
+                  key={field.key}
+                  label={field.label}
+                  type={field.inputType}
+                  name={field.key}
+                  value={fieldValue}
+                  onChange={handleInputChange}
+                  disabled={mutation.isLoading}
+                />
               );
             })}
           </div>

@@ -27,6 +27,7 @@ import {
   CommandItem,
 } from "@/components/ui/command";
 import Billing from "@/components/billing";
+import { FloatingInput, FloatingTextarea, FloatingWrapper } from "@/components/ui/floating-label";
 
 const SearchableDropdown = ({
   value,
@@ -35,67 +36,71 @@ const SearchableDropdown = ({
   placeholder,
   popoverKey,
   fieldName,
+  label,
   popoverOpen,
   setPopoverOpen,
 }) => {
   const selectedOption = options?.find((opt) => opt.id === value);
+  const isOpen = !!popoverOpen[popoverKey];
 
   return (
-    <Popover
-      open={popoverOpen[popoverKey]}
-      onOpenChange={(open) =>
-        setPopoverOpen((p) => ({ ...p, [popoverKey]: open }))
-      }
-    >
-      <PopoverTrigger asChild>
-        <Button
-          variant="outline"
-          role="combobox"
-          className="w-full justify-between font-normal bg-muted"
-          type="button"
-        >
-          {selectedOption ? selectedOption.name : placeholder}
-          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-        </Button>
-      </PopoverTrigger>
-      <PopoverContent
-        className="w-[var(--radix-popover-trigger-width)] p-0"
-        align="start"
+    <FloatingWrapper label={label} hasValue={!!selectedOption} isFocused={isOpen}>
+      <Popover
+        open={isOpen}
+        onOpenChange={(open) =>
+          setPopoverOpen((p) => ({ ...p, [popoverKey]: open }))
+        }
       >
-        <Command>
-          <CommandInput placeholder="Search..." autoFocus />
-          <CommandList>
-            <CommandEmpty>No results found.</CommandEmpty>
-            <CommandGroup>
-              <CommandItem
-                onSelect={() => onSelect(fieldName, null, popoverKey)}
-                className="cursor-pointer flex items-center italic text-muted-foreground"
-              >
-                <Check
-                  className={`mr-2 h-4 w-4 ${!value ? "opacity-100" : "opacity-0"
-                    }`}
-                />
-                None
-              </CommandItem>
-              {options?.map((opt) => (
+        <PopoverTrigger asChild>
+          <Button
+            variant="outline"
+            role="combobox"
+            className="w-full justify-between font-normal h-[52px] bg-transparent border border-input"
+            type="button"
+          >
+            {selectedOption ? selectedOption.name : ""}
+            <ChevronsUpDown className="ml-auto h-4 w-4 shrink-0 opacity-50" />
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent
+          className="w-[var(--radix-popover-trigger-width)] p-0"
+          align="start"
+        >
+          <Command>
+            <CommandInput placeholder="Search..." autoFocus />
+            <CommandList>
+              <CommandEmpty>No results found.</CommandEmpty>
+              <CommandGroup>
                 <CommandItem
-                  key={opt.id}
-                  value={opt.name}
-                  onSelect={() => onSelect(fieldName, opt.id, popoverKey)}
-                  className="cursor-pointer flex items-center"
+                  onSelect={() => onSelect(fieldName, null, popoverKey)}
+                  className="cursor-pointer flex items-center italic text-muted-foreground"
                 >
                   <Check
-                    className={`mr-2 h-4 w-4 ${value === opt.id ? "opacity-100" : "opacity-0"
+                    className={`mr-2 h-4 w-4 ${!value ? "opacity-100" : "opacity-0"
                       }`}
                   />
-                  {opt.name}
+                  None
                 </CommandItem>
-              ))}
-            </CommandGroup>
-          </CommandList>
-        </Command>
-      </PopoverContent>
-    </Popover>
+                {options?.map((opt) => (
+                  <CommandItem
+                    key={opt.id}
+                    value={opt.name}
+                    onSelect={() => onSelect(fieldName, opt.id, popoverKey)}
+                    className="cursor-pointer flex items-center"
+                  >
+                    <Check
+                      className={`mr-2 h-4 w-4 ${value === opt.id ? "opacity-100" : "opacity-0"
+                        }`}
+                    />
+                    {opt.name}
+                  </CommandItem>
+                ))}
+              </CommandGroup>
+            </CommandList>
+          </Command>
+        </PopoverContent>
+      </Popover>
+    </FloatingWrapper>
   );
 };
 
@@ -389,152 +394,22 @@ export default function AccidentalInformation() {
                 {/* Inputs area */}
                 <div className="lg:col-span-7 space-y-6">
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {/* Date of Accident */}
-                    <div className="space-y-2">
-                      <Label
-                        htmlFor="date_of_accident"
-                        className="text-foreground font-medium"
-                      >
-                        Date of Accident
-                      </Label>
-                      <Input
-                        id="date_of_accident"
-                        name="date_of_accident"
-                        type="date"
-                        value={formData.date_of_accident}
-                        onChange={handleChange}
-                        className="bg-muted border-input"
-                      />
-                    </div>
+                    <FloatingInput label="Date of Accident" id="date_of_accident" name="date_of_accident" type="date" value={formData.date_of_accident} onChange={handleChange} />
 
-                    {/* Day of Accident - Searchable */}
-                    <div className="space-y-2">
-                      <Label
-                        htmlFor="day_of_accident_id"
-                        className="text-foreground font-medium"
-                      >
-                        Day of Accident
-                      </Label>
-                      <SearchableDropdown
-                        value={formData.day_of_accident_id}
-                        options={metadata?.accident_day}
-                        onSelect={handleDropdownSelect}
-                        placeholder="Select day"
-                        popoverKey="day_of_accident_id"
-                        fieldName="day_of_accident_id"
-                        popoverOpen={popoverOpen}
-                        setPopoverOpen={setPopoverOpen}
-                      />
-                    </div>
+                    <SearchableDropdown label="Day of Accident" value={formData.day_of_accident_id} options={metadata?.accident_day} onSelect={handleDropdownSelect} placeholder="Select day" popoverKey="day_of_accident_id" fieldName="day_of_accident_id" popoverOpen={popoverOpen} setPopoverOpen={setPopoverOpen} />
 
-                    {/* Time of Accident */}
-                    <div className="space-y-2">
-                      <Label
-                        htmlFor="time_of_accident"
-                        className="text-foreground font-medium"
-                      >
-                        Time of Accident
-                      </Label>
-                      <Input
-                        id="time_of_accident"
-                        name="time_of_accident"
-                        type="time"
-                        value={formData.time_of_accident}
-                        onChange={handleChange}
-                        className="bg-muted border-input"
-                      />
-                    </div>
+                    <FloatingInput label="Time of Accident" id="time_of_accident" name="time_of_accident" type="time" value={formData.time_of_accident} onChange={handleChange} />
 
-                    {/* Applicant Were A - Searchable */}
-                    <div className="space-y-2">
-                      <Label
-                        htmlFor="applicant_werea_id"
-                        className="text-foreground font-medium"
-                      >
-                        Applicant Were A
-                      </Label>
-                      <SearchableDropdown
-                        value={formData.applicant_werea_id}
-                        options={metadata?.accident_detail_applicant_were_a}
-                        onSelect={handleDropdownSelect}
-                        placeholder="Select type"
-                        popoverKey="applicant_werea_id"
-                        fieldName="applicant_werea_id"
-                        popoverOpen={popoverOpen}
-                        setPopoverOpen={setPopoverOpen}
-                      />
-                    </div>
+                    <SearchableDropdown label="Applicant Were A" value={formData.applicant_werea_id} options={metadata?.accident_detail_applicant_were_a} onSelect={handleDropdownSelect} placeholder="Select type" popoverKey="applicant_werea_id" fieldName="applicant_werea_id" popoverOpen={popoverOpen} setPopoverOpen={setPopoverOpen} />
 
-                    {/* Accident Location */}
-                    <div className="space-y-2">
-                      <Label
-                        htmlFor="accident_location"
-                        className="text-foreground font-medium"
-                      >
-                        Accident Location
-                      </Label>
-                      <Input
-                        id="accident_location"
-                        name="accident_location"
-                        value={formData.accident_location}
-                        onChange={handleChange}
-                        placeholder="Enter accident location"
-                        className="bg-muted border-input"
-                      />
-                    </div>
+                    <FloatingInput label="Accident Location" id="accident_location" name="accident_location" value={formData.accident_location} onChange={handleChange} />
 
-                    {/* City */}
-                    <div className="space-y-2">
-                      <Label htmlFor="city" className="text-foreground font-medium">
-                        City
-                      </Label>
-                      <Input
-                        id="city"
-                        name="city"
-                        value={formData.city}
-                        onChange={handleChange}
-                        placeholder="Toronto"
-                        className="bg-muted border-input"
-                      />
-                    </div>
+                    <FloatingInput label="City" id="city" name="city" value={formData.city} onChange={handleChange} />
 
-                    {/* Province */}
-                    <div className="space-y-2">
-                      <Label
-                        htmlFor="province"
-                        className="text-foreground font-medium"
-                      >
-                        Province
-                      </Label>
-                      <Input
-                        id="province"
-                        name="province"
-                        value={formData.province}
-                        onChange={handleChange}
-                        placeholder="Ontario"
-                        className="bg-muted border-input"
-                      />
-                    </div>
+                    <FloatingInput label="Province" id="province" name="province" value={formData.province} onChange={handleChange} />
                   </div>
 
-                  {/* Description - Full Width */}
-                  <div className="space-y-2">
-                    <Label
-                      htmlFor="description_of_the_accident"
-                      className="text-foreground font-medium"
-                    >
-                      Description of the Accident
-                    </Label>
-                    <Textarea
-                      id="description_of_the_accident"
-                      name="description_of_the_accident"
-                      value={formData.description_of_the_accident}
-                      onChange={handleChange}
-                      placeholder="Describe what happened..."
-                      rows={4}
-                      className="bg-muted border-input"
-                    />
-                  </div>
+                  <FloatingTextarea label="Description of the Accident" id="description_of_the_accident" name="description_of_the_accident" value={formData.description_of_the_accident} onChange={handleChange} rows={4} />
                 </div>
 
                 {/* Map Preview Area */}
@@ -590,117 +465,12 @@ export default function AccidentalInformation() {
               </h2>
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                {/* Accident Occur While You Were - Searchable Yes/No */}
-                <div className="space-y-2">
-                  <Label
-                    htmlFor="accident_occur_while_you_were_id"
-                    className="text-foreground font-medium"
-                  >
-                    Accident Occur while you were at work                  </Label>
-                  <SearchableDropdown
-                    value={formData.accident_occur_while_you_were_id}
-                    options={metadata?.yes_no_option}
-                    onSelect={handleDropdownSelect}
-                    placeholder="Select option"
-                    popoverKey="accident_occur_while_you_were_id"
-                    fieldName="accident_occur_while_you_were_id"
-                    popoverOpen={popoverOpen}
-                    setPopoverOpen={setPopoverOpen}
-                  />
-                </div>
-
-                {/* Workplace Safety & Insurance Board - Searchable Yes/No */}
-                <div className="space-y-2">
-                  <Label
-                    htmlFor="workplace_safety_and_insurance_board_id"
-                    className="text-foreground font-medium"
-                  >
-                    Workplace Safety & Insurance Board
-                  </Label>
-                  <SearchableDropdown
-                    value={formData.workplace_safety_and_insurance_board_id}
-                    options={metadata?.yes_no_option}
-                    onSelect={handleDropdownSelect}
-                    placeholder="Select option"
-                    popoverKey="workplace_safety_and_insurance_board_id"
-                    fieldName="workplace_safety_and_insurance_board_id"
-                    popoverOpen={popoverOpen}
-                    setPopoverOpen={setPopoverOpen}
-                  />
-                </div>
-
-                {/* Reported to Police - Searchable Yes/No */}
-                <div className="space-y-2">
-                  <Label
-                    htmlFor="reported_to_police"
-                    className="text-foreground font-medium"
-                  >
-                    Reported to Police
-                  </Label>
-                  <SearchableDropdown
-                    value={formData.reported_to_police}
-                    options={metadata?.yes_no_option}
-                    onSelect={handleDropdownSelect}
-                    placeholder="Select option"
-                    popoverKey="reported_to_police"
-                    fieldName="reported_to_police"
-                    popoverOpen={popoverOpen}
-                    setPopoverOpen={setPopoverOpen}
-                  />
-                </div>
-
-                {/* Seatbelted - Searchable Yes/No */}
-                <div className="space-y-2">
-                  <Label
-                    htmlFor="Seatbelted_id"
-                    className="text-foreground font-medium"
-                  >
-                    Seatbelted
-                  </Label>
-                  <SearchableDropdown
-                    value={formData.Seatbelted_id}
-                    options={metadata?.yes_no_option}
-                    onSelect={handleDropdownSelect}
-                    placeholder="Select option"
-                    popoverKey="Seatbelted_id"
-                    fieldName="Seatbelted_id"
-                    popoverOpen={popoverOpen}
-                    setPopoverOpen={setPopoverOpen}
-                  />
-                </div>
-
-                {/* Seating Arrangement */}
-                <div className="space-y-2">
-                  <Label
-                    htmlFor="seating_arrangement"
-                    className="text-foreground font-medium"
-                  >
-                    Seating Arrangement
-                  </Label>
-                  <Input
-                    id="seating_arrangement"
-                    name="seating_arrangement"
-                    value={formData.seating_arrangement}
-                    onChange={handleChange}
-                    placeholder="Enter seating arrangement"
-                    className="bg-muted border-input"
-                  />
-                </div>
-
-                {/* Agency */}
-                <div className="space-y-2">
-                  <Label htmlFor="agency" className="text-foreground font-medium">
-                    Agency
-                  </Label>
-                  <Input
-                    id="agency"
-                    name="agency"
-                    value={formData.agency}
-                    onChange={handleChange}
-                    placeholder="Enter agency name"
-                    className="bg-muted border-input"
-                  />
-                </div>
+                <SearchableDropdown label="Accident Occur while you were at work" value={formData.accident_occur_while_you_were_id} options={metadata?.yes_no_option} onSelect={handleDropdownSelect} placeholder="Select option" popoverKey="accident_occur_while_you_were_id" fieldName="accident_occur_while_you_were_id" popoverOpen={popoverOpen} setPopoverOpen={setPopoverOpen} />
+                <SearchableDropdown label="Workplace Safety & Insurance Board" value={formData.workplace_safety_and_insurance_board_id} options={metadata?.yes_no_option} onSelect={handleDropdownSelect} placeholder="Select option" popoverKey="workplace_safety_and_insurance_board_id" fieldName="workplace_safety_and_insurance_board_id" popoverOpen={popoverOpen} setPopoverOpen={setPopoverOpen} />
+                <SearchableDropdown label="Reported to Police" value={formData.reported_to_police} options={metadata?.yes_no_option} onSelect={handleDropdownSelect} placeholder="Select option" popoverKey="reported_to_police" fieldName="reported_to_police" popoverOpen={popoverOpen} setPopoverOpen={setPopoverOpen} />
+                <SearchableDropdown label="Seatbelted" value={formData.Seatbelted_id} options={metadata?.yes_no_option} onSelect={handleDropdownSelect} placeholder="Select option" popoverKey="Seatbelted_id" fieldName="Seatbelted_id" popoverOpen={popoverOpen} setPopoverOpen={setPopoverOpen} />
+                <FloatingInput label="Seating Arrangement" id="seating_arrangement" name="seating_arrangement" value={formData.seating_arrangement} onChange={handleChange} />
+                <FloatingInput label="Agency" id="agency" name="agency" value={formData.agency} onChange={handleChange} />
               </div>
             </div>
 
@@ -711,83 +481,10 @@ export default function AccidentalInformation() {
               </h2>
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                {/* Client at Fault - Searchable Yes/No */}
-                <div className="space-y-2">
-                  <Label
-                    htmlFor="client_at_fault_id"
-                    className="text-foreground font-medium"
-                  >
-                    Client at Fault
-                  </Label>
-                  <SearchableDropdown
-                    value={formData.client_at_fault_id}
-                    options={metadata?.yes_no_option}
-                    onSelect={handleDropdownSelect}
-                    placeholder="Select option"
-                    popoverKey="client_at_fault_id"
-                    fieldName="client_at_fault_id"
-                    popoverOpen={popoverOpen}
-                    setPopoverOpen={setPopoverOpen}
-                  />
-                </div>
-
-                {/* Ticket WLSB - Searchable Yes/No */}
-                <div className="space-y-2">
-                  <Label
-                    htmlFor="ticket_wlsb_id"
-                    className="text-foreground font-medium"
-                  >
-                    Ticket WLSB
-                  </Label>
-                  <SearchableDropdown
-                    value={formData.ticket_wlsb_id}
-                    options={metadata?.yes_no_option}
-                    onSelect={handleDropdownSelect}
-                    placeholder="Select option"
-                    popoverKey="ticket_wlsb_id"
-                    fieldName="ticket_wlsb_id"
-                    popoverOpen={popoverOpen}
-                    setPopoverOpen={setPopoverOpen}
-                  />
-                </div>
-
-                {/* Third Party Charge - Searchable Yes/No */}
-                <div className="space-y-2">
-                  <Label
-                    htmlFor="tparty_charge_id"
-                    className="text-foreground font-medium"
-                  >
-                    Third Party Charge
-                  </Label>
-                  <SearchableDropdown
-                    value={formData.tparty_charge_id}
-                    options={metadata?.yes_no_option}
-                    onSelect={handleDropdownSelect}
-                    placeholder="Select option"
-                    popoverKey="tparty_charge_id"
-                    fieldName="tparty_charge_id"
-                    popoverOpen={popoverOpen}
-                    setPopoverOpen={setPopoverOpen}
-                  />
-                </div>
-
-                {/* Property Damage */}
-                <div className="space-y-2">
-                  <Label
-                    htmlFor="property_damage"
-                    className="text-foreground font-medium"
-                  >
-                    Property Damage
-                  </Label>
-                  <Input
-                    id="property_damage"
-                    name="property_damage"
-                    value={formData.property_damage}
-                    onChange={handleChange}
-                    placeholder="Describe property damage"
-                    className="bg-muted border-input"
-                  />
-                </div>
+                <SearchableDropdown label="Client at Fault" value={formData.client_at_fault_id} options={metadata?.yes_no_option} onSelect={handleDropdownSelect} placeholder="Select option" popoverKey="client_at_fault_id" fieldName="client_at_fault_id" popoverOpen={popoverOpen} setPopoverOpen={setPopoverOpen} />
+                <SearchableDropdown label="Ticket WLSB" value={formData.ticket_wlsb_id} options={metadata?.yes_no_option} onSelect={handleDropdownSelect} placeholder="Select option" popoverKey="ticket_wlsb_id" fieldName="ticket_wlsb_id" popoverOpen={popoverOpen} setPopoverOpen={setPopoverOpen} />
+                <SearchableDropdown label="Third Party Charge" value={formData.tparty_charge_id} options={metadata?.yes_no_option} onSelect={handleDropdownSelect} placeholder="Select option" popoverKey="tparty_charge_id" fieldName="tparty_charge_id" popoverOpen={popoverOpen} setPopoverOpen={setPopoverOpen} />
+                <FloatingInput label="Property Damage" id="property_damage" name="property_damage" value={formData.property_damage} onChange={handleChange} />
               </div>
             </div>
 
@@ -798,95 +495,11 @@ export default function AccidentalInformation() {
               </h2>
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                {/* Police Department */}
-                <div className="space-y-2">
-                  <Label
-                    htmlFor="police_department"
-                    className="text-foreground font-medium"
-                  >
-                    Police Department
-                  </Label>
-                  <Input
-                    id="police_department"
-                    name="police_department"
-                    value={formData.police_department}
-                    onChange={handleChange}
-                    placeholder="Enter police department"
-                    className="bg-muted border-input"
-                  />
-                </div>
-
-                {/* Officer Name */}
-                <div className="space-y-2">
-                  <Label
-                    htmlFor="officer_name"
-                    className="text-foreground font-medium"
-                  >
-                    Officer Name
-                  </Label>
-                  <Input
-                    id="officer_name"
-                    name="officer_name"
-                    value={formData.officer_name}
-                    onChange={handleChange}
-                    placeholder="Enter officer name"
-                    className="bg-muted border-input"
-                  />
-                </div>
-
-                {/* Badge No */}
-                <div className="space-y-2">
-                  <Label
-                    htmlFor="badge_no"
-                    className="text-foreground font-medium"
-                  >
-                    Badge Number
-                  </Label>
-                  <Input
-                    id="badge_no"
-                    name="badge_no"
-                    value={formData.badge_no}
-                    onChange={handleChange}
-                    placeholder="Enter badge number"
-                    className="bg-muted border-input"
-                  />
-                </div>
-
-                {/* Date Reported to Police */}
-                <div className="space-y-2">
-                  <Label
-                    htmlFor="date_accident_reported_to_the_police"
-                    className="text-foreground font-medium"
-                  >
-                    Date Reported to Police
-                  </Label>
-                  <Input
-                    id="date_accident_reported_to_the_police"
-                    name="date_accident_reported_to_the_police"
-                    type="date"
-                    value={formData.date_accident_reported_to_the_police}
-                    onChange={handleChange}
-                    className="bg-muted border-input"
-                  />
-                </div>
-
-                {/* Police Report Number */}
-                <div className="space-y-2">
-                  <Label
-                    htmlFor="police_report_number"
-                    className="text-foreground font-medium"
-                  >
-                    Police Report Number
-                  </Label>
-                  <Input
-                    id="police_report_number"
-                    name="police_report_number"
-                    value={formData.police_report_number}
-                    onChange={handleChange}
-                    placeholder="Enter police report number"
-                    className="bg-muted border-input"
-                  />
-                </div>
+                <FloatingInput label="Police Department" id="police_department" name="police_department" value={formData.police_department} onChange={handleChange} />
+                <FloatingInput label="Officer Name" id="officer_name" name="officer_name" value={formData.officer_name} onChange={handleChange} />
+                <FloatingInput label="Badge Number" id="badge_no" name="badge_no" value={formData.badge_no} onChange={handleChange} />
+                <FloatingInput label="Date Reported to Police" id="date_accident_reported_to_the_police" name="date_accident_reported_to_the_police" type="date" value={formData.date_accident_reported_to_the_police} onChange={handleChange} />
+                <FloatingInput label="Police Report Number" id="police_report_number" name="police_report_number" value={formData.police_report_number} onChange={handleChange} />
               </div>
             </div>
 

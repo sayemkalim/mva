@@ -3,10 +3,9 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useDebounce } from "@uidotdev/usehooks";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
+import { FloatingInput, FloatingTextarea, FloatingWrapper } from "@/components/ui/floating-label";
 import {
   Popover,
   PopoverContent,
@@ -115,92 +114,89 @@ const ContactSearch = ({ value, onChange, label, initialContactName }) => {
   };
 
   return (
-    <div className="space-y-2">
-      <Label className="text-foreground font-medium">{label}</Label>
-      <Popover open={open} onOpenChange={setOpen}>
-        <PopoverTrigger asChild>
-          <Button
-            role="combobox"
-            variant="outline"
-            className="w-full justify-between h-11"
-            type="button"
+    <div>
+      <FloatingWrapper label={label} hasValue={!!selectedContact} isFocused={open}>
+        <Popover open={open} onOpenChange={setOpen}>
+          <PopoverTrigger asChild>
+            <Button
+              role="combobox"
+              variant="outline"
+              className="w-full justify-between h-[52px] bg-transparent border border-input"
+              type="button"
+            >
+              {selectedContact ? selectedContact.contact_name : ""}
+              <ChevronRight className="ml-auto h-4 w-4 shrink-0 rotate-90" />
+            </Button>
+          </PopoverTrigger>
+
+          <PopoverContent
+            className="w-[var(--radix-popover-trigger-width)] p-0"
+            align="start"
           >
-            <span className={cn(!selectedContact && "text-muted-foreground")}>
-              {selectedContact
-                ? selectedContact.contact_name
-                : "Search contact..."}
-            </span>
-            <ChevronRight className="ml-2 h-4 w-4 rotate-90" />
-          </Button>
-        </PopoverTrigger>
-
-        <PopoverContent
-          className="w-[var(--radix-popover-trigger-width)] p-0"
-          align="start"
-        >
-          <Command shouldFilter={false}>
-            <CommandInput
-              placeholder="Type to search contacts..."
-              value={searchQuery}
-              onValueChange={setSearchQuery}
-            />
-            <CommandList>
-              {isSearching && (
-                <div className="flex items-center justify-center py-6">
-                  <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                  <span className="text-sm text-muted-foreground">
-                    Searching...
-                  </span>
-                </div>
-              )}
-
-              {isError && (
-                <div className="py-6 text-center text-sm text-red-500">
-                  Error loading contacts. Please try again.
-                </div>
-              )}
-
-              {!isSearching &&
-                !isError &&
-                debouncedSearch &&
-                contacts.length === 0 && (
-                  <CommandEmpty>No contacts found.</CommandEmpty>
+            <Command shouldFilter={false}>
+              <CommandInput
+                placeholder="Type to search contacts..."
+                value={searchQuery}
+                onValueChange={setSearchQuery}
+              />
+              <CommandList>
+                {isSearching && (
+                  <div className="flex items-center justify-center py-6">
+                    <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                    <span className="text-sm text-muted-foreground">
+                      Searching...
+                    </span>
+                  </div>
                 )}
 
-              {!isSearching && !isError && !debouncedSearch && (
-                <div className="py-6 text-center text-sm text-muted-foreground">
-                  Start typing to search contacts
-                </div>
-              )}
+                {isError && (
+                  <div className="py-6 text-center text-sm text-red-500">
+                    Error loading contacts. Please try again.
+                  </div>
+                )}
 
-              {!isSearching && !isError && contacts.length > 0 && (
-                <CommandGroup>
-                  {contacts.map((contact) => (
-                    <CommandItem
-                      key={contact.id}
-                      value={String(contact.id)}
-                      onSelect={() => handleSelect(contact)}
-                      className="cursor-pointer"
-                    >
-                      <div className="flex flex-col gap-1 flex-1">
-                        <span className="font-medium">
-                          {contact.contact_name}
-                        </span>
-                        <span className="text-xs text-muted-foreground">
-                          {contact.primary_email}
-                        </span>
-                      </div>
-                      {selectedContact?.id === contact.id && (
-                        <Check className="h-4 w-4 ml-2" />
-                      )}
-                    </CommandItem>
-                  ))}
-                </CommandGroup>
-              )}
-            </CommandList>
-          </Command>
-        </PopoverContent>
-      </Popover>
+                {!isSearching &&
+                  !isError &&
+                  debouncedSearch &&
+                  contacts.length === 0 && (
+                    <CommandEmpty>No contacts found.</CommandEmpty>
+                  )}
+
+                {!isSearching && !isError && !debouncedSearch && (
+                  <div className="py-6 text-center text-sm text-muted-foreground">
+                    Start typing to search contacts
+                  </div>
+                )}
+
+                {!isSearching && !isError && contacts.length > 0 && (
+                  <CommandGroup>
+                    {contacts.map((contact) => (
+                      <CommandItem
+                        key={contact.id}
+                        value={String(contact.id)}
+                        onSelect={() => handleSelect(contact)}
+                        className="cursor-pointer"
+                      >
+                        <div className="flex flex-col gap-1 flex-1">
+                          <span className="font-medium">
+                            {contact.contact_name}
+                          </span>
+                          <span className="text-xs text-muted-foreground">
+                            {contact.primary_email}
+                          </span>
+                        </div>
+                        {selectedContact?.id === contact.id && (
+                          <Check className="h-4 w-4 ml-2" />
+                        )}
+                      </CommandItem>
+                    ))}
+                  </CommandGroup>
+                )}
+              </CommandList>
+            </Command>
+          </PopoverContent>
+        </Popover>
+      </FloatingWrapper>
 
       {selectedContact && (
         <div className="text-xs text-muted-foreground mt-1">
@@ -214,58 +210,58 @@ const ContactSearch = ({ value, onChange, label, initialContactName }) => {
 };
 
 const SearchableSelect = ({ label, options, value, onChange, placeholder, required, error }) => {
+  const [isOpen, setIsOpen] = useState(false);
   const selected = options.find((opt) => String(opt.id) === String(value));
 
   return (
-    <div className="space-y-2">
-      <Label className="text-foreground font-medium">
-        {label} {required && <span className="text-red-500">*</span>}
-      </Label>
-      <Popover>
-        <PopoverTrigger asChild>
-          <Button
-            role="combobox"
-            variant="outline"
-            className={cn(
-              "w-full justify-between h-11",
-              error && "border-red-500 focus-visible:ring-red-500"
-            )}
-            type="button"
-          >
-            {selected ? selected.name : placeholder}
-            <ChevronRight className="ml-2 h-4 w-4 rotate-90" />
-          </Button>
-        </PopoverTrigger>
+    <div>
+      <FloatingWrapper label={label} required={required} hasValue={!!selected} isFocused={isOpen}>
+        <Popover open={isOpen} onOpenChange={setIsOpen}>
+          <PopoverTrigger asChild>
+            <Button
+              role="combobox"
+              variant="outline"
+              className={cn(
+                "w-full justify-between h-[52px] bg-transparent border border-input",
+                error && "border-red-500 focus-visible:ring-red-500"
+              )}
+              type="button"
+            >
+              {selected ? selected.name : ""}
+              <ChevronRight className="ml-auto h-4 w-4 shrink-0 rotate-90" />
+            </Button>
+          </PopoverTrigger>
 
-        <PopoverContent
-          className="w-[var(--radix-popover-trigger-width)] p-0"
-          align="start"
-        >
-          <Command>
-            <CommandInput placeholder={`Search ${label.toLowerCase()}...`} />
-            <CommandList>
-              <CommandEmpty>No options found.</CommandEmpty>
-              <CommandGroup>
-                {options && options.length > 0 ? (
-                  options.map((opt) => (
-                    <CommandItem
-                      key={opt.id}
-                      onSelect={() => onChange(opt.id)}
-                      value={opt.name}
-                    >
-                      {opt.name}
-                    </CommandItem>
-                  ))
-                ) : (
-                  <div className="p-2 text-sm text-gray-500">
-                    No data available
-                  </div>
-                )}
-              </CommandGroup>
-            </CommandList>
-          </Command>
-        </PopoverContent>
-      </Popover>
+          <PopoverContent
+            className="w-[var(--radix-popover-trigger-width)] p-0"
+            align="start"
+          >
+            <Command>
+              <CommandInput placeholder={`Search ${label.toLowerCase()}...`} />
+              <CommandList>
+                <CommandEmpty>No options found.</CommandEmpty>
+                <CommandGroup>
+                  {options && options.length > 0 ? (
+                    options.map((opt) => (
+                      <CommandItem
+                        key={opt.id}
+                        onSelect={() => { onChange(opt.id); setIsOpen(false); }}
+                        value={opt.name}
+                      >
+                        {opt.name}
+                      </CommandItem>
+                    ))
+                  ) : (
+                    <div className="p-2 text-sm text-gray-500">
+                      No data available
+                    </div>
+                  )}
+                </CommandGroup>
+              </CommandList>
+            </Command>
+          </PopoverContent>
+        </Popover>
+      </FloatingWrapper>
       {error && <p className="text-xs font-medium text-red-500">{error}</p>}
     </div>
   );
@@ -286,72 +282,71 @@ const MultiSelect = ({ label, options, value, onChange, placeholder, required, e
   };
 
   return (
-    <div className="space-y-2">
-      <Label className="text-foreground font-medium">
-        {label} {required && <span className="text-red-500">*</span>}
-      </Label>
-      <Popover open={open} onOpenChange={setOpen}>
-        <PopoverTrigger asChild>
-          <Button
-            role="combobox"
-            variant="outline"
-            className={cn(
-              "w-full justify-between h-auto min-h-11",
-              error && "border-red-500 focus-visible:ring-red-500"
-            )}
-            type="button"
-          >
-            <div className="flex flex-wrap gap-1">
-              {selectedItems.length > 0 ? (
-                selectedItems.map((item) => (
-                  <span
-                    key={item.id}
-                    className="bg-primary/10 text-primary px-2 py-1 rounded text-sm"
-                  >
-                    {item.name}
-                  </span>
-                ))
-              ) : (
-                <span className="text-muted-foreground">{placeholder}</span>
+    <div>
+      <FloatingWrapper label={label} required={required} hasValue={selectedItems.length > 0} isFocused={open}>
+        <Popover open={open} onOpenChange={setOpen}>
+          <PopoverTrigger asChild>
+            <Button
+              role="combobox"
+              variant="outline"
+              className={cn(
+                "w-full justify-between h-auto min-h-[52px] bg-transparent border border-input",
+                error && "border-red-500 focus-visible:ring-red-500"
               )}
-            </div>
-            <ChevronRight className="ml-2 h-4 w-4 shrink-0 rotate-90" />
-          </Button>
-        </PopoverTrigger>
-
-        <PopoverContent
-          className="w-[var(--radix-popover-trigger-width)] p-0"
-          align="start"
-        >
-          <Command>
-            <CommandInput placeholder={`Search ${label.toLowerCase()}...`} />
-            <CommandList>
-              <CommandEmpty>No options found.</CommandEmpty>
-              <CommandGroup>
-                {options && options.length > 0 ? (
-                  options.map((opt) => (
-                    <CommandItem
-                      key={opt.id}
-                      onSelect={() => handleSelect(opt.id)}
-                      value={opt.name}
+              type="button"
+            >
+              <div className="flex flex-wrap gap-1">
+                {selectedItems.length > 0 ? (
+                  selectedItems.map((item) => (
+                    <span
+                      key={item.id}
+                      className="bg-primary/10 text-primary px-2 py-1 rounded text-sm"
                     >
-                      <Checkbox
-                        checked={value?.some(val => String(val) === String(opt.id))}
-                        className="mr-2"
-                      />
-                      {opt.name}
-                    </CommandItem>
+                      {item.name}
+                    </span>
                   ))
                 ) : (
-                  <div className="p-2 text-sm text-gray-500">
-                    No data available
-                  </div>
+                  <span></span>
                 )}
-              </CommandGroup>
-            </CommandList>
-          </Command>
-        </PopoverContent>
-      </Popover>
+              </div>
+              <ChevronRight className="ml-auto h-4 w-4 shrink-0 rotate-90" />
+            </Button>
+          </PopoverTrigger>
+
+          <PopoverContent
+            className="w-[var(--radix-popover-trigger-width)] p-0"
+            align="start"
+          >
+            <Command>
+              <CommandInput placeholder={`Search ${label.toLowerCase()}...`} />
+              <CommandList>
+                <CommandEmpty>No options found.</CommandEmpty>
+                <CommandGroup>
+                  {options && options.length > 0 ? (
+                    options.map((opt) => (
+                      <CommandItem
+                        key={opt.id}
+                        onSelect={() => handleSelect(opt.id)}
+                        value={opt.name}
+                      >
+                        <Checkbox
+                          checked={value?.some(val => String(val) === String(opt.id))}
+                          className="mr-2"
+                        />
+                        {opt.name}
+                      </CommandItem>
+                    ))
+                  ) : (
+                    <div className="p-2 text-sm text-gray-500">
+                      No data available
+                    </div>
+                  )}
+                </CommandGroup>
+              </CommandList>
+            </Command>
+          </PopoverContent>
+        </Popover>
+      </FloatingWrapper>
       {error && <p className="text-xs font-medium text-red-500">{error}</p>}
     </div>
   );
@@ -385,8 +380,8 @@ const DatePicker = ({ label, value, onChange, required, error }) => {
             )}
             type="button"
           >
-            <CalendarIcon className="mr-2 h-4 w-4" />
-            {date ? format(date, "PPP") : <span>Pick a date</span>}
+            {date ? format(date, "PPP") : ""}
+            <CalendarIcon className="ml-auto h-4 w-4 shrink-0 opacity-50" />
           </Button>
         </PopoverTrigger>
         <PopoverContent className="w-auto p-0" align="start">
@@ -1315,16 +1310,14 @@ export default function TaskPage() {
                 error={errors.type_id}
               />
 
-              <div className="space-y-2">
-                <Label className="text-foreground font-medium">
-                  Subject <span className="text-red-500">*</span>
-                </Label>
-                <Input
+              <div>
+                <FloatingInput
+                  label="Subject"
+                  required
                   type="text"
                   value={formData.subject}
                   onChange={(e) => handleFieldChange("subject", e.target.value)}
-                  placeholder="Enter subject"
-                  className={cn("h-11", errors.subject && "border-red-500 focus-visible:ring-red-500")}
+                  className={cn(errors.subject && "border-red-500 focus-visible:ring-red-500")}
                 />
                 {errors.subject && <p className="text-xs font-medium text-red-500">{errors.subject}</p>}
               </div>
@@ -1339,18 +1332,15 @@ export default function TaskPage() {
             </div>
 
             <div className="grid grid-cols-1 gap-6">
-              <div className="space-y-2">
-                <Label className="text-foreground font-medium">Description</Label>
-                <Textarea
-                  value={formData.description}
-                  onChange={(e) =>
-                    handleFieldChange("description", e.target.value)
-                  }
-                  placeholder="Enter detailed description"
-                  rows={4}
-                  className="resize-none"
-                />
-              </div>
+              <FloatingTextarea
+                label="Description"
+                value={formData.description}
+                onChange={(e) =>
+                  handleFieldChange("description", e.target.value)
+                }
+                rows={4}
+                className="resize-none"
+              />
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

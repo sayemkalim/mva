@@ -3,8 +3,8 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { FloatingInput, FloatingWrapper } from "@/components/ui/floating-label";
 import {
   Popover,
   PopoverTrigger,
@@ -29,6 +29,7 @@ import { formatPhoneNumber } from "@/lib/utils";
 import Billing from "@/components/billing";
 
 const SearchableDropdown = ({
+  label,
   value,
   options,
   onSelect,
@@ -41,23 +42,24 @@ const SearchableDropdown = ({
   const selectedOption = options?.find((opt) => opt.id === value);
 
   return (
-    <Popover
-      open={popoverOpen[popoverKey]}
-      onOpenChange={(open) =>
-        setPopoverOpen((p) => ({ ...p, [popoverKey]: open }))
-      }
-    >
-      <PopoverTrigger asChild>
-        <Button
-          variant="outline"
-          role="combobox"
-          className="w-full justify-between font-normal bg-muted"
-          type="button"
-        >
-          {selectedOption ? selectedOption.name : placeholder}
-          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-        </Button>
-      </PopoverTrigger>
+    <FloatingWrapper label={label} hasValue={!!selectedOption} isFocused={!!popoverOpen[popoverKey]}>
+      <Popover
+        open={popoverOpen[popoverKey]}
+        onOpenChange={(open) =>
+          setPopoverOpen((p) => ({ ...p, [popoverKey]: open }))
+        }
+      >
+        <PopoverTrigger asChild>
+          <Button
+            variant="outline"
+            role="combobox"
+            className="w-full justify-between font-normal h-[52px] bg-transparent border border-input"
+            type="button"
+          >
+            {selectedOption ? selectedOption.name : ""}
+            <ChevronsUpDown className="ml-auto h-4 w-4 shrink-0 opacity-50" />
+          </Button>
+        </PopoverTrigger>
       <PopoverContent
         className="w-[var(--radix-popover-trigger-width)] p-0"
         align="start"
@@ -96,6 +98,7 @@ const SearchableDropdown = ({
         </Command>
       </PopoverContent>
     </Popover>
+    </FloatingWrapper>
   );
 };
 
@@ -380,48 +383,26 @@ export default function PrimaryEhc() {
 
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {/* Which EHC */}
-                <div className="space-y-2">
-                  <Label
-                    htmlFor="which_ehc"
-                    className="text-foreground font-medium"
-                  >
-                    Which EHC
-                  </Label>
-                  <Input
+                                  <FloatingInput
+                    label="Which EHC"
                     id="which_ehc"
                     name="which_ehc"
                     value={formData.which_ehc}
                     onChange={handleChange}
-                    placeholder="Harvard"
-                    className="bg-muted border-input"
                   />
-                </div>
 
                 {/* Year */}
-                <div className="space-y-2">
-                  <Label htmlFor="year" className="text-foreground font-medium">
-                    Year
-                  </Label>
-                  <Input
+                                  <FloatingInput
+                    label="Year"
                     id="year"
                     name="year"
                     value={formData.year}
                     onChange={handleChange}
-                    placeholder="2000"
-                    className="bg-muted border-input"
                   />
-                </div>
 
                 {/* Status - Searchable Dropdown */}
-                <div className="space-y-2">
-                  <Label
-                    htmlFor="status_id"
-                    className="text-foreground font-medium"
-                  >
-                    Status
-                  </Label>
-
-                  <SearchableDropdown
+                                  <SearchableDropdown
+                    label="Status"
                     value={formData.status_id}
                     options={metadata.status || []}
                     onSelect={handleSelectChange}
@@ -431,62 +412,34 @@ export default function PrimaryEhc() {
                     popoverOpen={popoverOpen}
                     setPopoverOpen={setPopoverOpen}
                   />
-                </div>
 
                 {/* Insurance Co */}
-                <div className="space-y-2">
-                  <Label
-                    htmlFor="insurance_co"
-                    className="text-foreground font-medium"
-                  >
-                    Insurance Company
-                  </Label>
-                  <Input
+                                  <FloatingInput
+                    label="Insurance Company"
                     id="insurance_co"
                     name="insurance_co"
                     value={formData.insurance_co}
                     onChange={handleChange}
-                    placeholder="M"
-                    className="bg-muted border-input"
                   />
-                </div>
 
                 {/* Ref Initial */}
-                <div className="space-y-2">
-                  <Label
-                    htmlFor="ref_initail"
-                    className="text-foreground font-medium"
-                  >
-                    Reference Initial
-                  </Label>
-                  <Input
+                                  <FloatingInput
+                    label="Reference Initial"
                     id="ref_initail"
                     name="ref_initail"
                     value={formData.ref_initail}
                     onChange={handleChange}
-                    placeholder="M"
                     maxLength={1}
-                    className="bg-muted border-input"
                   />
-                </div>
 
                 {/* Claim Form */}
-                <div className="space-y-2">
-                  <Label
-                    htmlFor="claim_form"
-                    className="text-foreground font-medium"
-                  >
-                    Claim Form
-                  </Label>
-                  <Input
+                                  <FloatingInput
+                    label="Claim Form"
                     id="claim_form"
                     name="claim_form"
                     value={formData.claim_form}
                     onChange={handleChange}
-                    placeholder="M"
-                    className="bg-muted border-input"
                   />
-                </div>
               </div>
             </div>
 
@@ -498,52 +451,31 @@ export default function PrimaryEhc() {
 
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 {/* Telephone */}
-                <div className="space-y-2">
-                  <Label
-                    htmlFor="telephone"
-                    className="text-foreground font-medium"
-                  >
-                    Telephone
-                  </Label>
-                  <Input
+                                  <FloatingInput
+                    label="Telephone"
                     id="telephone"
                     name="telephone"
                     value={formData.telephone}
                     onChange={(e) => setFormData(prev => ({ ...prev, telephone: formatPhoneNumber(e.target.value) }))}
-                    placeholder="(888) 888-8888"
-                    className="bg-muted border-input"
                   />
-                </div>
 
                 {/* Extension */}
-                <div className="space-y-2">
-                  <Label htmlFor="ext" className="text-foreground font-medium">
-                    Extension
-                  </Label>
-                  <Input
+                                  <FloatingInput
+                    label="Extension"
                     id="ext"
                     name="ext"
                     value={formData.ext}
                     onChange={handleChange}
-                    placeholder="1"
-                    className="bg-muted border-input"
                   />
-                </div>
 
                 {/* Fax */}
-                <div className="space-y-2">
-                  <Label htmlFor="fax" className="text-foreground font-medium">
-                    Fax
-                  </Label>
-                  <Input
+                                  <FloatingInput
+                    label="Fax"
                     id="fax"
                     name="fax"
                     value={formData.fax}
                     onChange={(e) => setFormData(prev => ({ ...prev, fax: formatPhoneNumber(e.target.value) }))}
-                    placeholder="(888) 888-8888"
-                    className="bg-muted border-input"
                   />
-                </div>
               </div>
             </div>
 
@@ -552,97 +484,61 @@ export default function PrimaryEhc() {
               <h2 className="text-xl font-semibold text-foreground">Address</h2>
 
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                <div className="space-y-2">
-                  <Label className="text-foreground font-medium">
-                    Unit Number
-                  </Label>
-                  <Input
+                                  <FloatingInput
+                    label="Unit Number"
                     value={formData.address.unit_number}
                     onChange={(e) =>
                       handleAddressChange("unit_number", e.target.value)
                     }
-                    placeholder="5B"
-                    className="bg-muted border-input"
                   />
-                </div>
 
-                <div className="space-y-2">
-                  <Label className="text-foreground font-medium">
-                    Street Number
-                  </Label>
-                  <Input
+                                  <FloatingInput
+                    label="Street Number"
                     value={formData.address.street_number}
                     onChange={(e) =>
                       handleAddressChange("street_number", e.target.value)
                     }
-                    placeholder="221"
-                    className="bg-muted border-input"
                   />
-                </div>
 
-                <div className="space-y-2">
-                  <Label className="text-foreground font-medium">
-                    Street Name
-                  </Label>
-                  <Input
+                                  <FloatingInput
+                    label="Street Name"
                     value={formData.address.street_name}
                     onChange={(e) =>
                       handleAddressChange("street_name", e.target.value)
                     }
-                    placeholder="King Street West"
-                    className="bg-muted border-input"
                   />
-                </div>
 
-                <div className="space-y-2">
-                  <Label className="text-foreground font-medium">City</Label>
-                  <Input
+                                  <FloatingInput
+                    label="City"
                     value={formData.address.city}
                     onChange={(e) =>
                       handleAddressChange("city", e.target.value)
                     }
-                    placeholder="Toronto"
-                    className="bg-muted border-input"
                   />
-                </div>
 
-                <div className="space-y-2">
-                  <Label className="text-foreground font-medium">Province</Label>
-                  <Input
+                                  <FloatingInput
+                    label="Province"
                     value={formData.address.province}
                     onChange={(e) =>
                       handleAddressChange("province", e.target.value)
                     }
-                    placeholder="Ontario"
-                    className="bg-muted border-input"
                   />
-                </div>
 
-                <div className="space-y-2">
-                  <Label className="text-foreground font-medium">
-                    Postal Code
-                  </Label>
-                  <Input
+                                  <FloatingInput
+                    label="Postal Code"
                     value={formData.address.postal_code}
                     onChange={(e) =>
                       handleAddressChange("postal_code", e.target.value)
                     }
-                    placeholder="M5H 1K5"
-                    className="bg-muted border-input"
                   />
-                </div>
 
-                <div className="space-y-2">
-                  <Label className="text-foreground font-medium">Country</Label>
-                  <Input
+                                  <FloatingInput
+                    label="Country"
                     value={formData.address.country}
                     onChange={(e) =>
                       handleAddressChange("country", e.target.value)
                     }
-                    placeholder="Canada"
-                    className="bg-muted border-input"
                   />
-                </div>
               </div>
             </div>
 
@@ -653,90 +549,45 @@ export default function PrimaryEhc() {
               </h2>
 
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <div className="space-y-2">
-                  <Label
-                    htmlFor="ref_first_name"
-                    className="text-foreground font-medium"
-                  >
-                    First Name
-                  </Label>
-                  <Input
+                                  <FloatingInput
+                    label="First Name"
                     id="ref_first_name"
                     name="ref_first_name"
                     value={formData.ref_first_name}
                     onChange={handleChange}
-                    placeholder="f"
-                    className="bg-muted border-input"
                   />
-                </div>
 
-                <div className="space-y-2">
-                  <Label
-                    htmlFor="ref_last_name"
-                    className="text-foreground font-medium"
-                  >
-                    Last Name
-                  </Label>
-                  <Input
+                                  <FloatingInput
+                    label="Last Name"
                     id="ref_last_name"
                     name="ref_last_name"
                     value={formData.ref_last_name}
                     onChange={handleChange}
-                    placeholder="l"
-                    className="bg-muted border-input"
                   />
-                </div>
 
-                <div className="space-y-2">
-                  <Label
-                    htmlFor="ref_pgroup_no"
-                    className="text-foreground font-medium"
-                  >
-                    Group Number
-                  </Label>
-                  <Input
+                                  <FloatingInput
+                    label="Group Number"
                     id="ref_pgroup_no"
                     name="ref_pgroup_no"
                     value={formData.ref_pgroup_no}
                     onChange={handleChange}
-                    placeholder=""
-                    className="bg-muted border-input"
                   />
-                </div>
 
-                <div className="space-y-2">
-                  <Label
-                    htmlFor="ref_idcard_no"
-                    className="text-foreground font-medium"
-                  >
-                    ID Card Number
-                  </Label>
-                  <Input
+                                  <FloatingInput
+                    label="ID Card Number"
                     id="ref_idcard_no"
                     name="ref_idcard_no"
                     value={formData.ref_idcard_no}
                     onChange={handleChange}
-                    placeholder="(000)-000-0000"
-                    className="bg-muted border-input"
                   />
-                </div>
 
-                <div className="space-y-2">
-                  <Label
-                    htmlFor="ref_patient_id"
-                    className="text-foreground font-medium"
-                  >
-                    Patient ID
-                  </Label>
-                  <Input
+                                  <FloatingInput
+                    label="Patient ID"
                     id="ref_patient_id"
                     name="ref_patient_id"
                     value={formData.ref_patient_id}
                     onChange={handleChange}
-                    placeholder="1"
-                    className="bg-muted border-input"
                   />
-                </div>
               </div>
             </div>
 
@@ -758,39 +609,21 @@ export default function PrimaryEhc() {
 
               {!formData.ref_policyholder_same && (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pl-6 border-l-2 border-gray-200">
-                  <div className="space-y-2">
-                    <Label
-                      htmlFor="ref_first_name_1"
-                      className="text-foreground font-medium"
-                    >
-                      Policyholder First Name
-                    </Label>
-                    <Input
+                                      <FloatingInput
+                      label="Policyholder First Name"
                       id="ref_first_name_1"
                       name="ref_first_name_1"
                       value={formData.ref_first_name_1}
                       onChange={handleChange}
-                      placeholder="First Name"
-                      className="bg-muted border-input"
                     />
-                  </div>
 
-                  <div className="space-y-2">
-                    <Label
-                      htmlFor="ref_last_name_1"
-                      className="text-foreground font-medium"
-                    >
-                      Policyholder Last Name
-                    </Label>
-                    <Input
+                                      <FloatingInput
+                      label="Policyholder Last Name"
                       id="ref_last_name_1"
                       name="ref_last_name_1"
                       value={formData.ref_last_name_1}
                       onChange={handleChange}
-                      placeholder="Last Name"
-                      className="bg-muted border-input"
                     />
-                  </div>
                 </div>
               )}
             </div>

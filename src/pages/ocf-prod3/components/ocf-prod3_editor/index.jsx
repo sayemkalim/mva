@@ -2,9 +2,7 @@ import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
+import { FloatingInput, FloatingTextarea } from "@/components/ui/floating-label";
 import { Loader2, ChevronRight } from "lucide-react";
 import { toast } from "sonner";
 import { Navbar2 } from "@/components/navbar2";
@@ -395,32 +393,25 @@ function Grid({ children }) {
 
 function Field({ label, value, onChange, type = "text", required = false, placeholder }) {
   return (
-    <div className="space-y-2">
-      <Label className="text-sm font-semibold text-foreground">
-        {label}
-        {required && <span className="text-red-500 ml-1">*</span>}
-      </Label>
-      <Input
-        type={type}
-        value={value || ""}
-        onChange={(e) => onChange(e.target.value)}
-        className="h-12 px-4 border-input focus:ring-2 focus:ring-primary focus:border-primary transition-all"
-        placeholder={placeholder || label}
-      />
-    </div>
+    <FloatingInput
+      label={label}
+      required={required}
+      type={type}
+      value={value || ""}
+      onChange={(e) => onChange(e.target.value)}
+    />
   );
 }
 
 function TextField({ label, value, onChange }) {
   return (
-    <div className="space-y-2 md:col-span-full">
-      <Label className="text-sm font-semibold text-foreground">{label}</Label>
-      <Textarea
+    <div className="md:col-span-full">
+      <FloatingTextarea
+        label={label}
         value={value || ""}
         onChange={(e) => onChange(e.target.value)}
         rows={4}
-        className="min-h-[100px] border-input focus:ring-2 focus:ring-primary focus:border-primary transition-all resize-vertical"
-        placeholder={`Enter ${label.toLowerCase()}...`}
+        className="min-h-[100px] resize-vertical"
       />
     </div>
   );

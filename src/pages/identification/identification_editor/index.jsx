@@ -43,6 +43,7 @@ import {
   CommandItem,
 } from "@/components/ui/command";
 import Billing from "@/components/billing";
+import { FloatingInput, FloatingWrapper } from "@/components/ui/floating-label";
 
 function SearchableDropdown({
   value,
@@ -66,63 +67,65 @@ function SearchableDropdown({
   };
 
   return (
-    <Popover
-      open={isOpen}
-      onOpenChange={(open) =>
-        setPopoverOpen &&
-        setPopoverOpen((p = {}) => ({ ...p, [popoverKey]: open }))
-      }
-    >
-      <PopoverTrigger asChild>
-        <Button
-          variant="outline"
-          role="combobox"
-          className="w-full justify-between font-normal bg-card h-9 text-sm "
-          type="button"
-        >
-          {selected ? selected.name : placeholder}
-          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-60" />
-        </Button>
-      </PopoverTrigger>
-
-      <PopoverContent
-        className="w-[var(--radix-popover-trigger-width)] p-0"
-        align="start"
+    <FloatingWrapper label={label} hasValue={!!selected} isFocused={isOpen}>
+      <Popover
+        open={isOpen}
+        onOpenChange={(open) =>
+          setPopoverOpen &&
+          setPopoverOpen((p = {}) => ({ ...p, [popoverKey]: open }))
+        }
       >
-        <Command>
-          <CommandInput placeholder={label.toLowerCase()} />
-          <CommandEmpty>No results found.</CommandEmpty>
-          <CommandGroup>
-            <CommandItem
-              value=""
-              onSelect={() => handleSelect("")}
-              className="italic text-muted-foreground"
-            >
-              <Check
-                className={`mr-2 h-4 w-4 ${!value ? "opacity-100" : "opacity-0"
-                  }`}
-              />
-              None
-            </CommandItem>
-            {options.map((opt) => (
+        <PopoverTrigger asChild>
+          <Button
+            variant="outline"
+            role="combobox"
+            className="w-full justify-between font-normal h-[52px] bg-transparent border border-input text-sm"
+            type="button"
+          >
+            {selected ? selected.name : ""}
+            <ChevronsUpDown className="ml-auto h-4 w-4 shrink-0 opacity-50" />
+          </Button>
+        </PopoverTrigger>
+
+        <PopoverContent
+          className="w-[var(--radix-popover-trigger-width)] p-0"
+          align="start"
+        >
+          <Command>
+            <CommandInput placeholder={label.toLowerCase()} />
+            <CommandEmpty>No results found.</CommandEmpty>
+            <CommandGroup>
               <CommandItem
-                key={opt.id}
-                value={opt.name}
-                onSelect={() => handleSelect(opt.id)}
+                value=""
+                onSelect={() => handleSelect("")}
+                className="italic text-muted-foreground"
               >
                 <Check
-                  className={`mr-2 h-4 w-4 ${String(value) === String(opt.id)
-                    ? "opacity-100"
-                    : "opacity-0"
+                  className={`mr-2 h-4 w-4 ${!value ? "opacity-100" : "opacity-0"
                     }`}
                 />
-                {opt.name}
+                None
               </CommandItem>
-            ))}
-          </CommandGroup>
-        </Command>
-      </PopoverContent>
-    </Popover>
+              {options.map((opt) => (
+                <CommandItem
+                  key={opt.id}
+                  value={opt.name}
+                  onSelect={() => handleSelect(opt.id)}
+                >
+                  <Check
+                    className={`mr-2 h-4 w-4 ${String(value) === String(opt.id)
+                      ? "opacity-100"
+                      : "opacity-0"
+                      }`}
+                  />
+                  {opt.name}
+                </CommandItem>
+              ))}
+            </CommandGroup>
+          </Command>
+        </PopoverContent>
+      </Popover>
+    </FloatingWrapper>
   );
 }
 
@@ -561,169 +564,108 @@ export default function Identification() {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                   {/* Copy in File (searchable) */}
-                  <div className="space-y-2">
-                    <Label
-                      htmlFor={`copy_in_file_id_${index}`}
-                      className="text-foreground font-medium"
-                    >
-                      Copy in File
-                    </Label>
-
-                    <SearchableDropdown
-                      popoverKey={`copy_in_file-${index}`}
-                      popoverOpen={popoverOpen}
-                      setPopoverOpen={setPopoverOpen}
-                      value={identification.copy_in_file_id?.toString() || ""}
-                      onValueChange={(value) =>
-                        handleSelectChange(index, "copy_in_file_id", value)
-                      }
-                      options={metadata?.yes_no_option || []}
-                      placeholder="Select option"
-                      label="Copy in file"
-                    />
-                  </div>
+                  <SearchableDropdown
+                    popoverKey={`copy_in_file-${index}`}
+                    popoverOpen={popoverOpen}
+                    setPopoverOpen={setPopoverOpen}
+                    value={identification.copy_in_file_id?.toString() || ""}
+                    onValueChange={(value) =>
+                      handleSelectChange(index, "copy_in_file_id", value)
+                    }
+                    options={metadata?.yes_no_option || []}
+                    placeholder="Select option"
+                    label="Copy in File"
+                  />
 
                   {/* ID Verification Date */}
-                  <div className="space-y-2">
-                    <Label
-                      htmlFor={`id_verification_date_${index}`}
-                      className="text-foreground font-medium"
-                    >
-                      ID Verification Date
-                    </Label>
-                    <Input
-                      id={`id_verification_date_${index}`}
-                      type="date"
-                      value={identification.id_verification_date}
-                      onChange={(e) =>
-                        handleChange(
-                          index,
-                          "id_verification_date",
-                          e.target.value
-                        )
-                      }
-                      className="w-full h-9 bg-card border-input"
-                    />
-                  </div>
+                  <FloatingInput
+                    label="ID Verification Date"
+                    id={`id_verification_date_${index}`}
+                    type="date"
+                    value={identification.id_verification_date}
+                    onChange={(e) =>
+                      handleChange(
+                        index,
+                        "id_verification_date",
+                        e.target.value
+                      )
+                    }
+                  />
 
                   {/* ID Verification By */}
-                  <div className="space-y-2">
-                    <Label
-                      htmlFor={`id_verification_by_${index}`}
-                      className="text-foreground font-medium"
-                    >
-                      ID Verification By
-                    </Label>
-                    <Input
-                      id={`id_verification_by_${index}`}
-                      value={identification.id_verification_by}
-                      onChange={(e) =>
-                        handleChange(
-                          index,
-                          "id_verification_by",
-                          e.target.value
-                        )
-                      }
-                      placeholder="John Doe"
-                      className="w-full h-9 bg-card border-input"
-                    />
-                  </div>
+                  <FloatingInput
+                    label="ID Verification By"
+                    id={`id_verification_by_${index}`}
+                    value={identification.id_verification_by}
+                    onChange={(e) =>
+                      handleChange(
+                        index,
+                        "id_verification_by",
+                        e.target.value
+                      )
+                    }
+                  />
 
                   {/* Identification Type (searchable) */}
-                  <div className="space-y-2">
-                    <Label
-                      htmlFor={`identification_type_${index}`}
-                      className="text-foreground font-medium"
-                    >
-                      Identification Type
-                    </Label>
-
-                    <SearchableDropdown
-                      popoverKey={`identification_type-${index}`}
-                      popoverOpen={popoverOpen}
-                      setPopoverOpen={setPopoverOpen}
-                      value={
-                        metadata?.type
-                          ?.find(
-                            (t) => t.name === identification.identification_type
-                          )
-                          ?.id?.toString() || ""
-                      }
-                      onValueChange={(value) => handleTypeChange(index, value)}
-                      options={metadata?.type || []}
-                      placeholder="Select type"
-                      label="Identification type"
-                    />
-                  </div>
+                  <SearchableDropdown
+                    popoverKey={`identification_type-${index}`}
+                    popoverOpen={popoverOpen}
+                    setPopoverOpen={setPopoverOpen}
+                    value={
+                      metadata?.type
+                        ?.find(
+                          (t) => t.name === identification.identification_type
+                        )
+                        ?.id?.toString() || ""
+                    }
+                    onValueChange={(value) => handleTypeChange(index, value)}
+                    options={metadata?.type || []}
+                    placeholder="Select type"
+                    label="Identification Type"
+                  />
 
                   {/* Identification Country */}
-                  <div className="space-y-2">
-                    <Label
-                      htmlFor={`identification_country_${index}`}
-                      className="text-foreground font-medium"
-                    >
-                      Country
-                    </Label>
-                    <Input
-                      id={`identification_country_${index}`}
-                      value={identification.identification_country}
-                      onChange={(e) =>
-                        handleChange(
-                          index,
-                          "identification_country",
-                          e.target.value
-                        )
-                      }
-                      placeholder="USA"
-                      className="w-full h-9 bg-card border-input"
-                    />
-                  </div>
+                  <FloatingInput
+                    label="Country"
+                    id={`identification_country_${index}`}
+                    value={identification.identification_country}
+                    onChange={(e) =>
+                      handleChange(
+                        index,
+                        "identification_country",
+                        e.target.value
+                      )
+                    }
+                  />
 
                   {/* Identification Number */}
-                  <div className="space-y-2">
-                    <Label
-                      htmlFor={`identification_number_${index}`}
-                      className="text-foreground font-medium"
-                    >
-                      Identification Number
-                    </Label>
-                    <Input
-                      id={`identification_number_${index}`}
-                      value={identification.identification_number}
-                      onChange={(e) =>
-                        handleChange(
-                          index,
-                          "identification_number",
-                          e.target.value
-                        )
-                      }
-                      placeholder="A12345678"
-                      className="w-full h-9 bg-card border-input"
-                    />
-                  </div>
+                  <FloatingInput
+                    label="Identification Number"
+                    id={`identification_number_${index}`}
+                    value={identification.identification_number}
+                    onChange={(e) =>
+                      handleChange(
+                        index,
+                        "identification_number",
+                        e.target.value
+                      )
+                    }
+                  />
 
                   {/* Expiry Date */}
-                  <div className="space-y-2">
-                    <Label
-                      htmlFor={`expiry_date_${index}`}
-                      className="text-foreground font-medium"
-                    >
-                      Expiry Date
-                    </Label>
-                    <Input
-                      id={`expiry_date_${index}`}
-                      type="date"
-                      value={identification.expiry_date}
-                      onChange={(e) =>
-                        handleChange(
-                          index,
-                          "expiry_date",
-                          e.target.value
-                        )
-                      }
-                      className="w-full h-9 bg-card border-input"
-                    />
-                  </div>
+                  <FloatingInput
+                    label="Expiry Date"
+                    id={`expiry_date_${index}`}
+                    type="date"
+                    value={identification.expiry_date}
+                    onChange={(e) =>
+                      handleChange(
+                        index,
+                        "expiry_date",
+                        e.target.value
+                      )
+                    }
+                  />
 
                   {/* File Upload with Preview and Download */}
                   <div className="space-y-2 md:col-span-2 lg:col-span-3">

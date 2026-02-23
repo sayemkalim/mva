@@ -3,8 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useQuery, useMutation } from "@tanstack/react-query";
 
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { FloatingInput, FloatingWrapper } from "@/components/ui/floating-label";
 import {
   Popover,
   PopoverTrigger,
@@ -48,19 +47,17 @@ function SearchableDropdown({
     (options || []).find((o) => String(o.id) === String(value)) || null;
 
   return (
-    <div className="space-y-2">
-      {label && <label className="text-foreground font-medium">{label}</label>}
-
+    <FloatingWrapper label={label} hasValue={!!selected} isFocused={open}>
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
           <Button
             variant="outline"
             role="combobox"
             type="button"
-            className="justify-between w-full"
+            className="justify-between w-full h-[52px] bg-transparent border border-input"
           >
-            {selected ? selected.name : placeholder}
-            <ChevronsUpDown className="w-4 h-4 opacity-50" />
+            {selected ? selected.name : ""}
+            <ChevronsUpDown className="ml-auto h-4 w-4 shrink-0 opacity-50" />
           </Button>
         </PopoverTrigger>
 
@@ -108,7 +105,7 @@ function SearchableDropdown({
           </Command>
         </PopoverContent>
       </Popover>
-    </div>
+    </FloatingWrapper>
   );
 }
 
@@ -533,219 +530,22 @@ export default function OwnerInfoForm() {
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                      <SearchableDropdown
-                        label="Type of Ownership"
-                        placeholder="Select Ownership Type"
-                        options={typeOfOwnershipOptions}
-                        value={owner.type_of_ownership_id}
-                        onChange={(val) =>
-                          updateOwner(index, "type_of_ownership_id", val)
-                        }
-                      />
-
-                      <div className="space-y-2">
-                        <Label>
-                          {getOwnershipLabel(owner.type_of_ownership_id)}
-                        </Label>
-                        <Input
-                          value={owner.name}
-                          onChange={(e) =>
-                            updateOwner(index, "name", e.target.value)
-                          }
-                          className="h-9 bg-card border-input"
-                        />
-                      </div>
-
-                      <div className="space-y-2">
-                        <Label>Conflict Search</Label>
-                        <Input
-                          type="date"
-                          value={owner.conflict_search || ""}
-                          onChange={(e) =>
-                            updateOwner(
-                              index,
-                              "conflict_search",
-                              e.target.value
-                            )
-                          }
-                          className="h-9 bg-card border-input"
-                        />
-                      </div>
-
-                      <div className="space-y-2">
-                        <Label>Unit Number</Label>
-                        <Input
-                          value={owner.address.unit_number}
-                          onChange={(e) =>
-                            updateOwnerAddress(
-                              index,
-                              "unit_number",
-                              e.target.value
-                            )
-                          }
-                          className="h-9 bg-card border-input"
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label>Street Number</Label>
-                        <Input
-                          value={owner.address.street_number}
-                          onChange={(e) =>
-                            updateOwnerAddress(
-                              index,
-                              "street_number",
-                              e.target.value
-                            )
-                          }
-                          className="h-9 bg-card border-input"
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label>Street Name</Label>
-                        <Input
-                          value={owner.address.street_name}
-                          onChange={(e) =>
-                            updateOwnerAddress(
-                              index,
-                              "street_name",
-                              e.target.value
-                            )
-                          }
-                          className="h-9 bg-card border-input"
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label>City</Label>
-                        <Input
-                          value={owner.address.city}
-                          onChange={(e) =>
-                            updateOwnerAddress(index, "city", e.target.value)
-                          }
-                          className="h-9 bg-card border-input"
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label>Province</Label>
-                        <Input
-                          value={owner.address.province}
-                          onChange={(e) =>
-                            updateOwnerAddress(
-                              index,
-                              "province",
-                              e.target.value
-                            )
-                          }
-                          className="h-9 bg-card border-input"
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label>Postal Code</Label>
-                        <Input
-                          value={owner.address.postal_code}
-                          onChange={(e) =>
-                            updateOwnerAddress(
-                              index,
-                              "postal_code",
-                              e.target.value
-                            )
-                          }
-                          className="h-9 bg-card border-input"
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label>Country</Label>
-                        <Input
-                          value={owner.address.country}
-                          onChange={(e) =>
-                            updateOwnerAddress(index, "country", e.target.value)
-                          }
-                          className="h-9 bg-card border-input"
-                        />
-                      </div>
-
-                      <div className="space-y-2">
-                        <Label>Driver&apos;s Licence State</Label>
-                        <Input
-                          value={owner.drivers_licence_state}
-                          onChange={(e) =>
-                            updateOwner(
-                              index,
-                              "drivers_licence_state",
-                              e.target.value
-                            )
-                          }
-                          className="h-9 bg-card border-input"
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label>Driver&apos;s Licence Number</Label>
-                        <Input
-                          value={owner.drivers_licence_number}
-                          onChange={(e) =>
-                            updateOwner(
-                              index,
-                              "drivers_licence_number",
-                              e.target.value
-                            )
-                          }
-                          className="h-9 bg-card border-input"
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label>Licence Expiry Date</Label>
-                        <Input
-                          type="date"
-                          value={owner.drivers_licence_expiry_date || ""}
-                          onChange={(e) =>
-                            updateOwner(
-                              index,
-                              "drivers_licence_expiry_date",
-                              e.target.value
-                            )
-                          }
-                          className="h-9 bg-card border-input"
-                        />
-                      </div>
-
-                      <div className="space-y-2">
-                        <Label>DL Search Date</Label>
-                        <Input
-                          type="date"
-                          value={owner.dl_search_date || ""}
-                          onChange={(e) =>
-                            updateOwner(index, "dl_search_date", e.target.value)
-                          }
-                          className="h-9 bg-card border-input"
-                        />
-                      </div>
-
-                      <SearchableDropdown
-                        label="Profile Search"
-                        placeholder="Select Profile Search"
-                        options={profileSearchOptions}
-                        value={owner.profile_search_id}
-                        onChange={(val) =>
-                          updateOwner(index, "profile_search_id", val)
-                        }
-                      />
-
-                      <div className="space-y-2">
-                        <Label>
-                          {getProfileDateLabel(owner.profile_search_id)}
-                        </Label>
-                        <Input
-                          type="date"
-                          value={owner.profile_search_date || ""}
-                          onChange={(e) =>
-                            updateOwner(
-                              index,
-                              "profile_search_date",
-                              e.target.value
-                            )
-                          }
-                          className="h-9 bg-card border-input"
-                        />
-                      </div>
+                      <SearchableDropdown label="Type of Ownership" placeholder="Select Ownership Type" options={typeOfOwnershipOptions} value={owner.type_of_ownership_id} onChange={(val) => updateOwner(index, "type_of_ownership_id", val)} />
+                      <FloatingInput label={getOwnershipLabel(owner.type_of_ownership_id)} value={owner.name} onChange={(e) => updateOwner(index, "name", e.target.value)} />
+                      <FloatingInput label="Conflict Search" type="date" value={owner.conflict_search || ""} onChange={(e) => updateOwner(index, "conflict_search", e.target.value)} />
+                      <FloatingInput label="Unit Number" value={owner.address.unit_number} onChange={(e) => updateOwnerAddress(index, "unit_number", e.target.value)} />
+                      <FloatingInput label="Street Number" value={owner.address.street_number} onChange={(e) => updateOwnerAddress(index, "street_number", e.target.value)} />
+                      <FloatingInput label="Street Name" value={owner.address.street_name} onChange={(e) => updateOwnerAddress(index, "street_name", e.target.value)} />
+                      <FloatingInput label="City" value={owner.address.city} onChange={(e) => updateOwnerAddress(index, "city", e.target.value)} />
+                      <FloatingInput label="Province" value={owner.address.province} onChange={(e) => updateOwnerAddress(index, "province", e.target.value)} />
+                      <FloatingInput label="Postal Code" value={owner.address.postal_code} onChange={(e) => updateOwnerAddress(index, "postal_code", e.target.value)} />
+                      <FloatingInput label="Country" value={owner.address.country} onChange={(e) => updateOwnerAddress(index, "country", e.target.value)} />
+                      <FloatingInput label="Driver's Licence State" value={owner.drivers_licence_state} onChange={(e) => updateOwner(index, "drivers_licence_state", e.target.value)} />
+                      <FloatingInput label="Driver's Licence Number" value={owner.drivers_licence_number} onChange={(e) => updateOwner(index, "drivers_licence_number", e.target.value)} />
+                      <FloatingInput label="Licence Expiry Date" type="date" value={owner.drivers_licence_expiry_date || ""} onChange={(e) => updateOwner(index, "drivers_licence_expiry_date", e.target.value)} />
+                      <FloatingInput label="DL Search Date" type="date" value={owner.dl_search_date || ""} onChange={(e) => updateOwner(index, "dl_search_date", e.target.value)} />
+                      <SearchableDropdown label="Profile Search" placeholder="Select Profile Search" options={profileSearchOptions} value={owner.profile_search_id} onChange={(val) => updateOwner(index, "profile_search_id", val)} />
+                      <FloatingInput label={getProfileDateLabel(owner.profile_search_id)} type="date" value={owner.profile_search_date || ""} onChange={(e) => updateOwner(index, "profile_search_date", e.target.value)} />
                     </div>
                   </div>
                 ))}
@@ -798,121 +598,15 @@ export default function OwnerInfoForm() {
                         </div>
 
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                          <div className="space-y-2">
-                            <Label>First Name</Label>
-                            <Input
-                              value={director.first_name}
-                              onChange={(e) =>
-                                updateDirector(index, "first_name", e.target.value)
-                              }
-                              className="h-9 bg-card border-input"
-                            />
-                          </div>
-                          <div className="space-y-2">
-                            <Label>Last Name</Label>
-                            <Input
-                              value={director.last_name}
-                              onChange={(e) =>
-                                updateDirector(index, "last_name", e.target.value)
-                              }
-                              className="h-9 bg-card border-input"
-                            />
-                          </div>
-
-                          <div className="space-y-2">
-                            <Label>Unit Number</Label>
-                            <Input
-                              value={director.address.unit_number}
-                              onChange={(e) =>
-                                updateDirectorAddress(
-                                  index,
-                                  "unit_number",
-                                  e.target.value
-                                )
-                              }
-                              className="h-9 bg-card border-input"
-                            />
-                          </div>
-                          <div className="space-y-2">
-                            <Label>Street Number</Label>
-                            <Input
-                              value={director.address.street_number}
-                              onChange={(e) =>
-                                updateDirectorAddress(
-                                  index,
-                                  "street_number",
-                                  e.target.value
-                                )
-                              }
-                              className="h-9 bg-card border-input"
-                            />
-                          </div>
-                          <div className="space-y-2">
-                            <Label>Street Name</Label>
-                            <Input
-                              value={director.address.street_name}
-                              onChange={(e) =>
-                                updateDirectorAddress(
-                                  index,
-                                  "street_name",
-                                  e.target.value
-                                )
-                              }
-                              className="h-9 bg-card border-input"
-                            />
-                          </div>
-                          <div className="space-y-2">
-                            <Label>City</Label>
-                            <Input
-                              value={director.address.city}
-                              onChange={(e) =>
-                                updateDirectorAddress(index, "city", e.target.value)
-                              }
-                              className="h-9 bg-card border-input"
-                            />
-                          </div>
-                          <div className="space-y-2">
-                            <Label>Province</Label>
-                            <Input
-                              value={director.address.province}
-                              onChange={(e) =>
-                                updateDirectorAddress(
-                                  index,
-                                  "province",
-                                  e.target.value
-                                )
-                              }
-                              className="h-9 bg-card border-input"
-                            />
-                          </div>
-                          <div className="space-y-2">
-                            <Label>Postal Code</Label>
-                            <Input
-                              value={director.address.postal_code}
-                              onChange={(e) =>
-                                updateDirectorAddress(
-                                  index,
-                                  "postal_code",
-                                  e.target.value
-                                )
-                              }
-                              className="h-9 bg-card border-input"
-                            />
-                          </div>
-                          <div className="space-y-2">
-                            <Label>Country</Label>
-                            <Input
-                              value={director.address.country}
-                              onChange={(e) =>
-                                updateDirectorAddress(
-                                  index,
-                                  "country",
-                                  e.target.value
-                                )
-                              }
-                              className="h-9 bg-card border-input"
-                            />
-                          </div>
+                          <FloatingInput label="First Name" value={director.first_name} onChange={(e) => updateDirector(index, "first_name", e.target.value)} />
+                          <FloatingInput label="Last Name" value={director.last_name} onChange={(e) => updateDirector(index, "last_name", e.target.value)} />
+                          <FloatingInput label="Unit Number" value={director.address.unit_number} onChange={(e) => updateDirectorAddress(index, "unit_number", e.target.value)} />
+                          <FloatingInput label="Street Number" value={director.address.street_number} onChange={(e) => updateDirectorAddress(index, "street_number", e.target.value)} />
+                          <FloatingInput label="Street Name" value={director.address.street_name} onChange={(e) => updateDirectorAddress(index, "street_name", e.target.value)} />
+                          <FloatingInput label="City" value={director.address.city} onChange={(e) => updateDirectorAddress(index, "city", e.target.value)} />
+                          <FloatingInput label="Province" value={director.address.province} onChange={(e) => updateDirectorAddress(index, "province", e.target.value)} />
+                          <FloatingInput label="Postal Code" value={director.address.postal_code} onChange={(e) => updateDirectorAddress(index, "postal_code", e.target.value)} />
+                          <FloatingInput label="Country" value={director.address.country} onChange={(e) => updateDirectorAddress(index, "country", e.target.value)} />
                         </div>
                       </div>
                     ))}

@@ -2,9 +2,7 @@ import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
+import { FloatingInput, FloatingTextarea, FloatingWrapper } from "@/components/ui/floating-label";
 import {
   Popover,
   PopoverContent,
@@ -37,18 +35,17 @@ const SearchableSelect = ({ label, options, value, onChange, placeholder }) => {
   const selected = options?.find((opt) => String(opt.id) === String(value));
 
   return (
-    <div className="space-y-2">
-      <Label className="text-foreground font-medium">{label}</Label>
+    <FloatingWrapper label={label} hasValue={!!selected} isFocused={open}>
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
           <Button
             variant="outline"
             role="combobox"
             aria-expanded={open}
-            className="w-full justify-between h-11"
+            className="w-full justify-between font-normal h-[52px] bg-transparent border border-input"
           >
-            {selected ? selected.name : placeholder}
-            <ChevronRight className="ml-2 h-4 w-4 rotate-90" />
+            {selected ? selected.name : ""}
+            <ChevronRight className="ml-auto h-4 w-4 shrink-0 rotate-90" />
           </Button>
         </PopoverTrigger>
         <PopoverContent className="w-[300px] p-0">
@@ -98,7 +95,7 @@ const SearchableSelect = ({ label, options, value, onChange, placeholder }) => {
           </Command>
         </PopoverContent>
       </Popover>
-    </div>
+    </FloatingWrapper>
   );
 };
 
@@ -314,31 +311,23 @@ export default function SocPage() {
 
             {showReasonAndDeadline && (
               <div className="mt-6 space-y-6">
-                <div className="space-y-2">
-                  <Label className="text-foreground font-medium">Reason</Label>
-                  <Textarea
-                    name="reason"
-                    value={formData.reason}
-                    onChange={handleChange}
-                    placeholder="Enter reason for SOC"
-                    rows={4}
-                    className="resize-none"
-                  />
-                </div>
+                <FloatingTextarea
+                  label="Reason"
+                  name="reason"
+                  value={formData.reason}
+                  onChange={handleChange}
+                  rows={4}
+                  className="resize-none"
+                />
 
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                  <div className="space-y-2">
-                    <Label className="text-foreground font-medium">
-                      Deadline
-                    </Label>
-                    <Input
-                      type="date"
-                      name="deadline"
-                      value={formData.deadline}
-                      onChange={handleChange}
-                      className="h-11"
-                    />
-                  </div>
+                  <FloatingInput
+                    label="Deadline"
+                    type="date"
+                    name="deadline"
+                    value={formData.deadline}
+                    onChange={handleChange}
+                  />
                 </div>
               </div>
             )}
@@ -362,31 +351,23 @@ export default function SocPage() {
               </h2>
 
               <div className="space-y-6">
-                <div className="space-y-2">
-                  <Label className="text-foreground font-medium">Reason</Label>
-                  <Textarea
-                    name="serviced_reason"
-                    value={formData.serviced_reason}
-                    onChange={handleChange}
-                    placeholder="Enter reason why SOC is not serviced"
-                    rows={4}
-                    className="resize-none"
-                  />
-                </div>
+                <FloatingTextarea
+                  label="Reason"
+                  name="serviced_reason"
+                  value={formData.serviced_reason}
+                  onChange={handleChange}
+                  rows={4}
+                  className="resize-none"
+                />
 
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                  <div className="space-y-2">
-                    <Label className="text-foreground font-medium">
-                      Deadline
-                    </Label>
-                    <Input
-                      type="date"
-                      name="serviced_deadline"
-                      value={formData.serviced_deadline}
-                      onChange={handleChange}
-                      className="h-11"
-                    />
-                  </div>
+                  <FloatingInput
+                    label="Deadline"
+                    type="date"
+                    name="serviced_deadline"
+                    value={formData.serviced_deadline}
+                    onChange={handleChange}
+                  />
                 </div>
               </div>
             </div>
@@ -400,67 +381,41 @@ export default function SocPage() {
               </h2>
 
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <div className="space-y-2">
-                  <Label className="text-foreground font-medium">
-                    Process Server Company
-                  </Label>
-                  <Input
-                    name="process_server_company"
-                    value={formData.process_server_company}
-                    onChange={handleChange}
-                    placeholder="Company Name"
-                    className="h-11"
-                  />
-                </div>
+                <FloatingInput
+                  label="Process Server Company"
+                  name="process_server_company"
+                  value={formData.process_server_company}
+                  onChange={handleChange}
+                />
 
-                <div className="space-y-2">
-                  <Label className="text-foreground font-medium">
-                    Process Server Name
-                  </Label>
-                  <Input
-                    name="process_server_name"
-                    value={formData.process_server_name}
-                    onChange={handleChange}
-                    placeholder="Server Name"
-                    className="h-11"
-                  />
-                </div>
+                <FloatingInput
+                  label="Process Server Name"
+                  name="process_server_name"
+                  value={formData.process_server_name}
+                  onChange={handleChange}
+                />
 
-                <div className="space-y-2">
-                  <Label className="text-foreground font-medium">
-                    Telephone Number
-                  </Label>
-                  <Input
-                    name="telephone_number"
-                    value={formData.telephone_number}
-                    onChange={handleChange}
-                    placeholder="Phone Number"
-                    className="h-11"
-                  />
-                </div>
+                <FloatingInput
+                  label="Telephone Number"
+                  name="telephone_number"
+                  value={formData.telephone_number}
+                  onChange={handleChange}
+                />
 
-                <div className="space-y-2">
-                  <Label className="text-foreground font-medium">Email</Label>
-                  <Input
-                    type="email"
-                    name="email"
-                    value={formData.email}
-                    onChange={handleChange}
-                    placeholder="Email Address"
-                    className="h-11"
-                  />
-                </div>
+                <FloatingInput
+                  label="Email"
+                  type="email"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleChange}
+                />
 
-                <div className="space-y-2">
-                  <Label className="text-foreground font-medium">Fax</Label>
-                  <Input
-                    name="fax"
-                    value={formData.fax}
-                    onChange={handleChange}
-                    placeholder="Fax Number"
-                    className="h-11"
-                  />
-                </div>
+                <FloatingInput
+                  label="Fax"
+                  name="fax"
+                  value={formData.fax}
+                  onChange={handleChange}
+                />
               </div>
             </div>
           )}
@@ -473,18 +428,13 @@ export default function SocPage() {
               </h2>
 
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <div className="space-y-2">
-                  <Label className="text-foreground font-medium">
-                    Communication Date
-                  </Label>
-                  <Input
-                    type="date"
-                    name="communication_date"
-                    value={formData.communication_date}
-                    onChange={handleChange}
-                    className="h-11"
-                  />
-                </div>
+                <FloatingInput
+                  label="Communication Date"
+                  type="date"
+                  name="communication_date"
+                  value={formData.communication_date}
+                  onChange={handleChange}
+                />
 
                 <SearchableSelect
                   label="Mode of Communication"
@@ -496,18 +446,13 @@ export default function SocPage() {
                   placeholder="Select mode"
                 />
 
-                <div className="space-y-2">
-                  <Label className="text-foreground font-medium">
-                    Date of Service
-                  </Label>
-                  <Input
-                    type="date"
-                    name="date_of_service"
-                    value={formData.date_of_service}
-                    onChange={handleChange}
-                    className="h-11"
-                  />
-                </div>
+                <FloatingInput
+                  label="Date of Service"
+                  type="date"
+                  name="date_of_service"
+                  value={formData.date_of_service}
+                  onChange={handleChange}
+                />
 
                 <SearchableSelect
                   label="Affidavit of Service Received"
@@ -530,31 +475,21 @@ export default function SocPage() {
               </h2>
 
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <div className="space-y-2">
-                  <Label className="text-foreground font-medium">
-                    1st Reminder
-                  </Label>
-                  <Input
-                    type="date"
-                    name="reminder_1st"
-                    value={formData.reminder_1st}
-                    onChange={handleChange}
-                    className="h-11"
-                  />
-                </div>
+                <FloatingInput
+                  label="1st Reminder"
+                  type="date"
+                  name="reminder_1st"
+                  value={formData.reminder_1st}
+                  onChange={handleChange}
+                />
 
-                <div className="space-y-2">
-                  <Label className="text-foreground font-medium">
-                    2nd Reminder
-                  </Label>
-                  <Input
-                    type="date"
-                    name="reminder_2nd"
-                    value={formData.reminder_2nd}
-                    onChange={handleChange}
-                    className="h-11"
-                  />
-                </div>
+                <FloatingInput
+                  label="2nd Reminder"
+                  type="date"
+                  name="reminder_2nd"
+                  value={formData.reminder_2nd}
+                  onChange={handleChange}
+                />
               </div>
             </div>
           )}

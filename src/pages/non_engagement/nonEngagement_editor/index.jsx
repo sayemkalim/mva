@@ -27,6 +27,7 @@ import { toast } from "sonner";
 import { format } from "date-fns";
 import { Calendar } from "@/components/ui/calendar";
 import { cn } from "@/lib/utils";
+import { FloatingInput, FloatingWrapper } from "@/components/ui/floating-label";
 
 import { Navbar2 } from "@/components/navbar2";
 import Billing from "@/components/billing";
@@ -36,20 +37,20 @@ import { deleteNonEngagement } from "../helpers/deleteNonEngagement";
 import { getABMeta } from "../helpers/fetchABMeta";
 
 const SearchableSelect = ({ label, options, value, onChange, placeholder }) => {
+  const [open, setOpen] = useState(false);
   const selected = options.find((opt) => String(opt.id) === String(value));
 
   return (
-    <div className="space-y-2">
-      <Label className="text-foreground font-medium">{label}</Label>
-      <Popover>
+    <FloatingWrapper label={label} hasValue={!!selected} isFocused={open}>
+      <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
           <Button
             role="combobox"
             variant="outline"
-            className="w-full justify-between h-11"
+            className="w-full justify-between font-normal h-[52px] bg-transparent border border-input"
           >
-            {selected ? selected.name : placeholder}
-            <ChevronRight className="ml-2 h-4 w-4 rotate-90" />
+            {selected ? selected.name : ""}
+            <ChevronRight className="ml-auto h-4 w-4 shrink-0 rotate-90" />
           </Button>
         </PopoverTrigger>
 
@@ -62,7 +63,10 @@ const SearchableSelect = ({ label, options, value, onChange, placeholder }) => {
                 options.map((opt) => (
                   <CommandItem
                     key={opt.id}
-                    onSelect={() => onChange(opt.id)}
+                    onSelect={() => {
+                      onChange(opt.id);
+                      setOpen(false);
+                    }}
                     value={opt.name}
                   >
                     {opt.name}
@@ -77,7 +81,7 @@ const SearchableSelect = ({ label, options, value, onChange, placeholder }) => {
           </Command>
         </PopoverContent>
       </Popover>
-    </div>
+    </FloatingWrapper>
   );
 };
 
@@ -105,8 +109,8 @@ const DatePicker = ({ label, value, onChange }) => {
               !date && "text-muted-foreground"
             )}
           >
-            <CalendarIcon className="mr-2 h-4 w-4" />
-            {date ? format(date, "PPP") : <span>Pick a date</span>}
+            {date ? format(date, "PPP") : ""}
+            <CalendarIcon className="ml-auto h-4 w-4 shrink-0 opacity-50" />
           </Button>
         </PopoverTrigger>
         <PopoverContent className="w-auto p-0" align="start">
@@ -332,18 +336,14 @@ export default function NonEngagementPage() {
                   placeholder="Select status"
                 />
 
-                <div className="space-y-2">
-                  <Label className="text-foreground font-medium">Name</Label>
-                  <Input
-                    type="text"
-                    value={record.name}
-                    onChange={(e) =>
-                      handleRecordChange(index, "name", e.target.value)
-                    }
-                    placeholder="Enter name"
-                    className="h-11"
-                  />
-                </div>
+                <FloatingInput
+                  label="Name"
+                  type="text"
+                  value={record.name}
+                  onChange={(e) =>
+                    handleRecordChange(index, "name", e.target.value)
+                  }
+                />
 
                 <DatePicker
                   label="Issued"

@@ -3,8 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useQuery, useMutation } from "@tanstack/react-query";
 
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { FloatingInput, FloatingWrapper } from "@/components/ui/floating-label";
 import {
   Popover,
   PopoverTrigger,
@@ -41,19 +40,17 @@ function SearchableDropdown({
     (options || []).find((o) => String(o.id) === String(value)) || null;
 
   return (
-    <div className="space-y-2">
-      {label && <label className="text-foreground font-medium">{label}</label>}
-
+    <FloatingWrapper label={label} hasValue={!!selected} isFocused={open}>
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
           <Button
             variant="outline"
             role="combobox"
             type="button"
-            className="justify-between w-full"
+            className="justify-between w-full h-[52px] bg-transparent border border-input"
           >
-            {selected ? selected.name : placeholder}
-            <ChevronsUpDown className="w-4 h-4 opacity-50" />
+            {selected ? selected.name : ""}
+            <ChevronsUpDown className="ml-auto h-4 w-4 shrink-0 opacity-50" />
           </Button>
         </PopoverTrigger>
 
@@ -101,7 +98,7 @@ function SearchableDropdown({
           </Command>
         </PopoverContent>
       </Popover>
-    </div>
+    </FloatingWrapper>
   );
 }
 
@@ -267,102 +264,72 @@ export default function VehicleInfoForm() {
             </h2>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div className="space-y-2">
-                <Label>Plate Number</Label>
-                <Input
-                  value={form.plate_no}
-                  onChange={(e) => updateField("plate_no", e.target.value)}
-                  className="h-9 bg-card border-input"
-                />
-              </div>
+              <FloatingInput
+                label="Plate Number"
+                value={form.plate_no}
+                onChange={(e) => updateField("plate_no", e.target.value)}
+              />
 
-              <div className="space-y-2">
-                <Label>Province</Label>
-                <Input
-                  value={form.province}
-                  onChange={(e) => updateField("province", e.target.value)}
-                  className="h-9 bg-card border-input"
-                />
-              </div>
+              <FloatingInput
+                label="Province"
+                value={form.province}
+                onChange={(e) => updateField("province", e.target.value)}
+              />
 
-              <div className="space-y-2">
-                <Label>Vehicle Year</Label>
-                <Input
-                  value={form.vehicle_year}
-                  onChange={(e) => updateField("vehicle_year", e.target.value)}
-                  className="h-9 bg-card border-input"
-                />
-              </div>
+              <FloatingInput
+                label="Vehicle Year"
+                value={form.vehicle_year}
+                onChange={(e) => updateField("vehicle_year", e.target.value)}
+              />
 
-              <div className="space-y-2">
-                <Label>Vehicle Make</Label>
-                <Input
-                  value={form.vehicle_make}
-                  onChange={(e) => updateField("vehicle_make", e.target.value)}
-                  className="h-9 bg-card border-input"
-                />
-              </div>
+              <FloatingInput
+                label="Vehicle Make"
+                value={form.vehicle_make}
+                onChange={(e) => updateField("vehicle_make", e.target.value)}
+              />
 
-              <div className="space-y-2">
-                <Label>Vehicle Model</Label>
-                <Input
-                  value={form.vehicle_model}
-                  onChange={(e) => updateField("vehicle_model", e.target.value)}
-                  className="h-9 bg-card border-input"
-                />
-              </div>
+              <FloatingInput
+                label="Vehicle Model"
+                value={form.vehicle_model}
+                onChange={(e) => updateField("vehicle_model", e.target.value)}
+              />
 
-              <div className="space-y-2">
-                <Label>Vehicle Color</Label>
-                <Input
-                  value={form.vehicle_color}
-                  onChange={(e) => updateField("vehicle_color", e.target.value)}
-                  className="h-9 bg-card border-input"
-                />
-              </div>
+              <FloatingInput
+                label="Vehicle Color"
+                value={form.vehicle_color}
+                onChange={(e) => updateField("vehicle_color", e.target.value)}
+              />
 
-              <div className="space-y-2">
-                <Label>Vehicle Name</Label>
-                <Input
-                  value={form.name}
-                  onChange={(e) => updateField("name", e.target.value)}
-                  className="h-9 bg-card border-input"
-                />
-              </div>
+              <FloatingInput
+                label="Vehicle Name"
+                value={form.name}
+                onChange={(e) => updateField("name", e.target.value)}
+              />
 
-              <div className="space-y-2">
-                <Label>Driver Licence State</Label>
-                <Input
-                  value={form.driver_licence_state}
-                  onChange={(e) =>
-                    updateField("driver_licence_state", e.target.value)
-                  }
-                  className="h-9 bg-card border-input"
-                />
-              </div>
+              <FloatingInput
+                label="Driver Licence State"
+                value={form.driver_licence_state}
+                onChange={(e) =>
+                  updateField("driver_licence_state", e.target.value)
+                }
+              />
 
-              <div className="space-y-2">
-                <Label>Driver Licence Number</Label>
-                <Input
-                  value={form.driver_licence_number}
-                  onChange={(e) =>
-                    updateField("driver_licence_number", e.target.value)
-                  }
-                  className="h-9 bg-card border-input"
-                />
-              </div>
+              <FloatingInput
+                label="Driver Licence Number"
+                value={form.driver_licence_number}
+                onChange={(e) =>
+                  updateField("driver_licence_number", e.target.value)
+                }
+              />
 
-              <div className="space-y-2">
-                <Label>Licence Expiry Date</Label>
-                <Input
-                  type="date"
-                  value={form.driver_licence_expiry_date || ""}
-                  onChange={(e) =>
-                    updateField("driver_licence_expiry_date", e.target.value)
-                  }
-                  className="h-9 bg-card border-input"
-                />
-              </div>
+              <FloatingInput
+                label="Licence Expiry Date"
+                type="date"
+                value={form.driver_licence_expiry_date || ""}
+                onChange={(e) =>
+                  updateField("driver_licence_expiry_date", e.target.value)
+                }
+              />
 
               <SearchableDropdown
                 label="Plate Searched?"
@@ -372,17 +339,14 @@ export default function VehicleInfoForm() {
                 onChange={(val) => updateField("plate_search_id", val)}
               />
 
-              <div className="space-y-2">
-                <Label>{plateSearchDateLabel}</Label>
-                <Input
-                  type="date"
-                  value={form.plate_searched_date || ""}
-                  onChange={(e) =>
-                    updateField("plate_searched_date", e.target.value)
-                  }
-                  className="h-9 bg-card border-input"
-                />
-              </div>
+              <FloatingInput
+                label={plateSearchDateLabel}
+                type="date"
+                value={form.plate_searched_date || ""}
+                onChange={(e) =>
+                  updateField("plate_searched_date", e.target.value)
+                }
+              />
             </div>
 
             <Button

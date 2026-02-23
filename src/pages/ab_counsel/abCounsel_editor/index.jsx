@@ -26,23 +26,23 @@ import { Textarea } from "@/components/ui/textarea";
 import { Navbar2 } from "@/components/navbar2";
 import { formatPhoneNumber } from "@/lib/utils";
 import Billing from "@/components/billing";
+import { FloatingInput, FloatingTextarea, FloatingWrapper } from "@/components/ui/floating-label";
 
 const SearchableSelect = ({ label, options, value, onChange, placeholder }) => {
   const [open, setOpen] = useState(false);
   const selected = options.find((opt) => String(opt.id) === String(value));
 
   return (
-    <div className="space-y-2 max-w-sm">
-      <Label className="text-foreground font-medium">{label}</Label>
+    <FloatingWrapper label={label} hasValue={!!selected} isFocused={open} className="max-w-sm">
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
           <Button
             role="combobox"
             variant="outline"
-            className="w-full justify-between h-11"
+            className="w-full justify-between font-normal h-[52px] bg-transparent border border-input"
           >
-            {selected ? selected.name : placeholder}
-            <ChevronRight className="ml-2 h-4 w-4 rotate-90" />
+            {selected ? selected.name : ""}
+            <ChevronRight className="ml-auto h-4 w-4 shrink-0 rotate-90" />
           </Button>
         </PopoverTrigger>
 
@@ -88,7 +88,7 @@ const SearchableSelect = ({ label, options, value, onChange, placeholder }) => {
           </Command>
         </PopoverContent>
       </Popover>
-    </div>
+    </FloatingWrapper>
   );
 };
 
@@ -273,161 +273,40 @@ export default function AbCounselPage() {
         >
           {/* Firm Name */}
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6 items-center">
-            <Label className="md:col-span-1">Firm Name</Label>
-            <Input
+            <FloatingInput
+              label="Firm Name"
               name="firm_name"
               value={formData.firm_name}
               onChange={handleInputChange}
-              placeholder="Firm Name"
-              className="md:col-span-3"
+              className="md:col-span-4"
             />
           </div>
 
           {/* Address Fields */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <div className="space-y-2">
-              <Label>Unit Number</Label>
-              <Input
-                name="address.unit_number"
-                value={formData.address.unit_number}
-                onChange={handleInputChange}
-                placeholder="Unit Number"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label>Street Number</Label>
-              <Input
-                name="address.street_number"
-                value={formData.address.street_number}
-                onChange={handleInputChange}
-                placeholder="Street Number"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label>Street Name</Label>
-              <Input
-                name="address.street_name"
-                value={formData.address.street_name}
-                onChange={handleInputChange}
-                placeholder="Street Name"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label>City</Label>
-              <Input
-                name="address.city"
-                value={formData.address.city}
-                onChange={handleInputChange}
-                placeholder="City"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label>Province</Label>
-              <Input
-                name="address.province"
-                value={formData.address.province}
-                onChange={handleInputChange}
-                placeholder="Province"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label>Postal Code</Label>
-              <Input
-                name="address.postal_code"
-                value={formData.address.postal_code}
-                onChange={handleInputChange}
-                placeholder="Postal Code"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label>Country</Label>
-              <Input
-                name="address.country"
-                value={formData.address.country}
-                onChange={handleInputChange}
-                placeholder="Country"
-              />
-            </div>
+            <FloatingInput label="Unit Number" name="address.unit_number" value={formData.address.unit_number} onChange={handleInputChange} />
+            <FloatingInput label="Street Number" name="address.street_number" value={formData.address.street_number} onChange={handleInputChange} />
+            <FloatingInput label="Street Name" name="address.street_name" value={formData.address.street_name} onChange={handleInputChange} />
+            <FloatingInput label="City" name="address.city" value={formData.address.city} onChange={handleInputChange} />
+            <FloatingInput label="Province" name="address.province" value={formData.address.province} onChange={handleInputChange} />
+            <FloatingInput label="Postal Code" name="address.postal_code" value={formData.address.postal_code} onChange={handleInputChange} />
+            <FloatingInput label="Country" name="address.country" value={formData.address.country} onChange={handleInputChange} />
           </div>
 
           {/* Primary Contact Details */}
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-            <div className="space-y-2">
-              <Label>Telephone</Label>
-              <Input
-                name="telephone"
-                value={formData.telephone}
-                onChange={(e) => setFormData(prev => ({ ...prev, telephone: formatPhoneNumber(e.target.value) }))}
-                placeholder="(888) 888-8888"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label>Ext</Label>
-              <Input
-                name="ext"
-                value={formData.ext}
-                onChange={handleInputChange}
-                placeholder="Ext"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label>Fax</Label>
-              <Input
-                name="fax"
-                value={formData.fax}
-                onChange={(e) => setFormData(prev => ({ ...prev, fax: formatPhoneNumber(e.target.value) }))}
-                placeholder="(888) 888-8888"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label>Email</Label>
-              <Input
-                name="email"
-                value={formData.email}
-                onChange={handleInputChange}
-                placeholder="Email"
-              />
-            </div>
+            <FloatingInput label="Telephone" name="telephone" value={formData.telephone} onChange={(e) => setFormData(prev => ({ ...prev, telephone: formatPhoneNumber(e.target.value) }))} />
+            <FloatingInput label="Ext" name="ext" value={formData.ext} onChange={handleInputChange} />
+            <FloatingInput label="Fax" name="fax" value={formData.fax} onChange={(e) => setFormData(prev => ({ ...prev, fax: formatPhoneNumber(e.target.value) }))} />
+            <FloatingInput label="Email" name="email" value={formData.email} onChange={handleInputChange} />
           </div>
 
           {/* Secondary Contact Details */}
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-            <div className="space-y-2">
-              <Label>Telephone 2nd</Label>
-              <Input
-                name="telephone_2nd"
-                value={formData.telephone_2nd}
-                onChange={(e) => setFormData(prev => ({ ...prev, telephone_2nd: formatPhoneNumber(e.target.value) }))}
-                placeholder="(888) 888-8888"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label>Ext 2nd</Label>
-              <Input
-                name="ext_2nd"
-                value={formData.ext_2nd}
-                onChange={handleInputChange}
-                placeholder="Ext 2nd"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label>Fax 2nd</Label>
-              <Input
-                name="fax_2nd"
-                value={formData.fax_2nd}
-                onChange={(e) => setFormData(prev => ({ ...prev, fax_2nd: formatPhoneNumber(e.target.value) }))}
-                placeholder="(888) 888-8888"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label>Email 2nd</Label>
-              <Input
-                name="email_2nd"
-                value={formData.email_2nd}
-                onChange={handleInputChange}
-                placeholder="Email 2nd"
-              />
-            </div>
+            <FloatingInput label="Telephone 2nd" name="telephone_2nd" value={formData.telephone_2nd} onChange={(e) => setFormData(prev => ({ ...prev, telephone_2nd: formatPhoneNumber(e.target.value) }))} />
+            <FloatingInput label="Ext 2nd" name="ext_2nd" value={formData.ext_2nd} onChange={handleInputChange} />
+            <FloatingInput label="Fax 2nd" name="fax_2nd" value={formData.fax_2nd} onChange={(e) => setFormData(prev => ({ ...prev, fax_2nd: formatPhoneNumber(e.target.value) }))} />
+            <FloatingInput label="Email 2nd" name="email_2nd" value={formData.email_2nd} onChange={handleInputChange} />
           </div>
 
           {/* Type Selector */}
@@ -442,13 +321,12 @@ export default function AbCounselPage() {
           </div>
 
           {/* Note */}
-          <div className="space-y-2 max-w-3xl">
-            <Label>Note</Label>
-            <Textarea
+          <div className="max-w-3xl">
+            <FloatingTextarea
+              label="Note"
               name="note"
               value={formData.note}
               onChange={handleInputChange}
-              placeholder="Add note if any..."
               rows={4}
             />
           </div>

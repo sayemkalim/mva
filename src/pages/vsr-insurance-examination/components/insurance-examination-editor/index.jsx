@@ -310,7 +310,7 @@ export default function VSRAssessmentPage() {
                         metaData?.examination_assessment_status,
                         "Select assessment status"
                       )}
-                      <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                      <ChevronsUpDown className="ml-auto h-4 w-4 shrink-0 opacity-50" />
                     </Button>
                   </PopoverTrigger>
                   <PopoverContent className="w-full p-0" align="start">
@@ -374,7 +374,7 @@ export default function VSRAssessmentPage() {
                         metaData?.examination_type_of_assessment,
                         "Select type of assessment"
                       )}
-                      <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                      <ChevronsUpDown className="ml-auto h-4 w-4 shrink-0 opacity-50" />
                     </Button>
                   </PopoverTrigger>
                   <PopoverContent className="w-full p-0" align="start">
@@ -438,7 +438,7 @@ export default function VSRAssessmentPage() {
                         metaData?.examination_referral_partner,
                         "Select referral partner"
                       )}
-                      <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                      <ChevronsUpDown className="ml-auto h-4 w-4 shrink-0 opacity-50" />
                     </Button>
                   </PopoverTrigger>
                   <PopoverContent className="w-full p-0" align="start">
@@ -555,7 +555,7 @@ export default function VSRAssessmentPage() {
                         metaData?.yes_no_option,
                         "Select option"
                       )}
-                      <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                      <ChevronsUpDown className="ml-auto h-4 w-4 shrink-0 opacity-50" />
                     </Button>
                   </PopoverTrigger>
                   <PopoverContent className="w-full p-0" align="start">
@@ -720,7 +720,7 @@ export default function VSRAssessmentPage() {
                         metaData?.examination_informed_to_client,
                         "Select option"
                       )}
-                      <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                      <ChevronsUpDown className="ml-auto h-4 w-4 shrink-0 opacity-50" />
                     </Button>
                   </PopoverTrigger>
                   <PopoverContent className="w-full p-0" align="start">
@@ -784,7 +784,7 @@ export default function VSRAssessmentPage() {
                         metaData?.examination_reminder_to_client,
                         "Select reminder"
                       )}
-                      <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                      <ChevronsUpDown className="ml-auto h-4 w-4 shrink-0 opacity-50" />
                     </Button>
                   </PopoverTrigger>
                   <PopoverContent className="w-full p-0" align="start">
