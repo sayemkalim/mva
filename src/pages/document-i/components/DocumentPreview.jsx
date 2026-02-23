@@ -12,10 +12,18 @@ import {
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
 
 const DocumentPreview = ({ document }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [hasError, setHasError] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   if (!document) {
     return (
@@ -194,71 +202,110 @@ const DocumentPreview = ({ document }) => {
   };
 
   return (
-    <div className="flex flex-col h-full bg-white dark:bg-gray-900">
-      {/* Header */}
-      <div className="border-b dark:border-gray-800 p-4 space-y-3">
-        <div className="flex items-start justify-between">
-          <div className="flex-1 min-w-0">
-            <h2 className="text-lg font-semibold text-foreground truncate">
-              {document.title || "Untitled Document"}
-            </h2>
-            <p className="text-sm text-muted-foreground mt-1">
-              {attachment.original_name}
-            </p>
+    <>
+      <div className="flex flex-col h-full bg-white dark:bg-gray-900">
+        {/* Header */}
+        <div className="border-b dark:border-gray-800 p-4 space-y-3">
+          <div className="flex items-start justify-between">
+            <div className="flex-1 min-w-0">
+              <h2 className="text-lg font-semibold text-foreground truncate">
+                {document.title || "Untitled Document"}
+              </h2>
+              <p className="text-sm text-muted-foreground mt-1">
+                {attachment.original_name}
+              </p>
+            </div>
+            <div className="flex items-center gap-2 ml-4">
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={handleDownload}
+                className="gap-2"
+              >
+                <Download className="h-4 w-4" />
+                Download
+              </Button>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={() => setIsModalOpen(true)}
+                className="gap-2"
+              >
+                <ExternalLink className="h-4 w-4" />
+                Open
+              </Button>
+            </div>
           </div>
-          <div className="flex items-center gap-2 ml-4">
+          
+          <div className="flex items-center gap-4 text-sm text-muted-foreground">
+            <div className="flex items-center gap-1">
+              {getDocumentIcon(attachment.extension)}
+              <span className="uppercase font-medium">
+                {attachment.extension || 'Unknown'}
+              </span>
+            </div>
+            <span>•</span>
+            <span>{formatFileSize(attachment.size)}</span>
+            {document.doc_received_date && (
+              <>
+                <span>•</span>
+                <span>Received: {new Date(document.doc_received_date).toLocaleDateString()}</span>
+              </>
+            )}
+          </div>
+
+          {document.memo && (
+            <div className="mt-3">
+              <Badge variant="secondary" className="text-xs">
+                Memo: {document.memo}
+              </Badge>
+            </div>
+          )}
+        </div>
+
+        {/* Content */}
+        <div className="flex-1 overflow-hidden">
+          {renderPreview()}
+        </div>
+      </div>
+
+      <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
+        <DialogContent className="max-w-[70vw] w-full h-[90vh] flex flex-col p-0">
+          <DialogHeader className="px-6 py-4 border-b dark:border-gray-800">
+            <DialogTitle className="text-left">
+              {document.title || "Untitled Document"}
+            </DialogTitle>
+            <div className="flex items-center gap-4 text-sm text-muted-foreground mt-2">
+              <div className="flex items-center gap-1">
+                {getDocumentIcon(attachment.extension)}
+                <span className="uppercase font-medium">
+                  {attachment.extension || 'Unknown'}
+                </span>
+              </div>
+              <span>•</span>
+              <span>{formatFileSize(attachment.size)}</span>
+              <span>•</span>
+              <span>{attachment.original_name}</span>
+            </div>
+          </DialogHeader>
+          
+          <div className="flex-1 overflow-hidden p-6">
+            {renderPreview()}
+          </div>
+          
+          <DialogFooter className="px-6 py-4 border-t dark:border-gray-800">
             <Button 
               variant="outline" 
-              size="sm" 
               onClick={handleDownload}
               className="gap-2"
             >
               <Download className="h-4 w-4" />
               Download
             </Button>
-            <Button 
-              variant="outline" 
-              size="sm" 
-              onClick={() => window.open(attachment.path, '_blank')}
-              className="gap-2"
-            >
-              <ExternalLink className="h-4 w-4" />
-              Open
-            </Button>
-          </div>
-        </div>
-        
-        <div className="flex items-center gap-4 text-sm text-muted-foreground">
-          <div className="flex items-center gap-1">
-            {getDocumentIcon(attachment.extension)}
-            <span className="uppercase font-medium">
-              {attachment.extension || 'Unknown'}
-            </span>
-          </div>
-          <span>•</span>
-          <span>{formatFileSize(attachment.size)}</span>
-          {document.doc_received_date && (
-            <>
-              <span>•</span>
-              <span>Received: {new Date(document.doc_received_date).toLocaleDateString()}</span>
-            </>
-          )}
-        </div>
-
-        {document.memo && (
-          <div className="mt-3">
-            <Badge variant="secondary" className="text-xs">
-              Memo: {document.memo}
-            </Badge>
-          </div>
-        )}
-      </div>
-
-      {/* Content */}
-      <div className="flex-1 overflow-hidden">
-        {renderPreview()}
-      </div>
-    </div>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 };
 
