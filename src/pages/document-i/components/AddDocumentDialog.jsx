@@ -89,7 +89,7 @@ const SearchableCreatableSelect = ({
             ) : (
               <>
                 {selected ? selected.name : (value || placeholder)}
-                <ChevronDown className="ml-2 h-4 w-4 opacity-50" />
+                <ChevronDown className="ml-auto h-4 w-4 shrink-0 opacity-50" />
               </>
             )}
           </Button>

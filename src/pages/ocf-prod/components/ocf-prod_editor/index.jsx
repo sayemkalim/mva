@@ -37,6 +37,7 @@ import { fetchOcfProdById } from "../../helpers/fetchOcfProdById";
 import Billing from "@/components/billing";
 import { format } from "date-fns";
 import { Calendar as CalendarComponent } from "@/components/ui/calendar";
+import { FloatingInput, FloatingTextarea, FloatingWrapper } from "@/components/ui/floating-label";
 
 export default function OCFProdPage() {
   const { id, slug } = useParams();
@@ -264,110 +265,111 @@ export default function OCFProdPage() {
     return `(${phoneNumber.slice(0, 3)}) ${phoneNumber.slice(3, 6)}-${phoneNumber.slice(6, 10)}`;
   };
 
-  const SearchableDropdown = ({ value, onChange, options, placeholder, openKey }) => {
+  const SearchableDropdown = ({ label, value, onChange, options, placeholder, openKey }) => {
     const isOpen = openStates[openKey] || false;
     return (
-      <Popover open={isOpen} onOpenChange={(v) => toggleOpen(openKey, v)}>
-        <PopoverTrigger asChild>
-          <Button
-            variant="outline"
-            role="combobox"
-            aria-expanded={isOpen}
-            className="w-full justify-between h-10 font-normal"
-          >
-            {value
-              ? options?.find((option) => option.name === value)?.name || value
-              : placeholder || "Select"}
-            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-          </Button>
-        </PopoverTrigger>
-        <PopoverContent className="w-[--radix-popover-trigger-width] p-0" align="start">
-          <Command>
-            <CommandInput placeholder="Search..." />
-            <CommandList>
-              <CommandEmpty>No results found.</CommandEmpty>
-              <CommandGroup>
-                <CommandItem
-                  onSelect={() => {
-                    onChange("");
-                    toggleOpen(openKey, false);
-                  }}
-                  className="italic text-muted-foreground"
-                >
-                  <Check
-                    className={cn(
-                      "mr-2 h-4 w-4",
-                      !value ? "opacity-100" : "opacity-0"
-                    )}
-                  />
-                  None
-                </CommandItem>
-                {options?.map((option) => (
+      <FloatingWrapper label={label} hasValue={!!value} isFocused={isOpen}>
+        <Popover open={isOpen} onOpenChange={(v) => toggleOpen(openKey, v)}>
+          <PopoverTrigger asChild>
+            <Button
+              variant="outline"
+              role="combobox"
+              aria-expanded={isOpen}
+              className="w-full justify-between h-[52px] font-normal bg-transparent border border-input"
+            >
+              {value
+                ? options?.find((option) => option.name === value)?.name || value
+                : ""}
+              <ChevronsUpDown className="ml-auto h-4 w-4 shrink-0 opacity-50" />
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-[--radix-popover-trigger-width] p-0" align="start">
+            <Command>
+              <CommandInput placeholder="Search..." />
+              <CommandList>
+                <CommandEmpty>No results found.</CommandEmpty>
+                <CommandGroup>
                   <CommandItem
-                    key={option.id}
-                    value={option.name}
                     onSelect={() => {
-                      const newVal = value === option.name ? "" : option.name;
-                      onChange(newVal);
+                      onChange("");
                       toggleOpen(openKey, false);
                     }}
+                    className="italic text-muted-foreground"
                   >
                     <Check
                       className={cn(
                         "mr-2 h-4 w-4",
-                        value === option.name ? "opacity-100" : "opacity-0"
+                        !value ? "opacity-100" : "opacity-0"
                       )}
                     />
-                    {option.name}
+                    None
                   </CommandItem>
-                ))}
-              </CommandGroup>
-            </CommandList>
-          </Command>
-        </PopoverContent>
-      </Popover>
+                  {options?.map((option) => (
+                    <CommandItem
+                      key={option.id}
+                      value={option.name}
+                      onSelect={() => {
+                        const newVal = value === option.name ? "" : option.name;
+                        onChange(newVal);
+                        toggleOpen(openKey, false);
+                      }}
+                    >
+                      <Check
+                        className={cn(
+                          "mr-2 h-4 w-4",
+                          value === option.name ? "opacity-100" : "opacity-0"
+                        )}
+                      />
+                      {option.name}
+                    </CommandItem>
+                  ))}
+                </CommandGroup>
+              </CommandList>
+            </Command>
+          </PopoverContent>
+        </Popover>
+      </FloatingWrapper>
     );
   };
 
-  const DatePicker = ({ value, onChange, placeholder, openKey }) => {
+  const DatePicker = ({ label, value, onChange, placeholder, openKey }) => {
     const isOpen = openStates[openKey] || false;
     return (
-      <Popover open={isOpen} onOpenChange={(v) => toggleOpen(openKey, v)}>
-        <PopoverTrigger asChild>
-          <Button
-            variant={"outline"}
-            className={cn(
-              "w-full justify-start text-left font-normal",
-              !value && "text-muted-foreground"
-            )}
-          >
-            <CalendarIcon className="mr-2 h-4 w-4" />
-            {value ? (
-              format(new Date(value + "T00:00:00"), "dd/MM/yyyy")
-            ) : (
-              <span>{placeholder || "Pick a date"}</span>
-            )}
-          </Button>
-        </PopoverTrigger>
-        <PopoverContent className="w-auto p-0" align="start">
-          <CalendarComponent
-            mode="single"
-            selected={value ? new Date(value + "T00:00:00") : undefined}
-            onSelect={(date) => {
-              if (date) {
-                const yyyy = date.getFullYear();
-                const mm = String(date.getMonth() + 1).padStart(2, "0");
-                const dd = String(date.getDate()).padStart(2, "0");
-                onChange(`${yyyy}-${mm}-${dd}`);
-              } else {
-                onChange("");
-              }
-              toggleOpen(openKey, false);
-            }}
-            initialFocus
-          />
-        </PopoverContent>
-      </Popover>
+      <FloatingWrapper label={label} hasValue={!!value} isFocused={isOpen}>
+        <Popover open={isOpen} onOpenChange={(v) => toggleOpen(openKey, v)}>
+          <PopoverTrigger asChild>
+            <Button
+              variant={"outline"}
+              className="w-full justify-start text-left font-normal h-[52px] bg-transparent border border-input"
+            >
+              {value ? (
+                format(new Date(value + "T00:00:00"), "dd/MM/yyyy")
+              ) : (
+                ""
+              )}
+              <CalendarIcon className="ml-auto h-4 w-4 shrink-0 opacity-50" />
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-auto p-0" align="start">
+            <CalendarComponent
+              mode="single"
+              selected={value ? new Date(value + "T00:00:00") : undefined}
+              onSelect={(date) => {
+                if (date) {
+                  const yyyy = date.getFullYear();
+                  const mm = String(date.getMonth() + 1).padStart(2, "0");
+                  const dd = String(date.getDate()).padStart(2, "0");
+                  onChange(`${yyyy}-${mm}-${dd}`);
+                } else {
+                  onChange("");
+                }
+                toggleOpen(openKey, false);
+              }}
+              initialFocus
+            />
+          </PopoverContent>
+        </Popover>
+      </FloatingWrapper>
     );
   };
 
@@ -654,48 +656,10 @@ export default function OCFProdPage() {
               Basic Information
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-              <div className="space-y-2">
-                <Label className="text-sm font-medium">Claim No</Label>
-                <Input
-                  value={formData.claim_no}
-                  onChange={(e) =>
-                    handleFieldChange("claim_no", e.target.value)
-                  }
-                  className="h-10"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label className="text-sm font-medium">Policy No</Label>
-                <Input
-                  value={formData.policy_no}
-                  onChange={(e) =>
-                    handleFieldChange("policy_no", e.target.value)
-                  }
-                  className="h-10"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label className="text-sm font-medium">Date of Accident</Label>
-                <Input
-                  type="date"
-                  value={formData.date_of_accident}
-                  onChange={(e) =>
-                    handleFieldChange("date_of_accident", e.target.value)
-                  }
-                  className="h-10"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label className="text-sm font-medium">Document Date</Label>
-                <Input
-                  type="date"
-                  value={formData.document_date}
-                  onChange={(e) =>
-                    handleFieldChange("document_date", e.target.value)
-                  }
-                  className="h-10"
-                />
-              </div>
+              <FloatingInput label="Claim No" value={formData.claim_no} onChange={(e) => handleFieldChange("claim_no", e.target.value)} />
+              <FloatingInput label="Policy No" value={formData.policy_no} onChange={(e) => handleFieldChange("policy_no", e.target.value)} />
+              <FloatingInput label="Date of Accident" type="date" value={formData.date_of_accident} onChange={(e) => handleFieldChange("date_of_accident", e.target.value)} />
+              <FloatingInput label="Document Date" type="date" value={formData.document_date} onChange={(e) => handleFieldChange("document_date", e.target.value)} />
             </div>
           </div>
 
@@ -705,196 +669,32 @@ export default function OCFProdPage() {
               Applicant Information
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              <div className="space-y-2">
-                <Label className="text-sm font-medium">First Name</Label>
-                <Input
-                  value={formData.first_name}
-                  onChange={(e) =>
-                    handleFieldChange("first_name", e.target.value)
-                  }
-                  className="h-10"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label className="text-sm font-medium">Middle Name</Label>
-                <Input
-                  value={formData.middle_name}
-                  onChange={(e) =>
-                    handleFieldChange("middle_name", e.target.value)
-                  }
-                  className="h-10"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label className="text-sm font-medium">Last Name</Label>
-                <Input
-                  value={formData.last_name}
-                  onChange={(e) =>
-                    handleFieldChange("last_name", e.target.value)
-                  }
-                  className="h-10"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label className="text-sm font-medium">Gender</Label>
-                <Input
-                  value={formData.gender}
-                  onChange={(e) => handleFieldChange("gender", e.target.value)}
-                  placeholder="Male/Female"
-                  className="h-10"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label className="text-sm font-medium">Date of Birth</Label>
-                <Input
-                  type="date"
-                  value={formData.date_of_birth}
-                  onChange={(e) =>
-                    handleFieldChange("date_of_birth", e.target.value)
-                  }
-                  className="h-10"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label className="text-sm font-medium">Language</Label>
-                <Input
-                  value={formData.language}
-                  onChange={(e) =>
-                    handleFieldChange("language", e.target.value)
-                  }
-                  className="h-10"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label className="text-sm font-medium">Marital Status</Label>
-                <Input
-                  value={formData.marital_status}
-                  onChange={(e) =>
-                    handleFieldChange("marital_status", e.target.value)
-                  }
-                  className="h-10"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label className="text-sm font-medium">Driver Licence No</Label>
-                <Input
-                  value={formData.driver_licence_no}
-                  onChange={(e) =>
-                    handleFieldChange("driver_licence_no", e.target.value)
-                  }
-                  className="h-10"
-                />
-              </div>
+              <FloatingInput label="First Name" value={formData.first_name} onChange={(e) => handleFieldChange("first_name", e.target.value)} />
+              <FloatingInput label="Middle Name" value={formData.middle_name} onChange={(e) => handleFieldChange("middle_name", e.target.value)} />
+              <FloatingInput label="Last Name" value={formData.last_name} onChange={(e) => handleFieldChange("last_name", e.target.value)} />
+              <FloatingInput label="Gender" value={formData.gender} onChange={(e) => handleFieldChange("gender", e.target.value)} />
+              <FloatingInput label="Date of Birth" type="date" value={formData.date_of_birth} onChange={(e) => handleFieldChange("date_of_birth", e.target.value)} />
+              <FloatingInput label="Language" value={formData.language} onChange={(e) => handleFieldChange("language", e.target.value)} />
+              <FloatingInput label="Marital Status" value={formData.marital_status} onChange={(e) => handleFieldChange("marital_status", e.target.value)} />
+              <FloatingInput label="Driver Licence No" value={formData.driver_licence_no} onChange={(e) => handleFieldChange("driver_licence_no", e.target.value)} />
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-              <div className="space-y-2 col-span-2">
-                <Label className="text-sm font-medium">Street Address</Label>
-                <Input
-                  value={formData.street_address}
-                  onChange={(e) =>
-                    handleFieldChange("street_address", e.target.value)
-                  }
-                  className="h-10"
-                />
+              <div className="col-span-2">
+                <FloatingInput label="Street Address" value={formData.street_address} onChange={(e) => handleFieldChange("street_address", e.target.value)} />
               </div>
-              <div className="space-y-2">
-                <Label className="text-sm font-medium">City</Label>
-                <Input
-                  value={formData.city}
-                  onChange={(e) => handleFieldChange("city", e.target.value)}
-                  className="h-10"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label className="text-sm font-medium">Province</Label>
-                <Input
-                  value={formData.province}
-                  onChange={(e) =>
-                    handleFieldChange("province", e.target.value)
-                  }
-                  className="h-10"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label className="text-sm font-medium">Postal Code</Label>
-                <Input
-                  value={formData.postal_code}
-                  onChange={(e) =>
-                    handleFieldChange("postal_code", e.target.value)
-                  }
-                  className="h-10"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label className="text-sm font-medium">Home Tel</Label>
-                <Input
-                  value={formData.home_tel}
-                  onChange={(e) =>
-                    handleFieldChange("home_tel", formatPhoneNumber(e.target.value))
-                  }
-                  placeholder="(000) 000-0000"
-                  maxLength={14}
-                  className="h-10"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label className="text-sm font-medium">Work Tel</Label>
-                <Input
-                  value={formData.work_tel}
-                  onChange={(e) =>
-                    handleFieldChange("work_tel", formatPhoneNumber(e.target.value))
-                  }
-                  placeholder="(000) 000-0000"
-                  maxLength={14}
-                  className="h-10"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label className="text-sm font-medium">Fax</Label>
-                <Input
-                  value={formData.fax}
-                  onChange={(e) =>
-                    handleFieldChange("fax", formatPhoneNumber(e.target.value))
-                  }
-                  placeholder="(000) 000-0000"
-                  maxLength={14}
-                  className="h-10"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label className="text-sm font-medium">Email</Label>
-                <Input
-                  type="email"
-                  value={formData.email}
-                  onChange={(e) => handleFieldChange("email", e.target.value)}
-                  className="h-10"
-                />
-              </div>
+              <FloatingInput label="City" value={formData.city} onChange={(e) => handleFieldChange("city", e.target.value)} />
+              <FloatingInput label="Province" value={formData.province} onChange={(e) => handleFieldChange("province", e.target.value)} />
+              <FloatingInput label="Postal Code" value={formData.postal_code} onChange={(e) => handleFieldChange("postal_code", e.target.value)} />
+              <FloatingInput label="Home Tel" value={formData.home_tel} onChange={(e) => handleFieldChange("home_tel", formatPhoneNumber(e.target.value))} maxLength={14} />
+              <FloatingInput label="Work Tel" value={formData.work_tel} onChange={(e) => handleFieldChange("work_tel", formatPhoneNumber(e.target.value))} maxLength={14} />
+              <FloatingInput label="Fax" value={formData.fax} onChange={(e) => handleFieldChange("fax", formatPhoneNumber(e.target.value))} maxLength={14} />
+              <FloatingInput label="Email" type="email" value={formData.email} onChange={(e) => handleFieldChange("email", e.target.value)} />
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label className="text-sm font-medium">Any Dependants</Label>
-                <SearchableDropdown
-                  value={formData.any_dependants}
-                  onChange={(val) => handleFieldChange("any_dependants", val)}
-                  options={metaData?.yes_no_option}
-                  placeholder="Select"
-                  openKey="any_dependants"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label className="text-sm font-medium">How Many Persons</Label>
-                <Input
-                  value={formData.how_many_persons}
-                  onChange={(e) =>
-                    handleFieldChange("how_many_persons", e.target.value)
-                  }
-                  type="number"
-                  className="h-10"
-                />
-              </div>
+              <SearchableDropdown label="Any Dependants" value={formData.any_dependants} onChange={(val) => handleFieldChange("any_dependants", val)} options={metaData?.yes_no_option} placeholder="Select" openKey="any_dependants" />
+              <FloatingInput label="How Many Persons" value={formData.how_many_persons} onChange={(e) => handleFieldChange("how_many_persons", e.target.value)} type="number" />
             </div>
           </div>
 
@@ -904,171 +704,24 @@ export default function OCFProdPage() {
               Patient Representative
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              <div className="space-y-2">
-                <Label className="text-sm font-medium">Patient Rep</Label>
-                <Input
-                  value={formData.patient_rep}
-                  onChange={(e) =>
-                    handleFieldChange("patient_rep", e.target.value)
-                  }
-                  className="h-10"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label className="text-sm font-medium">First Name</Label>
-                <Input
-                  value={formData.patient_first_name}
-                  onChange={(e) =>
-                    handleFieldChange("patient_first_name", e.target.value)
-                  }
-                  className="h-10"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label className="text-sm font-medium">Last Name</Label>
-                <Input
-                  value={formData.patient_last_name}
-                  onChange={(e) =>
-                    handleFieldChange("patient_last_name", e.target.value)
-                  }
-                  className="h-10"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label className="text-sm font-medium">Address</Label>
-                <Input
-                  value={formData.patient_address}
-                  onChange={(e) =>
-                    handleFieldChange("patient_address", e.target.value)
-                  }
-                  className="h-10"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label className="text-sm font-medium">City</Label>
-                <Input
-                  value={formData.patient_city}
-                  onChange={(e) =>
-                    handleFieldChange("patient_city", e.target.value)
-                  }
-                  className="h-10"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label className="text-sm font-medium">Province</Label>
-                <Input
-                  value={formData.patient_province}
-                  onChange={(e) =>
-                    handleFieldChange("patient_province", e.target.value)
-                  }
-                  className="h-10"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label className="text-sm font-medium">Postal Code</Label>
-                <Input
-                  value={formData.patient_postal_code}
-                  onChange={(e) =>
-                    handleFieldChange("patient_postal_code", e.target.value)
-                  }
-                  className="h-10"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label className="text-sm font-medium">Home Tel</Label>
-                <Input
-                  value={formData.patient_home_tel}
-                  onChange={(e) =>
-                    handleFieldChange(
-                      "patient_home_tel",
-                      formatPhoneNumber(e.target.value)
-                    )
-                  }
-                  placeholder="(000) 000-0000"
-                  maxLength={14}
-                  className="h-10"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label className="text-sm font-medium">Work Tel</Label>
-                <Input
-                  value={formData.patient_work_tel}
-                  onChange={(e) =>
-                    handleFieldChange(
-                      "patient_work_tel",
-                      formatPhoneNumber(e.target.value)
-                    )
-                  }
-                  placeholder="(000) 000-0000"
-                  maxLength={14}
-                  className="h-10"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label className="text-sm font-medium">Fax</Label>
-                <Input
-                  value={formData.patient_fax}
-                  onChange={(e) =>
-                    handleFieldChange("patient_fax", formatPhoneNumber(e.target.value))
-                  }
-                  placeholder="(000) 000-0000"
-                  maxLength={14}
-                  className="h-10"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label className="text-sm font-medium">Email</Label>
-                <Input
-                  type="email"
-                  value={formData.patient_email}
-                  onChange={(e) =>
-                    handleFieldChange("patient_email", e.target.value)
-                  }
-                  className="h-10"
-                />
-              </div>
+              <FloatingInput label="Patient Rep" value={formData.patient_rep} onChange={(e) => handleFieldChange("patient_rep", e.target.value)} />
+              <FloatingInput label="First Name" value={formData.patient_first_name} onChange={(e) => handleFieldChange("patient_first_name", e.target.value)} />
+              <FloatingInput label="Last Name" value={formData.patient_last_name} onChange={(e) => handleFieldChange("patient_last_name", e.target.value)} />
+              <FloatingInput label="Address" value={formData.patient_address} onChange={(e) => handleFieldChange("patient_address", e.target.value)} />
+              <FloatingInput label="City" value={formData.patient_city} onChange={(e) => handleFieldChange("patient_city", e.target.value)} />
+              <FloatingInput label="Province" value={formData.patient_province} onChange={(e) => handleFieldChange("patient_province", e.target.value)} />
+              <FloatingInput label="Postal Code" value={formData.patient_postal_code} onChange={(e) => handleFieldChange("patient_postal_code", e.target.value)} />
+              <FloatingInput label="Home Tel" value={formData.patient_home_tel} onChange={(e) => handleFieldChange("patient_home_tel", formatPhoneNumber(e.target.value))} maxLength={14} />
+              <FloatingInput label="Work Tel" value={formData.patient_work_tel} onChange={(e) => handleFieldChange("patient_work_tel", formatPhoneNumber(e.target.value))} maxLength={14} />
+              <FloatingInput label="Fax" value={formData.patient_fax} onChange={(e) => handleFieldChange("patient_fax", formatPhoneNumber(e.target.value))} maxLength={14} />
+              <FloatingInput label="Email" type="email" value={formData.patient_email} onChange={(e) => handleFieldChange("patient_email", e.target.value)} />
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label className="text-sm font-medium">R Lawyer</Label>
-                <Input
-                  value={formData.r_lawyer}
-                  onChange={(e) =>
-                    handleFieldChange("r_lawyer", e.target.value)
-                  }
-                  className="h-10"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label className="text-sm font-medium">R Other Value</Label>
-                <Input
-                  value={formData.r_othervalue}
-                  onChange={(e) =>
-                    handleFieldChange("r_othervalue", e.target.value)
-                  }
-                  className="h-10"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label className="text-sm font-medium">Signed By</Label>
-                <Input
-                  value={formData.signed_by}
-                  onChange={(e) =>
-                    handleFieldChange("signed_by", e.target.value)
-                  }
-                  className="h-10"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label className="text-sm font-medium">Date</Label>
-                <Input
-                  type="date"
-                  value={formData.date}
-                  onChange={(e) => handleFieldChange("date", e.target.value)}
-                  className="h-10"
-                />
-              </div>
+              <FloatingInput label="R Lawyer" value={formData.r_lawyer} onChange={(e) => handleFieldChange("r_lawyer", e.target.value)} />
+              <FloatingInput label="R Other Value" value={formData.r_othervalue} onChange={(e) => handleFieldChange("r_othervalue", e.target.value)} />
+              <FloatingInput label="Signed By" value={formData.signed_by} onChange={(e) => handleFieldChange("signed_by", e.target.value)} />
+              <FloatingInput label="Date" type="date" value={formData.date} onChange={(e) => handleFieldChange("date", e.target.value)} />
             </div>
           </div>
 
@@ -1078,59 +731,11 @@ export default function OCFProdPage() {
               Insurance Company
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              <div className="space-y-2">
-                <Label className="text-sm font-medium">Insurance Co</Label>
-                <Input
-                  value={formData.insurance_co}
-                  onChange={(e) =>
-                    handleFieldChange("insurance_co", e.target.value)
-                  }
-                  className="h-10"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label className="text-sm font-medium">Street Address</Label>
-                <Input
-                  value={formData.insurance_street_address}
-                  onChange={(e) =>
-                    handleFieldChange(
-                      "insurance_street_address",
-                      e.target.value
-                    )
-                  }
-                  className="h-10"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label className="text-sm font-medium">City</Label>
-                <Input
-                  value={formData.insurance_City}
-                  onChange={(e) =>
-                    handleFieldChange("insurance_City", e.target.value)
-                  }
-                  className="h-10"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label className="text-sm font-medium">Province</Label>
-                <Input
-                  value={formData.insurance_province}
-                  onChange={(e) =>
-                    handleFieldChange("insurance_province", e.target.value)
-                  }
-                  className="h-10"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label className="text-sm font-medium">Postal Code</Label>
-                <Input
-                  value={formData.insurance_postal_code}
-                  onChange={(e) =>
-                    handleFieldChange("insurance_postal_code", e.target.value)
-                  }
-                  className="h-10"
-                />
-              </div>
+              <FloatingInput label="Insurance Co" value={formData.insurance_co} onChange={(e) => handleFieldChange("insurance_co", e.target.value)} />
+              <FloatingInput label="Street Address" value={formData.insurance_street_address} onChange={(e) => handleFieldChange("insurance_street_address", e.target.value)} />
+              <FloatingInput label="City" value={formData.insurance_City} onChange={(e) => handleFieldChange("insurance_City", e.target.value)} />
+              <FloatingInput label="Province" value={formData.insurance_province} onChange={(e) => handleFieldChange("insurance_province", e.target.value)} />
+              <FloatingInput label="Postal Code" value={formData.insurance_postal_code} onChange={(e) => handleFieldChange("insurance_postal_code", e.target.value)} />
             </div>
           </div>
 
@@ -1140,141 +745,24 @@ export default function OCFProdPage() {
               Accident Details
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-              <div className="space-y-2">
-                <Label className="text-sm font-medium">Day of Week</Label>
-                <Input
-                  value={formData.day_of_the_week}
-                  onChange={(e) =>
-                    handleFieldChange("day_of_the_week", e.target.value)
-                  }
-                  placeholder="Monday, Tuesday..."
-                  className="h-10"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label className="text-sm font-medium">Time of Day</Label>
-                <Input
-                  type="time"
-                  value={formData.time_of_the_day}
-                  onChange={(e) =>
-                    handleFieldChange("time_of_the_day", e.target.value)
-                  }
-                  className="h-10"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label className="text-sm font-medium">Other Value</Label>
-                <Input
-                  value={formData.other_value}
-                  onChange={(e) =>
-                    handleFieldChange("other_value", e.target.value)
-                  }
-                  className="h-10"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label className="text-sm font-medium">
-                  Date of Accident (1st)
-                </Label>
-                <Input
-                  type="date"
-                  value={formData.Date_of_accident_1st}
-                  onChange={(e) =>
-                    handleFieldChange("Date_of_accident_1st", e.target.value)
-                  }
-                  className="h-10"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label className="text-sm font-medium">
-                  Time of Accident (1st)
-                </Label>
-                <Input
-                  type="time"
-                  value={formData.time_of_accident_1st}
-                  onChange={(e) =>
-                    handleFieldChange("time_of_accident_1st", e.target.value)
-                  }
-                  className="h-10"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label className="text-sm font-medium">Patient Position</Label>
-                <Input
-                  value={formData.patient_position}
-                  onChange={(e) =>
-                    handleFieldChange("patient_position", e.target.value)
-                  }
-                  className="h-10"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label className="text-sm font-medium">Accident Location</Label>
-                <Input
-                  value={formData.accident_location}
-                  onChange={(e) =>
-                    handleFieldChange("accident_location", e.target.value)
-                  }
-                  className="h-10"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label className="text-sm font-medium">Accident City</Label>
-                <Input
-                  value={formData.accident_city}
-                  onChange={(e) =>
-                    handleFieldChange("accident_city", e.target.value)
-                  }
-                  className="h-10"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label className="text-sm font-medium">Accident Province</Label>
-                <Input
-                  value={formData.accident_province}
-                  onChange={(e) =>
-                    handleFieldChange("accident_province", e.target.value)
-                  }
-                  className="h-10"
-                />
-              </div>
-            </div>
-
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label className="text-sm font-medium">Did the accident occur while you were at work?</Label>
-                <SearchableDropdown
-                  value={formData.accident_occur}
-                  onChange={(val) => handleFieldChange("accident_occur", val)}
-                  options={metaData?.yes_no_option}
-                  placeholder="Select"
-                  openKey="accident_occur"
-                />
-              </div>
+              <FloatingInput label="Day of Week" value={formData.day_of_the_week} onChange={(e) => handleFieldChange("day_of_the_week", e.target.value)} />
+              <FloatingInput label="Time of Day" type="time" value={formData.time_of_the_day} onChange={(e) => handleFieldChange("time_of_the_day", e.target.value)} />
+              <FloatingInput label="Other Value" value={formData.other_value} onChange={(e) => handleFieldChange("other_value", e.target.value)} />
+              <FloatingInput label="Date of Accident (1st)" type="date" value={formData.Date_of_accident_1st} onChange={(e) => handleFieldChange("Date_of_accident_1st", e.target.value)} />
+              <FloatingInput label="Time of Accident (1st)" type="time" value={formData.time_of_accident_1st} onChange={(e) => handleFieldChange("time_of_accident_1st", e.target.value)} />
+              <FloatingInput label="Patient Position" value={formData.patient_position} onChange={(e) => handleFieldChange("patient_position", e.target.value)} />
+              <FloatingInput label="Accident Location" value={formData.accident_location} onChange={(e) => handleFieldChange("accident_location", e.target.value)} />
+              <FloatingInput label="Accident City" value={formData.accident_city} onChange={(e) => handleFieldChange("accident_city", e.target.value)} />
+              <FloatingInput label="Accident Province" value={formData.accident_province} onChange={(e) => handleFieldChange("accident_province", e.target.value)} />
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label className="text-sm font-medium">Did you file a claim with the Workplace Safety and Insurance Board?</Label>
-                <SearchableDropdown
-                  value={formData.safety_insurance}
-                  onChange={(val) => handleFieldChange("safety_insurance", val)}
-                  options={metaData?.yes_no_option}
-                  placeholder="Select"
-                  openKey="safety_insurance"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label className="text-sm font-medium">Was the accident reported to the police?</Label>
-                <SearchableDropdown
-                  value={formData.accident_reported_police}
-                  onChange={(val) => handleFieldChange("accident_reported_police", val)}
-                  options={metaData?.yes_no_option}
-                  placeholder="Select"
-                  openKey="accident_reported_police"
-                />
-              </div>
+              <SearchableDropdown label="Did the accident occur while you were at work?" value={formData.accident_occur} onChange={(val) => handleFieldChange("accident_occur", val)} options={metaData?.yes_no_option} placeholder="Select" openKey="accident_occur" />
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <SearchableDropdown label="Did you file a claim with the Workplace Safety and Insurance Board?" value={formData.safety_insurance} onChange={(val) => handleFieldChange("safety_insurance", val)} options={metaData?.yes_no_option} placeholder="Select" openKey="safety_insurance" />
+              <SearchableDropdown label="Was the accident reported to the police?" value={formData.accident_reported_police} onChange={(val) => handleFieldChange("accident_reported_police", val)} options={metaData?.yes_no_option} placeholder="Select" openKey="accident_reported_police" />
             </div>
           </div>
 
@@ -1284,97 +772,20 @@ export default function OCFProdPage() {
               POLICE REPORT SUMMARY
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="space-y-2">
-                <Label className="text-sm font-medium">Department</Label>
-                <Input
-                  value={formData.police_department}
-                  onChange={(e) =>
-                    handleFieldChange("police_department", e.target.value)
-                  }
-                  className="h-10"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label className="text-sm font-medium">Officer Name</Label>
-                <Input
-                  value={formData.officer_name}
-                  onChange={(e) =>
-                    handleFieldChange("officer_name", e.target.value)
-                  }
-                  className="h-10"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label className="text-sm font-medium">Badge No</Label>
-                <Input
-                  value={formData.badge_no}
-                  onChange={(e) =>
-                    handleFieldChange("badge_no", e.target.value)
-                  }
-                  className="h-10"
-                />
-              </div>
+              <FloatingInput label="Department" value={formData.police_department} onChange={(e) => handleFieldChange("police_department", e.target.value)} />
+              <FloatingInput label="Officer Name" value={formData.officer_name} onChange={(e) => handleFieldChange("officer_name", e.target.value)} />
+              <FloatingInput label="Badge No" value={formData.badge_no} onChange={(e) => handleFieldChange("badge_no", e.target.value)} />
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="space-y-2">
-                <Label className="text-sm font-medium">Date Reported</Label>
-                <div className="flex items-center gap-2">
-                  <Input
-                    type="date"
-                    value={formData.police_date_reported}
-                    onChange={(e) =>
-                      handleFieldChange("police_date_reported", e.target.value)
-                    }
-                    className="h-10"
-                  />
-                </div>
-              </div>
-              <div className="space-y-2">
-                <Label className="text-sm font-medium">Reporting center</Label>
-                <Input
-                  value={formData.reporting_center}
-                  onChange={(e) =>
-                    handleFieldChange("reporting_center", e.target.value)
-                  }
-                  className="h-10"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label className="text-sm font-medium">Was claimant charged ?</Label>
-                <SearchableDropdown
-                  value={formData.was_claiment_charged}
-                  onChange={(val) => handleFieldChange("was_claiment_charged", val)}
-                  options={metaData?.yes_no_option}
-                  placeholder="Select"
-                  openKey="was_claiment_charged"
-                />
-              </div>
+              <FloatingInput label="Date Reported" type="date" value={formData.police_date_reported} onChange={(e) => handleFieldChange("police_date_reported", e.target.value)} />
+              <FloatingInput label="Reporting center" value={formData.reporting_center} onChange={(e) => handleFieldChange("reporting_center", e.target.value)} />
+              <SearchableDropdown label="Was claimant charged ?" value={formData.was_claiment_charged} onChange={(val) => handleFieldChange("was_claiment_charged", val)} options={metaData?.yes_no_option} placeholder="Select" openKey="was_claiment_charged" />
             </div>
 
             <div className="space-y-4">
-              <div className="space-y-2">
-                <Label className="text-sm font-medium">if yes, give details</Label>
-                <Textarea
-                  value={formData.police_if_yes_give_details}
-                  onChange={(e) =>
-                    handleFieldChange("police_if_yes_give_details", e.target.value)
-                  }
-                  rows={3}
-                  className="resize-none"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label className="text-sm font-medium">Brief Accident Description</Label>
-                <Textarea
-                  value={formData.brief_accident_description}
-                  onChange={(e) =>
-                    handleFieldChange("brief_accident_description", e.target.value)
-                  }
-                  rows={3}
-                  className="resize-none"
-                />
-              </div>
+              <FloatingTextarea label="if yes, give details" value={formData.police_if_yes_give_details} onChange={(e) => handleFieldChange("police_if_yes_give_details", e.target.value)} rows={3} className="resize-none" />
+              <FloatingTextarea label="Brief Accident Description" value={formData.brief_accident_description} onChange={(e) => handleFieldChange("brief_accident_description", e.target.value)} rows={3} className="resize-none" />
             </div>
           </div>
 
@@ -1384,65 +795,15 @@ export default function OCFProdPage() {
               POST-ACCIDENT OUTCOMES
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label className="text-sm font-medium">Was the patient able to return to normal activities</Label>
-                <SearchableDropdown
-                  value={formData.return_to_normal_activities}
-                  onChange={(val) => handleFieldChange("return_to_normal_activities", val)}
-                  options={metaData?.yes_no_option}
-                  placeholder="Select"
-                  openKey="return_to_normal_activities"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label className="text-sm font-medium">Did the patient go to the hospital ?</Label>
-                <SearchableDropdown
-                  value={formData.did_the_patient_go_to_the_hospital}
-                  onChange={(val) => handleFieldChange("did_the_patient_go_to_the_hospital", val)}
-                  options={metaData?.yes_no_option}
-                  placeholder="Select"
-                  openKey="did_the_patient_go_to_the_hospital"
-                />
-              </div>
+              <SearchableDropdown label="Was the patient able to return to normal activities" value={formData.return_to_normal_activities} onChange={(val) => handleFieldChange("return_to_normal_activities", val)} options={metaData?.yes_no_option} placeholder="Select" openKey="return_to_normal_activities" />
+              <SearchableDropdown label="Did the patient go to the hospital ?" value={formData.did_the_patient_go_to_the_hospital} onChange={(val) => handleFieldChange("did_the_patient_go_to_the_hospital", val)} options={metaData?.yes_no_option} placeholder="Select" openKey="did_the_patient_go_to_the_hospital" />
             </div>
 
-            <div className="space-y-2">
-              <Label className="text-sm font-medium">if yes, give details</Label>
-              <Textarea
-                value={formData.outcome_if_yes_give_details}
-                onChange={(e) =>
-                  handleFieldChange("outcome_if_yes_give_details", e.target.value)
-                }
-                rows={3}
-                className="resize-none"
-              />
-            </div>
+            <FloatingTextarea label="if yes, give details" value={formData.outcome_if_yes_give_details} onChange={(e) => handleFieldChange("outcome_if_yes_give_details", e.target.value)} rows={3} className="resize-none" />
 
-            <div className="space-y-2">
-              <Label className="text-sm font-medium">Did patient see health professional</Label>
-              <SearchableDropdown
-                value={formData.did_patient_see_health_professional}
-                onChange={(val) => handleFieldChange("did_patient_see_health_professional", val)}
-                options={metaData?.yes_no_option}
-                placeholder="Select"
-                openKey="did_patient_see_health_professional"
-              />
-            </div>
+            <SearchableDropdown label="Did patient see health professional" value={formData.did_patient_see_health_professional} onChange={(val) => handleFieldChange("did_patient_see_health_professional", val)} options={metaData?.yes_no_option} placeholder="Select" openKey="did_patient_see_health_professional" />
 
-            <div className="space-y-2">
-              <Label className="text-sm font-medium">if yes, give details</Label>
-              <Textarea
-                value={formData.outcome_if_yes_give_details_2nd}
-                onChange={(e) =>
-                  handleFieldChange(
-                    "outcome_if_yes_give_details_2nd",
-                    e.target.value
-                  )
-                }
-                rows={3}
-                className="resize-none"
-              />
-            </div>
+            <FloatingTextarea label="if yes, give details" value={formData.outcome_if_yes_give_details_2nd} onChange={(e) => handleFieldChange("outcome_if_yes_give_details_2nd", e.target.value)} rows={3} className="resize-none" />
 
             <div className="flex items-center justify-end space-x-2">
               <Checkbox
@@ -1462,95 +823,17 @@ export default function OCFProdPage() {
               HEALTH FACILITY
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-              <div className="space-y-2">
-                <Label className="text-sm font-medium">Facility Name</Label>
-                <Input
-                  value={formData.facility_name}
-                  onChange={(e) =>
-                    handleFieldChange("facility_name", e.target.value)
-                  }
-                  className="h-10"
-                />
+              <FloatingInput label="Facility Name" value={formData.facility_name} onChange={(e) => handleFieldChange("facility_name", e.target.value)} />
+              <FloatingInput label="Health Professional" value={formData.health_professional} onChange={(e) => handleFieldChange("health_professional", e.target.value)} />
+              <FloatingInput label="Address" value={formData.health_address} onChange={(e) => handleFieldChange("health_address", e.target.value)} />
+              <FloatingInput label="City" value={formData.health_city} onChange={(e) => handleFieldChange("health_city", e.target.value)} />
+              <FloatingInput label="Province" value={formData.health_province} onChange={(e) => handleFieldChange("health_province", e.target.value)} />
+              <FloatingInput label="Postal Code" value={formData.health_postal_code} onChange={(e) => handleFieldChange("health_postal_code", e.target.value)} />
+              <div className="md:col-span-2">
+                <SearchableDropdown label="Has this provider begun any treatment?" value={formData.begun_ant_treatment} onChange={(val) => handleFieldChange("begun_ant_treatment", val)} options={metaData?.yes_no_option} placeholder="Select" openKey="begun_ant_treatment" />
               </div>
-              <div className="space-y-2">
-                <Label className="text-sm font-medium">
-                  Health Professional
-                </Label>
-                <Input
-                  value={formData.health_professional}
-                  onChange={(e) =>
-                    handleFieldChange("health_professional", e.target.value)
-                  }
-                  className="h-10"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label className="text-sm font-medium">Address</Label>
-                <Input
-                  value={formData.health_address}
-                  onChange={(e) =>
-                    handleFieldChange("health_address", e.target.value)
-                  }
-                  className="h-10"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label className="text-sm font-medium">City</Label>
-                <Input
-                  value={formData.health_city}
-                  onChange={(e) =>
-                    handleFieldChange("health_city", e.target.value)
-                  }
-                  className="h-10"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label className="text-sm font-medium">Province</Label>
-                <Input
-                  value={formData.health_province}
-                  onChange={(e) =>
-                    handleFieldChange("health_province", e.target.value)
-                  }
-                  className="h-10"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label className="text-sm font-medium">Postal Code</Label>
-                <Input
-                  value={formData.health_postal_code}
-                  onChange={(e) =>
-                    handleFieldChange("health_postal_code", e.target.value)
-                  }
-                  className="h-10"
-                />
-              </div>
-              <div className="space-y-2 md:col-span-2">
-                <Label className="text-sm font-medium">
-                  Has this provider begun any treatment?
-                </Label>
-                <SearchableDropdown
-                  value={formData.begun_ant_treatment}
-                  onChange={(val) => handleFieldChange("begun_ant_treatment", val)}
-                  options={metaData?.yes_no_option}
-                  placeholder="Select"
-                  openKey="begun_ant_treatment"
-                />
-              </div>
-              <div className="space-y-2 md:col-span-4">
-                <Label className="text-sm font-medium">
-                  If yes, give details
-                </Label>
-                <Textarea
-                  value={formData.health_if_yes_give_details}
-                  onChange={(e) =>
-                    handleFieldChange(
-                      "health_if_yes_give_details",
-                      e.target.value
-                    )
-                  }
-                  rows={3}
-                  className="resize-none"
-                />
+              <div className="md:col-span-4">
+                <FloatingTextarea label="If yes, give details" value={formData.health_if_yes_give_details} onChange={(e) => handleFieldChange("health_if_yes_give_details", e.target.value)} rows={3} className="resize-none" />
               </div>
             </div>
             <div className="flex items-center justify-end space-x-2">
@@ -1571,72 +854,12 @@ export default function OCFProdPage() {
               Insurance Policy Details
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              <div className="space-y-2">
-                <Label className="text-sm font-medium">Private Policy</Label>
-                <SearchableDropdown
-                  value={formData.private_policy}
-                  onChange={(val) => handleFieldChange("private_policy", val)}
-                  options={metaData?.yes_no_option}
-                  placeholder="Select"
-                  openKey="private_policy"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label className="text-sm font-medium">Spouse Policy</Label>
-                <SearchableDropdown
-                  value={formData.spouse_policy}
-                  onChange={(val) => handleFieldChange("spouse_policy", val)}
-                  options={metaData?.yes_no_option}
-                  placeholder="Select"
-                  openKey="spouse_policy"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label className="text-sm font-medium">
-                  Claimant US Dependent
-                </Label>
-                <SearchableDropdown
-                  value={formData.claimant_us_dependent}
-                  onChange={(val) => handleFieldChange("claimant_us_dependent", val)}
-                  options={metaData?.yes_no_option}
-                  placeholder="Select"
-                  openKey="claimant_us_dependent"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label className="text-sm font-medium">
-                  Claimant as Driver
-                </Label>
-                <SearchableDropdown
-                  value={formData.claimant_as_a_drive}
-                  onChange={(val) => handleFieldChange("claimant_as_a_drive", val)}
-                  options={metaData?.yes_no_option}
-                  placeholder="Select"
-                  openKey="claimant_as_a_drive"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label className="text-sm font-medium">
-                  Claimant Employer Policy
-                </Label>
-                <SearchableDropdown
-                  value={formData.claimant_employer_policy}
-                  onChange={(val) => handleFieldChange("claimant_employer_policy", val)}
-                  options={metaData?.yes_no_option}
-                  placeholder="Select"
-                  openKey="claimant_employer_policy"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label className="text-sm font-medium">Policy Insuring</Label>
-                <SearchableDropdown
-                  value={formData.policy_insuring}
-                  onChange={(val) => handleFieldChange("policy_insuring", val)}
-                  options={metaData?.yes_no_option}
-                  placeholder="Select"
-                  openKey="policy_insuring"
-                />
-              </div>
+              <SearchableDropdown label="Private Policy" value={formData.private_policy} onChange={(val) => handleFieldChange("private_policy", val)} options={metaData?.yes_no_option} placeholder="Select" openKey="private_policy" />
+              <SearchableDropdown label="Spouse Policy" value={formData.spouse_policy} onChange={(val) => handleFieldChange("spouse_policy", val)} options={metaData?.yes_no_option} placeholder="Select" openKey="spouse_policy" />
+              <SearchableDropdown label="Claimant US Dependent" value={formData.claimant_us_dependent} onChange={(val) => handleFieldChange("claimant_us_dependent", val)} options={metaData?.yes_no_option} placeholder="Select" openKey="claimant_us_dependent" />
+              <SearchableDropdown label="Claimant as Driver" value={formData.claimant_as_a_drive} onChange={(val) => handleFieldChange("claimant_as_a_drive", val)} options={metaData?.yes_no_option} placeholder="Select" openKey="claimant_as_a_drive" />
+              <SearchableDropdown label="Claimant Employer Policy" value={formData.claimant_employer_policy} onChange={(val) => handleFieldChange("claimant_employer_policy", val)} options={metaData?.yes_no_option} placeholder="Select" openKey="claimant_employer_policy" />
+              <SearchableDropdown label="Policy Insuring" value={formData.policy_insuring} onChange={(val) => handleFieldChange("policy_insuring", val)} options={metaData?.yes_no_option} placeholder="Select" openKey="policy_insuring" />
             </div>
           </div>
 
@@ -1646,74 +869,12 @@ export default function OCFProdPage() {
               Insurance Company 1
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              <div className="space-y-2">
-                <Label className="text-sm font-medium">Policyholder Name</Label>
-                <Input
-                  value={formData.name_of_policyholder}
-                  onChange={(e) =>
-                    handleFieldChange("name_of_policyholder", e.target.value)
-                  }
-                  className="h-10"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label className="text-sm font-medium">Insurance Company</Label>
-                <Input
-                  value={formData.insurance_company}
-                  onChange={(e) =>
-                    handleFieldChange("insurance_company", e.target.value)
-                  }
-                  className="h-10"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label className="text-sm font-medium">Policy Number</Label>
-                <Input
-                  value={formData.policy_number}
-                  onChange={(e) =>
-                    handleFieldChange("policy_number", e.target.value)
-                  }
-                  className="h-10"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label className="text-sm font-medium">
-                  Automobile Make Model Year
-                </Label>
-                <Input
-                  value={formData.automobile_make_model_year}
-                  onChange={(e) =>
-                    handleFieldChange(
-                      "automobile_make_model_year",
-                      e.target.value
-                    )
-                  }
-                  placeholder="BMW E Class 2024"
-                  className="h-10"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label className="text-sm font-medium">Licence Plate No</Label>
-                <Input
-                  value={formData.licence_plate_no}
-                  onChange={(e) =>
-                    handleFieldChange("licence_plate_no", e.target.value)
-                  }
-                  className="h-10"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label className="text-sm font-medium">
-                  Were You Occupant at Time of Accident
-                </Label>
-                <SearchableDropdown
-                  value={formData.were_you_an_occupant_of_this_automobile_at_the_time_of_the_accident}
-                  onChange={(val) => handleFieldChange("were_you_an_occupant_of_this_automobile_at_the_time_of_the_accident", val)}
-                  options={metaData?.yes_no_option}
-                  placeholder="Select"
-                  openKey="were_you_an_occupant_of_this_automobile_at_the_time_of_the_accident"
-                />
-              </div>
+              <FloatingInput label="Policyholder Name" value={formData.name_of_policyholder} onChange={(e) => handleFieldChange("name_of_policyholder", e.target.value)} />
+              <FloatingInput label="Insurance Company" value={formData.insurance_company} onChange={(e) => handleFieldChange("insurance_company", e.target.value)} />
+              <FloatingInput label="Policy Number" value={formData.policy_number} onChange={(e) => handleFieldChange("policy_number", e.target.value)} />
+              <FloatingInput label="Automobile Make Model Year" value={formData.automobile_make_model_year} onChange={(e) => handleFieldChange("automobile_make_model_year", e.target.value)} />
+              <FloatingInput label="Licence Plate No" value={formData.licence_plate_no} onChange={(e) => handleFieldChange("licence_plate_no", e.target.value)} />
+              <SearchableDropdown label="Were You Occupant at Time of Accident" value={formData.were_you_an_occupant_of_this_automobile_at_the_time_of_the_accident} onChange={(val) => handleFieldChange("were_you_an_occupant_of_this_automobile_at_the_time_of_the_accident", val)} options={metaData?.yes_no_option} placeholder="Select" openKey="were_you_an_occupant_of_this_automobile_at_the_time_of_the_accident" />
             </div>
           </div>
 
@@ -1723,37 +884,10 @@ export default function OCFProdPage() {
               Employment Status
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="space-y-2">
-                <Label className="text-sm font-medium">Employed</Label>
-                <SearchableDropdown
-                  value={formData.employed}
-                  onChange={(val) => handleFieldChange("employed", val)}
-                  options={employmentMetadata?.employed}
-                  placeholder="Select"
-                  openKey="employed"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label className="text-sm font-medium">Not Employed</Label>
-                <SearchableDropdown
-                  value={formData.not_employed}
-                  onChange={(val) => handleFieldChange("not_employed", val)}
-                  options={employmentMetadata?.not_employed}
-                  placeholder="Select"
-                  openKey="not_employed"
-                />
-              </div>
+              <SearchableDropdown label="Employed" value={formData.employed} onChange={(val) => handleFieldChange("employed", val)} options={employmentMetadata?.employed} placeholder="Select" openKey="employed" />
+              <SearchableDropdown label="Not Employed" value={formData.not_employed} onChange={(val) => handleFieldChange("not_employed", val)} options={employmentMetadata?.not_employed} placeholder="Select" openKey="not_employed" />
               {formData.not_employed === "Unemployed And" && (
-                <div className="space-y-2">
-                  <Label className="text-sm font-medium">Unemployed And</Label>
-                  <SearchableDropdown
-                    value={formData.un_employed_and}
-                    onChange={(val) => handleFieldChange("un_employed_and", val)}
-                    options={employmentMetadata?.unemployed_and}
-                    placeholder="Select"
-                    openKey="un_employed_and"
-                  />
-                </div>
+                <SearchableDropdown label="Unemployed And" value={formData.un_employed_and} onChange={(val) => handleFieldChange("un_employed_and", val)} options={employmentMetadata?.unemployed_and} placeholder="Select" openKey="un_employed_and" />
               )}
             </div>
             {/* New Checkboxes for Student/Graduate & Caregiver */}
@@ -1794,132 +928,27 @@ export default function OCFProdPage() {
               Student Attending School
             </h2>
 
-            {/* Q1: Was the claimant attending school...? */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
               <Label className="text-sm font-medium flex-1">
                 Was the claimant attending school on a full-time basis at the time of the accident or had he/she completed education less than one year before the accident?
               </Label>
               <div className="w-full md:w-1/4">
-                <SearchableDropdown
-                  value={formData.applicant_status_claimant_attending_school}
-                  onChange={(val) =>
-                    handleFieldChange(
-                      "applicant_status_claimant_attending_school",
-                      val
-                    )
-                  }
-                  options={metaData?.yes_no_option}
-                  placeholder="Select"
-                  openKey="applicant_status_claimant_attending_school"
-                />
+                <SearchableDropdown label="Attending School" value={formData.applicant_status_claimant_attending_school} onChange={(val) => handleFieldChange("applicant_status_claimant_attending_school", val)} options={metaData?.yes_no_option} placeholder="Select" openKey="applicant_status_claimant_attending_school" />
               </div>
             </div>
 
-            {/* Row 2: School Name, Address, City, Province */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-              <div className="space-y-2">
-                <Label className="text-sm font-medium">Name of School</Label>
-                <Input
-                  value={formData.applicant_status_name_of_school}
-                  onChange={(e) =>
-                    handleFieldChange(
-                      "applicant_status_name_of_school",
-                      e.target.value
-                    )
-                  }
-                  className="h-10"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label className="text-sm font-medium">Address</Label>
-                <Input
-                  value={formData.applicant_status_address}
-                  onChange={(e) =>
-                    handleFieldChange("applicant_status_address", e.target.value)
-                  }
-                  className="h-10"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label className="text-sm font-medium">City</Label>
-                <Input
-                  value={formData.applicant_status_city}
-                  onChange={(e) =>
-                    handleFieldChange("applicant_status_city", e.target.value)
-                  }
-                  className="h-10"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label className="text-sm font-medium">Province</Label>
-                <Input
-                  value={formData.applicant_status_province}
-                  onChange={(e) =>
-                    handleFieldChange("applicant_status_province", e.target.value)
-                  }
-                  className="h-10"
-                />
-              </div>
+              <FloatingInput label="Name of School" value={formData.applicant_status_name_of_school} onChange={(e) => handleFieldChange("applicant_status_name_of_school", e.target.value)} />
+              <FloatingInput label="Address" value={formData.applicant_status_address} onChange={(e) => handleFieldChange("applicant_status_address", e.target.value)} />
+              <FloatingInput label="City" value={formData.applicant_status_city} onChange={(e) => handleFieldChange("applicant_status_city", e.target.value)} />
+              <FloatingInput label="Province" value={formData.applicant_status_province} onChange={(e) => handleFieldChange("applicant_status_province", e.target.value)} />
             </div>
 
-            {/* Row 3: Postal Code, Data Last Attended, Program and Level, Projected Date */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-              <div className="space-y-2">
-                <Label className="text-sm font-medium">Postal Code</Label>
-                <Input
-                  value={formData.applicant_status_postal_code}
-                  onChange={(e) =>
-                    handleFieldChange(
-                      "applicant_status_postal_code",
-                      e.target.value
-                    )
-                  }
-                  className="h-10"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label className="text-sm font-medium">Date Last Attended</Label>
-                <Input
-                  type="date"
-                  value={formData.applicant_status_data_last_attended_date}
-                  onChange={(e) =>
-                    handleFieldChange(
-                      "applicant_status_data_last_attended_date",
-                      e.target.value
-                    )
-                  }
-                  className="h-10"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label className="text-sm font-medium">Program and Level</Label>
-                <Input
-                  value={formData.applicant_status_program_and_level}
-                  onChange={(e) =>
-                    handleFieldChange(
-                      "applicant_status_program_and_level",
-                      e.target.value
-                    )
-                  }
-                  className="h-10"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label className="text-sm font-medium">
-                  Projected Date for completion
-                </Label>
-                <Input
-                  type="date"
-                  value={formData.applicant_status_project_date_for_completion}
-                  onChange={(e) =>
-                    handleFieldChange(
-                      "applicant_status_project_date_for_completion",
-                      e.target.value
-                    )
-                  }
-                  className="h-10"
-                />
-              </div>
+              <FloatingInput label="Postal Code" value={formData.applicant_status_postal_code} onChange={(e) => handleFieldChange("applicant_status_postal_code", e.target.value)} />
+              <FloatingInput label="Date Last Attended" type="date" value={formData.applicant_status_data_last_attended_date} onChange={(e) => handleFieldChange("applicant_status_data_last_attended_date", e.target.value)} />
+              <FloatingInput label="Program and Level" value={formData.applicant_status_program_and_level} onChange={(e) => handleFieldChange("applicant_status_program_and_level", e.target.value)} />
+              <FloatingInput label="Projected Date for completion" type="date" value={formData.applicant_status_project_date_for_completion} onChange={(e) => handleFieldChange("applicant_status_project_date_for_completion", e.target.value)} />
             </div>
 
             {/* Row 4: Is the claimant attending school? */}
@@ -1930,34 +959,16 @@ export default function OCFProdPage() {
               <div className="flex gap-4 w-full md:w-auto">
                 <div className="w-full md:w-[200px]">
                   <SearchableDropdown
-                    value={
-                      formData.applicant_status_is_the_claimant_attending_school
-                    }
-                    onChange={(val) =>
-                      handleFieldChange(
-                        "applicant_status_is_the_claimant_attending_school",
-                        val
-                      )
-                    }
+                    label="Attending School"
+                    value={formData.applicant_status_is_the_claimant_attending_school}
+                    onChange={(val) => handleFieldChange("applicant_status_is_the_claimant_attending_school", val)}
                     options={metaData?.yes_no_option}
                     placeholder="Select"
                     openKey="applicant_status_is_the_claimant_attending_school"
                   />
                 </div>
                 <div className="w-full md:w-[200px]">
-                  <Input
-                    type="date"
-                    value={
-                      formData.applicant_status_is_the_claimant_attending_school_date
-                    }
-                    onChange={(e) =>
-                      handleFieldChange(
-                        "applicant_status_is_the_claimant_attending_school_date",
-                        e.target.value
-                      )
-                    }
-                    className="h-10"
-                  />
+                  <FloatingInput label="Date" type="date" value={formData.applicant_status_is_the_claimant_attending_school_date} onChange={(e) => handleFieldChange("applicant_status_is_the_claimant_attending_school_date", e.target.value)} />
                 </div>
               </div>
             </div>
@@ -1970,15 +981,9 @@ export default function OCFProdPage() {
               <div className="flex gap-4 w-full md:w-auto">
                 <div className="w-full md:w-[200px]">
                   <SearchableDropdown
-                    value={
-                      formData.applicant_status_was_the_claimant_able_to_return_to_school_after_the_accident
-                    }
-                    onChange={(val) =>
-                      handleFieldChange(
-                        "applicant_status_was_the_claimant_able_to_return_to_school_after_the_accident",
-                        val
-                      )
-                    }
+                    label="Return to School"
+                    value={formData.applicant_status_was_the_claimant_able_to_return_to_school_after_the_accident}
+                    onChange={(val) => handleFieldChange("applicant_status_was_the_claimant_able_to_return_to_school_after_the_accident", val)}
                     options={metaData?.yes_no_option}
                     placeholder="Select"
                     openKey="applicant_status_was_the_claimant_able_to_return_to_school_after_the_accident"
@@ -2017,6 +1022,7 @@ export default function OCFProdPage() {
               </Label>
               <div className="w-full md:w-1/4">
                 <SearchableDropdown
+                  label="Main Caregiver"
                   value={formData.caregiver_him_her_at_the_time_accident}
                   onChange={(val) =>
                     handleFieldChange(
@@ -2038,6 +1044,7 @@ export default function OCFProdPage() {
               </Label>
               <div className="w-full md:w-1/4">
                 <SearchableDropdown
+                  label="Paid to Provide Care"
                   value={
                     formData.caregiver_claimant_paid_to_provide_care_to_these_people
                   }
@@ -2109,6 +1116,7 @@ export default function OCFProdPage() {
                   </div>
                   <div className="col-span-3 md:col-span-3">
                     <SearchableDropdown
+                      label="Disabled?"
                       value={formData.caregiver_disabled[index] || ""}
                       onChange={(val) =>
                         handleArrayFieldChange("caregiver_disabled", index, val)
@@ -2133,6 +1141,7 @@ export default function OCFProdPage() {
                 </Label>
                 <div className="w-full md:w-1/4">
                   <SearchableDropdown
+                    label="Substantial Inability"
                     value={
                       formData.patient_suffer_a_substantial_to_engage_in_the_caregiving
                     }
@@ -2189,6 +1198,7 @@ export default function OCFProdPage() {
                 </Label>
                 <div className="w-full md:w-1/4">
                   <SearchableDropdown
+                    label="Return to Caregiving"
                     value={
                       formData.caregiver_did_claimant_return_to_caregiving_after_the_accident
                     }
@@ -2307,6 +1317,7 @@ export default function OCFProdPage() {
                   <div className="col-span-12 md:col-span-3 flex gap-4 pr-2">
                     <div className="flex-1">
                       <DatePicker
+                        label="From"
                         value={formData.date_from[index] || ""}
                         onChange={(val) =>
                           handleArrayFieldChange("date_from", index, val)
@@ -2317,6 +1328,7 @@ export default function OCFProdPage() {
                     </div>
                     <div className="flex-1">
                       <DatePicker
+                        label="To"
                         value={formData.date_to[index] || ""}
                         onChange={(val) =>
                           handleArrayFieldChange("date_to", index, val)
@@ -2434,6 +1446,7 @@ export default function OCFProdPage() {
                 </Label>
                 <div className="w-full md:w-1/4">
                   <SearchableDropdown
+                    label="Prevent from Working"
                     value={
                       formData.income_injuries_private_him_her_from_working
                     }
@@ -2477,6 +1490,7 @@ export default function OCFProdPage() {
                 </Label>
                 <div className="w-full md:w-1/4">
                   <SearchableDropdown
+                    label="Return to Work"
                     value={
                       formData.were_you_able_to_return_to_work_since_the_accident
                     }
@@ -2517,6 +1531,7 @@ export default function OCFProdPage() {
                 </Label>
                 <div className="w-full md:w-1/4">
                   <SearchableDropdown
+                    label="Income Period"
                     value={
                       formData.The_amount_of_claimants_benefit_id_based_on_his_her_past_income
                     }
@@ -2551,6 +1566,7 @@ export default function OCFProdPage() {
               </Label>
               <div className="w-full md:w-1/4">
                 <SearchableDropdown
+                  label="Other Benefit Plan"
                   value={formData.other_insurance_or_spouse_dependent}
                   onChange={(val) =>
                     handleFieldChange("other_insurance_or_spouse_dependent", val)
@@ -2639,6 +1655,7 @@ export default function OCFProdPage() {
                 </Label>
                 <div className="w-full md:w-1/4">
                   <SearchableDropdown
+                    label="Disability Benefit Plan"
                     value={formData.other_disability_benift_plan}
                     onChange={(val) =>
                       handleFieldChange("other_disability_benift_plan", val)
@@ -2651,39 +1668,9 @@ export default function OCFProdPage() {
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="space-y-2">
-                  <Label className="text-sm font-medium">From Date</Label>
-                  <DatePicker
-                    value={formData.other_form_date}
-                    onChange={(val) => handleFieldChange("other_form_date", val)}
-                    placeholder="dd/mm/yyyy"
-                    openKey="other_form_date"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label className="text-sm font-medium">To Date</Label>
-                  <DatePicker
-                    value={formData.other_to_date}
-                    onChange={(val) => handleFieldChange("other_to_date", val)}
-                    placeholder="dd/mm/yyyy"
-                    openKey="other_to_date"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label className="text-sm font-medium">
-                    Total Amount Received
-                  </Label>
-                  <Input
-                    value={formData.other_total_amount_recived}
-                    onChange={(e) =>
-                      handleFieldChange(
-                        "other_total_amount_recived",
-                        e.target.value
-                      )
-                    }
-                    className="h-10"
-                  />
-                </div>
+                <DatePicker label="From Date" value={formData.other_form_date} onChange={(val) => handleFieldChange("other_form_date", val)} placeholder="dd/mm/yyyy" openKey="other_form_date" />
+                <DatePicker label="To Date" value={formData.other_to_date} onChange={(val) => handleFieldChange("other_to_date", val)} placeholder="dd/mm/yyyy" openKey="other_to_date" />
+                <FloatingInput label="Total Amount Received" value={formData.other_total_amount_recived} onChange={(e) => handleFieldChange("other_total_amount_recived", e.target.value)} />
               </div>
             </div>
 
@@ -2695,6 +1682,7 @@ export default function OCFProdPage() {
                 </Label>
                 <div className="w-full md:w-1/4">
                   <SearchableDropdown
+                    label="Employment Insurance"
                     value={formData.other_receiving_employment_insurance}
                     onChange={(val) =>
                       handleFieldChange(
@@ -2710,39 +1698,9 @@ export default function OCFProdPage() {
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="space-y-2">
-                  <Label className="text-sm font-medium">From Date</Label>
-                  <DatePicker
-                    value={formData.other_form_date1}
-                    onChange={(val) => handleFieldChange("other_form_date1", val)}
-                    placeholder="dd/mm/yyyy"
-                    openKey="other_form_date1"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label className="text-sm font-medium">To Date</Label>
-                  <DatePicker
-                    value={formData.other_to_date1}
-                    onChange={(val) => handleFieldChange("other_to_date1", val)}
-                    placeholder="dd/mm/yyyy"
-                    openKey="other_to_date1"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label className="text-sm font-medium">
-                    Total Amount Received
-                  </Label>
-                  <Input
-                    value={formData.other_total_amount_recived1}
-                    onChange={(e) =>
-                      handleFieldChange(
-                        "other_total_amount_recived1",
-                        e.target.value
-                      )
-                    }
-                    className="h-10"
-                  />
-                </div>
+                <DatePicker label="From Date" value={formData.other_form_date1} onChange={(val) => handleFieldChange("other_form_date1", val)} placeholder="dd/mm/yyyy" openKey="other_form_date1" />
+                <DatePicker label="To Date" value={formData.other_to_date1} onChange={(val) => handleFieldChange("other_to_date1", val)} placeholder="dd/mm/yyyy" openKey="other_to_date1" />
+                <FloatingInput label="Total Amount Received" value={formData.other_total_amount_recived1} onChange={(e) => handleFieldChange("other_total_amount_recived1", e.target.value)} />
               </div>
             </div>
 
@@ -2753,6 +1711,7 @@ export default function OCFProdPage() {
               </Label>
               <div className="w-full md:w-1/4">
                 <SearchableDropdown
+                  label="Social Assistance"
                   value={formData.other_receiving_social_assistance_benfits}
                   onChange={(val) =>
                     handleFieldChange(
@@ -2799,27 +1758,8 @@ export default function OCFProdPage() {
               Applicant Signature
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label className="text-sm font-medium">Applicant Name</Label>
-                <Input
-                  value={formData.applicant_name}
-                  onChange={(e) =>
-                    handleFieldChange("applicant_name", e.target.value)
-                  }
-                  className="h-10"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label className="text-sm font-medium">Applicant Date</Label>
-                <Input
-                  type="date"
-                  value={formData.applicant_date}
-                  onChange={(e) =>
-                    handleFieldChange("applicant_date", e.target.value)
-                  }
-                  className="h-10"
-                />
-              </div>
+              <FloatingInput label="Applicant Name" value={formData.applicant_name} onChange={(e) => handleFieldChange("applicant_name", e.target.value)} />
+              <FloatingInput label="Applicant Date" type="date" value={formData.applicant_date} onChange={(e) => handleFieldChange("applicant_date", e.target.value)} />
             </div>
           </div>
 

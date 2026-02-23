@@ -38,6 +38,7 @@ import Billing from "@/components/billing";
 import { clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
 import { formatPhoneNumber } from "@/lib/utils";
+import { FloatingInput, FloatingTextarea, FloatingWrapper } from "@/components/ui/floating-label";
 
 function cn(...inputs) {
   return twMerge(clsx(inputs));
@@ -48,18 +49,17 @@ const SearchableSelect = ({ label, options, value, onChange, placeholder }) => {
   const selected = options?.find((opt) => String(opt.id) === String(value));
 
   return (
-    <div className="space-y-2">
-      <Label className="text-foreground font-medium">{label}</Label>
+    <FloatingWrapper label={label} hasValue={!!selected} isFocused={open}>
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
           <Button
             variant="outline"
             role="combobox"
             aria-expanded={open}
-            className="w-full justify-between h-11"
+            className="w-full justify-between font-normal h-[52px] bg-transparent border border-input"
           >
-            {selected ? selected.name : placeholder}
-            <ChevronRight className="ml-2 h-4 w-4 rotate-90" />
+            {selected ? selected.name : ""}
+            <ChevronRight className="ml-auto h-4 w-4 shrink-0 rotate-90" />
           </Button>
         </PopoverTrigger>
         <PopoverContent className="w-[300px] p-0">
@@ -93,7 +93,7 @@ const SearchableSelect = ({ label, options, value, onChange, placeholder }) => {
           </Command>
         </PopoverContent>
       </Popover>
-    </div>
+    </FloatingWrapper>
   );
 };
 
@@ -422,53 +422,27 @@ export default function MedicalCentrePage() {
                             />
                             {meta.yes_no_option?.find((opt) => String(opt.id) === String(rec.did_the_client_go_to_the_hospital_id))?.name?.toLowerCase() === "yes" && (
                               <>
-                                <div className="space-y-2">
-                                  <Label className="text-foreground font-medium">Hospital Name</Label>
-                                  <Input value={rec.hospital_name} onChange={(e) => updateField(key, idx, "hospital_name", e.target.value)} placeholder="Hospital Name" className="h-11" />
-                                </div>
-                                <div className="space-y-2">
-                                  <Label className="text-foreground font-medium">Address</Label>
-                                  <Input value={rec.address} onChange={(e) => updateField(key, idx, "address", e.target.value)} placeholder="Address" className="h-11" />
-                                </div>
-                                <div className="space-y-2">
-                                  <Label className="text-foreground font-medium">Tel</Label>
-                                  <Input value={rec.tel} onChange={(e) => updateField(key, idx, "tel", e.target.value)} placeholder="(123) 454-3454" className="h-11" />
-                                </div>
-                                <div className="space-y-2">
-                                  <Label className="text-foreground font-medium">Fax</Label>
-                                  <Input value={rec.fax} onChange={(e) => updateField(key, idx, "fax", e.target.value)} placeholder="153-458-5682" className="h-11" />
-                                </div>
-                                <div className="space-y-2">
-                                  <Label className="text-foreground font-medium">Email</Label>
-                                  <Input type="email" value={rec.email} onChange={(e) => updateField(key, idx, "email", e.target.value)} placeholder="info@ratetrade.ca" className="h-11" />
-                                </div>
-                                <div className="space-y-2">
-                                  <Label className="text-foreground font-medium">From</Label>
-                                  <Input type="date" value={rec.from_date} onChange={(e) => updateField(key, idx, "from_date", e.target.value)} className="h-11" />
-                                </div>
-                                <div className="space-y-2">
-                                  <Label className="text-foreground font-medium">To</Label>
-                                  <Input type="date" value={rec.to_date} onChange={(e) => updateField(key, idx, "to_date", e.target.value)} className="h-11" />
-                                </div>
-                                <div className="space-y-2">
-                                  <Label className="text-foreground font-medium">Date</Label>
-                                  <Input type="date" value={rec.date} onChange={(e) => updateField(key, idx, "date", e.target.value)} className="h-11" />
-                                </div>
-                                <div className="space-y-2 lg:col-span-3">
-                                  <Label className="text-foreground font-medium">Notes</Label>
-                                  <Textarea value={rec.notes} onChange={(e) => updateField(key, idx, "notes", e.target.value)} placeholder="Notes" rows={3} className="resize-none" />
+                                <FloatingInput label="Hospital Name" value={rec.hospital_name} onChange={(e) => updateField(key, idx, "hospital_name", e.target.value)} />
+                                <FloatingInput label="Address" value={rec.address} onChange={(e) => updateField(key, idx, "address", e.target.value)} />
+                                <FloatingInput label="Tel" value={rec.tel} onChange={(e) => updateField(key, idx, "tel", e.target.value)} />
+                                <FloatingInput label="Fax" value={rec.fax} onChange={(e) => updateField(key, idx, "fax", e.target.value)} />
+                                <FloatingInput label="Email" type="email" value={rec.email} onChange={(e) => updateField(key, idx, "email", e.target.value)} />
+                                <FloatingInput label="From" type="date" value={rec.from_date} onChange={(e) => updateField(key, idx, "from_date", e.target.value)} />
+                                <FloatingInput label="To" type="date" value={rec.to_date} onChange={(e) => updateField(key, idx, "to_date", e.target.value)} />
+                                <FloatingInput label="Date" type="date" value={rec.date} onChange={(e) => updateField(key, idx, "date", e.target.value)} />
+                                <div className="lg:col-span-3">
+                                  <FloatingTextarea label="Notes" value={rec.notes} onChange={(e) => updateField(key, idx, "notes", e.target.value)} rows={3} className="resize-none" />
                                 </div>
                               </>
                             )}
                           </>
                         ) : (
                           (config?.fields || getDefaultFields()).map(field => (
-                            <div key={field.id} className={cn("space-y-2", field.colSpan && `lg:col-span-${field.colSpan}`)}>
-                              <Label className="text-foreground font-medium">{field.label}</Label>
+                            <div key={field.id} className={cn(field.colSpan && `lg:col-span-${field.colSpan}`)}>
                               {field.type === "textarea" ? (
-                                <Textarea value={rec[field.id] || ""} onChange={(e) => updateField(key, idx, field.id, e.target.value)} placeholder={field.label} rows={3} className="resize-none" />
+                                <FloatingTextarea label={field.label} value={rec[field.id] || ""} onChange={(e) => updateField(key, idx, field.id, e.target.value)} rows={3} className="resize-none" />
                               ) : (
-                                <Input type={field.type || "text"} value={rec[field.id] || ""} onChange={(e) => updateField(key, idx, field.id, e.target.value)} placeholder={field.label} className="h-11" />
+                                <FloatingInput label={field.label} type={field.type || "text"} value={rec[field.id] || ""} onChange={(e) => updateField(key, idx, field.id, e.target.value)} />
                               )}
                             </div>
                           ))

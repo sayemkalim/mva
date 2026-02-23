@@ -2,9 +2,7 @@ import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
+import { FloatingInput, FloatingTextarea, FloatingWrapper } from "@/components/ui/floating-label";
 import {
   Popover,
   PopoverContent,
@@ -37,18 +35,17 @@ const SearchableSelect = ({ label, options, value, onChange, placeholder, isOpen
   const selected = options?.find((opt) => String(opt.id) === String(value));
 
   return (
-    <div className="space-y-2">
-      <Label className="text-foreground font-medium">{label}</Label>
+    <FloatingWrapper label={label} hasValue={!!selected} isFocused={isOpen}>
       <Popover open={isOpen} onOpenChange={onOpenChange}>
         <PopoverTrigger asChild>
           <Button
             variant="outline"
             role="combobox"
             aria-expanded={isOpen}
-            className="w-full justify-between h-11"
+            className="w-full justify-between font-normal h-[52px] bg-transparent border border-input"
           >
-            {selected ? selected.name : placeholder}
-            <ChevronRight className="ml-2 h-4 w-4 rotate-90" />
+            {selected ? selected.name : ""}
+            <ChevronRight className="ml-auto h-4 w-4 shrink-0 rotate-90" />
           </Button>
         </PopoverTrigger>
         <PopoverContent className="w-[300px] p-0">
@@ -98,7 +95,7 @@ const SearchableSelect = ({ label, options, value, onChange, placeholder, isOpen
           </Command>
         </PopoverContent>
       </Popover>
-    </div>
+    </FloatingWrapper>
   );
 };
 
@@ -264,18 +261,13 @@ export default function ScheduledPage() {
               />
 
               {!isDiscoveryScheduledNo() && (
-                <div className="space-y-2">
-                  <Label className="text-foreground font-medium">
-                    Discovery Date
-                  </Label>
-                  <Input
-                    type="date"
-                    name="discovery_date"
-                    value={formData.discovery_date}
-                    onChange={handleChange}
-                    className="h-11"
-                  />
-                </div>
+                <FloatingInput
+                  label="Discovery Date"
+                  type="date"
+                  name="discovery_date"
+                  value={formData.discovery_date}
+                  onChange={handleChange}
+                />
               )}
             </div>
           </div>
@@ -299,16 +291,13 @@ export default function ScheduledPage() {
                   onOpenChange={(open) => setOpenPopover(open ? "informed_client_id" : null)}
                 />
 
-                <div className="space-y-2">
-                  <Label className="text-foreground font-medium">Date</Label>
-                  <Input
-                    type="date"
-                    name="date"
-                    value={formData.date}
-                    onChange={handleChange}
-                    className="h-11"
-                  />
-                </div>
+                <FloatingInput
+                  label="Date"
+                  type="date"
+                  name="date"
+                  value={formData.date}
+                  onChange={handleChange}
+                />
 
                 <SearchableSelect
                   label="Method of Communication"
@@ -332,19 +321,14 @@ export default function ScheduledPage() {
                 Opposing Counsel Communication
               </h2>
               <div className="space-y-6">
-                <div className="space-y-2">
-                  <Label className="text-foreground font-medium">
-                    Correspond with Opposing Counsel
-                  </Label>
-                  <Textarea
-                    name="correspond_with_opposing_counsel"
-                    value={formData.correspond_with_opposing_counsel}
-                    onChange={handleChange}
-                    placeholder="Enter correspondence details..."
-                    rows={4}
-                    className="resize-none"
-                  />
-                </div>
+                <FloatingTextarea
+                  label="Correspond with Opposing Counsel"
+                  name="correspond_with_opposing_counsel"
+                  value={formData.correspond_with_opposing_counsel}
+                  onChange={handleChange}
+                  rows={4}
+                  className="resize-none"
+                />
 
                 <SearchableSelect
                   label="Method of Communication"

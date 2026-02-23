@@ -2,8 +2,7 @@ import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { FloatingInput, FloatingWrapper } from "@/components/ui/floating-label";
 import {
   Popover,
   PopoverContent,
@@ -40,17 +39,16 @@ const SearchableSelect = ({ label, options, value, onChange, placeholder }) => {
   const selected = options.find((opt) => String(opt.id) === String(value));
 
   return (
-    <div className="space-y-2">
-      <Label className="text-foreground font-medium">{label}</Label>
+    <FloatingWrapper label={label} hasValue={!!selected} isFocused={open}>
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
           <Button
             role="combobox"
             variant="outline"
-            className="w-full justify-between h-11"
+            className="w-full justify-between font-normal h-[52px] bg-transparent border border-input"
           >
-            {selected ? selected.name : placeholder}
-            <ChevronRight className="ml-2 h-4 w-4 rotate-90" />
+            {selected ? selected.name : ""}
+            <ChevronRight className="ml-auto h-4 w-4 shrink-0 rotate-90" />
           </Button>
         </PopoverTrigger>
 
@@ -81,7 +79,7 @@ const SearchableSelect = ({ label, options, value, onChange, placeholder }) => {
           </Command>
         </PopoverContent>
       </Popover>
-    </div>
+    </FloatingWrapper>
   );
 };
 
@@ -100,19 +98,18 @@ const DatePicker = ({ label, value, onChange }) => {
   };
 
   return (
-    <div className="space-y-2">
-      <Label className="text-foreground font-medium">{label}</Label>
+    <FloatingWrapper label={label} hasValue={!!date} isFocused={open}>
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
           <Button
             variant="outline"
             className={cn(
-              "w-full justify-start text-left font-normal h-11",
+              "w-full justify-start text-left font-normal h-[52px] bg-transparent border border-input",
               !date && "text-muted-foreground"
             )}
           >
-            <CalendarIcon className="mr-2 h-4 w-4" />
-            {date ? format(date, "PPP") : <span>Pick a date</span>}
+            {date ? format(date, "PPP") : ""}
+            <CalendarIcon className="ml-auto h-4 w-4 shrink-0 opacity-50" />
           </Button>
         </PopoverTrigger>
         <PopoverContent className="w-auto p-0" align="start">
@@ -124,7 +121,7 @@ const DatePicker = ({ label, value, onChange }) => {
           />
         </PopoverContent>
       </Popover>
-    </div>
+    </FloatingWrapper>
   );
 };
 
@@ -386,47 +383,35 @@ export default function PharmacyPage() {
                   }
                 />
 
-                <div className="space-y-2">
-                  <Label className="text-foreground font-medium">
-                    Invoice Amount
-                  </Label>
-                  <Input
-                    type="number"
-                    step="0.01"
-                    value={record.invoice_amount}
-                    onChange={(e) =>
-                      handleRecordChange(
-                        index,
-                        "invoice_amount",
-                        e.target.value
-                      )
-                    }
-                    placeholder="0.00"
-                    className="h-11"
-                  />
-                </div>
+                <FloatingInput
+                  label="Invoice Amount"
+                  type="number"
+                  step="0.01"
+                  value={record.invoice_amount}
+                  onChange={(e) =>
+                    handleRecordChange(
+                      index,
+                      "invoice_amount",
+                      e.target.value
+                    )
+                  }
+                />
               </div>
 
               {/* Row 2 */}
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <div className="space-y-2">
-                  <Label className="text-foreground font-medium">
-                    CNR Submitted to AB
-                  </Label>
-                  <Input
-                    type="text"
-                    value={record.cnr_submitted_to_ab}
-                    onChange={(e) =>
-                      handleRecordChange(
-                        index,
-                        "cnr_submitted_to_ab",
-                        e.target.value
-                      )
-                    }
-                    placeholder="Enter CNR"
-                    className="h-11"
-                  />
-                </div>
+                <FloatingInput
+                  label="CNR Submitted to AB"
+                  type="text"
+                  value={record.cnr_submitted_to_ab}
+                  onChange={(e) =>
+                    handleRecordChange(
+                      index,
+                      "cnr_submitted_to_ab",
+                      e.target.value
+                    )
+                  }
+                />
 
                 <SearchableSelect
                   label="Who Paid the Invoice Payment"

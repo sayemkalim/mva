@@ -16,6 +16,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { FloatingInput, FloatingTextarea } from "@/components/ui/floating-label";
 import {
   Select,
   SelectContent,
@@ -722,26 +723,21 @@ const EventFormDialog = ({ open, onClose, event, slotInfo, onDelete }) => {
                   Basic Information
                 </h3>
 
-                <div className="space-y-2">
-                  <Label htmlFor="title">Event Title *</Label>
-                  <Input
-                    id="title"
-                    value={formData.title}
-                    onChange={(e) => handleChange("title", e.target.value)}
-                    placeholder="Enter event title"
-                  />
-                </div>
+                <FloatingInput
+                  id="title"
+                  label="Event Title"
+                  value={formData.title}
+                  onChange={(e) => handleChange("title", e.target.value)}
+                  required
+                />
 
-                <div className="space-y-2">
-                  <Label htmlFor="description">Description</Label>
-                  <Textarea
-                    id="description"
-                    value={formData.description}
-                    onChange={(e) => handleChange("description", e.target.value)}
-                    placeholder="Enter event description"
-                    rows={3}
-                  />
-                </div>
+                <FloatingTextarea
+                  id="description"
+                  label="Description"
+                  value={formData.description}
+                  onChange={(e) => handleChange("description", e.target.value)}
+                  rows={3}
+                />
 
                 <div className="flex items-center space-x-2">
                   <Checkbox
@@ -755,48 +751,42 @@ const EventFormDialog = ({ open, onClose, event, slotInfo, onDelete }) => {
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="start_date">Start Date *</Label>
-                    <Input
-                      id="start_date"
-                      type="date"
-                      value={formData.start_date}
-                      onChange={(e) => handleChange("start_date", e.target.value)}
-                    />
-                  </div>
+                  <FloatingInput
+                    id="start_date"
+                    label="Start Date"
+                    type="date"
+                    value={formData.start_date}
+                    onChange={(e) => handleChange("start_date", e.target.value)}
+                    required
+                  />
                   {!formData.all_day && (
-                    <div className="space-y-2">
-                      <Label htmlFor="start_time">Start Time</Label>
-                      <Input
-                        id="start_time"
-                        type="time"
-                        value={formData.start_time}
-                        onChange={(e) => handleChange("start_time", e.target.value)}
-                      />
-                    </div>
+                    <FloatingInput
+                      id="start_time"
+                      label="Start Time"
+                      type="time"
+                      value={formData.start_time}
+                      onChange={(e) => handleChange("start_time", e.target.value)}
+                    />
                   )}
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="end_date">End Date *</Label>
-                    <Input
-                      id="end_date"
-                      type="date"
-                      value={formData.end_date}
-                      onChange={(e) => handleChange("end_date", e.target.value)}
-                    />
-                  </div>
+                  <FloatingInput
+                    id="end_date"
+                    label="End Date"
+                    type="date"
+                    value={formData.end_date}
+                    onChange={(e) => handleChange("end_date", e.target.value)}
+                    required
+                  />
                   {!formData.all_day && (
-                    <div className="space-y-2">
-                      <Label htmlFor="end_time">End Time</Label>
-                      <Input
-                        id="end_time"
-                        type="time"
-                        value={formData.end_time}
-                        onChange={(e) => handleChange("end_time", e.target.value)}
-                      />
-                    </div>
+                    <FloatingInput
+                      id="end_time"
+                      label="End Time"
+                      type="time"
+                      value={formData.end_time}
+                      onChange={(e) => handleChange("end_time", e.target.value)}
+                    />
                   )}
                 </div>
               </div>
@@ -1204,12 +1194,12 @@ const EventFormDialog = ({ open, onClose, event, slotInfo, onDelete }) => {
               </div>
 
               <div className="space-y-2">
-                <Label>Value *</Label>
-                <Input
+                <FloatingInput
+                  label="Value"
                   type="number"
                   value={newReminder.value}
                   onChange={(e) => handleNewReminderChange("value", e.target.value)}
-                  placeholder="Enter value (e.g., 15)"
+                  required
                 />
               </div>
             </div>
@@ -1337,11 +1327,10 @@ const EventFormDialog = ({ open, onClose, event, slotInfo, onDelete }) => {
               </div>
 
               <div className="space-y-2">
-                <Label>Comment</Label>
-                <Input
+                <FloatingInput
+                  label="Comment"
                   value={newParticipant.comment}
                   onChange={(e) => handleNewParticipantChange("comment", e.target.value)}
-                  placeholder="Add a comment (optional)"
                 />
               </div>
             </div>

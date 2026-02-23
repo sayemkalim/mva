@@ -80,7 +80,7 @@ function ShadcnSelect({
           type="button"
         >
           {selected ? selected.name : placeholder}
-          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+          <ChevronsUpDown className="ml-auto h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
 

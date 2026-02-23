@@ -3,8 +3,8 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useQuery, useMutation } from "@tanstack/react-query";
 
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { FloatingInput, FloatingWrapper } from "@/components/ui/floating-label";
 import {
   Popover,
   PopoverTrigger,
@@ -40,19 +40,17 @@ function SearchableDropdown({
     (options || []).find((o) => String(o.id) === String(value)) || null;
 
   return (
-    <div className="space-y-2">
-      {label && <label className="text-foreground font-medium">{label}</label>}
-
+    <FloatingWrapper label={label} hasValue={!!selected} isFocused={open}>
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
           <Button
             variant="outline"
             role="combobox"
             type="button"
-            className="justify-between w-full"
+            className="justify-between w-full h-[52px] bg-transparent border border-input"
           >
-            {selected ? selected.name : placeholder}
-            <ChevronsUpDown className="w-4 h-4 opacity-50" />
+            {selected ? selected.name : ""}
+            <ChevronsUpDown className="ml-auto h-4 w-4 shrink-0 opacity-50" />
           </Button>
         </PopoverTrigger>
 
@@ -100,7 +98,7 @@ function SearchableDropdown({
           </Command>
         </PopoverContent>
       </Popover>
-    </div>
+    </FloatingWrapper>
   );
 }
 
@@ -339,32 +337,25 @@ export default function DriverInfoForm() {
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-4">
                 {!form.policy_holder_same_as_applican && (
-                  <div className="space-y-2">
-                    <Label htmlFor="policy_holder_name">Name</Label>
-                    <Input
-                      id="policy_holder_name"
-                      placeholder="Name"
-                      value={form.policy_holder_name || ""}
-                      onChange={(e) =>
-                        updateField("policy_holder_name", e.target.value)
-                      }
-                      className="h-9 bg-muted border-input"
-                    />
-                  </div>
+                  <FloatingInput
+                    id="policy_holder_name"
+                    label="Name"
+                    value={form.policy_holder_name || ""}
+                    onChange={(e) =>
+                      updateField("policy_holder_name", e.target.value)
+                    }
+                  />
                 )}
 
-                <div className="space-y-2">
-                  <Label htmlFor="conflict_search">Conflict Search Date</Label>
-                  <Input
-                    id="conflict_search"
-                    type="date"
-                    value={form.conflict_search || ""}
-                    onChange={(e) =>
-                      updateField("conflict_search", e.target.value)
-                    }
-                    className="h-9 bg-muted border-input"
-                  />
-                </div>
+                <FloatingInput
+                  id="conflict_search"
+                  label="Conflict Search Date"
+                  type="date"
+                  value={form.conflict_search || ""}
+                  onChange={(e) =>
+                    updateField("conflict_search", e.target.value)
+                  }
+                />
               </div>
             </div>
 
@@ -374,99 +365,13 @@ export default function DriverInfoForm() {
                 Primary Address
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                <div className="space-y-2">
-                  <Label htmlFor="unit_number_1">Unit Number</Label>
-                  <Input
-                    id="unit_number_1"
-                    value={form.address.unit_number}
-                    onChange={(e) =>
-                      updateAddressField(
-                        "address",
-                        "unit_number",
-                        e.target.value
-                      )
-                    }
-                    className="h-9 bg-muted border-input"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="street_number_1">Street Number</Label>
-                  <Input
-                    id="street_number_1"
-                    value={form.address.street_number}
-                    onChange={(e) =>
-                      updateAddressField(
-                        "address",
-                        "street_number",
-                        e.target.value
-                      )
-                    }
-                    className="h-9 bg-muted border-input"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="street_name_1">Street Name</Label>
-                  <Input
-                    id="street_name_1"
-                    value={form.address.street_name}
-                    onChange={(e) =>
-                      updateAddressField(
-                        "address",
-                        "street_name",
-                        e.target.value
-                      )
-                    }
-                    className="h-9 bg-muted border-input"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="city_1">City</Label>
-                  <Input
-                    id="city_1"
-                    value={form.address.city}
-                    onChange={(e) =>
-                      updateAddressField("address", "city", e.target.value)
-                    }
-                    className="h-9 bg-muted border-input"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="province_1">Province</Label>
-                  <Input
-                    id="province_1"
-                    value={form.address.province}
-                    onChange={(e) =>
-                      updateAddressField("address", "province", e.target.value)
-                    }
-                    className="h-9 bg-muted border-input"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="postal_code_1">Postal Code</Label>
-                  <Input
-                    id="postal_code_1"
-                    value={form.address.postal_code}
-                    onChange={(e) =>
-                      updateAddressField(
-                        "address",
-                        "postal_code",
-                        e.target.value
-                      )
-                    }
-                    className="h-9 bg-muted border-input"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="country_1">Country</Label>
-                  <Input
-                    id="country_1"
-                    value={form.address.country}
-                    onChange={(e) =>
-                      updateAddressField("address", "country", e.target.value)
-                    }
-                    className="h-9 bg-muted border-input"
-                  />
-                </div>
+                <FloatingInput label="Unit Number" id="unit_number_1" value={form.address.unit_number} onChange={(e) => updateAddressField("address", "unit_number", e.target.value)} />
+                <FloatingInput label="Street Number" id="street_number_1" value={form.address.street_number} onChange={(e) => updateAddressField("address", "street_number", e.target.value)} />
+                <FloatingInput label="Street Name" id="street_name_1" value={form.address.street_name} onChange={(e) => updateAddressField("address", "street_name", e.target.value)} />
+                <FloatingInput label="City" id="city_1" value={form.address.city} onChange={(e) => updateAddressField("address", "city", e.target.value)} />
+                <FloatingInput label="Province" id="province_1" value={form.address.province} onChange={(e) => updateAddressField("address", "province", e.target.value)} />
+                <FloatingInput label="Postal Code" id="postal_code_1" value={form.address.postal_code} onChange={(e) => updateAddressField("address", "postal_code", e.target.value)} />
+                <FloatingInput label="Country" id="country_1" value={form.address.country} onChange={(e) => updateAddressField("address", "country", e.target.value)} />
               </div>
             </div>
 
@@ -477,48 +382,9 @@ export default function DriverInfoForm() {
               </h3>
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div className="space-y-2">
-                  <Label htmlFor="drivers_licence_state">
-                    Driver's Licence State
-                  </Label>
-                  <Input
-                    id="drivers_licence_state"
-                    value={form.drivers_licence_state}
-                    onChange={(e) =>
-                      updateField("drivers_licence_state", e.target.value)
-                    }
-                    className="h-9 bg-muted border-input"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="drivers_licence_number">
-                    Driver's Licence Number
-                  </Label>
-                  <Input
-                    id="drivers_licence_number"
-                    value={form.drivers_licence_number}
-                    onChange={(e) =>
-                      updateField("drivers_licence_number", e.target.value)
-                    }
-                    className="h-9 bg-muted border-input"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="drivers_licence_expiry_date">
-                    Licence Expiry Date
-                  </Label>
-                  <Input
-                    id="drivers_licence_expiry_date"
-                    type="date"
-                    value={form.drivers_licence_expiry_date || ""}
-                    onChange={(e) =>
-                      updateField("drivers_licence_expiry_date", e.target.value)
-                    }
-                    className="h-9 bg-muted border-input"
-                  />
-                </div>
+                <FloatingInput label="Driver's Licence State" id="drivers_licence_state" value={form.drivers_licence_state} onChange={(e) => updateField("drivers_licence_state", e.target.value)} />
+                <FloatingInput label="Driver's Licence Number" id="drivers_licence_number" value={form.drivers_licence_number} onChange={(e) => updateField("drivers_licence_number", e.target.value)} />
+                <FloatingInput label="Licence Expiry Date" id="drivers_licence_expiry_date" type="date" value={form.drivers_licence_expiry_date || ""} onChange={(e) => updateField("drivers_licence_expiry_date", e.target.value)} />
 
                 <SearchableDropdown
                   label="Driver Location"
@@ -528,18 +394,7 @@ export default function DriverInfoForm() {
                   onChange={(val) => updateField("driver_location_id", val)}
                 />
 
-                <div className="space-y-2">
-                  <Label htmlFor="dl_searched_date">DL Search Date</Label>
-                  <Input
-                    id="dl_searched_date"
-                    type="date"
-                    value={form.dl_searched_date || ""}
-                    onChange={(e) =>
-                      updateField("dl_searched_date", e.target.value)
-                    }
-                    className="h-9 bg-muted border-input"
-                  />
-                </div>
+                <FloatingInput label="DL Search Date" id="dl_searched_date" type="date" value={form.dl_searched_date || ""} onChange={(e) => updateField("dl_searched_date", e.target.value)} />
               </div>
             </div>
 
@@ -566,111 +421,13 @@ export default function DriverInfoForm() {
                     Second Address
                   </h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                    <div className="space-y-2">
-                      <Label htmlFor="unit_number_2">Unit Number</Label>
-                      <Input
-                        id="unit_number_2"
-                        value={form.address_2nd.unit_number}
-                        onChange={(e) =>
-                          updateAddressField(
-                            "address_2nd",
-                            "unit_number",
-                            e.target.value
-                          )
-                        }
-                        className="h-9 bg-muted border-input"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="street_number_2">Street Number</Label>
-                      <Input
-                        id="street_number_2"
-                        value={form.address_2nd.street_number}
-                        onChange={(e) =>
-                          updateAddressField(
-                            "address_2nd",
-                            "street_number",
-                            e.target.value
-                          )
-                        }
-                        className="h-9 bg-muted border-input"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="street_name_2">Street Name</Label>
-                      <Input
-                        id="street_name_2"
-                        value={form.address_2nd.street_name}
-                        onChange={(e) =>
-                          updateAddressField(
-                            "address_2nd",
-                            "street_name",
-                            e.target.value
-                          )
-                        }
-                        className="h-9 bg-muted border-input"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="city_2">City</Label>
-                      <Input
-                        id="city_2"
-                        value={form.address_2nd.city}
-                        onChange={(e) =>
-                          updateAddressField(
-                            "address_2nd",
-                            "city",
-                            e.target.value
-                          )
-                        }
-                        className="h-9 bg-muted border-input"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="province_2">Province</Label>
-                      <Input
-                        id="province_2"
-                        value={form.address_2nd.province}
-                        onChange={(e) =>
-                          updateAddressField(
-                            "address_2nd",
-                            "province",
-                            e.target.value
-                          )
-                        }
-                        className="h-9 bg-muted border-input"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="postal_code_2">Postal Code</Label>
-                      <Input
-                        id="postal_code_2"
-                        value={form.address_2nd.postal_code}
-                        onChange={(e) =>
-                          updateAddressField(
-                            "address_2nd",
-                            "postal_code",
-                            e.target.value
-                          )
-                        }
-                        className="h-9 bg-muted border-input"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="country_2">Country</Label>
-                      <Input
-                        id="country_2"
-                        value={form.address_2nd.country}
-                        onChange={(e) =>
-                          updateAddressField(
-                            "address_2nd",
-                            "country",
-                            e.target.value
-                          )
-                        }
-                        className="h-9 bg-muted border-input"
-                      />
-                    </div>
+                    <FloatingInput label="Unit Number" id="unit_number_2" value={form.address_2nd.unit_number} onChange={(e) => updateAddressField("address_2nd", "unit_number", e.target.value)} />
+                    <FloatingInput label="Street Number" id="street_number_2" value={form.address_2nd.street_number} onChange={(e) => updateAddressField("address_2nd", "street_number", e.target.value)} />
+                    <FloatingInput label="Street Name" id="street_name_2" value={form.address_2nd.street_name} onChange={(e) => updateAddressField("address_2nd", "street_name", e.target.value)} />
+                    <FloatingInput label="City" id="city_2" value={form.address_2nd.city} onChange={(e) => updateAddressField("address_2nd", "city", e.target.value)} />
+                    <FloatingInput label="Province" id="province_2" value={form.address_2nd.province} onChange={(e) => updateAddressField("address_2nd", "province", e.target.value)} />
+                    <FloatingInput label="Postal Code" id="postal_code_2" value={form.address_2nd.postal_code} onChange={(e) => updateAddressField("address_2nd", "postal_code", e.target.value)} />
+                    <FloatingInput label="Country" id="country_2" value={form.address_2nd.country} onChange={(e) => updateAddressField("address_2nd", "country", e.target.value)} />
                   </div>
                 </>
               )}

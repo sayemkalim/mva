@@ -19,6 +19,7 @@ import {
 import { Loader2, ChevronRight } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import { FloatingInput, FloatingWrapper } from "@/components/ui/floating-label";
 
 import { Navbar2 } from "@/components/navbar2";
 import Billing from "@/components/billing";
@@ -27,20 +28,20 @@ import { createClientSettlement } from "../helpers/createClientSettlement";
 import { getABMeta } from "../helpers/fetchABMeta";
 
 const SearchableSelect = ({ label, options, value, onChange, placeholder }) => {
+  const [open, setOpen] = useState(false);
   const selected = options.find((opt) => String(opt.id) === String(value));
 
   return (
-    <div className="space-y-2">
-      <Label className="text-foreground font-medium">{label}</Label>
-      <Popover>
+    <FloatingWrapper label={label} hasValue={!!selected} isFocused={open}>
+      <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
           <Button
             role="combobox"
             variant="outline"
-            className="w-full justify-between h-11"
+            className="w-full justify-between font-normal h-[52px] bg-transparent border border-input"
           >
-            {selected ? selected.name : placeholder}
-            <ChevronRight className="ml-2 h-4 w-4 rotate-90" />
+            {selected ? selected.name : ""}
+            <ChevronRight className="ml-auto h-4 w-4 shrink-0 rotate-90" />
           </Button>
         </PopoverTrigger>
 
@@ -53,7 +54,10 @@ const SearchableSelect = ({ label, options, value, onChange, placeholder }) => {
                 options.map((opt) => (
                   <CommandItem
                     key={opt.id}
-                    onSelect={() => onChange(opt.id)}
+                    onSelect={() => {
+                      onChange(opt.id);
+                      setOpen(false);
+                    }}
                     value={opt.name}
                   >
                     {opt.name}
@@ -68,7 +72,7 @@ const SearchableSelect = ({ label, options, value, onChange, placeholder }) => {
           </Command>
         </PopoverContent>
       </Popover>
-    </div>
+    </FloatingWrapper>
   );
 };
 
@@ -256,99 +260,80 @@ export default function ClientSettlementPage() {
             {/* Settlement Fields for Fixed and Contingency */}
             {showSettlementFields && (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <div className="space-y-2">
-                  <Label className="text-foreground font-medium">
-                    Settlement Amount
-                  </Label>
-                  <Input
-                    type="number"
-                    step="0.01"
-                    value={formData.settlement_amount}
-                    onChange={(e) =>
-                      handleFieldChange("settlement_amount", e.target.value)
-                    }
-                    placeholder="0.00"
-                    className="h-11"
-                  />
-                </div>
+                <FloatingInput
+                  label="Settlement Amount"
+                  type="number"
+                  step="0.01"
+                  value={formData.settlement_amount}
+                  onChange={(e) =>
+                    handleFieldChange("settlement_amount", e.target.value)
+                  }
+                />
 
-                <div className="space-y-2">
-                  <Label className="text-foreground font-medium">
-                    Percentage (%)
-                  </Label>
-                  <Input
-                    type="number"
-                    step="0.01"
-                    value={formData.percentage}
-                    onChange={(e) =>
-                      handleFieldChange("percentage", e.target.value)
-                    }
-                    placeholder="0.00"
-                    className="h-11"
-                  />
-                </div>
+                <FloatingInput
+                  label="Percentage (%)"
+                  type="number"
+                  step="0.01"
+                  value={formData.percentage}
+                  onChange={(e) =>
+                    handleFieldChange("percentage", e.target.value)
+                  }
+                />
               </div>
             )}
 
             {/* Row 2 - Price, Tax, Final Price */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              <div className="space-y-2">
-                <Label className="text-foreground font-medium">Price</Label>
-                <Input
+              <div>
+                <FloatingInput
+                  label="Price"
                   type="number"
                   step="0.01"
                   value={formData.price}
                   onChange={(e) => handleFieldChange("price", e.target.value)}
-                  placeholder="0.00"
-                  className="h-11"
                   disabled={isContingency || isHourly}
                   readOnly={isContingency || isHourly}
                 />
                 {isFixed && (
-                  <p className="text-xs text-gray-500">Enter fixed price</p>
+                  <p className="text-xs text-gray-500 mt-1">Enter fixed price</p>
                 )}
                 {isContingency && (
-                  <p className="text-xs text-gray-500">
+                  <p className="text-xs text-gray-500 mt-1">
                     Auto-calculated: (Settlement Amount × Percentage) / 100
                   </p>
                 )}
                 {isHourly && (
-                  <p className="text-xs text-gray-500">
+                  <p className="text-xs text-gray-500 mt-1">
                     Readonly for hourly billing
                   </p>
                 )}
               </div>
 
-              <div className="space-y-2">
-                <Label className="text-foreground font-medium">
-                  Tax (HST {hstRate}%)
-                </Label>
-                <Input
+              <div>
+                <FloatingInput
+                  label={`Tax (HST ${hstRate}%)`}
                   type="number"
                   step="0.01"
                   value={formData.tax}
-                  placeholder="0.00"
-                  className="h-11 bg-muted"
                   disabled
                   readOnly
                 />
-                <p className="text-xs text-gray-500">
+                <p className="text-xs text-gray-500 mt-1">
                   Auto-calculated: Price × {hstRate}%
                 </p>
               </div>
 
-              <div className="space-y-2">
-                <Label className="text-foreground font-medium">Final Price</Label>
-                <Input
+              <div>
+                <FloatingInput
+                  label="Final Price"
                   type="number"
                   step="0.01"
                   value={formData.final_price}
-                  placeholder="0.00"
-                  className="h-11 bg-muted font-semibold"
+                  className="font-semibold"
                   disabled
                   readOnly
                 />
-                <p className="text-xs text-gray-500">
+                <p className="text-xs text-gray-500 mt-1">
                   Auto-calculated: Price + Tax
                 </p>
               </div>

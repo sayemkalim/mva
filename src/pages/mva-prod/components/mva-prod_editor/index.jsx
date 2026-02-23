@@ -2,9 +2,8 @@ import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
+import { FloatingInput, FloatingTextarea } from "@/components/ui/floating-label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Loader2, ChevronRight } from "lucide-react";
 import { toast } from "sonner";
@@ -980,7 +979,8 @@ export default function MvaPage() {
                   className="h-4 w-4 border-black dark:border-gray-300"
                 />
               </div>
-              <Textarea
+              <FloatingTextarea
+                label="Witnesses Description"
                 value={formData.witnesses_desc}
                 onChange={(e) => handleChange("witnesses_desc", e.target.value)}
                 className="min-h-[80px]"
@@ -1307,25 +1307,18 @@ export default function MvaPage() {
                   </div>
                 </div>
 
-                <div className="space-y-2">
-                  <Label className="text-base text-gray-700">
-                    If yes, please provide the name and the date you were
-                    transferred there
-                  </Label>
-                  <Textarea
-                    value={
-                      formData.hospital_information_please_provide_the_name_and_the_date
-                    }
-                    onChange={(e) =>
-                      handleChange(
-                        "hospital_information_please_provide_the_name_and_the_date",
-                        e.target.value
-                      )
-                    }
-                    className="min-h-[80px]"
-                    rows={3}
-                  />
-                </div>
+                <FloatingTextarea
+                  label="If yes, please provide the name and the date you were transferred there"
+                  value={formData.hospital_information_please_provide_the_name_and_the_date || ""}
+                  onChange={(e) =>
+                    handleChange(
+                      "hospital_information_please_provide_the_name_and_the_date",
+                      e.target.value
+                    )
+                  }
+                  className="min-h-[80px]"
+                  rows={3}
+                />
               </div>
             </div>
           </Section>
@@ -1434,23 +1427,16 @@ export default function MvaPage() {
                 />
               </div>
 
-              <div className="space-y-2">
-                <Label className="text-base text-gray-700">
-                  How long have you been seeing this family doctor for ?
-                </Label>
-                <Input
-                  value={
-                    formData.how_long_have_you_been_seeing_this_family_doctor_for
-                  }
-                  onChange={(e) =>
-                    handleChange(
-                      "how_long_have_you_been_seeing_this_family_doctor_for",
-                      e.target.value
-                    )
-                  }
-                  className="h-12 border-input"
-                />
-              </div>
+              <FloatingInput
+                label="How long have you been seeing this family doctor for ?"
+                value={formData.how_long_have_you_been_seeing_this_family_doctor_for || ""}
+                onChange={(e) =>
+                  handleChange(
+                    "how_long_have_you_been_seeing_this_family_doctor_for",
+                    e.target.value
+                  )
+                }
+              />
 
               <div className="flex items-center justify-between pt-4 border-t border-gray-100">
                 <Label className="text-base text-gray-700">
@@ -1548,20 +1534,15 @@ export default function MvaPage() {
                 />
               </div>
 
-              <div className="space-y-2">
-                <Label className="text-base text-gray-700">
-                  If yes, please provide the name and contact information and type
-                  of specialist you have been referred to
-                </Label>
-                <Textarea
-                  value={formData.specialist_referral_info}
-                  onChange={(e) =>
-                    handleChange("specialist_referral_info", e.target.value)
-                  }
-                  className="min-h-[80px]"
-                  rows={3}
-                />
-              </div>
+              <FloatingTextarea
+                label="If yes, please provide the name and contact information and type of specialist"
+                value={formData.specialist_referral_info || ""}
+                onChange={(e) =>
+                  handleChange("specialist_referral_info", e.target.value)
+                }
+                className="min-h-[80px]"
+                rows={3}
+              />
 
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 <Field
@@ -1633,20 +1614,15 @@ export default function MvaPage() {
           {/* Injuries List */}
           <Section title="INJURIES LIST">
             <div className="space-y-6">
-              <div className="space-y-2">
-                <Label className="text-base text-gray-700">
-                  Please describe your injuries as a result of this accident,
-                  starting from your head and listing all the way to the bottom
-                </Label>
-                <Textarea
-                  value={formData.injuries_list_description}
-                  onChange={(e) =>
-                    handleChange("injuries_list_description", e.target.value)
-                  }
-                  className="min-h-[80px]"
-                  rows={3}
-                />
-              </div>
+              <FloatingTextarea
+                label="Please describe your injuries (head to bottom)"
+                value={formData.injuries_list_description || ""}
+                onChange={(e) =>
+                  handleChange("injuries_list_description", e.target.value)
+                }
+                className="min-h-[80px]"
+                rows={3}
+              />
 
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
@@ -1675,21 +1651,16 @@ export default function MvaPage() {
                 </div>
               </div>
 
-              <div className="space-y-2">
-                <Label className="text-base text-gray-700">
-                  If yes, please describe where
-                </Label>
-                <Input
-                  value={formData.if_yes_please_describe_where_injuries}
-                  onChange={(e) =>
-                    handleChange(
-                      "if_yes_please_describe_where_injuries",
-                      e.target.value
-                    )
-                  }
-                  className="h-12 border-input"
-                />
-              </div>
+              <FloatingInput
+                label="If yes, please describe where"
+                value={formData.if_yes_please_describe_where_injuries || ""}
+                onChange={(e) =>
+                  handleChange(
+                    "if_yes_please_describe_where_injuries",
+                    e.target.value
+                  )
+                }
+              />
             </div>
           </Section>
 
@@ -1709,23 +1680,18 @@ export default function MvaPage() {
                 />
               </div>
 
-              <div className="space-y-2">
-                <Label className="text-base text-gray-700">
-                  If yes, please describe each injury – both physical and psycho
-                  logical
-                </Label>
-                <Textarea
-                  value={formData.pre_existing_injuries_description}
-                  onChange={(e) =>
-                    handleChange(
-                      "pre_existing_injuries_description",
-                      e.target.value
-                    )
-                  }
-                  className="min-h-[80px]"
-                  rows={3}
-                />
-              </div>
+              <FloatingTextarea
+                label="If yes, please describe each injury – physical and psychological"
+                value={formData.pre_existing_injuries_description || ""}
+                onChange={(e) =>
+                  handleChange(
+                    "pre_existing_injuries_description",
+                    e.target.value
+                  )
+                }
+                className="min-h-[80px]"
+                rows={3}
+              />
             </div>
           </Section>
 
@@ -2110,20 +2076,15 @@ export default function MvaPage() {
                 />
               </div>
 
-              <div className="space-y-2">
-                <Label className="text-base text-gray-700">
-                  List the people who you were caring for at the time of the
-                  accident
-                </Label>
-                <Textarea
-                  value={formData.people_cared_for_list}
-                  onChange={(e) =>
-                    handleChange("people_cared_for_list", e.target.value)
-                  }
-                  className="min-h-[80px]"
-                  rows={3}
-                />
-              </div>
+              <FloatingTextarea
+                label="List the people who you were caring for at the time of the accident"
+                value={formData.people_cared_for_list || ""}
+                onChange={(e) =>
+                  handleChange("people_cared_for_list", e.target.value)
+                }
+                className="min-h-[80px]"
+                rows={3}
+              />
 
               <div className="flex items-center justify-between pt-4 border-t border-gray-100">
                 <Label className="text-base text-gray-700">
@@ -2144,19 +2105,16 @@ export default function MvaPage() {
                 />
               </div>
 
-              <div className="space-y-2">
-                <Label className="text-base text-gray-700">
-                  If yes, since what date?
-                </Label>
-                <Input
-                  value={formData.caregiving_prevented_since_date}
+              <div className="w-full md:w-1/3">
+                <FloatingInput
+                  label="If yes, since what date?"
+                  value={formData.caregiving_prevented_since_date || ""}
                   onChange={(e) =>
                     handleChange(
                       "caregiving_prevented_since_date",
                       e.target.value
                     )
                   }
-                  className="h-12 border-input w-full md:w-1/3"
                 />
               </div>
             </div>
@@ -2210,16 +2168,14 @@ export default function MvaPage() {
                 />
               </div>
 
-              <div className="space-y-2 pt-4 border-t border-gray-100 flex flex-col md:flex-row md:items-start gap-4">
-                <Label className="text-base text-gray-700 mt-2 whitespace-nowrap">
-                  If yes, then please advise since when and the reasons ?
-                </Label>
-                <Textarea
-                  value={formData.gov_assistance_details}
+              <div className="pt-4 border-t border-gray-100">
+                <FloatingTextarea
+                  label="If yes, please advise since when and the reasons ?"
+                  value={formData.gov_assistance_details || ""}
                   onChange={(e) =>
                     handleChange("gov_assistance_details", e.target.value)
                   }
-                  className="min-h-[80px] flex-1"
+                  className="min-h-[80px]"
                   rows={3}
                 />
               </div>
@@ -2293,28 +2249,22 @@ export default function MvaPage() {
           {/* OTHER */}
           <Section title="OTHER">
             <div className="space-y-6">
-              <div className="space-y-2">
-                <Label className="text-base text-gray-700">
-                  RECREATIONAL ACTIVITIES
-                </Label>
-                <Textarea
-                  value={formData.recreational_activities}
-                  onChange={(e) =>
-                    handleChange("recreational_activities", e.target.value)
-                  }
-                  className="min-h-[80px]"
-                  rows={3}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label className="text-base text-gray-700">Note</Label>
-                <Textarea
-                  value={formData.other_notes}
-                  onChange={(e) => handleChange("other_notes", e.target.value)}
-                  className="min-h-[80px]"
-                  rows={3}
-                />
-              </div>
+              <FloatingTextarea
+                label="Recreational Activities"
+                value={formData.recreational_activities || ""}
+                onChange={(e) =>
+                  handleChange("recreational_activities", e.target.value)
+                }
+                className="min-h-[80px]"
+                rows={3}
+              />
+              <FloatingTextarea
+                label="Note"
+                value={formData.other_notes || ""}
+                onChange={(e) => handleChange("other_notes", e.target.value)}
+                className="min-h-[80px]"
+                rows={3}
+              />
             </div>
           </Section>
 
@@ -2454,32 +2404,25 @@ function Grid({ children }) {
 
 function Field({ label, value, onChange, type = "text", required = false }) {
   return (
-    <div className="space-y-2">
-      <Label className="text-sm font-semibold text-foreground">
-        {label}
-        {required && <span className="text-red-500 ml-1">*</span>}
-      </Label>
-      <Input
-        type={type}
-        value={value || ""}
-        onChange={(e) => onChange(e.target.value)}
-        className="h-12 px-4 border-input focus:ring-2 focus:ring-primary focus:border-primary transition-all"
-        placeholder={label}
-      />
-    </div>
+    <FloatingInput
+      label={label}
+      required={required}
+      type={type}
+      value={value || ""}
+      onChange={(e) => onChange(e.target.value)}
+    />
   );
 }
 
 function TextField({ label, value, onChange }) {
   return (
-    <div className="space-y-2 md:col-span-full">
-      <Label className="text-sm font-semibold text-foreground">{label}</Label>
-      <Textarea
+    <div className="md:col-span-full">
+      <FloatingTextarea
+        label={label}
         value={value || ""}
         onChange={(e) => onChange(e.target.value)}
         rows={4}
-        className="min-h-[100px] border-input focus:ring-2 focus:ring-primary focus:border-primary transition-all resize-vertical"
-        placeholder={`Enter ${label.toLowerCase()}...`}
+        className="min-h-[100px] resize-vertical"
       />
     </div>
   );

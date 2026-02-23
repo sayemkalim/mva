@@ -3,8 +3,8 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { FloatingInput, FloatingWrapper } from "@/components/ui/floating-label";
 import {
   Dialog,
   DialogContent,
@@ -415,65 +415,68 @@ export default function Vehicle() {
     fieldName,
     popoverOpen,
     setPopoverOpen,
+    label,
   }) => {
     const selectedOption = options?.find((opt) => opt.id === value);
 
     return (
-      <Popover
-        open={popoverOpen[popoverKey]}
-        onOpenChange={(open) =>
-          setPopoverOpen((p) => ({ ...p, [popoverKey]: open }))
-        }
-      >
-        <PopoverTrigger asChild>
-          <Button
-            variant="outline"
-            role="combobox"
-            className="w-full justify-between font-normal bg-muted"
-            type="button"
-          >
-            {selectedOption ? selectedOption.name : placeholder}
-            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-          </Button>
-        </PopoverTrigger>
-        <PopoverContent
-          className="w-[var(--radix-popover-trigger-width)] p-0"
-          align="start"
+      <FloatingWrapper label={label} hasValue={!!selectedOption} isFocused={popoverOpen[popoverKey]}>
+        <Popover
+          open={popoverOpen[popoverKey]}
+          onOpenChange={(open) =>
+            setPopoverOpen((p) => ({ ...p, [popoverKey]: open }))
+          }
         >
-          <Command>
-            <CommandInput placeholder="Search..." autoFocus />
-            <CommandList>
-              <CommandEmpty>No results found.</CommandEmpty>
-              <CommandGroup>
-                <CommandItem
-                  onSelect={() => onSelect(fieldName, null, popoverKey)}
-                  className="cursor-pointer flex items-center italic text-muted-foreground"
-                >
-                  <Check
-                    className={`mr-2 h-4 w-4 ${!value ? "opacity-100" : "opacity-0"
-                      }`}
-                  />
-                  None
-                </CommandItem>
-                {options?.map((opt) => (
+          <PopoverTrigger asChild>
+            <Button
+              variant="outline"
+              role="combobox"
+              className="w-full justify-between font-normal h-[52px] bg-transparent border border-input"
+              type="button"
+            >
+              {selectedOption ? selectedOption.name : ""}
+              <ChevronsUpDown className="ml-auto h-4 w-4 shrink-0 opacity-50" />
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent
+            className="w-[var(--radix-popover-trigger-width)] p-0"
+            align="start"
+          >
+            <Command>
+              <CommandInput placeholder="Search..." autoFocus />
+              <CommandList>
+                <CommandEmpty>No results found.</CommandEmpty>
+                <CommandGroup>
                   <CommandItem
-                    key={opt.id}
-                    value={opt.name}
-                    onSelect={() => onSelect(fieldName, opt.id, popoverKey)}
-                    className="cursor-pointer flex items-center"
+                    onSelect={() => onSelect(fieldName, null, popoverKey)}
+                    className="cursor-pointer flex items-center italic text-muted-foreground"
                   >
                     <Check
-                      className={`mr-2 h-4 w-4 ${value === opt.id ? "opacity-100" : "opacity-0"
+                      className={`mr-2 h-4 w-4 ${!value ? "opacity-100" : "opacity-0"
                         }`}
                     />
-                    {opt.name}
+                    None
                   </CommandItem>
-                ))}
-              </CommandGroup>
-            </CommandList>
-          </Command>
-        </PopoverContent>
-      </Popover>
+                  {options?.map((opt) => (
+                    <CommandItem
+                      key={opt.id}
+                      value={opt.name}
+                      onSelect={() => onSelect(fieldName, opt.id, popoverKey)}
+                      className="cursor-pointer flex items-center"
+                    >
+                      <Check
+                        className={`mr-2 h-4 w-4 ${value === opt.id ? "opacity-100" : "opacity-0"
+                          }`}
+                      />
+                      {opt.name}
+                    </CommandItem>
+                  ))}
+                </CommandGroup>
+              </CommandList>
+            </Command>
+          </PopoverContent>
+        </Popover>
+      </FloatingWrapper>
     );
   };
 
@@ -616,240 +619,38 @@ export default function Vehicle() {
               </h2>
 
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                {/* Plate Number */}
-                <div className="space-y-2">
-                  <Label
-                    htmlFor="plate_no"
-                    className="text-foreground font-medium"
-                  >
-                    Plate Number
-                  </Label>
-                  <Input
-                    id="plate_no"
-                    name="plate_no"
-                    type="text"
-                    value={formData.plate_no}
-                    onChange={handleChange}
-                    placeholder="ABCD-123"
-                    className="h-9 bg-muted border-input"
-                  />
-                </div>
+                <FloatingInput id="plate_no" label="Plate Number" name="plate_no" type="text" value={formData.plate_no} onChange={handleChange} />
+                <FloatingInput id="name" label="Vehicle Name" name="name" type="text" value={formData.name} onChange={handleChange} />
+                <FloatingInput id="province" label="Province" name="province" type="text" value={formData.province} onChange={handleChange} />
+                <FloatingInput id="vehicle_year" label="Year" name="vehicle_year" type="text" value={formData.vehicle_year} onChange={handleChange} maxLength={4} pattern="[0-9]*" />
+                <FloatingInput id="vehicle_make" label="Make" name="vehicle_make" type="text" value={formData.vehicle_make} onChange={handleChange} />
+                <FloatingInput id="vehicle_model" label="Model" name="vehicle_model" type="text" value={formData.vehicle_model} onChange={handleChange} />
+                <FloatingInput id="vehicle_color" label="Color" name="vehicle_color" type="text" value={formData.vehicle_color} onChange={handleChange} />
 
-                {/* Vehicle Name */}
-                <div className="space-y-2">
-                  <Label htmlFor="name" className="text-foreground font-medium">
-                    Vehicle Name
-                  </Label>
-                  <Input
-                    id="name"
-                    name="name"
-                    type="text"
-                    value={formData.name}
-                    onChange={handleChange}
-                    placeholder="Honda Civic Car"
-                    className="h-9 bg-muted border-input"
-                  />
-                </div>
-
-                {/* Province */}
-                <div className="space-y-2">
-                  <Label
-                    htmlFor="province"
-                    className="text-foreground font-medium"
-                  >
-                    Province
-                  </Label>
-                  <Input
-                    id="province"
-                    name="province"
-                    type="text"
-                    value={formData.province}
-                    onChange={handleChange}
-                    placeholder="Ontario"
-                    className="h-9 bg-muted border-input"
-                  />
-                </div>
-
-                {/* ✅ Vehicle Year - Fixed to always return string */}
-                <div className="space-y-2">
-                  <Label
-                    htmlFor="vehicle_year"
-                    className="text-foreground font-medium"
-                  >
-                    Year
-                  </Label>
-                  <Input
-                    id="vehicle_year"
-                    name="vehicle_year"
-                    type="text"
-                    value={formData.vehicle_year}
-                    onChange={handleChange}
-                    placeholder="2022"
-                    className="h-9 bg-muted border-input"
-                    maxLength={4}
-                    pattern="[0-9]*"
-                  />
-                </div>
-
-                {/* Vehicle Make */}
-                <div className="space-y-2">
-                  <Label
-                    htmlFor="vehicle_make"
-                    className="text-foreground font-medium"
-                  >
-                    Make
-                  </Label>
-                  <Input
-                    id="vehicle_make"
-                    name="vehicle_make"
-                    type="text"
-                    value={formData.vehicle_make}
-                    onChange={handleChange}
-                    placeholder="Honda"
-                    className="h-9 bg-muted border-input"
-                  />
-                </div>
-
-                {/* Vehicle Model */}
-                <div className="space-y-2">
-                  <Label
-                    htmlFor="vehicle_model"
-                    className="text-foreground font-medium"
-                  >
-                    Model
-                  </Label>
-                  <Input
-                    id="vehicle_model"
-                    name="vehicle_model"
-                    type="text"
-                    value={formData.vehicle_model}
-                    onChange={handleChange}
-                    placeholder="Civic"
-                    className="h-9 bg-muted border-input"
-                  />
-                </div>
-
-                {/* Vehicle Color */}
-                <div className="space-y-2">
-                  <Label
-                    htmlFor="vehicle_color"
-                    className="text-foreground font-medium"
-                  >
-                    Color
-                  </Label>
-                  <Input
-                    id="vehicle_color"
-                    name="vehicle_color"
-                    type="text"
-                    value={formData.vehicle_color}
-                    onChange={handleChange}
-                    placeholder="Blue"
-                    className="h-9 bg-muted border-input"
-                  />
-                </div>
-
-                {/* Driver Licence Same as Applicant */}
-                <div className="space-y-2">
-                  <Label
-                    htmlFor="driver_licence_same_as_applicant_id"
-                    className="text-foreground font-medium"
-                  >
-                    Driver Licence Same as Applicant
-                  </Label>
-                  <SearchableDropdown
-                    value={formData.driver_licence_same_as_applicant_id}
-                    options={metadata?.yes_no_option || []}
-                    onSelect={(fieldName, id, key) => {
-                      handleSelectChange(fieldName, id);
-                      setPopoverOpen((prev) => ({ ...prev, [key]: false }));
-                    }}
-                    placeholder="Select option"
-                    popoverKey="driver_licence_same_as_applicant_id"
-                    fieldName="driver_licence_same_as_applicant_id"
-                    popoverOpen={popoverOpen}
-                    setPopoverOpen={setPopoverOpen}
-                  />
-                </div>
+                <SearchableDropdown
+                  label="Driver Licence Same as Applicant"
+                  value={formData.driver_licence_same_as_applicant_id}
+                  options={metadata?.yes_no_option || []}
+                  onSelect={(fieldName, id, key) => {
+                    handleSelectChange(fieldName, id);
+                    setPopoverOpen((prev) => ({ ...prev, [key]: false }));
+                  }}
+                  placeholder="Select option"
+                  popoverKey="driver_licence_same_as_applicant_id"
+                  fieldName="driver_licence_same_as_applicant_id"
+                  popoverOpen={popoverOpen}
+                  setPopoverOpen={setPopoverOpen}
+                />
 
                 {metadata?.yes_no_option?.find(
                   (opt) =>
                     opt.id === formData.driver_licence_same_as_applicant_id
                 )?.name === "No" && (
                     <>
-                      {/* Driver Name */}
-                      <div className="space-y-2">
-                        <Label
-                          htmlFor="driver_name"
-                          className="text-foreground font-medium"
-                        >
-                          Name
-                        </Label>
-                        <Input
-                          id="driver_name"
-                          name="driver_name"
-                          type="text"
-                          value={formData.driver_name}
-                          onChange={handleChange}
-                          placeholder="Driver Name"
-                          className="h-9 bg-muted border-input"
-                        />
-                      </div>
-
-                      {/* Driver's Licence State */}
-                      <div className="space-y-2">
-                        <Label
-                          htmlFor="driver_licence_state"
-                          className="text-foreground font-medium"
-                        >
-                          Driver's Licence State
-                        </Label>
-                        <Input
-                          id="driver_licence_state"
-                          name="driver_licence_state"
-                          type="text"
-                          value={formData.driver_licence_state}
-                          onChange={handleChange}
-                          placeholder="State"
-                          className="h-9 bg-muted border-input"
-                        />
-                      </div>
-
-                      {/* Drivers Licence Number */}
-                      <div className="space-y-2">
-                        <Label
-                          htmlFor="driver_licence_number"
-                          className="text-foreground font-medium"
-                        >
-                          Drivers Licence Number
-                        </Label>
-                        <Input
-                          id="driver_licence_number"
-                          name="driver_licence_number"
-                          type="text"
-                          value={formData.driver_licence_number}
-                          onChange={handleChange}
-                          placeholder="Licence Number"
-                          className="h-9 bg-muted border-input"
-                        />
-                      </div>
-
-                      {/* Drivers Licence Expiry Date */}
-                      <div className="space-y-2">
-                        <Label
-                          htmlFor="driver_licence_expiry_date"
-                          className="text-foreground font-medium"
-                        >
-                          Drivers Licence Expiry Date
-                        </Label>
-                        <Input
-                          id="driver_licence_expiry_date"
-                          name="driver_licence_expiry_date"
-                          type="date"
-                          value={formData.driver_licence_expiry_date}
-                          onChange={handleChange}
-                          className="h-9 bg-muted border-input"
-                        />
-                      </div>
+                      <FloatingInput id="driver_name" label="Name" name="driver_name" type="text" value={formData.driver_name} onChange={handleChange} />
+                      <FloatingInput id="driver_licence_state" label="Driver's Licence State" name="driver_licence_state" type="text" value={formData.driver_licence_state} onChange={handleChange} />
+                      <FloatingInput id="driver_licence_number" label="Drivers Licence Number" name="driver_licence_number" type="text" value={formData.driver_licence_number} onChange={handleChange} />
+                      <FloatingInput id="driver_licence_expiry_date" label="Drivers Licence Expiry Date" name="driver_licence_expiry_date" type="date" value={formData.driver_licence_expiry_date} onChange={handleChange} />
                     </>
                   )}
               </div>

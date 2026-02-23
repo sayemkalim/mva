@@ -34,6 +34,7 @@ import {
   CommandItem,
 } from "@/components/ui/command";
 import Billing from "@/components/billing";
+import { FloatingInput, FloatingTextarea, FloatingWrapper } from "@/components/ui/floating-label";
 
 function SearchableDropdown({
   value,
@@ -57,62 +58,64 @@ function SearchableDropdown({
   };
 
   return (
-    <Popover
-      open={isOpen}
-      onOpenChange={(open) =>
-        setPopoverOpen &&
-        setPopoverOpen((p = {}) => ({ ...p, [popoverKey]: open }))
-      }
-    >
-      <PopoverTrigger asChild>
-        <Button
-          variant="outline"
-          role="combobox"
-          className="w-full justify-between font-normal bg-muted h-11 text-sm"
-          type="button"
-        >
-          {selected ? selected.name : placeholder}
-          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-60" />
-        </Button>
-      </PopoverTrigger>
-
-      <PopoverContent
-        className="w-[var(--radix-popover-trigger-width)] p-0"
-        align="start"
+    <FloatingWrapper label={label} hasValue={!!selected} isFocused={isOpen}>
+      <Popover
+        open={isOpen}
+        onOpenChange={(open) =>
+          setPopoverOpen &&
+          setPopoverOpen((p = {}) => ({ ...p, [popoverKey]: open }))
+        }
       >
-        <Command>
-          <CommandInput placeholder={label.toLowerCase()} />
-          <CommandEmpty>No results found.</CommandEmpty>
-          <CommandGroup>
-            <CommandItem
-              onSelect={() => handleSelect(null)}
-              className="cursor-pointer italic text-muted-foreground"
-            >
-              <Check
-                className={`mr-2 h-4 w-4 ${!value ? "opacity-100" : "opacity-0"
-                  }`}
-              />
-              None
-            </CommandItem>
-            {options.map((opt) => (
+        <PopoverTrigger asChild>
+          <Button
+            variant="outline"
+            role="combobox"
+            className="w-full justify-between font-normal h-[52px] bg-transparent border border-input text-sm"
+            type="button"
+          >
+            {selected ? selected.name : ""}
+            <ChevronsUpDown className="ml-auto h-4 w-4 shrink-0 opacity-50" />
+          </Button>
+        </PopoverTrigger>
+
+        <PopoverContent
+          className="w-[var(--radix-popover-trigger-width)] p-0"
+          align="start"
+        >
+          <Command>
+            <CommandInput placeholder={label.toLowerCase()} />
+            <CommandEmpty>No results found.</CommandEmpty>
+            <CommandGroup>
               <CommandItem
-                key={opt.id}
-                value={opt.name}
-                onSelect={() => handleSelect(opt.id)}
+                onSelect={() => handleSelect(null)}
+                className="cursor-pointer italic text-muted-foreground"
               >
                 <Check
-                  className={`mr-2 h-4 w-4 ${String(value) === String(opt.id)
-                    ? "opacity-100"
-                    : "opacity-0"
+                  className={`mr-2 h-4 w-4 ${!value ? "opacity-100" : "opacity-0"
                     }`}
                 />
-                {opt.name}
+                None
               </CommandItem>
-            ))}
-          </CommandGroup>
-        </Command>
-      </PopoverContent>
-    </Popover>
+              {options.map((opt) => (
+                <CommandItem
+                  key={opt.id}
+                  value={opt.name}
+                  onSelect={() => handleSelect(opt.id)}
+                >
+                  <Check
+                    className={`mr-2 h-4 w-4 ${String(value) === String(opt.id)
+                      ? "opacity-100"
+                      : "opacity-0"
+                      }`}
+                  />
+                  {opt.name}
+                </CommandItem>
+              ))}
+            </CommandGroup>
+          </Command>
+        </PopoverContent>
+      </Popover>
+    </FloatingWrapper>
   );
 }
 
@@ -475,72 +478,48 @@ export default function Employment() {
                 Employment Status
               </h2>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div className="space-y-2">
-                  <Label
-                    htmlFor="employed_id"
-                    className="text-foreground font-medium"
-                  >
-                    Employed
-                  </Label>
-                  <SearchableDropdown
-                    popoverKey="employed"
-                    popoverOpen={popoverOpen}
-                    setPopoverOpen={setPopoverOpen}
-                    value={formData.employed_id?.toString() ?? ""}
-                    onValueChange={(value) =>
-                      handleSelectChange("employed_id", value)
-                    }
-                    options={metadata?.employed || []}
-                    placeholder="Select status"
-                    label="Employed"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label
-                    htmlFor="not_employed_id"
-                    className="text-foreground font-medium"
-                  >
-                    Not Employed
-                  </Label>
-                  <SearchableDropdown
-                    popoverKey="not_employed"
-                    popoverOpen={popoverOpen}
-                    setPopoverOpen={setPopoverOpen}
-                    value={formData.not_employed_id?.toString() ?? ""}
-                    onValueChange={(value) =>
-                      handleSelectChange("not_employed_id", value)
-                    }
-                    options={metadata?.not_employed || []}
-                    placeholder="Select status"
-                    label="Not Employed"
-                  />
-                </div>
+                <SearchableDropdown
+                  popoverKey="employed"
+                  popoverOpen={popoverOpen}
+                  setPopoverOpen={setPopoverOpen}
+                  value={formData.employed_id?.toString() ?? ""}
+                  onValueChange={(value) =>
+                    handleSelectChange("employed_id", value)
+                  }
+                  options={metadata?.employed || []}
+                  placeholder="Select status"
+                  label="Employed"
+                />
+                <SearchableDropdown
+                  popoverKey="not_employed"
+                  popoverOpen={popoverOpen}
+                  setPopoverOpen={setPopoverOpen}
+                  value={formData.not_employed_id?.toString() ?? ""}
+                  onValueChange={(value) =>
+                    handleSelectChange("not_employed_id", value)
+                  }
+                  options={metadata?.not_employed || []}
+                  placeholder="Select status"
+                  label="Not Employed"
+                />
                 {(() => {
                   const selectedNotEmployed = metadata?.not_employed?.find(
                     (o) => String(o.id) === String(formData.not_employed_id)
                   );
                   return selectedNotEmployed?.name === "Unemployed And";
                 })() && (
-                    <div className="space-y-2">
-                      <Label
-                        htmlFor="unemployed_and_id"
-                        className="text-foreground font-medium"
-                      >
-                        Unemployed And
-                      </Label>
-                      <SearchableDropdown
-                        popoverKey="unemployed_and"
-                        popoverOpen={popoverOpen}
-                        setPopoverOpen={setPopoverOpen}
-                        value={formData.unemployed_and_id?.toString() ?? ""}
-                        onValueChange={(value) =>
-                          handleSelectChange("unemployed_and_id", value)
-                        }
-                        options={metadata?.unemployed_and || []}
-                        placeholder="Select option"
-                        label="Unemployed And"
-                      />
-                    </div>
+                    <SearchableDropdown
+                      popoverKey="unemployed_and"
+                      popoverOpen={popoverOpen}
+                      setPopoverOpen={setPopoverOpen}
+                      value={formData.unemployed_and_id?.toString() ?? ""}
+                      onValueChange={(value) =>
+                        handleSelectChange("unemployed_and_id", value)
+                      }
+                      options={metadata?.unemployed_and || []}
+                      placeholder="Select option"
+                      label="Unemployed And"
+                    />
                   )}
               </div>
             </div>
@@ -550,110 +529,13 @@ export default function Employment() {
                 Employer Information
               </h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-2">
-                  <Label
-                    htmlFor="employer_name"
-                    className="text-foreground font-medium"
-                  >
-                    Employer Name
-                  </Label>
-                  <Input
-                    id="employer_name"
-                    name="employer_name"
-                    value={formData.employer_name}
-                    onChange={handleChange}
-                    placeholder="Employer name"
-                    className="bg-muted border-input"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label
-                    htmlFor="telephone"
-                    className="text-foreground font-medium"
-                  >
-                    Telephone
-                  </Label>
-                  <Input
-                    id="telephone"
-                    name="telephone"
-                    value={formData.telephone}
-                    onChange={(e) => setFormData(prev => ({ ...prev, telephone: formatPhoneNumber(e.target.value) }))}
-                    placeholder="(888) 888-8888"
-                    className="bg-muted border-input"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="ext" className="text-foreground font-medium">
-                    Extension
-                  </Label>
-                  <Input
-                    id="ext"
-                    name="ext"
-                    value={formData.ext}
-                    onChange={handleChange}
-                    placeholder="101"
-                    className="bg-muted border-input"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="email" className="text-foreground font-medium">
-                    Email
-                  </Label>
-                  <Input
-                    id="email"
-                    name="email"
-                    type="email"
-                    value={formData.email}
-                    onChange={handleChange}
-                    placeholder="email@example.com"
-                    className="bg-muted border-input"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="fax" className="text-foreground font-medium">
-                    Fax
-                  </Label>
-                  <Input
-                    id="fax"
-                    name="fax"
-                    value={formData.fax}
-                    onChange={(e) => setFormData(prev => ({ ...prev, fax: formatPhoneNumber(e.target.value) }))}
-                    placeholder="(888) 888-8888"
-                    className="bg-muted border-input"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label
-                    htmlFor="job_period_from"
-                    className="text-foreground font-medium"
-                  >
-                    Job Period From
-                  </Label>
-                  <Input
-                    id="job_period_from"
-                    name="job_period_from"
-                    type="date"
-                    value={formData.job_period_from}
-                    onChange={handleChange}
-                    className="bg-muted border-input"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label
-                    htmlFor="job_period_to"
-                    className="text-foreground font-medium"
-                  >
-                    Job Period To
-                  </Label>
-                  <Input
-                    id="job_period_to"
-                    name="job_period_to"
-                    type="date"
-                    value={formData.job_period_to}
-                    onChange={handleChange}
-                    className="bg-muted border-input"
-                  />
-                </div>
+                <FloatingInput label="Employer Name" id="employer_name" name="employer_name" value={formData.employer_name} onChange={handleChange} />
+                <FloatingInput label="Telephone" id="telephone" name="telephone" value={formData.telephone} onChange={(e) => setFormData(prev => ({ ...prev, telephone: formatPhoneNumber(e.target.value) }))} />
+                <FloatingInput label="Extension" id="ext" name="ext" value={formData.ext} onChange={handleChange} />
+                <FloatingInput label="Email" id="email" name="email" type="email" value={formData.email} onChange={handleChange} />
+                <FloatingInput label="Fax" id="fax" name="fax" value={formData.fax} onChange={(e) => setFormData(prev => ({ ...prev, fax: formatPhoneNumber(e.target.value) }))} />
+                <FloatingInput label="Job Period From" id="job_period_from" name="job_period_from" type="date" value={formData.job_period_from} onChange={handleChange} />
+                <FloatingInput label="Job Period To" id="job_period_to" name="job_period_to" type="date" value={formData.job_period_to} onChange={handleChange} />
               </div>
             </div>
 
@@ -662,91 +544,13 @@ export default function Employment() {
                 Employer Address
               </h2>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                <div className="space-y-2">
-                  <Label className="text-foreground font-medium">
-                    Unit Number
-                  </Label>
-                  <Input
-                    value={formData.address.unit_number}
-                    onChange={(e) =>
-                      handleAddressChange("unit_number", e.target.value)
-                    }
-                    placeholder="Unit"
-                    className="bg-muted border-input"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label className="text-foreground font-medium">
-                    Street Number
-                  </Label>
-                  <Input
-                    value={formData.address.street_number}
-                    onChange={(e) =>
-                      handleAddressChange("street_number", e.target.value)
-                    }
-                    placeholder="221"
-                    className="bg-muted border-input"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label className="text-foreground font-medium">
-                    Street Name
-                  </Label>
-                  <Input
-                    value={formData.address.street_name}
-                    onChange={(e) =>
-                      handleAddressChange("street_name", e.target.value)
-                    }
-                    placeholder="Street name"
-                    className="bg-muted border-input"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label className="text-foreground font-medium">City</Label>
-                  <Input
-                    value={formData.address.city}
-                    onChange={(e) =>
-                      handleAddressChange("city", e.target.value)
-                    }
-                    placeholder="City"
-                    className="bg-muted border-input"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label className="text-foreground font-medium">Province</Label>
-                  <Input
-                    value={formData.address.province}
-                    onChange={(e) =>
-                      handleAddressChange("province", e.target.value)
-                    }
-                    placeholder="Province"
-                    className="bg-muted border-input"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label className="text-foreground font-medium">
-                    Postal Code
-                  </Label>
-                  <Input
-                    value={formData.address.postal_code}
-                    onChange={(e) =>
-                      handleAddressChange("postal_code", e.target.value)
-                    }
-                    placeholder="Postal"
-                    className="bg-muted border-input"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label className="text-foreground font-medium">Country</Label>
-                  <Input
-                    value={formData.address.country}
-                    onChange={(e) =>
-                      handleAddressChange("country", e.target.value)
-                    }
-                    placeholder="Country"
-                    className="bg-muted border-input"
-                  />
-                </div>
+                <FloatingInput label="Unit Number" value={formData.address.unit_number} onChange={(e) => handleAddressChange("unit_number", e.target.value)} />
+                <FloatingInput label="Street Number" value={formData.address.street_number} onChange={(e) => handleAddressChange("street_number", e.target.value)} />
+                <FloatingInput label="Street Name" value={formData.address.street_name} onChange={(e) => handleAddressChange("street_name", e.target.value)} />
+                <FloatingInput label="City" value={formData.address.city} onChange={(e) => handleAddressChange("city", e.target.value)} />
+                <FloatingInput label="Province" value={formData.address.province} onChange={(e) => handleAddressChange("province", e.target.value)} />
+                <FloatingInput label="Postal Code" value={formData.address.postal_code} onChange={(e) => handleAddressChange("postal_code", e.target.value)} />
+                <FloatingInput label="Country" value={formData.address.country} onChange={(e) => handleAddressChange("country", e.target.value)} />
               </div>
             </div>
 
@@ -775,81 +579,59 @@ export default function Employment() {
                     </Button>
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label className="text-foreground font-medium">
-                        Income Type
-                      </Label>
-                      <SearchableDropdown
-                        popoverKey={`income_type-${index}`}
-                        popoverOpen={popoverOpen}
-                        setPopoverOpen={setPopoverOpen}
-                        value={income.income_type_id?.toString() ?? ""}
-                        onValueChange={(value) =>
-                          handleIncomeSelectChange(
-                            index,
-                            "income_type_id",
-                            value
-                          )
-                        }
-                        options={metadata?.income_type || []}
-                        placeholder="Select type"
-                        label="Income type"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label className="text-foreground font-medium">
-                        Income Period
-                      </Label>
-                      <SearchableDropdown
-                        popoverKey={`income_period-${index}`}
-                        popoverOpen={popoverOpen}
-                        setPopoverOpen={setPopoverOpen}
-                        value={income.income_period_id?.toString() ?? ""}
-                        onValueChange={(value) =>
-                          handleIncomeSelectChange(
-                            index,
-                            "income_period_id",
-                            value
-                          )
-                        }
-                        options={metadata?.income_period || []}
-                        placeholder="Select period"
-                        label="Income period"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label className="text-foreground font-medium">
-                        Income Amount
-                      </Label>
-                      <Input
-                        type="number"
-                        step="0.01"
-                        value={income.income}
-                        onChange={(e) =>
-                          handleIncomeChange(index, "income", e.target.value)
-                        }
-                        placeholder="500.00"
-                        className="bg-card border-input"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label className="text-foreground font-medium">
-                        Description
-                      </Label>
-                      <Textarea
-                        value={income.description}
-                        onChange={(e) =>
-                          handleIncomeChange(
-                            index,
-                            "description",
-                            e.target.value
-                          )
-                        }
-                        placeholder="Income description"
-                        rows={1}
-                        className="bg-card border-input"
-                      />
-                    </div>
+                    <SearchableDropdown
+                      popoverKey={`income_type-${index}`}
+                      popoverOpen={popoverOpen}
+                      setPopoverOpen={setPopoverOpen}
+                      value={income.income_type_id?.toString() ?? ""}
+                      onValueChange={(value) =>
+                        handleIncomeSelectChange(
+                          index,
+                          "income_type_id",
+                          value
+                        )
+                      }
+                      options={metadata?.income_type || []}
+                      placeholder="Select type"
+                      label="Income Type"
+                    />
+                    <SearchableDropdown
+                      popoverKey={`income_period-${index}`}
+                      popoverOpen={popoverOpen}
+                      setPopoverOpen={setPopoverOpen}
+                      value={income.income_period_id?.toString() ?? ""}
+                      onValueChange={(value) =>
+                        handleIncomeSelectChange(
+                          index,
+                          "income_period_id",
+                          value
+                        )
+                      }
+                      options={metadata?.income_period || []}
+                      placeholder="Select period"
+                      label="Income Period"
+                    />
+                    <FloatingInput
+                      label="Income Amount"
+                      type="number"
+                      step="0.01"
+                      value={income.income}
+                      onChange={(e) =>
+                        handleIncomeChange(index, "income", e.target.value)
+                      }
+                    />
+                    <FloatingTextarea
+                      label="Description"
+                      value={income.description}
+                      onChange={(e) =>
+                        handleIncomeChange(
+                          index,
+                          "description",
+                          e.target.value
+                        )
+                      }
+                      rows={1}
+                    />
                   </div>
                 </div>
               ))}

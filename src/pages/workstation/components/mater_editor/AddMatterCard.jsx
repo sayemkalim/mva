@@ -33,6 +33,7 @@ import {
 import { Navbar2 } from "@/components/navbar2";
 import { formatPhoneNumber } from "@/lib/utils";
 import Billing from "@/components/billing";
+import { FloatingInput, FloatingTextarea, FloatingWrapper } from "@/components/ui/floating-label";
 
 const AddMatterCard = ({
   metadata,
@@ -322,6 +323,7 @@ const AddMatterCard = ({
   };
 
   const SearchableDropdown = ({
+    label,
     value,
     options,
     onSelect,
@@ -331,64 +333,67 @@ const AddMatterCard = ({
   }) => {
     const selectedOption = options?.find((opt) => opt.id === value);
     return (
-      <Popover
-        open={popoverOpen[popoverKey]}
-        onOpenChange={(open) =>
-          setPopoverOpen((p) => ({ ...p, [popoverKey]: open }))
-        }
-      >
-        <PopoverTrigger asChild>
-          <Button
-            variant="outline"
-            role="combobox"
-            className="w-full justify-between font-normal bg-muted"
-            type="button"
-          >
-            {selectedOption ? selectedOption.name : placeholder}
-            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-          </Button>
-        </PopoverTrigger>
-        <PopoverContent
-          className="w-[var(--radix-popover-trigger-width)] p-0"
-          align="start"
+      <FloatingWrapper label={label} hasValue={!!selectedOption} isFocused={!!popoverOpen[popoverKey]}>
+        <Popover
+          open={popoverOpen[popoverKey]}
+          onOpenChange={(open) =>
+            setPopoverOpen((p) => ({ ...p, [popoverKey]: open }))
+          }
         >
-          <Command>
-            <CommandInput placeholder="Search..." />
-            <CommandList>
-              <CommandEmpty>No results found.</CommandEmpty>
-              <CommandGroup>
-                <CommandItem
-                  onSelect={() => onSelect(fieldName, null, popoverKey)}
-                  className="cursor-pointer italic text-muted-foreground"
-                >
-                  <Check
-                    className={`mr-2 h-4 w-4 ${!value ? "opacity-100" : "opacity-0"
-                      }`}
-                  />
-                  None
-                </CommandItem>
-                {options?.map((opt) => (
+          <PopoverTrigger asChild>
+            <Button
+              variant="outline"
+              role="combobox"
+              className="w-full justify-between font-normal h-[52px] bg-transparent border border-input"
+              type="button"
+            >
+              {selectedOption ? selectedOption.name : ""}
+              <ChevronsUpDown className="ml-auto h-4 w-4 shrink-0 opacity-50" />
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent
+            className="w-[var(--radix-popover-trigger-width)] p-0"
+            align="start"
+          >
+            <Command>
+              <CommandInput placeholder="Search..." />
+              <CommandList>
+                <CommandEmpty>No results found.</CommandEmpty>
+                <CommandGroup>
                   <CommandItem
-                    key={opt.id}
-                    value={opt.name}
-                    onSelect={() => onSelect(fieldName, opt.id, popoverKey)}
+                    onSelect={() => onSelect(fieldName, null, popoverKey)}
+                    className="cursor-pointer italic text-muted-foreground"
                   >
                     <Check
-                      className={`mr-2 h-4 w-4 ${value === opt.id ? "opacity-100" : "opacity-0"
+                      className={`mr-2 h-4 w-4 ${!value ? "opacity-100" : "opacity-0"
                         }`}
                     />
-                    {opt.name}
+                    None
                   </CommandItem>
-                ))}
-              </CommandGroup>
-            </CommandList>
-          </Command>
-        </PopoverContent>
-      </Popover>
+                  {options?.map((opt) => (
+                    <CommandItem
+                      key={opt.id}
+                      value={opt.name}
+                      onSelect={() => onSelect(fieldName, opt.id, popoverKey)}
+                    >
+                      <Check
+                        className={`mr-2 h-4 w-4 ${value === opt.id ? "opacity-100" : "opacity-0"
+                          }`}
+                      />
+                      {opt.name}
+                    </CommandItem>
+                  ))}
+                </CommandGroup>
+              </CommandList>
+            </Command>
+          </PopoverContent>
+        </Popover>
+      </FloatingWrapper>
     );
   };
 
   const MultiSelectDropdown = ({
+    label,
     selected,
     options,
     onToggle,
@@ -397,74 +402,69 @@ const AddMatterCard = ({
     fieldName,
   }) => {
     return (
-      <Popover
-        open={popoverOpen[popoverKey]}
-        onOpenChange={(open) =>
-          setPopoverOpen((p) => ({ ...p, [popoverKey]: open }))
-        }
-      >
-        <PopoverTrigger asChild>
-          <Button
-            variant="outline"
-            className="w-full justify-between text-left font-normal min-h-11 h-auto bg-muted py-2"
-            type="button"
-          >
-            <div className="flex flex-wrap gap-1 items-center flex-1">
-              {selected.length > 0 ? (
-                selected.map((id) => {
-                  const option = options?.find((opt) => opt.id === id);
-                  if (!option) return null;
-                  return (
-                    <Badge
-                      key={id}
-                      variant="secondary"
-                      className="rounded-sm px-2 font-normal flex items-center gap-1"
-                    >
-                      {option.name}
-                      {/* <X
-                        className="h-3 w-3 cursor-pointer text-muted-foreground hover:text-foreground"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          onToggle(fieldName, id);
-                        }}
-                      /> */}
-                    </Badge>
-                  );
-                })
-              ) : (
-                <span className="text-muted-foreground">{placeholder}</span>
-              )}
-            </div>
-            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-          </Button>
-        </PopoverTrigger>
-        <PopoverContent
-          className="w-[var(--radix-popover-trigger-width)] p-0"
-          align="start"
+      <FloatingWrapper label={label} hasValue={selected.length > 0} isFocused={!!popoverOpen[popoverKey]}>
+        <Popover
+          open={popoverOpen[popoverKey]}
+          onOpenChange={(open) =>
+            setPopoverOpen((p) => ({ ...p, [popoverKey]: open }))
+          }
         >
-          <Command>
-            <CommandInput placeholder="Search..." />
-            <CommandList>
-              <CommandEmpty>No results found.</CommandEmpty>
-              <CommandGroup>
-                {options?.map((opt) => (
-                  <CommandItem
-                    key={opt.id}
-                    value={opt.name}
-                    onSelect={() => onToggle(fieldName, opt.id)}
-                  >
-                    <Checkbox
-                      checked={selected.includes(opt.id)}
-                      className="mr-2"
-                    />
-                    {opt.name}
-                  </CommandItem>
-                ))}
-              </CommandGroup>
-            </CommandList>
-          </Command>
-        </PopoverContent>
-      </Popover>
+          <PopoverTrigger asChild>
+            <Button
+              variant="outline"
+              className="w-full justify-between text-left font-normal min-h-[52px] h-auto bg-transparent border border-input py-2"
+              type="button"
+            >
+              <div className="flex flex-wrap gap-1 items-center flex-1">
+                {selected.length > 0 ? (
+                  selected.map((id) => {
+                    const option = options?.find((opt) => opt.id === id);
+                    if (!option) return null;
+                    return (
+                      <Badge
+                        key={id}
+                        variant="secondary"
+                        className="rounded-sm px-2 font-normal flex items-center gap-1"
+                      >
+                        {option.name}
+                      </Badge>
+                    );
+                  })
+                ) : (
+                  ""
+                )}
+              </div>
+              <ChevronsUpDown className="ml-auto h-4 w-4 shrink-0 opacity-50" />
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent
+            className="w-[var(--radix-popover-trigger-width)] p-0"
+            align="start"
+          >
+            <Command>
+              <CommandInput placeholder="Search..." />
+              <CommandList>
+                <CommandEmpty>No results found.</CommandEmpty>
+                <CommandGroup>
+                  {options?.map((opt) => (
+                    <CommandItem
+                      key={opt.id}
+                      value={opt.name}
+                      onSelect={() => onToggle(fieldName, opt.id)}
+                    >
+                      <Checkbox
+                        checked={selected.includes(opt.id)}
+                        className="mr-2"
+                      />
+                      {opt.name}
+                    </CommandItem>
+                  ))}
+                </CommandGroup>
+              </CommandList>
+            </Command>
+          </PopoverContent>
+        </Popover>
+      </FloatingWrapper>
     );
   };
 
@@ -517,108 +517,14 @@ const AddMatterCard = ({
                 File Details
               </h2>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                {/* File Number */}
-                <div>
-                  <label
-                    htmlFor="file_no"
-                    className="block font-medium mb-2 text-foreground"
-                  >
-                    File Number <span className="text-red-600">*</span>
-                  </label>
-                  <Input
-                    id="file_no"
-                    name="file_no"
-                    value={formData.file_no}
-                    onChange={handleInputChange}
-                    maxLength={200}
-                    placeholder="Enter file number"
-                    required
-                    className="bg-muted"
-                  />
-                </div>
+                <FloatingInput label="File Number *" id="file_no" name="file_no" value={formData.file_no} onChange={handleInputChange} maxLength={200} required />
+                <FloatingInput label="Intake Date" type="date" id="intake_date" name="intake_date" value={formData.intake_date} onChange={handleInputChange} />
+                <FloatingInput label="Conflict Search Date" type="date" id="conflict_search_date" name="conflict_search_date" value={formData.conflict_search_date} onChange={handleInputChange} />
 
-                {/* Intake Date */}
-                <div>
-                  <label
-                    htmlFor="intake_date"
-                    className="block font-medium mb-2 text-foreground"
-                  >
-                    Intake Date
-                  </label>
-                  <Input
-                    type="date"
-                    id="intake_date"
-                    name="intake_date"
-                    value={formData.intake_date}
-                    onChange={handleInputChange}
-                    className="bg-muted"
-                  />
-                </div>
+                <SearchableDropdown label="File Status" value={formData.file_status_id} onSelect={handleDropdownChange} options={metadata.file_status} placeholder="Select file status" popoverKey="file_status" fieldName="file_status_id" />
+                <MultiSelectDropdown label="Claim Status" selected={formData.claim_status_id} onToggle={toggleMultiSelect} options={metadata.claim_status} placeholder="Select claim status" popoverKey="claim_status" fieldName="claim_status_id" />
+                <MultiSelectDropdown label="Non Engagement Issued" selected={formData.non_engagement_issued_id} onToggle={toggleMultiSelect} options={metadata.non_engagement_issued} placeholder="Select non engagement" popoverKey="non_engagement_issued" fieldName="non_engagement_issued_id" />
 
-                {/* Conflict Search Date */}
-                <div>
-                  <label
-                    htmlFor="conflict_search_date"
-                    className="block font-medium mb-2 text-foreground"
-                  >
-                    Conflict Search Date
-                  </label>
-                  <Input
-                    type="date"
-                    id="conflict_search_date"
-                    name="conflict_search_date"
-                    value={formData.conflict_search_date}
-                    onChange={handleInputChange}
-                    className="bg-muted"
-                  />
-                </div>
-
-                {/* File Status */}
-                <div>
-                  <label className="block font-medium mb-2 text-foreground">
-                    File Status
-                  </label>
-                  <SearchableDropdown
-                    value={formData.file_status_id}
-                    onSelect={handleDropdownChange}
-                    options={metadata.file_status}
-                    placeholder="Select file status"
-                    popoverKey="file_status"
-                    fieldName="file_status_id"
-                  />
-                </div>
-
-                {/* Claim Status */}
-                <div>
-                  <label className="block font-medium mb-2 text-foreground">
-                    Claim Status
-                  </label>
-                  <MultiSelectDropdown
-                    selected={formData.claim_status_id}
-                    onToggle={toggleMultiSelect}
-                    options={metadata.claim_status}
-                    placeholder="Select claim status"
-                    popoverKey="claim_status"
-                    fieldName="claim_status_id"
-                  />
-                </div>
-
-                {/* Non Engagement Issued (Multi-select) */}
-                <div>
-                  <label className="block font-medium mb-2 text-foreground">
-                    Non Engagement Issued
-                  </label>
-                  <MultiSelectDropdown
-                    selected={formData.non_engagement_issued_id}
-                    onToggle={toggleMultiSelect}
-                    options={metadata.non_engagement_issued}
-                    placeholder="Select non engagement"
-                    popoverKey="non_engagement_issued"
-                    fieldName="non_engagement_issued_id"
-                  />
-                </div>
-
-                {/* Non Engagement Date */}
                 {formData.non_engagement_issued_id?.length > 0 &&
                   formData.non_engagement_issued_id.map((id) => {
                     const option = metadata.non_engagement_issued?.find(
@@ -628,134 +534,33 @@ const AddMatterCard = ({
                     const key = getNonEngagementKey(option.name);
 
                     return (
-                      <div key={id}>
-                        <label className="block font-medium mb-2 text-foreground">
-                          Non Engagement Date for {option.name}
-                        </label>
-                        <Input
-                          type="date"
-                          value={formData.non_engagement_date?.[key] || ""}
-                          onChange={(e) => {
-                            setFormData((p) => ({
-                              ...p,
-                              non_engagement_date: {
-                                ...p.non_engagement_date,
-                                [key]: e.target.value,
-                              },
-                            }));
-                          }}
-                          className="bg-muted"
-                        />
-                      </div>
+                      <FloatingInput
+                        key={id}
+                        label={`Non Engagement Date for ${option.name}`}
+                        type="date"
+                        value={formData.non_engagement_date?.[key] || ""}
+                        onChange={(e) => {
+                          setFormData((p) => ({
+                            ...p,
+                            non_engagement_date: {
+                              ...p.non_engagement_date,
+                              [key]: e.target.value,
+                            },
+                          }));
+                        }}
+                      />
                     );
                   })}
 
-                {/* Claim Type (Multi-select) */}
-                <div>
-                  <label className="block font-medium mb-2 text-foreground">
-                    Claim Type
-                  </label>
-                  <MultiSelectDropdown
-                    selected={formData.claim_type_id}
-                    onToggle={toggleMultiSelect}
-                    options={metadata.claim_type}
-                    placeholder="Select claim type"
-                    popoverKey="claim_type"
-                    fieldName="claim_type_id"
-                  />
-                </div>
+                <MultiSelectDropdown label="Claim Type" selected={formData.claim_type_id} onToggle={toggleMultiSelect} options={metadata.claim_type} placeholder="Select claim type" popoverKey="claim_type" fieldName="claim_type_id" />
+                <SearchableDropdown label="MIG Status" value={formData.mig_status_id} onSelect={handleDropdownChange} options={metadata.mig_status} placeholder="Select MIG status" popoverKey="mig_status" fieldName="mig_status_id" />
+                <SearchableDropdown label="AB Claim Settlement Approx." value={formData.ab_claim_settlement_approx_id} onSelect={handleDropdownChange} options={metadata.ab_claim_settlement_approx} placeholder="Select AB claim approx." popoverKey="ab_claim_settlement_approx" fieldName="ab_claim_settlement_approx_id" />
+                <SearchableDropdown label="Tort Claim Settlement Approx." value={formData.tort_claim_settlement_approx_id} onSelect={handleDropdownChange} options={metadata.tort_claim_settlement_approx} placeholder="Select Tort claim approx." popoverKey="tort_claim_settlement_approx" fieldName="tort_claim_settlement_approx_id" />
+                <SearchableDropdown label="Property Damage Claim Settlement Approx." value={formData.property_damage_claim_settlement_approx_id} onSelect={handleDropdownChange} options={metadata.property_damage_claim_settlem} placeholder="Select property damage approx." popoverKey="property_damage_claim_settlement_approx" fieldName="property_damage_claim_settlement_approx_id" />
+                <SearchableDropdown label="LTD Claim Settlement Approx." value={formData.ltd_claim_settlement_approx_id} onSelect={handleDropdownChange} options={metadata.ltd_claim_settlement_approx} placeholder="Select LTD claim approx." popoverKey="ltd_claim_settlement_approx" fieldName="ltd_claim_settlement_approx_id" />
+                <SearchableDropdown label="Dog Bite Claim Settlement Approx." value={formData.dog_bite_claim_settlement_approx_id} onSelect={handleDropdownChange} options={metadata.dog_bite_claim_settlement_approx} placeholder="Select Dog Bite claim approx." popoverKey="dog_bite_claim_settlement_approx" fieldName="dog_bite_claim_settlement_approx_id" />
 
-                {/* MIG Status */}
-                <div>
-                  <label className="block font-medium mb-2 text-foreground">
-                    MIG Status
-                  </label>
-                  <SearchableDropdown
-                    value={formData.mig_status_id}
-                    onSelect={handleDropdownChange}
-                    options={metadata.mig_status}
-                    placeholder="Select MIG status"
-                    popoverKey="mig_status"
-                    fieldName="mig_status_id"
-                  />
-                </div>
-
-                {/* AB Claim Settlement Approx. */}
-                <div>
-                  <label className="block font-medium mb-2 text-foreground">
-                    AB Claim Settlement Approx.
-                  </label>
-                  <SearchableDropdown
-                    value={formData.ab_claim_settlement_approx_id}
-                    onSelect={handleDropdownChange}
-                    options={metadata.ab_claim_settlement_approx}
-                    placeholder="Select AB claim approx."
-                    popoverKey="ab_claim_settlement_approx"
-                    fieldName="ab_claim_settlement_approx_id"
-                  />
-                </div>
-
-                {/* Tort Claim Settlement Approx. */}
-                <div>
-                  <label className="block font-medium mb-2 text-foreground">
-                    Tort Claim Settlement Approx.
-                  </label>
-                  <SearchableDropdown
-                    value={formData.tort_claim_settlement_approx_id}
-                    onSelect={handleDropdownChange}
-                    options={metadata.tort_claim_settlement_approx}
-                    placeholder="Select Tort claim approx."
-                    popoverKey="tort_claim_settlement_approx"
-                    fieldName="tort_claim_settlement_approx_id"
-                  />
-                </div>
-                <div>
-                  <label className="block font-medium mb-2 text-foreground">
-                    Property Damage Claim Settlement Approx.
-                  </label>
-                  <SearchableDropdown
-                    value={formData.property_damage_claim_settlement_approx_id}
-                    onSelect={handleDropdownChange}
-                    options={metadata.property_damage_claim_settlem}
-                    placeholder="Select property damage approx."
-                    popoverKey="property_damage_claim_settlement_approx"
-                    fieldName="property_damage_claim_settlement_approx_id"
-                  />
-                </div>
-                {/* LTD Claim Settlement Approx. */}
-                <div>
-                  <label className="block font-medium mb-2 text-foreground">
-                    LTD Claim Settlement Approx.
-                  </label>
-                  <SearchableDropdown
-                    value={formData.ltd_claim_settlement_approx_id}
-                    onSelect={handleDropdownChange}
-                    options={metadata.ltd_claim_settlement_approx}
-                    placeholder="Select LTD claim approx."
-                    popoverKey="ltd_claim_settlement_approx"
-                    fieldName="ltd_claim_settlement_approx_id"
-                  />
-                </div>
-
-                {/* Dog Bite Claim Settlement Approx. */}
-                <div>
-                  <label className="block font-medium mb-2 text-foreground">
-                    Dog Bite Claim Settlement Approx.
-                  </label>
-                  <SearchableDropdown
-                    value={formData.dog_bite_claim_settlement_approx_id}
-                    onSelect={handleDropdownChange}
-                    options={metadata.dog_bite_claim_settlement_approx}
-                    placeholder="Select Dog Bite claim approx."
-                    popoverKey="dog_bite_claim_settlement_approx"
-                    fieldName="dog_bite_claim_settlement_approx_id"
-                  />
-                </div>
-
-                {/* Property Damage Claim Settlement Approx. */}
-
-
-                {/* At Fault */}
+                {/* At Fault - Label+Checkbox pattern: not changed */}
                 <div>
                   <label className="block font-medium mb-2 text-foreground">
                     At Fault
@@ -784,68 +589,10 @@ const AddMatterCard = ({
                   </div>
                 </div>
 
-                {/* Category */}
-                <div>
-                  <label className="block font-medium mb-2 text-foreground">
-                    SABS Categories                  </label>
-                  <SearchableDropdown
-                    value={formData.category_id}
-                    onSelect={handleDropdownChange}
-                    options={metadata.category}
-                    placeholder="Select category"
-                    popoverKey="category"
-                    fieldName="category_id"
-                  />
-                </div>
-
-                {/* File Location */}
-                <div>
-                  <label
-                    htmlFor="file_location"
-                    className="block font-medium mb-2 text-foreground"
-                  >
-                    File Location
-                  </label>
-                  <Input
-                    id="file_location"
-                    name="file_location"
-                    value={formData.file_location}
-                    onChange={handleInputChange}
-                    maxLength={200}
-                    placeholder="Enter file location"
-                    className="bg-muted"
-                  />
-                </div>
-
-                {/* First Party Status */}
-                <div>
-                  <label className="block font-medium mb-2 text-foreground">
-                    First Party Status
-                  </label>
-                  <SearchableDropdown
-                    value={formData.first_party_status_id}
-                    onSelect={handleDropdownChange}
-                    options={metadata.first_party_status}
-                    placeholder="Select first party status"
-                    popoverKey="first_party_status"
-                    fieldName="first_party_status_id"
-                  />
-                </div>
-
-                {/* Third Party Status */}
-                <div>
-                  <label className="block font-medium mb-2 text-foreground">
-                    Third Party Status
-                  </label>
-                  <SearchableDropdown
-                    value={formData.third_party_status_id}
-                    onSelect={handleDropdownChange}
-                    options={metadata.third_party_status}
-                    placeholder="Select third party status"
-                    popoverKey="third_party_status"
-                    fieldName="third_party_status_id"
-                  />
-                </div>
+                <SearchableDropdown label="SABS Categories" value={formData.category_id} onSelect={handleDropdownChange} options={metadata.category} placeholder="Select category" popoverKey="category" fieldName="category_id" />
+                <FloatingInput label="File Location" id="file_location" name="file_location" value={formData.file_location} onChange={handleInputChange} maxLength={200} />
+                <SearchableDropdown label="First Party Status" value={formData.first_party_status_id} onSelect={handleDropdownChange} options={metadata.first_party_status} placeholder="Select first party status" popoverKey="first_party_status" fieldName="first_party_status_id" />
+                <SearchableDropdown label="Third Party Status" value={formData.third_party_status_id} onSelect={handleDropdownChange} options={metadata.third_party_status} placeholder="Select third party status" popoverKey="third_party_status" fieldName="third_party_status_id" />
               </div>
             </section>
 
@@ -855,57 +602,9 @@ const AddMatterCard = ({
                 Interview Information
               </h2>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                {/* Date of Interview */}
-                <div>
-                  <label
-                    htmlFor="date_of_interview"
-                    className="block font-medium mb-2 text-foreground"
-                  >
-                    Date of Interview
-                  </label>
-                  <Input
-                    type="date"
-                    id="date_of_interview"
-                    name="date_of_interview"
-                    value={formData.date_of_interview}
-                    onChange={handleInputChange}
-                    className="bg-muted"
-                  />
-                </div>
-
-                {/* Interviewed By */}
-                <div>
-                  <label className="block font-medium mb-2 text-foreground">
-                    Interviewed By
-                  </label>
-                  <SearchableDropdown
-                    value={formData.interviewed_by_id}
-                    onSelect={handleDropdownChange}
-                    options={metadata.counsel_Interviewer}
-                    placeholder="Select interviewer"
-                    popoverKey="interviewed_by"
-                    fieldName="interviewed_by_id"
-                  />
-                </div>
-
-                {/* Companion File */}
-                <div>
-                  <label
-                    htmlFor="companion_file"
-                    className="block font-medium mb-2 text-foreground"
-                  >
-                    Companion File
-                  </label>
-                  <Input
-                    id="companion_file"
-                    name="companion_file"
-                    value={formData.companion_file}
-                    onChange={handleInputChange}
-                    maxLength={255}
-                    placeholder="Enter companion file"
-                    className="bg-muted"
-                  />
-                </div>
+                <FloatingInput label="Date of Interview" type="date" id="date_of_interview" name="date_of_interview" value={formData.date_of_interview} onChange={handleInputChange} />
+                <SearchableDropdown label="Interviewed By" value={formData.interviewed_by_id} onSelect={handleDropdownChange} options={metadata.counsel_Interviewer} placeholder="Select interviewer" popoverKey="interviewed_by" fieldName="interviewed_by_id" />
+                <FloatingInput label="Companion File" id="companion_file" name="companion_file" value={formData.companion_file} onChange={handleInputChange} maxLength={255} />
               </div>
             </section>
 
@@ -950,53 +649,9 @@ const AddMatterCard = ({
                     </Button>
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    {/* MVA Date */}
-                    <div>
-                      <label className="block font-medium mb-2 text-foreground">
-                        MVA Date
-                      </label>
-                      <Input
-                        type="date"
-                        value={item.mva_date}
-                        onChange={(e) =>
-                          handleMVAChange(idx, "mva_date", e.target.value)
-                        }
-                        className="bg-card"
-                      />
-                    </div>
-
-                    {/* File Number */}
-                    <div>
-                      <label className="block font-medium mb-2 text-foreground">
-                        File Number
-                      </label>
-                      <Input
-                        value={item.file_number}
-                        onChange={(e) =>
-                          handleMVAChange(idx, "file_number", e.target.value)
-                        }
-                        maxLength={255}
-                        placeholder="Enter file number"
-                        className="bg-card"
-                      />
-                    </div>
-
-                    {/* Note */}
-                    <div>
-                      <label className="block font-medium mb-2 text-foreground">
-                        Note
-                      </label>
-                      <Textarea
-                        value={item.note}
-                        onChange={(e) =>
-                          handleMVAChange(idx, "note", e.target.value)
-                        }
-                        maxLength={500}
-                        placeholder="Enter notes"
-                        rows={3}
-                        className="bg-card"
-                      />
-                    </div>
+                    <FloatingInput label="MVA Date" type="date" value={item.mva_date} onChange={(e) => handleMVAChange(idx, "mva_date", e.target.value)} />
+                    <FloatingInput label="File Number" value={item.file_number} onChange={(e) => handleMVAChange(idx, "file_number", e.target.value)} maxLength={255} />
+                    <FloatingTextarea label="Note" value={item.note} onChange={(e) => handleMVAChange(idx, "note", e.target.value)} maxLength={500} rows={3} />
                   </div>
                 </div>
               ))}
@@ -1014,38 +669,8 @@ const AddMatterCard = ({
                 File Opening Info
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                {/* File Created */}
-                <div>
-                  <label
-                    htmlFor="file_created"
-                    className="block font-medium mb-2 text-foreground"
-                  >
-                    File Created
-                  </label>
-                  <Input
-                    type="date"
-                    id="file_created"
-                    name="file_created"
-                    value={formData.file_created}
-                    onChange={handleInputChange}
-                    className="bg-muted"
-                  />
-                </div>
-
-                {/* File Opened By */}
-                <div>
-                  <label className="block font-medium mb-2 text-foreground">
-                    File Opened By
-                  </label>
-                  <SearchableDropdown
-                    value={formData.file_opened_by_id}
-                    onSelect={handleDropdownChange}
-                    options={metadata.users}
-                    placeholder="Select user"
-                    popoverKey="file_opened_by"
-                    fieldName="file_opened_by_id"
-                  />
-                </div>
+                <FloatingInput label="File Created" type="date" id="file_created" name="file_created" value={formData.file_created} onChange={handleInputChange} />
+                <SearchableDropdown label="File Opened By" value={formData.file_opened_by_id} onSelect={handleDropdownChange} options={metadata.users} placeholder="Select user" popoverKey="file_opened_by" fieldName="file_opened_by_id" />
               </div>
 
               {/* Assigned to Info */}
@@ -1053,136 +678,15 @@ const AddMatterCard = ({
                 Assigned to Info
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                {/* Assigned Date */}
-                <div>
-                  <label
-                    htmlFor="assigned_date"
-                    className="block font-medium mb-2 text-foreground"
-                  >
-                    Assigned Date
-                  </label>
-                  <Input
-                    type="date"
-                    id="assigned_date"
-                    name="assigned_date"
-                    value={formData.assigned_date}
-                    onChange={handleInputChange}
-                    className="bg-muted"
-                  />
-                </div>
-
-                {/* Assigned To */}
-                <div>
-                  <label className="block font-medium mb-2 text-foreground">
-                    Assigned To
-                  </label>
-                  <SearchableDropdown
-                    value={formData.assigned_to_id}
-                    onSelect={handleDropdownChange}
-                    options={metadata.users}
-                    placeholder="Select user"
-                    popoverKey="assigned_to"
-                    fieldName="assigned_to_id"
-                  />
-                </div>
-
-                {/* Assigned to Review */}
-                <div>
-                  <label className="block font-medium mb-2 text-foreground">
-                    Assigned to Review
-                  </label>
-                  <SearchableDropdown
-                    value={formData.assigned_to_review_id}
-                    onSelect={handleDropdownChange}
-                    options={metadata.users}
-                    placeholder="Select user"
-                    popoverKey="assigned_to_review"
-                    fieldName="assigned_to_review_id"
-                  />
-                </div>
-
-                {/* Assigned to Paralegal */}
-                <div>
-                  <label
-                    htmlFor="assigned_to_paralegal"
-                    className="block font-medium mb-2 text-foreground"
-                  >
-                    Assigned to Paralegal
-                  </label>
-                  <Input
-                    id="assigned_to_paralegal"
-                    name="assigned_to_paralegal"
-                    value={formData.assigned_to_paralegal}
-                    onChange={handleInputChange}
-                    maxLength={255}
-                    placeholder="Enter paralegal name"
-                    className="bg-muted"
-                  />
-                </div>
-
-                {/* Assigned to Legal Counsel */}
-                <div>
-                  <label className="block font-medium mb-2 text-foreground">
-                    Assigned to Legal Counsel
-                  </label>
-                  <SearchableDropdown
-                    value={formData.assigned_to_legal_counsel_id}
-                    onSelect={handleDropdownChange}
-                    options={metadata.counsel_Interviewer}
-                    placeholder="Select counsel"
-                    popoverKey="assigned_to_legal_counsel"
-                    fieldName="assigned_to_legal_counsel_id"
-                  />
-                </div>
-
-                {/* Legal Assistant */}
-                <div>
-                  <label className="block font-medium mb-2 text-foreground">
-                    Legal Assistant
-                  </label>
-                  <SearchableDropdown
-                    value={formData.legal_assistant_id}
-                    onSelect={handleDropdownChange}
-                    options={metadata.users}
-                    placeholder="Select user"
-                    popoverKey="legal_assistant"
-                    fieldName="legal_assistant_id"
-                  />
-                </div>
-
-                {/* Previous Legal Representative */}
-                <div>
-                  <label className="block font-medium mb-2 text-foreground">
-                    Previous Legal Representative
-                  </label>
-                  <SearchableDropdown
-                    value={formData.previous_legal_representative_id}
-                    onSelect={handleDropdownChange}
-                    options={metadata.users}
-                    placeholder="Select user"
-                    popoverKey="previous_legal_representative"
-                    fieldName="previous_legal_representative_id"
-                  />
-                </div>
-
-                {/* History */}
+                <FloatingInput label="Assigned Date" type="date" id="assigned_date" name="assigned_date" value={formData.assigned_date} onChange={handleInputChange} />
+                <SearchableDropdown label="Assigned To" value={formData.assigned_to_id} onSelect={handleDropdownChange} options={metadata.users} placeholder="Select user" popoverKey="assigned_to" fieldName="assigned_to_id" />
+                <SearchableDropdown label="Assigned to Review" value={formData.assigned_to_review_id} onSelect={handleDropdownChange} options={metadata.users} placeholder="Select user" popoverKey="assigned_to_review" fieldName="assigned_to_review_id" />
+                <FloatingInput label="Assigned to Paralegal" id="assigned_to_paralegal" name="assigned_to_paralegal" value={formData.assigned_to_paralegal} onChange={handleInputChange} maxLength={255} />
+                <SearchableDropdown label="Assigned to Legal Counsel" value={formData.assigned_to_legal_counsel_id} onSelect={handleDropdownChange} options={metadata.counsel_Interviewer} placeholder="Select counsel" popoverKey="assigned_to_legal_counsel" fieldName="assigned_to_legal_counsel_id" />
+                <SearchableDropdown label="Legal Assistant" value={formData.legal_assistant_id} onSelect={handleDropdownChange} options={metadata.users} placeholder="Select user" popoverKey="legal_assistant" fieldName="legal_assistant_id" />
+                <SearchableDropdown label="Previous Legal Representative" value={formData.previous_legal_representative_id} onSelect={handleDropdownChange} options={metadata.users} placeholder="Select user" popoverKey="previous_legal_representative" fieldName="previous_legal_representative_id" />
                 <div className="md:col-span-3">
-                  <label
-                    htmlFor="history"
-                    className="block font-medium mb-2 text-foreground"
-                  >
-                    History
-                  </label>
-                  <Textarea
-                    id="history"
-                    name="history"
-                    value={formData.history}
-                    onChange={handleInputChange}
-                    maxLength={1000}
-                    placeholder="Enter history notes"
-                    rows={4}
-                    className="bg-muted"
-                  />
+                  <FloatingTextarea label="History" id="history" name="history" value={formData.history} onChange={handleInputChange} maxLength={1000} rows={4} />
                 </div>
               </div>
 
@@ -1191,38 +695,8 @@ const AddMatterCard = ({
                 File Closing Info
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                {/* File Closed */}
-                <div>
-                  <label
-                    htmlFor="file_closed"
-                    className="block font-medium mb-2 text-foreground"
-                  >
-                    File Closed
-                  </label>
-                  <Input
-                    type="date"
-                    id="file_closed"
-                    name="file_closed"
-                    value={formData.file_closed}
-                    onChange={handleInputChange}
-                    className="bg-muted"
-                  />
-                </div>
-
-                {/* File Closed By */}
-                <div>
-                  <label className="block font-medium mb-2 text-foreground">
-                    File Closed By
-                  </label>
-                  <SearchableDropdown
-                    value={formData.file_closed_by_id}
-                    onSelect={handleDropdownChange}
-                    options={metadata.users}
-                    placeholder="Select user"
-                    popoverKey="file_closed_by"
-                    fieldName="file_closed_by_id"
-                  />
-                </div>
+                <FloatingInput label="File Closed" type="date" id="file_closed" name="file_closed" value={formData.file_closed} onChange={handleInputChange} />
+                <SearchableDropdown label="File Closed By" value={formData.file_closed_by_id} onSelect={handleDropdownChange} options={metadata.users} placeholder="Select user" popoverKey="file_closed_by" fieldName="file_closed_by_id" />
               </div>
 
               {/* Folder to Storage */}
@@ -1230,38 +704,8 @@ const AddMatterCard = ({
                 Folder to Storage
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                {/* Storage Date */}
-                <div>
-                  <label
-                    htmlFor="storage_date"
-                    className="block font-medium mb-2 text-foreground"
-                  >
-                    Storage Date
-                  </label>
-                  <Input
-                    type="date"
-                    id="storage_date"
-                    name="storage_date"
-                    value={formData.storage_date}
-                    onChange={handleInputChange}
-                    className="bg-muted"
-                  />
-                </div>
-
-                {/* Sent By */}
-                <div>
-                  <label className="block font-medium mb-2 text-foreground">
-                    Sent By
-                  </label>
-                  <SearchableDropdown
-                    value={formData.sent_by_id}
-                    onSelect={handleDropdownChange}
-                    options={metadata.users}
-                    placeholder="Select user"
-                    popoverKey="sent_by"
-                    fieldName="sent_by_id"
-                  />
-                </div>
+                <FloatingInput label="Storage Date" type="date" id="storage_date" name="storage_date" value={formData.storage_date} onChange={handleInputChange} />
+                <SearchableDropdown label="Sent By" value={formData.sent_by_id} onSelect={handleDropdownChange} options={metadata.users} placeholder="Select user" popoverKey="sent_by" fieldName="sent_by_id" />
               </div>
 
               {/* File Shredded */}
@@ -1269,38 +713,8 @@ const AddMatterCard = ({
                 File Shredded
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                {/* Shredded Date */}
-                <div>
-                  <label
-                    htmlFor="shredded_date"
-                    className="block font-medium mb-2 text-foreground"
-                  >
-                    Shredded Date
-                  </label>
-                  <Input
-                    type="date"
-                    id="shredded_date"
-                    name="shredded_date"
-                    value={formData.shredded_date}
-                    onChange={handleInputChange}
-                    className="bg-muted"
-                  />
-                </div>
-
-                {/* Shredded By */}
-                <div>
-                  <label className="block font-medium mb-2 text-foreground">
-                    Shredded By
-                  </label>
-                  <SearchableDropdown
-                    value={formData.shredded_by_id}
-                    onSelect={handleDropdownChange}
-                    options={metadata.users}
-                    placeholder="Select user"
-                    popoverKey="shredded_by"
-                    fieldName="shredded_by_id"
-                  />
-                </div>
+                <FloatingInput label="Shredded Date" type="date" id="shredded_date" name="shredded_date" value={formData.shredded_date} onChange={handleInputChange} />
+                <SearchableDropdown label="Shredded By" value={formData.shredded_by_id} onSelect={handleDropdownChange} options={metadata.users} placeholder="Select user" popoverKey="shredded_by" fieldName="shredded_by_id" />
               </div>
             </section>
 
@@ -1325,196 +739,16 @@ const AddMatterCard = ({
 
               {formData.previous_counsel_check && (
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  {/* Paralegal Name */}
-                  <div>
-                    <label
-                      htmlFor="paralegal_name"
-                      className="block font-medium mb-2 text-foreground"
-                    >
-                      Paralegal Name
-                    </label>
-                    <Input
-                      id="paralegal_name"
-                      name="paralegal_name"
-                      value={formData.paralegal_name}
-                      onChange={handleInputChange}
-                      maxLength={255}
-                      placeholder="Enter paralegal name"
-                      className="bg-muted"
-                    />
-                  </div>
-
-                  {/* Firm Name */}
-                  <div>
-                    <label
-                      htmlFor="firm_name"
-                      className="block font-medium mb-2 text-foreground"
-                    >
-                      Firm Name
-                    </label>
-                    <Input
-                      id="firm_name"
-                      name="firm_name"
-                      value={formData.firm_name}
-                      onChange={handleInputChange}
-                      maxLength={255}
-                      placeholder="Enter firm name"
-                      className="bg-muted"
-                    />
-                  </div>
-
-                  {/* Counsel Name */}
-                  <div>
-                    <label
-                      htmlFor="counsel_name"
-                      className="block font-medium mb-2 text-foreground"
-                    >
-                      Counsel Name
-                    </label>
-                    <Input
-                      id="counsel_name"
-                      name="counsel_name"
-                      value={formData.counsel_name}
-                      onChange={handleInputChange}
-                      maxLength={255}
-                      placeholder="Enter counsel name"
-                      className="bg-muted"
-                    />
-                  </div>
-
-                  {/* File Number */}
-                  <div>
-                    <label
-                      htmlFor="file_number"
-                      className="block font-medium mb-2 text-foreground"
-                    >
-                      File Number
-                    </label>
-                    <Input
-                      id="file_number"
-                      name="file_number"
-                      value={formData.file_number}
-                      onChange={handleInputChange}
-                      maxLength={255}
-                      placeholder="Enter file number"
-                      className="bg-muted"
-                    />
-                  </div>
-
-                  {/* Work Telephone */}
-                  <div>
-                    <label
-                      htmlFor="work_telephone"
-                      className="block font-medium mb-2 text-foreground"
-                    >
-                      Work Telephone
-                    </label>
-                    <Input
-                      id="work_telephone"
-                      name="work_telephone"
-                      value={formData.work_telephone}
-                      onChange={(e) => setFormData(p => ({ ...p, work_telephone: formatPhoneNumber(e.target.value) }))}
-                      maxLength={255}
-                      placeholder="(888) 888-8888"
-                      className="bg-muted"
-                    />
-                  </div>
-
-                  {/* Telephone */}
-                  <div>
-                    <label
-                      htmlFor="telephone"
-                      className="block font-medium mb-2 text-foreground"
-                    >
-                      Telephone
-                    </label>
-                    <Input
-                      id="telephone"
-                      name="telephone"
-                      value={formData.telephone}
-                      onChange={(e) => setFormData(p => ({ ...p, telephone: formatPhoneNumber(e.target.value) }))}
-                      maxLength={255}
-                      placeholder="(888) 888-8888"
-                      className="bg-muted"
-                    />
-                  </div>
-
-                  {/* Ext */}
-                  <div>
-                    <label
-                      htmlFor="ext"
-                      className="block font-medium mb-2 text-foreground"
-                    >
-                      Ext
-                    </label>
-                    <Input
-                      id="ext"
-                      name="ext"
-                      value={formData.ext}
-                      onChange={handleInputChange}
-                      maxLength={255}
-                      placeholder="Extension"
-                      className="bg-muted"
-                    />
-                  </div>
-
-                  {/* Fax */}
-                  <div>
-                    <label
-                      htmlFor="fax"
-                      className="block font-medium mb-2 text-foreground"
-                    >
-                      Fax
-                    </label>
-                    <Input
-                      id="fax"
-                      name="fax"
-                      value={formData.fax}
-                      onChange={(e) => setFormData(p => ({ ...p, fax: formatPhoneNumber(e.target.value) }))}
-                      maxLength={255}
-                      placeholder="(888) 888-8888"
-                      className="bg-muted"
-                    />
-                  </div>
-
-                  {/* Email */}
-                  <div>
-                    <label
-                      htmlFor="email"
-                      className="block font-medium mb-2 text-foreground"
-                    >
-                      Email
-                    </label>
-                    <Input
-                      type="email"
-                      id="email"
-                      name="email"
-                      value={formData.email}
-                      onChange={handleInputChange}
-                      maxLength={255}
-                      placeholder="email@example.com"
-                      className="bg-muted"
-                    />
-                  </div>
-
-                  {/* Lawyer Name */}
-                  <div>
-                    <label
-                      htmlFor="lawyer_name"
-                      className="block font-medium mb-2 text-foreground"
-                    >
-                      Lawyer Name
-                    </label>
-                    <Input
-                      id="lawyer_name"
-                      name="lawyer_name"
-                      value={formData.lawyer_name}
-                      onChange={handleInputChange}
-                      maxLength={255}
-                      placeholder="Enter lawyer name"
-                      className="bg-muted"
-                    />
-                  </div>
+                  <FloatingInput label="Paralegal Name" id="paralegal_name" name="paralegal_name" value={formData.paralegal_name} onChange={handleInputChange} maxLength={255} />
+                  <FloatingInput label="Firm Name" id="firm_name" name="firm_name" value={formData.firm_name} onChange={handleInputChange} maxLength={255} />
+                  <FloatingInput label="Counsel Name" id="counsel_name" name="counsel_name" value={formData.counsel_name} onChange={handleInputChange} maxLength={255} />
+                  <FloatingInput label="File Number" id="file_number" name="file_number" value={formData.file_number} onChange={handleInputChange} maxLength={255} />
+                  <FloatingInput label="Work Telephone" id="work_telephone" name="work_telephone" value={formData.work_telephone} onChange={(e) => setFormData(p => ({ ...p, work_telephone: formatPhoneNumber(e.target.value) }))} maxLength={255} />
+                  <FloatingInput label="Telephone" id="telephone" name="telephone" value={formData.telephone} onChange={(e) => setFormData(p => ({ ...p, telephone: formatPhoneNumber(e.target.value) }))} maxLength={255} />
+                  <FloatingInput label="Ext" id="ext" name="ext" value={formData.ext} onChange={handleInputChange} maxLength={255} />
+                  <FloatingInput label="Fax" id="fax" name="fax" value={formData.fax} onChange={(e) => setFormData(p => ({ ...p, fax: formatPhoneNumber(e.target.value) }))} maxLength={255} />
+                  <FloatingInput label="Email" type="email" id="email" name="email" value={formData.email} onChange={handleInputChange} maxLength={255} />
+                  <FloatingInput label="Lawyer Name" id="lawyer_name" name="lawyer_name" value={formData.lawyer_name} onChange={handleInputChange} maxLength={255} />
                 </div>
               )}
             </section>
@@ -1526,119 +760,12 @@ const AddMatterCard = ({
                   Address
                 </h2> */}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                  {/* Unit Number */}
-                  <div>
-                    <label
-                      htmlFor="unit_number"
-                      className="block font-medium mb-2 text-foreground"
-                    >
-                      Unit Number
-                    </label>
-                    <Input
-                      id="unit_number"
-                      name="unit_number"
-                      value={formData.unit_number}
-                      onChange={handleInputChange}
-                      maxLength={50}
-                      placeholder="Enter unit number"
-                      className="bg-muted"
-                    />
-                  </div>
-
-                  {/* Street Number */}
-                  <div>
-                    <label
-                      htmlFor="street_number"
-                      className="block font-medium mb-2 text-foreground"
-                    >
-                      Street Number
-                    </label>
-                    <Input
-                      id="street_number"
-                      name="street_number"
-                      value={formData.street_number}
-                      onChange={handleInputChange}
-                      maxLength={100}
-                      placeholder="Enter street number"
-                      className="bg-muted"
-                    />
-                  </div>
-
-                  {/* Street Name */}
-                  <div>
-                    <label
-                      htmlFor="street_name"
-                      className="block font-medium mb-2 text-foreground"
-                    >
-                      Street Name
-                    </label>
-                    <Input
-                      id="street_name"
-                      name="street_name"
-                      value={formData.street_name}
-                      onChange={handleInputChange}
-                      maxLength={100}
-                      placeholder="Enter street name"
-                      className="bg-muted"
-                    />
-                  </div>
-
-                  {/* City */}
-                  <div>
-                    <label
-                      htmlFor="city"
-                      className="block font-medium mb-2 text-foreground"
-                    >
-                      City
-                    </label>
-                    <Input
-                      id="city"
-                      name="city"
-                      value={formData.city}
-                      onChange={handleInputChange}
-                      maxLength={100}
-                      placeholder="Enter city"
-                      className="bg-muted"
-                    />
-                  </div>
-
-                  {/* Province */}
-                  <div>
-                    <label
-                      htmlFor="province"
-                      className="block font-medium mb-2 text-foreground"
-                    >
-                      Province
-                    </label>
-                    <Input
-                      id="province"
-                      name="province"
-                      value={formData.province}
-                      onChange={handleInputChange}
-                      maxLength={100}
-                      placeholder="Enter province"
-                      className="bg-muted"
-                    />
-                  </div>
-
-                  {/* Postal Code */}
-                  <div>
-                    <label
-                      htmlFor="postal_code"
-                      className="block font-medium mb-2 text-foreground"
-                    >
-                      Postal Code
-                    </label>
-                    <Input
-                      id="postal_code"
-                      name="postal_code"
-                      value={formData.postal_code}
-                      onChange={handleInputChange}
-                      maxLength={50}
-                      placeholder="Enter postal code"
-                      className="bg-muted"
-                    />
-                  </div>
+                  <FloatingInput label="Unit Number" id="unit_number" name="unit_number" value={formData.unit_number} onChange={handleInputChange} maxLength={50} />
+                  <FloatingInput label="Street Number" id="street_number" name="street_number" value={formData.street_number} onChange={handleInputChange} maxLength={100} />
+                  <FloatingInput label="Street Name" id="street_name" name="street_name" value={formData.street_name} onChange={handleInputChange} maxLength={100} />
+                  <FloatingInput label="City" id="city" name="city" value={formData.city} onChange={handleInputChange} maxLength={100} />
+                  <FloatingInput label="Province" id="province" name="province" value={formData.province} onChange={handleInputChange} maxLength={100} />
+                  <FloatingInput label="Postal Code" id="postal_code" name="postal_code" value={formData.postal_code} onChange={handleInputChange} maxLength={50} />
                 </div>
               </section>
             )}

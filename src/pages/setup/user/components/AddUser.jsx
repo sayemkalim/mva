@@ -3,8 +3,8 @@ import { useNavigate } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { FloatingInput } from "@/components/ui/floating-label";
 import {
   Select,
   SelectContent,
@@ -151,56 +151,35 @@ export default function AddUser() {
                 Personal Information
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label className="text-foreground font-medium">
-                    First Name <span className="text-red-500">*</span>
-                  </Label>
-                  <Input
-                    value={formData.first_name}
-                    onChange={(e) => handleChange("first_name", e.target.value)}
-                    placeholder="John"
-                    className="h-10 bg-card border-input"
-                  />
-                </div>
+                <FloatingInput
+                  label="First Name"
+                  value={formData.first_name}
+                  onChange={(e) => handleChange("first_name", e.target.value)}
+                  required
+                />
 
-                <div className="space-y-2">
-                  <Label className="text-foreground font-medium">
-                    Last Name <span className="text-red-500">*</span>
-                  </Label>
-                  <Input
-                    value={formData.last_name}
-                    onChange={(e) => handleChange("last_name", e.target.value)}
-                    placeholder="Doe"
-                    className="h-10 bg-card border-input"
-                  />
-                </div>
+                <FloatingInput
+                  label="Last Name"
+                  value={formData.last_name}
+                  onChange={(e) => handleChange("last_name", e.target.value)}
+                  required
+                />
 
-                <div className="space-y-2">
-                  <Label className="text-foreground font-medium">
-                    Email <span className="text-red-500">*</span>
-                  </Label>
-                  <Input
-                    type="email"
-                    value={formData.email}
-                    onChange={(e) => handleChange("email", e.target.value)}
-                    placeholder="john@example.com"
-                    className="h-10 bg-card border-input"
-                  />
-                </div>
+                <FloatingInput
+                  label="Email"
+                  type="email"
+                  value={formData.email}
+                  onChange={(e) => handleChange("email", e.target.value)}
+                  required
+                />
 
-                <div className="space-y-2">
-                  <Label className="text-foreground font-medium">
-                    Phone Number
-                  </Label>
-                  <Input
-                    value={formData.phone_number}
-                    onChange={(e) =>
-                      handleChange("phone_number", e.target.value)
-                    }
-                    placeholder="+1234567890"
-                    className="h-10 bg-card border-input"
-                  />
-                </div>
+                <FloatingInput
+                  label="Phone Number"
+                  value={formData.phone_number}
+                  onChange={(e) =>
+                    handleChange("phone_number", e.target.value)
+                  }
+                />
               </div>
             </div>
 
@@ -210,91 +189,57 @@ export default function AddUser() {
                 Address Information
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="space-y-2">
-                  <Label className="text-foreground font-medium">
-                    Street Number
-                  </Label>
-                  <Input
-                    value={formData.street_number}
-                    onChange={(e) =>
-                      handleChange("street_number", e.target.value)
-                    }
-                    placeholder="123"
-                    className="h-10 bg-card border-input"
-                  />
-                </div>
+                <FloatingInput
+                  label="Street Number"
+                  value={formData.street_number}
+                  onChange={(e) =>
+                    handleChange("street_number", e.target.value)
+                  }
+                />
 
-                <div className="space-y-2 md:col-span-2">
-                  <Label className="text-foreground font-medium">
-                    Street Name
-                  </Label>
-                  <Input
+                <div className="md:col-span-2">
+                  <FloatingInput
+                    label="Street Name"
                     value={formData.street_name}
                     onChange={(e) =>
                       handleChange("street_name", e.target.value)
                     }
-                    placeholder="Main St"
-                    className="h-10 bg-card border-input"
                   />
                 </div>
 
-                <div className="space-y-2">
-                  <Label className="text-foreground font-medium">
-                    Unit Number
-                  </Label>
-                  <Input
-                    value={formData.unit_number}
-                    onChange={(e) =>
-                      handleChange("unit_number", e.target.value)
-                    }
-                    placeholder="4B"
-                    className="h-10 bg-card border-input"
-                  />
-                </div>
+                <FloatingInput
+                  label="Unit Number"
+                  value={formData.unit_number}
+                  onChange={(e) =>
+                    handleChange("unit_number", e.target.value)
+                  }
+                />
 
-                <div className="space-y-2">
-                  <Label className="text-foreground font-medium">City</Label>
-                  <Input
-                    value={formData.city}
-                    onChange={(e) => handleChange("city", e.target.value)}
-                    placeholder="Toronto"
-                    className="h-10 bg-card border-input"
-                  />
-                </div>
+                <FloatingInput
+                  label="City"
+                  value={formData.city}
+                  onChange={(e) => handleChange("city", e.target.value)}
+                />
 
-                <div className="space-y-2">
-                  <Label className="text-foreground font-medium">Province</Label>
-                  <Input
-                    value={formData.province}
-                    onChange={(e) => handleChange("province", e.target.value)}
-                    placeholder="Ontario"
-                    className="h-10 bg-card border-input"
-                  />
-                </div>
+                <FloatingInput
+                  label="Province"
+                  value={formData.province}
+                  onChange={(e) => handleChange("province", e.target.value)}
+                />
 
-                <div className="space-y-2">
-                  <Label className="text-foreground font-medium">
-                    Postal Code
-                  </Label>
-                  <Input
-                    value={formData.postal_code}
-                    onChange={(e) =>
-                      handleChange("postal_code", e.target.value)
-                    }
-                    placeholder="M5V 2K7"
-                    className="h-10 bg-card border-input"
-                  />
-                </div>
+                <FloatingInput
+                  label="Postal Code"
+                  value={formData.postal_code}
+                  onChange={(e) =>
+                    handleChange("postal_code", e.target.value)
+                  }
+                />
 
-                <div className="space-y-2">
-                  <Label className="text-foreground font-medium">Country</Label>
-                  <Input
-                    value={formData.country}
-                    onChange={(e) => handleChange("country", e.target.value)}
-                    placeholder="Canada"
-                    className="h-10 bg-card border-input"
-                  />
-                </div>
+                <FloatingInput
+                  label="Country"
+                  value={formData.country}
+                  onChange={(e) => handleChange("country", e.target.value)}
+                />
               </div>
             </div>
 
@@ -302,33 +247,23 @@ export default function AddUser() {
             <div className="border-t pt-6">
               <h3 className="font-semibold text-foreground mb-4">Password</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label className="text-foreground font-medium">
-                    Password <span className="text-red-500">*</span>
-                  </Label>
-                  <Input
-                    type="password"
-                    value={formData.password}
-                    onChange={(e) => handleChange("password", e.target.value)}
-                    placeholder="••••••••"
-                    className="h-10 bg-card border-input"
-                  />
-                </div>
+                <FloatingInput
+                  label="Password"
+                  type="password"
+                  value={formData.password}
+                  onChange={(e) => handleChange("password", e.target.value)}
+                  required
+                />
 
-                <div className="space-y-2">
-                  <Label className="text-foreground font-medium">
-                    Confirm Password <span className="text-red-500">*</span>
-                  </Label>
-                  <Input
-                    type="password"
-                    value={formData.password_confirmation}
-                    onChange={(e) =>
-                      handleChange("password_confirmation", e.target.value)
-                    }
-                    placeholder="••••••••"
-                    className="h-10 bg-card border-input"
-                  />
-                </div>
+                <FloatingInput
+                  label="Confirm Password"
+                  type="password"
+                  value={formData.password_confirmation}
+                  onChange={(e) =>
+                    handleChange("password_confirmation", e.target.value)
+                  }
+                  required
+                />
               </div>
             </div>
 

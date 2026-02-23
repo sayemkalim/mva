@@ -4,6 +4,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { FloatingInput } from "@/components/ui/floating-label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Loader2, ChevronRight } from "lucide-react";
 import { toast } from "sonner";
@@ -519,19 +520,13 @@ function Grid({ children }) {
 
 function Field({ label, value, onChange, type = "text", required = false }) {
   return (
-    <div className="space-y-2">
-      <Label className="text-sm font-semibold text-foreground">
-        {label}
-        {required && <span className="text-red-500 ml-1">*</span>}
-      </Label>
-      <Input
-        type={type}
-        value={value || ""}
-        onChange={(e) => onChange(e.target.value)}
-        className="h-12 px-4 border-input focus:ring-2 focus:ring-primary focus:border-primary transition-all"
-        placeholder={label}
-      />
-    </div>
+    <FloatingInput
+      label={label}
+      required={required}
+      type={type}
+      value={value || ""}
+      onChange={(e) => onChange(e.target.value)}
+    />
   );
 }
 

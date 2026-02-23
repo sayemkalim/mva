@@ -2,8 +2,7 @@ import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { FloatingInput, FloatingWrapper } from "@/components/ui/floating-label";
 import {
   Popover,
   PopoverContent,
@@ -36,18 +35,17 @@ const SearchableSelect = ({ label, options, value, onChange, placeholder }) => {
   const selected = options?.find((opt) => String(opt.id) === String(value));
 
   return (
-    <div className="space-y-2">
-      <Label className="text-foreground font-medium">{label}</Label>
+    <FloatingWrapper label={label} hasValue={!!selected} isFocused={open}>
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
           <Button
             variant="outline"
             role="combobox"
             aria-expanded={open}
-            className="w-full justify-between h-11"
+            className="w-full justify-between h-[52px] bg-transparent border border-input"
           >
-            {selected ? selected.name : placeholder}
-            <ChevronRight className="ml-2 h-4 w-4 rotate-90" />
+            {selected ? selected.name : ""}
+            <ChevronRight className="ml-auto h-4 w-4 shrink-0 rotate-90" />
           </Button>
         </PopoverTrigger>
         <PopoverContent className="w-[300px] p-0">
@@ -97,7 +95,7 @@ const SearchableSelect = ({ label, options, value, onChange, placeholder }) => {
           </Command>
         </PopoverContent>
       </Popover>
-    </div>
+    </FloatingWrapper>
   );
 };
 
@@ -250,16 +248,13 @@ export default function UndertakingPage() {
                 placeholder="Select option"
               />
 
-              <div className="space-y-2">
-                <Label className="text-foreground font-medium">Deadline</Label>
-                <Input
-                  type="date"
-                  name="deadline"
-                  value={formData.deadline}
-                  onChange={handleChange}
-                  className="h-11"
-                />
-              </div>
+              <FloatingInput
+                label="Deadline"
+                type="date"
+                name="deadline"
+                value={formData.deadline}
+                onChange={handleChange}
+              />
             </div>
           </div>
 
@@ -287,18 +282,13 @@ export default function UndertakingPage() {
               Third Party Counsel Request
             </h2>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <div className="space-y-2">
-                <Label className="text-foreground font-medium">
-                  Undertakings Request from TP's Counsel
-                </Label>
-                <Input
-                  type="date"
-                  name="undertakings_request_from_tps_counsel"
-                  value={formData.undertakings_request_from_tps_counsel}
-                  onChange={handleChange}
-                  className="h-11"
-                />
-              </div>
+              <FloatingInput
+                label="Undertakings Request from TP's Counsel"
+                type="date"
+                name="undertakings_request_from_tps_counsel"
+                value={formData.undertakings_request_from_tps_counsel}
+                onChange={handleChange}
+              />
             </div>
           </div>
 

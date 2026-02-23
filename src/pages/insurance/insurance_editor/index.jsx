@@ -3,9 +3,9 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
+import { FloatingInput, FloatingWrapper } from "@/components/ui/floating-label";
 import {
   Loader2,
   ChevronRight,
@@ -53,63 +53,65 @@ function SearchableDropdown({
   };
 
   return (
-    <Popover
-      open={isOpen}
-      onOpenChange={(open) =>
-        setPopoverOpen &&
-        setPopoverOpen(open ? { [popoverKey]: true } : {})
-      }
-    >
-      <PopoverTrigger asChild>
-        <Button
-          variant="outline"
-          role="combobox"
-          className="w-full justify-between font-normal bg-card h-9 text-sm "
-          type="button"
-        >
-          {selected ? selected.name : placeholder}
-          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-60" />
-        </Button>
-      </PopoverTrigger>
-
-      <PopoverContent
-        className="w-[var(--radix-popover-trigger-width)] p-0"
-        align="start"
+    <FloatingWrapper label={label} hasValue={!!selected} isFocused={isOpen}>
+      <Popover
+        open={isOpen}
+        onOpenChange={(open) =>
+          setPopoverOpen &&
+          setPopoverOpen(open ? { [popoverKey]: true } : {})
+        }
       >
-        <Command>
-          <CommandInput placeholder={label.toLowerCase()} />
-          <CommandEmpty>No results found.</CommandEmpty>
-          <CommandGroup>
-            <CommandItem
-              value=""
-              onSelect={() => handleSelect("")}
-              className="italic text-muted-foreground"
-            >
-              <Check
-                className={`mr-2 h-4 w-4 ${!value ? "opacity-100" : "opacity-0"
-                  }`}
-              />
-              None
-            </CommandItem>
-            {options.map((opt) => (
+        <PopoverTrigger asChild>
+          <Button
+            variant="outline"
+            role="combobox"
+            className="w-full justify-between font-normal h-[52px] bg-transparent border border-input text-sm"
+            type="button"
+          >
+            {selected ? selected.name : ""}
+            <ChevronsUpDown className="ml-auto h-4 w-4 shrink-0 opacity-50" />
+          </Button>
+        </PopoverTrigger>
+
+        <PopoverContent
+          className="w-[var(--radix-popover-trigger-width)] p-0"
+          align="start"
+        >
+          <Command>
+            <CommandInput placeholder={label.toLowerCase()} />
+            <CommandEmpty>No results found.</CommandEmpty>
+            <CommandGroup>
               <CommandItem
-                key={opt.id}
-                value={opt.name}
-                onSelect={() => handleSelect(opt.id)}
+                value=""
+                onSelect={() => handleSelect("")}
+                className="italic text-muted-foreground"
               >
                 <Check
-                  className={`mr-2 h-4 w-4 ${String(value) === String(opt.id)
-                    ? "opacity-100"
-                    : "opacity-0"
+                  className={`mr-2 h-4 w-4 ${!value ? "opacity-100" : "opacity-0"
                     }`}
                 />
-                {opt.name}
+                None
               </CommandItem>
-            ))}
-          </CommandGroup>
-        </Command>
-      </PopoverContent>
-    </Popover>
+              {options.map((opt) => (
+                <CommandItem
+                  key={opt.id}
+                  value={opt.name}
+                  onSelect={() => handleSelect(opt.id)}
+                >
+                  <Check
+                    className={`mr-2 h-4 w-4 ${String(value) === String(opt.id)
+                      ? "opacity-100"
+                      : "opacity-0"
+                      }`}
+                  />
+                  {opt.name}
+                </CommandItem>
+              ))}
+            </CommandGroup>
+          </Command>
+        </PopoverContent>
+      </Popover>
+    </FloatingWrapper>
   );
 }
 export default function Insurance() {
@@ -431,70 +433,38 @@ export default function Insurance() {
 
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                {/* Name Field - ✅ h-9 */}
-                <div className="space-y-2">
-                  <Label htmlFor="name" className="text-foreground font-medium">
-                    Name{" "}
-                    {formData.policy_holder_same_as_applicant && (
-                      <span className="text-blue-600 text-sm">
-                        (Auto-filled)
-                      </span>
-                    )}
-                  </Label>
-                  <Input
-                    id="name"
-                    name="name"
-                    value={formData.name}
-                    onChange={handleChange}
-                    placeholder="Enter name"
-                    readOnly={formData.policy_holder_same_as_applicant}
-                    className={`h-9 bg-muted border-input ${formData.policy_holder_same_as_applicant
-                      ? "cursor-not-allowed opacity-75"
-                      : ""
-                      }`}
-                  />
-                </div>
+                <FloatingInput
+                  id="name"
+                  label={formData.policy_holder_same_as_applicant ? "Name (Auto-filled)" : "Name"}
+                  name="name"
+                  value={formData.name}
+                  onChange={handleChange}
+                  readOnly={formData.policy_holder_same_as_applicant}
+                  className={formData.policy_holder_same_as_applicant ? "cursor-not-allowed opacity-75" : ""}
+                />
 
                 {!formData.policy_holder_same_as_applicant && (
-                  <div className="space-y-2">
-                    <Label
-                      htmlFor="type_of_ownership_id"
-                      className="text-foreground font-medium"
-                    >
-                      Type of Ownership
-                    </Label>
-                    <SearchableDropdown
-                      popoverKey="type_of_ownership"
-                      popoverOpen={popoverOpen}
-                      setPopoverOpen={setPopoverOpen}
-                      value={formData.type_of_ownership_id?.toString() || ""}
-                      onValueChange={(value) =>
-                        handleSelectChange("type_of_ownership_id", value)
-                      }
-                      options={metadata?.insurance_type_of_ownership || []}
-                      placeholder="Select type"
-                      label="Type of ownership"
-                    />
-                  </div>
+                  <SearchableDropdown
+                    popoverKey="type_of_ownership"
+                    popoverOpen={popoverOpen}
+                    setPopoverOpen={setPopoverOpen}
+                    value={formData.type_of_ownership_id?.toString() || ""}
+                    onValueChange={(value) =>
+                      handleSelectChange("type_of_ownership_id", value)
+                    }
+                    options={metadata?.insurance_type_of_ownership || []}
+                    placeholder="Select type"
+                    label="Type of Ownership"
+                  />
                 )}
 
-                {/* Insurance Company - ✅ h-9 */}
-                <div className="space-y-2">
-                  <Label
-                    htmlFor="insurance_company"
-                    className="text-foreground font-medium"
-                  >
-                    Insurance Company
-                  </Label>
-                  <Input
-                    id="insurance_company"
-                    name="insurance_company"
-                    value={formData.insurance_company}
-                    onChange={handleChange}
-                    placeholder="TD"
-                    className="h-9 bg-muted border-input"
-                  />
-                </div>
+                <FloatingInput
+                  id="insurance_company"
+                  label="Insurance Company"
+                  name="insurance_company"
+                  value={formData.insurance_company}
+                  onChange={handleChange}
+                />
               </div>
             </div>
 
@@ -503,97 +473,13 @@ export default function Insurance() {
               <h2 className="text-xl font-semibold text-foreground">Address</h2>
 
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                <div className="space-y-2">
-                  <Label className="text-foreground font-medium">
-                    Unit Number
-                  </Label>
-                  <Input
-                    value={formData.address.unit_number}
-                    onChange={(e) =>
-                      handleAddressChange("unit_number", e.target.value)
-                    }
-                    placeholder="5B"
-                    className="h-9 bg-muted border-input"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label className="text-foreground font-medium">
-                    Street Number
-                  </Label>
-                  <Input
-                    value={formData.address.street_number}
-                    onChange={(e) =>
-                      handleAddressChange("street_number", e.target.value)
-                    }
-                    placeholder="221"
-                    className="h-9 bg-muted border-input"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label className="text-foreground font-medium">
-                    Street Name
-                  </Label>
-                  <Input
-                    value={formData.address.street_name}
-                    onChange={(e) =>
-                      handleAddressChange("street_name", e.target.value)
-                    }
-                    placeholder="King Street West"
-                    className="h-9 bg-muted border-input"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label className="text-foreground font-medium">City</Label>
-                  <Input
-                    value={formData.address.city}
-                    onChange={(e) =>
-                      handleAddressChange("city", e.target.value)
-                    }
-                    placeholder="Toronto"
-                    className="h-9 bg-muted border-input"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label className="text-foreground font-medium">Province</Label>
-                  <Input
-                    value={formData.address.province}
-                    onChange={(e) =>
-                      handleAddressChange("province", e.target.value)
-                    }
-                    placeholder="Ontario"
-                    className="h-9 bg-muted border-input"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label className="text-foreground font-medium">
-                    Postal Code
-                  </Label>
-                  <Input
-                    value={formData.address.postal_code}
-                    onChange={(e) =>
-                      handleAddressChange("postal_code", e.target.value)
-                    }
-                    placeholder="M5H 1K5"
-                    className="h-9 bg-muted border-input"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label className="text-foreground font-medium">Country</Label>
-                  <Input
-                    value={formData.address.country}
-                    onChange={(e) =>
-                      handleAddressChange("country", e.target.value)
-                    }
-                    placeholder="Canada"
-                    className="h-9 bg-muted border-input"
-                  />
-                </div>
+                <FloatingInput label="Unit Number" value={formData.address.unit_number} onChange={(e) => handleAddressChange("unit_number", e.target.value)} />
+                <FloatingInput label="Street Number" value={formData.address.street_number} onChange={(e) => handleAddressChange("street_number", e.target.value)} />
+                <FloatingInput label="Street Name" value={formData.address.street_name} onChange={(e) => handleAddressChange("street_name", e.target.value)} />
+                <FloatingInput label="City" value={formData.address.city} onChange={(e) => handleAddressChange("city", e.target.value)} />
+                <FloatingInput label="Province" value={formData.address.province} onChange={(e) => handleAddressChange("province", e.target.value)} />
+                <FloatingInput label="Postal Code" value={formData.address.postal_code} onChange={(e) => handleAddressChange("postal_code", e.target.value)} />
+                <FloatingInput label="Country" value={formData.address.country} onChange={(e) => handleAddressChange("country", e.target.value)} />
               </div>
             </div>
 
@@ -604,41 +490,8 @@ export default function Insurance() {
               </h2>
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                {/* Policy Number - ✅ h-9 */}
-                <div className="space-y-2">
-                  <Label
-                    htmlFor="policy_no"
-                    className="text-foreground font-medium"
-                  >
-                    Policy Number
-                  </Label>
-                  <Input
-                    id="policy_no"
-                    name="policy_no"
-                    value={formData.policy_no}
-                    onChange={handleChange}
-                    placeholder="123-xxxx-xxxx"
-                    className="h-9 bg-muted border-input"
-                  />
-                </div>
-
-                {/* Claim Number - ✅ h-9 */}
-                <div className="space-y-2">
-                  <Label
-                    htmlFor="claim_no"
-                    className="text-foreground font-medium"
-                  >
-                    Claim Number
-                  </Label>
-                  <Input
-                    id="claim_no"
-                    name="claim_no"
-                    value={formData.claim_no}
-                    onChange={handleChange}
-                    placeholder="123-xxxx-xxxx"
-                    className="h-9 bg-muted border-input"
-                  />
-                </div>
+                <FloatingInput id="policy_no" label="Policy Number" name="policy_no" value={formData.policy_no} onChange={handleChange} />
+                <FloatingInput id="claim_no" label="Claim Number" name="claim_no" value={formData.claim_no} onChange={handleChange} />
               </div>
             </div>
 

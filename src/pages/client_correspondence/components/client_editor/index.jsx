@@ -453,7 +453,7 @@ export default function CorrespondencePage() {
                       disabled={mutation.isLoading}
                     >
                       {getSelectedTypeLabel()}
-                      <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                      <ChevronsUpDown className="ml-auto h-4 w-4 shrink-0 opacity-50" />
                     </Button>
                   </PopoverTrigger>
                   <PopoverContent className="w-full p-0" align="start">
@@ -507,7 +507,7 @@ export default function CorrespondencePage() {
                       disabled={mutation.isLoading}
                     >
                       {getSelectedActionLabel()}
-                      <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                      <ChevronsUpDown className="ml-auto h-4 w-4 shrink-0 opacity-50" />
                     </Button>
                   </PopoverTrigger>
                   <PopoverContent className="w-full p-0" align="start">
@@ -562,7 +562,7 @@ export default function CorrespondencePage() {
                       disabled={mutation.isLoading}
                     >
                       {getSelectedStatusLabel()}
-                      <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                      <ChevronsUpDown className="ml-auto h-4 w-4 shrink-0 opacity-50" />
                     </Button>
                   </PopoverTrigger>
                   <PopoverContent className="w-full p-0" align="start">

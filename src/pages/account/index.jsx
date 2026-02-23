@@ -3,8 +3,8 @@ import NavbarItem from "@/components/navbar/navbar_item";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { FloatingInput } from "@/components/ui/floating-label";
 import { useState, useEffect, useRef } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiService } from "@/api/api_service/apiService";
@@ -387,82 +387,80 @@ const AccountPage = () => {
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="first_name">First Name</Label>
-                {isEditing ? (
-                  <Input
-                    id="first_name"
-                    value={formData.first_name}
-                    onChange={(e) =>
-                      handleInputChange("first_name", e.target.value)
-                    }
-                  />
-                ) : (
+              {isEditing ? (
+                <FloatingInput
+                  label="First Name"
+                  value={formData.first_name}
+                  onChange={(e) =>
+                    handleInputChange("first_name", e.target.value)
+                  }
+                />
+              ) : (
+                <div className="space-y-2">
+                  <Label htmlFor="first_name">First Name</Label>
                   <p className="text-sm text-muted-foreground">
                     {userData?.first_name || "N/A"}
                   </p>
-                )}
-              </div>
+                </div>
+              )}
 
-              <div className="space-y-2">
-                <Label htmlFor="last_name">Last Name</Label>
-                {isEditing ? (
-                  <Input
-                    id="last_name"
-                    value={formData.last_name}
-                    onChange={(e) =>
-                      handleInputChange("last_name", e.target.value)
-                    }
-                  />
-                ) : (
+              {isEditing ? (
+                <FloatingInput
+                  label="Last Name"
+                  value={formData.last_name}
+                  onChange={(e) =>
+                    handleInputChange("last_name", e.target.value)
+                  }
+                />
+              ) : (
+                <div className="space-y-2">
+                  <Label htmlFor="last_name">Last Name</Label>
                   <p className="text-sm text-muted-foreground">
                     {userData?.last_name || "N/A"}
                   </p>
-                )}
-              </div>
+                </div>
+              )}
 
-              <div className="space-y-2">
-                <Label htmlFor="email">Email Address</Label>
-                <div className="flex items-center gap-2">
-                  <Mail className="h-4 w-4 text-muted-foreground" />
-                  {isEditing ? (
-                    <Input
-                      id="email"
-                      type="email"
-                      value={formData.email}
-                      onChange={(e) =>
-                        handleInputChange("email", e.target.value)
-                      }
-                      className="flex-1"
-                    />
-                  ) : (
+              {isEditing ? (
+                <FloatingInput
+                  label="Email Address"
+                  type="email"
+                  value={formData.email}
+                  onChange={(e) =>
+                    handleInputChange("email", e.target.value)
+                  }
+                />
+              ) : (
+                <div className="space-y-2">
+                  <Label htmlFor="email">Email Address</Label>
+                  <div className="flex items-center gap-2">
+                    <Mail className="h-4 w-4 text-muted-foreground" />
                     <p className="text-sm text-muted-foreground">
                       {userData?.email || "N/A"}
                     </p>
-                  )}
+                  </div>
                 </div>
-              </div>
+              )}
 
-              <div className="space-y-2">
-                <Label htmlFor="phone_number">Phone Number</Label>
-                <div className="flex items-center gap-2">
-                  <Phone className="h-4 w-4 text-muted-foreground" />
-                  {isEditing ? (
-                    <Input
-                      id="phone_number"
-                      value={formData.phone_number}
-                      onChange={(e) =>
-                        handleInputChange("phone_number", e.target.value)
-                      }
-                      className="flex-1"
-                    />
-                  ) : (
+              {isEditing ? (
+                <FloatingInput
+                  label="Phone Number"
+                  value={formData.phone_number}
+                  onChange={(e) =>
+                    handleInputChange("phone_number", e.target.value)
+                  }
+                />
+              ) : (
+                <div className="space-y-2">
+                  <Label htmlFor="phone_number">Phone Number</Label>
+                  <div className="flex items-center gap-2">
+                    <Phone className="h-4 w-4 text-muted-foreground" />
                     <p className="text-sm text-muted-foreground">
                       {getPhoneWithCode()}
                     </p>
-                  )}
+                  </div>
                 </div>
-              </div>
+              )}
             </div>
           </CardContent>
         </Card>
@@ -475,74 +473,49 @@ const AccountPage = () => {
           <CardContent className="space-y-4">
             {isEditing ? (
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="street_number">Street Number</Label>
-                  <Input
-                    id="street_number"
-                    value={formData.street_number}
-                    onChange={(e) =>
-                      handleInputChange("street_number", e.target.value)
-                    }
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="street_name">Street Name</Label>
-                  <Input
-                    id="street_name"
-                    value={formData.street_name}
-                    onChange={(e) =>
-                      handleInputChange("street_name", e.target.value)
-                    }
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="unit_number">Unit Number</Label>
-                  <Input
-                    id="unit_number"
-                    value={formData.unit_number}
-                    onChange={(e) =>
-                      handleInputChange("unit_number", e.target.value)
-                    }
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="city">City</Label>
-                  <Input
-                    id="city"
-                    value={formData.city}
-                    onChange={(e) => handleInputChange("city", e.target.value)}
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="province">Province</Label>
-                  <Input
-                    id="province"
-                    value={formData.province}
-                    onChange={(e) =>
-                      handleInputChange("province", e.target.value)
-                    }
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="postal_code">Postal Code</Label>
-                  <Input
-                    id="postal_code"
-                    value={formData.postal_code}
-                    onChange={(e) =>
-                      handleInputChange("postal_code", e.target.value)
-                    }
-                  />
-                </div>
-
-                <div className="space-y-2 md:col-span-3">
-                  <Label htmlFor="country">Country</Label>
-                  <Input
-                    id="country"
+                <FloatingInput
+                  label="Street Number"
+                  value={formData.street_number}
+                  onChange={(e) =>
+                    handleInputChange("street_number", e.target.value)
+                  }
+                />
+                <FloatingInput
+                  label="Street Name"
+                  value={formData.street_name}
+                  onChange={(e) =>
+                    handleInputChange("street_name", e.target.value)
+                  }
+                />
+                <FloatingInput
+                  label="Unit Number"
+                  value={formData.unit_number}
+                  onChange={(e) =>
+                    handleInputChange("unit_number", e.target.value)
+                  }
+                />
+                <FloatingInput
+                  label="City"
+                  value={formData.city}
+                  onChange={(e) => handleInputChange("city", e.target.value)}
+                />
+                <FloatingInput
+                  label="Province"
+                  value={formData.province}
+                  onChange={(e) =>
+                    handleInputChange("province", e.target.value)
+                  }
+                />
+                <FloatingInput
+                  label="Postal Code"
+                  value={formData.postal_code}
+                  onChange={(e) =>
+                    handleInputChange("postal_code", e.target.value)
+                  }
+                />
+                <div className="md:col-span-3">
+                  <FloatingInput
+                    label="Country"
                     value={formData.country}
                     onChange={(e) =>
                       handleInputChange("country", e.target.value)

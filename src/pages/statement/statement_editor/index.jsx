@@ -2,8 +2,7 @@ import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { FloatingInput, FloatingWrapper } from "@/components/ui/floating-label";
 import {
   Popover,
   PopoverContent,
@@ -36,18 +35,17 @@ const SearchableSelect = ({ label, options, value, onChange, placeholder }) => {
   const selected = options?.find((opt) => String(opt.id) === String(value));
 
   return (
-    <div className="space-y-2">
-      <Label className="text-foreground font-medium">{label}</Label>
+    <FloatingWrapper label={label} hasValue={!!selected} isFocused={open}>
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
           <Button
             variant="outline"
             role="combobox"
             aria-expanded={open}
-            className="w-full justify-between h-11"
+            className="w-full justify-between font-normal h-[52px] bg-transparent border border-input"
           >
-            {selected ? selected.name : placeholder}
-            <ChevronRight className="ml-2 h-4 w-4 rotate-90" />
+            {selected ? selected.name : ""}
+            <ChevronRight className="ml-auto h-4 w-4 shrink-0 rotate-90" />
           </Button>
         </PopoverTrigger>
         <PopoverContent className="w-[300px] p-0">
@@ -97,7 +95,7 @@ const SearchableSelect = ({ label, options, value, onChange, placeholder }) => {
           </Command>
         </PopoverContent>
       </Popover>
-    </div>
+    </FloatingWrapper>
   );
 };
 
@@ -256,31 +254,22 @@ export default function StatementOfDefencePage() {
 
               {/* Conditional rendering based on Received SOD selection */}
               {isReceivedSodYes && (
-                <div className="space-y-2">
-                  <Label className="text-foreground font-medium">Date</Label>
-                  <Input
-                    type="date"
-                    name="sod_date"
-                    value={formData.date}
-                    onChange={handleChange}
-                    className="h-11"
-                  />
-                </div>
+                <FloatingInput
+                  label="Date"
+                  type="date"
+                  name="sod_date"
+                  value={formData.date}
+                  onChange={handleChange}
+                />
               )}
 
               {isReceivedSodNo && (
-                <div className="space-y-2">
-                  <Label className="text-foreground font-medium">
-                    File Default Judgment
-                  </Label>
-                  <Input
-                    name="file_default_judgment"
-                    value={formData.file_default_judgment}
-                    onChange={handleChange}
-                    placeholder="Enter name or details"
-                    className="h-11"
-                  />
-                </div>
+                <FloatingInput
+                  label="File Default Judgment"
+                  name="file_default_judgment"
+                  value={formData.file_default_judgment}
+                  onChange={handleChange}
+                />
               )}
             </div>
           </div>

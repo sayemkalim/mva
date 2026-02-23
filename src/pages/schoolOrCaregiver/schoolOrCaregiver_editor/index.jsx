@@ -3,9 +3,8 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
+import { FloatingInput, FloatingTextarea, FloatingWrapper } from "@/components/ui/floating-label";
 import { Loader2, ChevronRight, ChevronsUpDown, Check, Plus, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { fetchSchoolCaregiverBySlug } from "../helpers/fetchSchoolCaregiverBySlug";
@@ -33,6 +32,7 @@ function SearchableDropdown({
   options = [],
   placeholder = "Select",
   label = "Search",
+  floatingLabel,
   popoverKey,
   popoverOpen,
   setPopoverOpen,
@@ -48,7 +48,7 @@ function SearchableDropdown({
     }
   };
 
-  return (
+  const dropdownContent = (
     <Popover
       open={isOpen}
       onOpenChange={(open) =>
@@ -60,11 +60,11 @@ function SearchableDropdown({
         <Button
           variant="outline"
           role="combobox"
-          className="w-full justify-between font-normal bg-muted h-9 text-sm"
+          className="w-full justify-between font-normal h-[52px] bg-transparent border border-input"
           type="button"
         >
-          {selected ? selected.name : placeholder}
-          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-60" />
+          {selected ? selected.name : ""}
+          <ChevronsUpDown className="ml-auto h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
 
@@ -106,6 +106,15 @@ function SearchableDropdown({
       </PopoverContent>
     </Popover>
   );
+
+  if (floatingLabel) {
+    return (
+      <FloatingWrapper label={floatingLabel} hasValue={!!selected} isFocused={isOpen}>
+        {dropdownContent}
+      </FloatingWrapper>
+    );
+  }
+  return dropdownContent;
 }
 
 export default function SchoolCaregiver() {
@@ -543,14 +552,8 @@ export default function SchoolCaregiver() {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {/* Was Full Time Student -> searchable */}
-                <div className="space-y-2">
-                  <Label
-                    htmlFor="was_full_time_student_id"
-                    className="text-foreground font-medium"
-                  >
-                    Was Full Time Student
-                  </Label>
-                  <SearchableDropdown
+                <SearchableDropdown
+                    floatingLabel="Was Full Time Student"
                     popoverKey="was_full_time_student"
                     popoverOpen={popoverOpen}
                     setPopoverOpen={setPopoverOpen}
@@ -562,89 +565,48 @@ export default function SchoolCaregiver() {
                     placeholder="Select option"
                     label="Was full time student"
                   />
-                </div>
 
                 {/* School Name */}
-                <div className="space-y-2">
-                  <Label
-                    htmlFor="school_name"
-                    className="text-foreground font-medium"
-                  >
-                    School / College Name
-                  </Label>
-                  <Input
+                                  <FloatingInput
+                    label="School / College Name"
                     id="school_name"
                     name="school_name"
                     value={formData.school_name}
                     onChange={handleChange}
-                    placeholder="Harvard University"
-                    className="bg-muted border-input"
                   />
-                </div>
 
                 {/* Date Last Attended */}
-                <div className="space-y-2">
-                  <Label
-                    htmlFor="date_last_attended"
-                    className="text-foreground font-medium"
-                  >
-                    Date Last Attended
-                  </Label>
-                  <Input
+                                  <FloatingInput
+                    label="Date Last Attended"
                     id="date_last_attended"
                     name="date_last_attended"
                     type="date"
                     value={formData.date_last_attended}
                     onChange={handleChange}
-                    className="bg-muted border-input"
                   />
-                </div>
 
                 {/* Program and Level */}
-                <div className="space-y-2">
-                  <Label
-                    htmlFor="program_and_level"
-                    className="text-foreground font-medium"
-                  >
-                    Program and Level
-                  </Label>
-                  <Input
+                                  <FloatingInput
+                    label="Program and Level"
                     id="program_and_level"
                     name="program_and_level"
                     value={formData.program_and_level}
                     onChange={handleChange}
-                    placeholder="Bachelor of Science in Computer Science"
-                    className="bg-muted border-input"
                   />
-                </div>
 
                 {/* Projected Completion Date */}
-                <div className="space-y-2">
-                  <Label
-                    htmlFor="projected_completion_date"
-                    className="text-foreground font-medium"
-                  >
-                    Projected Completion Date
-                  </Label>
-                  <Input
+                                  <FloatingInput
+                    label="Projected Completion Date"
                     id="projected_completion_date"
                     name="projected_completion_date"
                     type="date"
                     value={formData.projected_completion_date}
                     onChange={handleChange}
-                    className="bg-muted border-input"
                   />
-                </div>
 
                 {/* Currently Attending */}
-                <div className="space-y-2">
-                  <Label
-                    htmlFor="currently_attending_id"
-                    className="text-foreground font-medium"
-                  >
-                    Currently Attending
-                  </Label>
-                  <SearchableDropdown
+                <SearchableDropdown
+                    floatingLabel="Currently Attending"
                     popoverKey="currently_attending"
                     popoverOpen={popoverOpen}
                     setPopoverOpen={setPopoverOpen}
@@ -656,17 +618,10 @@ export default function SchoolCaregiver() {
                     placeholder="Select option"
                     label="Currently attending"
                   />
-                </div>
 
                 {/* Returned to School */}
-                <div className="space-y-2">
-                  <Label
-                    htmlFor="returned_to_school_id"
-                    className="text-foreground font-medium"
-                  >
-                    Returned to School / College
-                  </Label>
-                  <SearchableDropdown
+                <SearchableDropdown
+                    floatingLabel="Returned to School / College"
                     popoverKey="returned_to_school"
                     popoverOpen={popoverOpen}
                     setPopoverOpen={setPopoverOpen}
@@ -678,7 +633,6 @@ export default function SchoolCaregiver() {
                     placeholder="Select option"
                     label="Returned to school"
                   />
-                </div>
               </div>
             </div>
 
@@ -689,97 +643,61 @@ export default function SchoolCaregiver() {
               </h2>
 
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                <div className="space-y-2">
-                  <Label className="text-foreground font-medium">
-                    Unit Number
-                  </Label>
-                  <Input
+                                  <FloatingInput
+                    label="Unit Number"
                     value={formData.address.unit_number}
                     onChange={(e) =>
                       handleAddressChange("unit_number", e.target.value)
                     }
-                    placeholder="5B"
-                    className="bg-muted border-input"
                   />
-                </div>
 
-                <div className="space-y-2">
-                  <Label className="text-foreground font-medium">
-                    Street Number
-                  </Label>
-                  <Input
+                                  <FloatingInput
+                    label="Street Number"
                     value={formData.address.street_number}
                     onChange={(e) =>
                       handleAddressChange("street_number", e.target.value)
                     }
-                    placeholder="221"
-                    className="bg-muted border-input"
                   />
-                </div>
 
-                <div className="space-y-2">
-                  <Label className="text-foreground font-medium">
-                    Street Name
-                  </Label>
-                  <Input
+                                  <FloatingInput
+                    label="Street Name"
                     value={formData.address.street_name}
                     onChange={(e) =>
                       handleAddressChange("street_name", e.target.value)
                     }
-                    placeholder="King Street West"
-                    className="bg-muted border-input"
                   />
-                </div>
 
-                <div className="space-y-2">
-                  <Label className="text-foreground font-medium">City</Label>
-                  <Input
+                                  <FloatingInput
+                    label="City"
                     value={formData.address.city}
                     onChange={(e) =>
                       handleAddressChange("city", e.target.value)
                     }
-                    placeholder="Toronto"
-                    className="bg-muted border-input"
                   />
-                </div>
 
-                <div className="space-y-2">
-                  <Label className="text-foreground font-medium">Province</Label>
-                  <Input
+                                  <FloatingInput
+                    label="Province"
                     value={formData.address.province}
                     onChange={(e) =>
                       handleAddressChange("province", e.target.value)
                     }
-                    placeholder="Ontario"
-                    className="bg-muted border-input"
                   />
-                </div>
 
-                <div className="space-y-2">
-                  <Label className="text-foreground font-medium">
-                    Postal Code
-                  </Label>
-                  <Input
+                                  <FloatingInput
+                    label="Postal Code"
                     value={formData.address.postal_code}
                     onChange={(e) =>
                       handleAddressChange("postal_code", e.target.value)
                     }
-                    placeholder="M5H 1K5"
-                    className="bg-muted border-input"
                   />
-                </div>
 
-                <div className="space-y-2">
-                  <Label className="text-foreground font-medium">Country</Label>
-                  <Input
+                                  <FloatingInput
+                    label="Country"
                     value={formData.address.country}
                     onChange={(e) =>
                       handleAddressChange("country", e.target.value)
                     }
-                    placeholder="Canada"
-                    className="bg-muted border-input"
                   />
-                </div>
               </div>
             </div>
 
@@ -791,14 +709,8 @@ export default function SchoolCaregiver() {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {/* Injuries Prevented Caregiving */}
-                <div className="space-y-2">
-                  <Label
-                    htmlFor="injuries_prevented_caregiving_id"
-                    className="text-foreground font-medium"
-                  >
-                    Injuries Prevented Caregiving
-                  </Label>
-                  <SearchableDropdown
+                <SearchableDropdown
+                    floatingLabel="Injuries Prevented Caregiving"
                     popoverKey="injuries_prevented_caregiving"
                     popoverOpen={popoverOpen}
                     setPopoverOpen={setPopoverOpen}
@@ -816,17 +728,10 @@ export default function SchoolCaregiver() {
                     placeholder="Select option"
                     label="Injuries prevented caregiving"
                   />
-                </div>
 
                 {/* Returned to Caregiving */}
-                <div className="space-y-2">
-                  <Label
-                    htmlFor="returned_to_caregiving_id"
-                    className="text-foreground font-medium"
-                  >
-                    Returned to Caregiving
-                  </Label>
-                  <SearchableDropdown
+                <SearchableDropdown
+                    floatingLabel="Returned to Caregiving"
                     popoverKey="returned_to_caregiving"
                     popoverOpen={popoverOpen}
                     setPopoverOpen={setPopoverOpen}
@@ -838,24 +743,16 @@ export default function SchoolCaregiver() {
                     placeholder="Select option"
                     label="Returned to caregiving"
                   />
-                </div>
 
                 {/* Caregiving Description - Full Width */}
-                <div className="space-y-2 md:col-span-2">
-                  <Label
-                    htmlFor="caregiving_description"
-                    className="text-foreground font-medium"
-                  >
-                    Caregiving Description
-                  </Label>
-                  <Textarea
+                <div className="md:col-span-2">
+                  <FloatingTextarea
+                    label="Caregiving Description"
                     id="caregiving_description"
                     name="caregiving_description"
                     value={formData.caregiving_description}
                     onChange={handleChange}
-                    placeholder="I provided daily care to my grandmother before the accident."
                     rows={3}
-                    className="bg-muted border-input"
                   />
                 </div>
               </div>
@@ -905,37 +802,25 @@ export default function SchoolCaregiver() {
 
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                       {/* Caregiver Name */}
-                      <div className="space-y-2">
-                        <Label className="text-foreground font-medium">Name</Label>
-                        <Input
+                                              <FloatingInput
+                          label="Name"
                           name={`caregiver_name_${num}`}
                           value={formData[`caregiver_name_${num}`]}
                           onChange={handleChange}
-                          placeholder="John Doe"
-                          className="bg-card border-input"
                         />
-                      </div>
 
                       {/* Caregiver DOB */}
-                      <div className="space-y-2">
-                        <Label className="text-foreground font-medium">
-                          Date of Birth
-                        </Label>
-                        <Input
+                                              <FloatingInput
+                          label="Date of Birth"
                           type="date"
                           name={`caregiver_dob_${num}`}
                           value={formData[`caregiver_dob_${num}`]}
                           onChange={handleChange}
-                          className="bg-card border-input"
                         />
-                      </div>
 
                       {/* Caregiver Disabled */}
-                      <div className="space-y-2">
-                        <Label className="text-foreground font-medium">
-                          Disabled
-                        </Label>
-                        <SearchableDropdown
+                      <SearchableDropdown
+                          floatingLabel="Disabled"
                           popoverKey={`caregiver_disabled_${num}`}
                           popoverOpen={popoverOpen}
                           setPopoverOpen={setPopoverOpen}
@@ -950,7 +835,6 @@ export default function SchoolCaregiver() {
                           placeholder="Select option"
                           label="Disabled"
                         />
-                      </div>
                     </div>
                   </div>
                 );

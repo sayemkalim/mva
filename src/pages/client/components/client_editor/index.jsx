@@ -2,9 +2,8 @@ import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
+import { FloatingInput, FloatingTextarea } from "@/components/ui/floating-label";
 import {
   Loader2,
   ChevronRight,
@@ -265,30 +264,23 @@ export default function ClientDocumentPage() {
               Search Information
             </h2> */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <div className="space-y-2">
-                <Label className="text-foreground font-medium">Name</Label>
-                <Input
-                  name="name"
-                  value={formData.name}
-                  onChange={handleChange}
-                  placeholder="Enter name"
-                  className="h-11"
-                  required
-                  disabled={mutation.isLoading}
-                />
-              </div>
+              <FloatingInput
+                name="name"
+                label="Name"
+                value={formData.name}
+                onChange={handleChange}
+                required
+                disabled={mutation.isLoading}
+              />
 
-              <div className="space-y-2">
-                <Label className="text-foreground font-medium">Date</Label>
-                <Input
-                  type="date"
-                  name="date"
-                  value={formData.date}
-                  onChange={handleChange}
-                  className="h-11"
-                  disabled={mutation.isLoading}
-                />
-              </div>
+              <FloatingInput
+                type="date"
+                name="date"
+                label="Date"
+                value={formData.date}
+                onChange={handleChange}
+                disabled={mutation.isLoading}
+              />
             </div>
           </div>
 
@@ -424,18 +416,15 @@ export default function ClientDocumentPage() {
           {/* Memo */}
           <div className="pt-6 border-t">
             <h2 className="text-lg font-semibold text-foreground mb-4">Memo</h2>
-            <div className="space-y-2">
-              <Label className="text-foreground font-medium">Memo</Label>
-              <Textarea
-                name="memo"
-                value={formData.memo}
-                onChange={handleChange}
-                placeholder="Enter memo details"
-                rows={4}
-                className="resize-none"
-                disabled={mutation.isLoading}
-              />
-            </div>
+            <FloatingTextarea
+              name="memo"
+              label="Memo"
+              value={formData.memo}
+              onChange={handleChange}
+              rows={4}
+              className="resize-none"
+              disabled={mutation.isLoading}
+            />
           </div>
 
           {/* Form Actions */}

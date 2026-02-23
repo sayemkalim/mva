@@ -2,8 +2,8 @@ import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { FloatingInput, FloatingWrapper } from "@/components/ui/floating-label";
 import {
   Popover,
   PopoverTrigger,
@@ -29,6 +29,7 @@ import { formatPhoneNumber } from "@/lib/utils";
 import Billing from "@/components/billing";
 
 const SearchableDropdown = ({
+  label,
   value,
   options,
   onSelect,
@@ -42,61 +43,63 @@ const SearchableDropdown = ({
     (opt) => String(opt.id) === String(value)
   );
   return (
-    <Popover
-      open={popoverOpen[popoverKey]}
-      onOpenChange={(open) =>
-        setPopoverOpen((p) => ({ ...p, [popoverKey]: open }))
-      }
-    >
-      <PopoverTrigger asChild>
-        <Button
-          variant="outline"
-          role="combobox"
-          className="w-full justify-between font-normal bg-muted"
-          type="button"
-        >
-          {selectedOption ? selectedOption.name : placeholder}
-          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-        </Button>
-      </PopoverTrigger>
-      <PopoverContent
-        className="w-[var(--radix-popover-trigger-width)] p-0"
-        align="start"
+    <FloatingWrapper label={label} hasValue={!!selectedOption} isFocused={!!popoverOpen[popoverKey]}>
+      <Popover
+        open={popoverOpen[popoverKey]}
+        onOpenChange={(open) =>
+          setPopoverOpen((p) => ({ ...p, [popoverKey]: open }))
+        }
       >
-        <Command>
-          <CommandInput placeholder="Search..." autoFocus />
-          <CommandList>
-            <CommandEmpty>No results found.</CommandEmpty>
-            <CommandGroup>
-              <CommandItem
-                onSelect={() => onSelect(fieldName, null, popoverKey)}
-                className="cursor-pointer flex items-center italic text-muted-foreground"
-              >
-                <Check
-                  className={`mr-2 h-4 w-4 ${!value ? "opacity-100" : "opacity-0"
-                    }`}
-                />
-                None
-              </CommandItem>
-              {options?.map((opt) => (
+        <PopoverTrigger asChild>
+          <Button
+            variant="outline"
+            role="combobox"
+            className="w-full justify-between font-normal h-[52px] bg-transparent border border-input"
+            type="button"
+          >
+            {selectedOption ? selectedOption.name : ""}
+            <ChevronsUpDown className="ml-auto h-4 w-4 shrink-0 opacity-50" />
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent
+          className="w-[var(--radix-popover-trigger-width)] p-0"
+          align="start"
+        >
+          <Command>
+            <CommandInput placeholder="Search..." autoFocus />
+            <CommandList>
+              <CommandEmpty>No results found.</CommandEmpty>
+              <CommandGroup>
                 <CommandItem
-                  key={opt.id}
-                  value={opt.name}
-                  onSelect={() => onSelect(fieldName, opt.id, popoverKey)}
-                  className="cursor-pointer flex items-center"
+                  onSelect={() => onSelect(fieldName, null, popoverKey)}
+                  className="cursor-pointer flex items-center italic text-muted-foreground"
                 >
                   <Check
-                    className={`mr-2 h-4 w-4 ${value === opt.id ? "opacity-100" : "opacity-0"
+                    className={`mr-2 h-4 w-4 ${!value ? "opacity-100" : "opacity-0"
                       }`}
                   />
-                  {opt.name}
+                  None
                 </CommandItem>
-              ))}
-            </CommandGroup>
-          </CommandList>
-        </Command>
-      </PopoverContent>
-    </Popover>
+                {options?.map((opt) => (
+                  <CommandItem
+                    key={opt.id}
+                    value={opt.name}
+                    onSelect={() => onSelect(fieldName, opt.id, popoverKey)}
+                    className="cursor-pointer flex items-center"
+                  >
+                    <Check
+                      className={`mr-2 h-4 w-4 ${value === opt.id ? "opacity-100" : "opacity-0"
+                        }`}
+                    />
+                    {opt.name}
+                  </CommandItem>
+                ))}
+              </CommandGroup>
+            </CommandList>
+          </Command>
+        </PopoverContent>
+      </Popover>
+    </FloatingWrapper>
   );
 };
 const StatusRibbon = ({ statusName }) => {
@@ -728,34 +731,29 @@ export default function Section33() {
           )}
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-            <div className="space-y-2">
-              <Label>Request</Label>
-              <SearchableDropdown
-                value={mainForm.request_id}
-                options={meta.insurance_request}
-                onSelect={handleMainSearchSelect}
-                placeholder="Select request"
-                popoverKey="request_id"
-                fieldName="request_id"
-                popoverOpen={popoverOpen}
-                setPopoverOpen={setPopoverOpen}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label>S33 REQ Requested Received</Label>
-              <Input
-                type="date"
-                name="s33_req_received"
-                value={mainForm.s33_req_received}
-                onChange={(e) =>
-                  setMainForm((p) => ({
-                    ...p,
-                    s33_req_received: e.target.value,
-                  }))
-                }
-                className="h-9 bg-muted border-input"
-              />
-            </div>
+            <SearchableDropdown
+              label="Request"
+              value={mainForm.request_id}
+              options={meta.insurance_request}
+              onSelect={handleMainSearchSelect}
+              placeholder="Select request"
+              popoverKey="request_id"
+              fieldName="request_id"
+              popoverOpen={popoverOpen}
+              setPopoverOpen={setPopoverOpen}
+            />
+            <FloatingInput
+              label="S33 REQ Requested Received"
+              type="date"
+              name="s33_req_received"
+              value={mainForm.s33_req_received}
+              onChange={(e) =>
+                setMainForm((p) => ({
+                  ...p,
+                  s33_req_received: e.target.value,
+                }))
+              }
+            />
           </div>
 
           <div className="flex items-center gap-2 mb-6">
@@ -766,127 +764,95 @@ export default function Section33() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-2">
-            <div className="space-y-2">
-              <Label>Documents Requested by the Insurer</Label>
-              <SearchableDropdown
-                value={mainForm.documents_requested_by_the_insurer_id}
-                options={meta.insurance_documents_requested_by_the_insurer}
-                onSelect={handleMainSearchSelect}
-                placeholder="Select document"
-                popoverKey="documents_requested_by_the_insurer_id"
-                fieldName="documents_requested_by_the_insurer_id"
-                popoverOpen={popoverOpen}
-                setPopoverOpen={setPopoverOpen}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label>From</Label>
-              <Input
-                type="date"
-                name="from_date"
-                value={mainForm.from_date}
-                onChange={(e) =>
-                  setMainForm((p) => ({ ...p, from_date: e.target.value }))
-                }
-                className="h-9 bg-muted border-input"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label>To</Label>
-              <Input
-                type="date"
-                name="to_date"
-                value={mainForm.to_date}
-                onChange={(e) =>
-                  setMainForm((p) => ({ ...p, to_date: e.target.value }))
-                }
-                className="h-9 bg-muted border-input"
-              />
-            </div>
+            <SearchableDropdown
+              label="Documents Requested by the Insurer"
+              value={mainForm.documents_requested_by_the_insurer_id}
+              options={meta.insurance_documents_requested_by_the_insurer}
+              onSelect={handleMainSearchSelect}
+              placeholder="Select document"
+              popoverKey="documents_requested_by_the_insurer_id"
+              fieldName="documents_requested_by_the_insurer_id"
+              popoverOpen={popoverOpen}
+              setPopoverOpen={setPopoverOpen}
+            />
+            <FloatingInput
+              label="From"
+              type="date"
+              name="from_date"
+              value={mainForm.from_date}
+              onChange={(e) =>
+                setMainForm((p) => ({ ...p, from_date: e.target.value }))
+              }
+            />
+            <FloatingInput
+              label="To"
+              type="date"
+              name="to_date"
+              value={mainForm.to_date}
+              onChange={(e) =>
+                setMainForm((p) => ({ ...p, to_date: e.target.value }))
+              }
+            />
           </div>
 
           {mainForm.expanded && (
             <>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-4">
-                <div className="space-y-2">
-                  <Label>
-                    {getLabel(
-                      mainForm.documents_requested_by_the_insurer_id,
-                      meta.insurance_documents_requested_by_the_insurer
-                    ) || "Ambulance CNR"}
-                  </Label>
-                  <Input
-                    value={mainForm.ambulance_cnr}
-                    onChange={(e) =>
-                      setMainForm((p) => ({
-                        ...p,
-                        ambulance_cnr: e.target.value,
-                      }))
-                    }
-                    className="h-9 bg-muted border-input"
-                    placeholder="Reference Number"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label>Medical Clinic Name</Label>
-                  <Input
-                    value={mainForm.medical_clinic_name}
-                    onChange={(e) =>
-                      setMainForm((p) => ({
-                        ...p,
-                        medical_clinic_name: e.target.value,
-                      }))
-                    }
-                    className="h-9 bg-muted border-input"
-                    placeholder="Clinic Name"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label>Phone</Label>
-                  <Input
-                    value={mainForm.phone}
-                    onChange={(e) =>
-                      setMainForm((p) => ({ ...p, phone: formatPhoneNumber(e.target.value) }))
-                    }
-                    className="h-9 bg-muted border-input"
-                    placeholder="(888) 888-8888"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label>Fax</Label>
-                  <Input
-                    value={mainForm.fax}
-                    onChange={(e) =>
-                      setMainForm((p) => ({ ...p, fax: formatPhoneNumber(e.target.value) }))
-                    }
-                    className="h-9 bg-muted border-input"
-                    placeholder="(888) 888-8888"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label>Email</Label>
-                  <Input
-                    value={mainForm.email}
-                    onChange={(e) =>
-                      setMainForm((p) => ({ ...p, email: e.target.value }))
-                    }
-                    className="h-9 bg-muted border-input"
-                    placeholder="Email"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label>Request Status</Label>
-                  <SearchableDropdown
-                    value={mainForm.request_status_id}
-                    options={meta.insurance_status}
-                    onSelect={handleMainSearchSelect}
-                    placeholder="Select status"
-                    popoverKey="main_request_status"
-                    fieldName="request_status_id"
-                    popoverOpen={popoverOpen}
-                    setPopoverOpen={setPopoverOpen}
-                  />
-                </div>
+                <FloatingInput
+                  label={getLabel(
+                    mainForm.documents_requested_by_the_insurer_id,
+                    meta.insurance_documents_requested_by_the_insurer
+                  ) || "Ambulance CNR"}
+                  value={mainForm.ambulance_cnr}
+                  onChange={(e) =>
+                    setMainForm((p) => ({
+                      ...p,
+                      ambulance_cnr: e.target.value,
+                    }))
+                  }
+                />
+                <FloatingInput
+                  label="Medical Clinic Name"
+                  value={mainForm.medical_clinic_name}
+                  onChange={(e) =>
+                    setMainForm((p) => ({
+                      ...p,
+                      medical_clinic_name: e.target.value,
+                    }))
+                  }
+                />
+                <FloatingInput
+                  label="Phone"
+                  value={mainForm.phone}
+                  onChange={(e) =>
+                    setMainForm((p) => ({ ...p, phone: formatPhoneNumber(e.target.value) }))
+                  }
+                />
+                <FloatingInput
+                  label="Fax"
+                  value={mainForm.fax}
+                  onChange={(e) =>
+                    setMainForm((p) => ({ ...p, fax: formatPhoneNumber(e.target.value) }))
+                  }
+                />
+                <FloatingInput
+                  label="Email"
+                  value={mainForm.email}
+                  onChange={(e) =>
+                    setMainForm((p) => ({ ...p, email: e.target.value }))
+                  }
+                />
+                <SearchableDropdown
+                  label="Request Status"
+                  value={mainForm.request_status_id}
+                  options={meta.insurance_status}
+                  onSelect={handleMainSearchSelect}
+                  placeholder="Select status"
+                  popoverKey="main_request_status"
+                  fieldName="request_status_id"
+                  popoverOpen={popoverOpen}
+                  setPopoverOpen={setPopoverOpen}
+                />
               </div>
 
               <div className="mt-6">
@@ -915,72 +881,62 @@ export default function Section33() {
                     >
                       <Trash2 className="h-4 w-4 text-red-400" />
                     </Button>
-                    <div className="space-y-2">
-                      <Label>Communication Date</Label>
-                      <Input
-                        type="date"
-                        value={c.date}
-                        onChange={(e) =>
-                          handleMainCommChange(commIdx, "date", e.target.value)
-                        }
-                        className="h-9 bg-muted border-input"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label>Mode of Communication</Label>
-                      <SearchableDropdown
-                        value={c.mode_id}
-                        options={meta.insurance_mode_of_communication}
-                        onSelect={(fieldName, value, popKey) =>
-                          handleMainCommSearchSelect(
-                            commIdx,
-                            fieldName,
-                            value,
-                            popKey
-                          )
-                        }
-                        placeholder="Select mode"
-                        popoverKey={`main_comm_mode_${commIdx}`}
-                        fieldName="mode_id"
-                        popoverOpen={popoverOpen}
-                        setPopoverOpen={setPopoverOpen}
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label>Documents Received</Label>
-                      <SearchableDropdown
-                        value={c.documents_received_id}
-                        options={meta.yes_no_option}
-                        onSelect={(fieldName, value, popKey) =>
-                          handleMainCommSearchSelect(
-                            commIdx,
-                            fieldName,
-                            value,
-                            popKey
-                          )
-                        }
-                        placeholder="Select received document"
-                        popoverKey={`main_comm_doc_received_${commIdx}`}
-                        fieldName="documents_received_id"
-                        popoverOpen={popoverOpen}
-                        setPopoverOpen={setPopoverOpen}
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label>1st Reminder</Label>
-                      <Input
-                        type="date"
-                        value={c.reminder}
-                        onChange={(e) =>
-                          handleMainCommChange(
-                            commIdx,
-                            "reminder",
-                            e.target.value
-                          )
-                        }
-                        className="h-9 bg-muted border-input"
-                      />
-                    </div>
+                    <FloatingInput
+                      label="Communication Date"
+                      type="date"
+                      value={c.date}
+                      onChange={(e) =>
+                        handleMainCommChange(commIdx, "date", e.target.value)
+                      }
+                    />
+                    <SearchableDropdown
+                      label="Mode of Communication"
+                      value={c.mode_id}
+                      options={meta.insurance_mode_of_communication}
+                      onSelect={(fieldName, value, popKey) =>
+                        handleMainCommSearchSelect(
+                          commIdx,
+                          fieldName,
+                          value,
+                          popKey
+                        )
+                      }
+                      placeholder="Select mode"
+                      popoverKey={`main_comm_mode_${commIdx}`}
+                      fieldName="mode_id"
+                      popoverOpen={popoverOpen}
+                      setPopoverOpen={setPopoverOpen}
+                    />
+                    <SearchableDropdown
+                      label="Documents Received"
+                      value={c.documents_received_id}
+                      options={meta.yes_no_option}
+                      onSelect={(fieldName, value, popKey) =>
+                        handleMainCommSearchSelect(
+                          commIdx,
+                          fieldName,
+                          value,
+                          popKey
+                        )
+                      }
+                      placeholder="Select received document"
+                      popoverKey={`main_comm_doc_received_${commIdx}`}
+                      fieldName="documents_received_id"
+                      popoverOpen={popoverOpen}
+                      setPopoverOpen={setPopoverOpen}
+                    />
+                    <FloatingInput
+                      label="1st Reminder"
+                      type="date"
+                      value={c.reminder}
+                      onChange={(e) =>
+                        handleMainCommChange(
+                          commIdx,
+                          "reminder",
+                          e.target.value
+                        )
+                      }
+                    />
                   </div>
                 ))}
               </div>
@@ -1033,127 +989,97 @@ export default function Section33() {
                   </Button>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  <div className="space-y-2">
-                    <Label>Documents Requested by the Insurer</Label>
-                    <SearchableDropdown
-                      value={doc.documents_requested_by_the_insurer_id}
-                      options={
-                        meta.insurance_documents_requested_by_the_insurer
-                      }
-                      onSelect={(fieldName, value, popKey) =>
-                        handleDocSearchSelect(idx, fieldName, value, popKey)
-                      }
-                      placeholder="Select document"
-                      popoverKey={`requested_doc_${idx}`}
-                      fieldName="documents_requested_by_the_insurer_id"
-                      popoverOpen={popoverOpen}
-                      setPopoverOpen={setPopoverOpen}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label>From</Label>
-                    <Input
-                      type="date"
-                      value={doc.from_date}
-                      onChange={(e) =>
-                        handleDocSearchSelect(idx, "from_date", e.target.value)
-                      }
-                      className="h-9 bg-muted border-input"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label>To</Label>
-                    <Input
-                      type="date"
-                      value={doc.to_date}
-                      onChange={(e) =>
-                        handleDocSearchSelect(idx, "to_date", e.target.value)
-                      }
-                      className="h-9 bg-muted border-input"
-                    />
-                  </div>
+                  <SearchableDropdown
+                    label="Documents Requested by the Insurer"
+                    value={doc.documents_requested_by_the_insurer_id}
+                    options={
+                      meta.insurance_documents_requested_by_the_insurer
+                    }
+                    onSelect={(fieldName, value, popKey) =>
+                      handleDocSearchSelect(idx, fieldName, value, popKey)
+                    }
+                    placeholder="Select document"
+                    popoverKey={`requested_doc_${idx}`}
+                    fieldName="documents_requested_by_the_insurer_id"
+                    popoverOpen={popoverOpen}
+                    setPopoverOpen={setPopoverOpen}
+                  />
+                  <FloatingInput
+                    label="From"
+                    type="date"
+                    value={doc.from_date}
+                    onChange={(e) =>
+                      handleDocSearchSelect(idx, "from_date", e.target.value)
+                    }
+                  />
+                  <FloatingInput
+                    label="To"
+                    type="date"
+                    value={doc.to_date}
+                    onChange={(e) =>
+                      handleDocSearchSelect(idx, "to_date", e.target.value)
+                    }
+                  />
                 </div>
                 {doc.expanded && (
                   <>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-4">
-                      <div className="space-y-2">
-                        <Label>{selectedDocLabel}</Label>
-                        <Input
-                          value={doc.ambulance_cnr}
-                          onChange={(e) =>
-                            handleDocSearchSelect(
-                              idx,
-                              "ambulance_cnr",
-                              e.target.value
-                            )
-                          }
-                          className="h-9 bg-muted border-input"
-                          placeholder={`${selectedDocLabel} Ref No`}
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label>Medical Clinic Name</Label>
-                        <Input
-                          value={doc.medical_clinic_name}
-                          onChange={(e) =>
-                            handleDocSearchSelect(
-                              idx,
-                              "medical_clinic_name",
-                              e.target.value
-                            )
-                          }
-                          className="h-9 bg-muted border-input"
-                          placeholder="Clinic Name"
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label>Phone</Label>
-                        <Input
-                          value={doc.phone}
-                          onChange={(e) =>
-                            handleDocSearchSelect(idx, "phone", formatPhoneNumber(e.target.value))
-                          }
-                          className="h-9 bg-muted border-input"
-                          placeholder="(888) 888-8888"
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label>Fax</Label>
-                        <Input
-                          value={doc.fax}
-                          onChange={(e) =>
-                            handleDocSearchSelect(idx, "fax", formatPhoneNumber(e.target.value))
-                          }
-                          className="h-9 bg-muted border-input"
-                          placeholder="(888) 888-8888"
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label>Email</Label>
-                        <Input
-                          value={doc.email}
-                          onChange={(e) =>
-                            handleDocSearchSelect(idx, "email", e.target.value)
-                          }
-                          className="h-9 bg-muted border-input"
-                          placeholder="Email"
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label>Request Status</Label>
-                        <SearchableDropdown
-                          value={doc.request_status_id}
-                          options={meta.insurance_status}
-                          onSelect={(fieldName, value, popKey) =>
-                            handleDocSearchSelect(idx, fieldName, value, popKey)
-                          }
-                          placeholder="Select status"
-                          popoverKey={`doc_request_status_${idx}`}
-                          fieldName="request_status_id"
-                          popoverOpen={popoverOpen}
-                          setPopoverOpen={setPopoverOpen}
-                        />
-                      </div>
+                      <FloatingInput
+                        label={selectedDocLabel}
+                        value={doc.ambulance_cnr}
+                        onChange={(e) =>
+                          handleDocSearchSelect(
+                            idx,
+                            "ambulance_cnr",
+                            e.target.value
+                          )
+                        }
+                      />
+                      <FloatingInput
+                        label="Medical Clinic Name"
+                        value={doc.medical_clinic_name}
+                        onChange={(e) =>
+                          handleDocSearchSelect(
+                            idx,
+                            "medical_clinic_name",
+                            e.target.value
+                          )
+                        }
+                      />
+                      <FloatingInput
+                        label="Phone"
+                        value={doc.phone}
+                        onChange={(e) =>
+                          handleDocSearchSelect(idx, "phone", formatPhoneNumber(e.target.value))
+                        }
+                      />
+                      <FloatingInput
+                        label="Fax"
+                        value={doc.fax}
+                        onChange={(e) =>
+                          handleDocSearchSelect(idx, "fax", formatPhoneNumber(e.target.value))
+                        }
+                      />
+                      <FloatingInput
+                        label="Email"
+                        value={doc.email}
+                        onChange={(e) =>
+                          handleDocSearchSelect(idx, "email", e.target.value)
+                        }
+                      />
+                      <SearchableDropdown
+                        label="Request Status"
+                        value={doc.request_status_id}
+                        options={meta.insurance_status}
+                        onSelect={(fieldName, value, popKey) =>
+                          handleDocSearchSelect(idx, fieldName, value, popKey)
+                        }
+                        placeholder="Select status"
+                        popoverKey={`doc_request_status_${idx}`}
+                        fieldName="request_status_id"
+                        popoverOpen={popoverOpen}
+                        setPopoverOpen={setPopoverOpen}
+                      />
                     </div>
                     <div className="mt-6">
                       <div className="flex justify-between items-center mb-2">
@@ -1181,80 +1107,70 @@ export default function Section33() {
                           >
                             <Trash2 className="h-4 w-4 text-red-400" />
                           </Button>
-                          <div className="space-y-2">
-                            <Label>Communication Date</Label>
-                            <Input
-                              type="date"
-                              value={c.date}
-                              onChange={(e) =>
-                                handleCommChange(
-                                  idx,
-                                  commIdx,
-                                  "date",
-                                  e.target.value
-                                )
-                              }
-                              className="h-9 bg-muted border-input"
-                            />
-                          </div>
-                          <div className="space-y-2">
-                            <Label>Mode of Communication</Label>
-                            <SearchableDropdown
-                              value={c.mode_id}
-                              options={meta.insurance_mode_of_communication}
-                              onSelect={(fieldName, value, popKey) =>
-                                handleCommSearchSelect(
-                                  idx,
-                                  commIdx,
-                                  fieldName,
-                                  value,
-                                  popKey
-                                )
-                              }
-                              placeholder="Select mode"
-                              popoverKey={`doc_comm_mode_${idx}_${commIdx}`}
-                              fieldName="mode_id"
-                              popoverOpen={popoverOpen}
-                              setPopoverOpen={setPopoverOpen}
-                            />
-                          </div>
-                          <div className="space-y-2">
-                            <Label>Documents Received</Label>
-                            <SearchableDropdown
-                              value={c.documents_received_id}
-                              options={meta.yes_no_option}
-                              onSelect={(fieldName, value, popKey) =>
-                                handleCommSearchSelect(
-                                  idx,
-                                  commIdx,
-                                  fieldName,
-                                  value,
-                                  popKey
-                                )
-                              }
-                              placeholder="Select received document"
-                              popoverKey={`doc_comm_doc_received_${idx}_${commIdx}`}
-                              fieldName="documents_received_id"
-                              popoverOpen={popoverOpen}
-                              setPopoverOpen={setPopoverOpen}
-                            />
-                          </div>
-                          <div className="space-y-2">
-                            <Label>1st Reminder</Label>
-                            <Input
-                              type="date"
-                              value={c.reminder}
-                              onChange={(e) =>
-                                handleCommChange(
-                                  idx,
-                                  commIdx,
-                                  "reminder",
-                                  e.target.value
-                                )
-                              }
-                              className="h-9 bg-muted border-input"
-                            />
-                          </div>
+                          <FloatingInput
+                            label="Communication Date"
+                            type="date"
+                            value={c.date}
+                            onChange={(e) =>
+                              handleCommChange(
+                                idx,
+                                commIdx,
+                                "date",
+                                e.target.value
+                              )
+                            }
+                          />
+                          <SearchableDropdown
+                            label="Mode of Communication"
+                            value={c.mode_id}
+                            options={meta.insurance_mode_of_communication}
+                            onSelect={(fieldName, value, popKey) =>
+                              handleCommSearchSelect(
+                                idx,
+                                commIdx,
+                                fieldName,
+                                value,
+                                popKey
+                              )
+                            }
+                            placeholder="Select mode"
+                            popoverKey={`doc_comm_mode_${idx}_${commIdx}`}
+                            fieldName="mode_id"
+                            popoverOpen={popoverOpen}
+                            setPopoverOpen={setPopoverOpen}
+                          />
+                          <SearchableDropdown
+                            label="Documents Received"
+                            value={c.documents_received_id}
+                            options={meta.yes_no_option}
+                            onSelect={(fieldName, value, popKey) =>
+                              handleCommSearchSelect(
+                                idx,
+                                commIdx,
+                                fieldName,
+                                value,
+                                popKey
+                              )
+                            }
+                            placeholder="Select received document"
+                            popoverKey={`doc_comm_doc_received_${idx}_${commIdx}`}
+                            fieldName="documents_received_id"
+                            popoverOpen={popoverOpen}
+                            setPopoverOpen={setPopoverOpen}
+                          />
+                          <FloatingInput
+                            label="1st Reminder"
+                            type="date"
+                            value={c.reminder}
+                            onChange={(e) =>
+                              handleCommChange(
+                                idx,
+                                commIdx,
+                                "reminder",
+                                e.target.value
+                              )
+                            }
+                          />
                         </div>
                       ))}
                     </div>
@@ -1265,44 +1181,36 @@ export default function Section33() {
           })}
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
-            <div className="space-y-2">
-              <Label>Deadline</Label>
-              <Input
-                type="date"
-                value={mainForm.deadline}
-                onChange={(e) =>
-                  setMainForm((p) => ({ ...p, deadline: e.target.value }))
-                }
-                className="h-9 bg-muted border-input"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label>Response to Insurance</Label>
-              <Input
-                type="date"
-                value={mainForm.response_to_insurance}
-                onChange={(e) =>
-                  setMainForm((p) => ({
-                    ...p,
-                    response_to_insurance: e.target.value,
-                  }))
-                }
-                className="h-9 bg-muted border-input"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label>S33 REQ Status</Label>
-              <SearchableDropdown
-                value={mainForm.s33_req_status_id}
-                options={meta.insurance_section_request}
-                onSelect={handleMainSearchSelect}
-                placeholder="Select status"
-                popoverKey="s33_req_status_id"
-                fieldName="s33_req_status_id"
-                popoverOpen={popoverOpen}
-                setPopoverOpen={setPopoverOpen}
-              />
-            </div>
+            <FloatingInput
+              label="Deadline"
+              type="date"
+              value={mainForm.deadline}
+              onChange={(e) =>
+                setMainForm((p) => ({ ...p, deadline: e.target.value }))
+              }
+            />
+            <FloatingInput
+              label="Response to Insurance"
+              type="date"
+              value={mainForm.response_to_insurance}
+              onChange={(e) =>
+                setMainForm((p) => ({
+                  ...p,
+                  response_to_insurance: e.target.value,
+                }))
+              }
+            />
+            <SearchableDropdown
+              label="S33 REQ Status"
+              value={mainForm.s33_req_status_id}
+              options={meta.insurance_section_request}
+              onSelect={handleMainSearchSelect}
+              placeholder="Select status"
+              popoverKey="s33_req_status_id"
+              fieldName="s33_req_status_id"
+              popoverOpen={popoverOpen}
+              setPopoverOpen={setPopoverOpen}
+            />
           </div>
 
           <div className="flex justify-end gap-4 mt-8">

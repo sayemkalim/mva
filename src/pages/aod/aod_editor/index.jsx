@@ -28,6 +28,7 @@ import { twMerge } from "tailwind-merge";
 import { fetchAodBySlug } from "../helpers/fetchAodBySlug";
 import { createAod } from "../helpers/createAod";
 import Billing from "@/components/billing";
+import { FloatingInput, FloatingTextarea, FloatingWrapper } from "@/components/ui/floating-label";
 
 function cn(...inputs) {
   return twMerge(clsx(inputs));
@@ -38,18 +39,17 @@ const SearchableSelect = ({ label, options, value, onChange, placeholder }) => {
   const selected = options?.find((opt) => String(opt.id) === String(value));
 
   return (
-    <div className="space-y-2">
-      <Label className="text-foreground font-medium">{label}</Label>
+    <FloatingWrapper label={label} hasValue={!!selected} isFocused={open}>
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
           <Button
             variant="outline"
             role="combobox"
             aria-expanded={open}
-            className="w-full justify-between h-11"
+            className="w-full justify-between font-normal h-[52px] bg-transparent border border-input"
           >
-            {selected ? selected.name : placeholder}
-            <ChevronRight className="ml-2 h-4 w-4 rotate-90" />
+            {selected ? selected.name : ""}
+            <ChevronRight className="ml-auto h-4 w-4 shrink-0 rotate-90" />
           </Button>
         </PopoverTrigger>
         <PopoverContent className="w-[300px] p-0">
@@ -99,7 +99,7 @@ const SearchableSelect = ({ label, options, value, onChange, placeholder }) => {
           </Command>
         </PopoverContent>
       </Popover>
-    </div>
+    </FloatingWrapper>
   );
 };
 
@@ -259,16 +259,13 @@ export default function AodPage() {
               />
 
               {!isAodServicedNo() && (
-                <div className="space-y-2">
-                  <Label className="text-foreground font-medium">Date</Label>
-                  <Input
-                    type="date"
-                    name="date"
-                    value={formData.date}
-                    onChange={handleChange}
-                    className="h-11"
-                  />
-                </div>
+                <FloatingInput
+                  label="Date"
+                  type="date"
+                  name="date"
+                  value={formData.date}
+                  onChange={handleChange}
+                />
               )}
             </div>
           </div>
@@ -308,19 +305,14 @@ export default function AodPage() {
             <h2 className="text-lg font-semibold text-foreground mb-4">
               Communication Details
             </h2>
-            <div className="space-y-2">
-              <Label className="text-foreground font-medium">
-                All Communication etc.
-              </Label>
-              <Textarea
-                name="all_communication_etc"
-                value={formData.all_communication_etc}
-                onChange={handleChange}
-                placeholder="Enter all communication details"
-                rows={4}
-                className="resize-none"
-              />
-            </div>
+            <FloatingTextarea
+              label="All Communication etc."
+              name="all_communication_etc"
+              value={formData.all_communication_etc}
+              onChange={handleChange}
+              rows={4}
+              className="resize-none"
+            />
           </div>
 
           {/* Third Party Information - Always visible */}

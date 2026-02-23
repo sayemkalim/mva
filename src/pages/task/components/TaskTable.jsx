@@ -494,7 +494,7 @@ const TaskTable = ({ setTasksLength }) => {
                       ) : (
                         <span className="text-muted-foreground">Search client...</span>
                       )}
-                      <ChevronRight className="ml-2 h-4 w-4 shrink-0 rotate-90 text-muted-foreground" />
+                      <ChevronRight className="ml-auto h-4 w-4 shrink-0 rotate-90 text-muted-foreground" />
                     </Button>
                   </PopoverTrigger>
                   <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0" align="start">
@@ -570,7 +570,7 @@ const TaskTable = ({ setTasksLength }) => {
                       ) : (
                         <span className="text-muted-foreground">All priorities</span>
                       )}
-                      <ChevronRight className="ml-2 h-4 w-4 shrink-0 rotate-90 text-muted-foreground" />
+                      <ChevronRight className="ml-auto h-4 w-4 shrink-0 rotate-90 text-muted-foreground" />
                     </Button>
                   </PopoverTrigger>
                   <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0" align="start">
@@ -624,7 +624,7 @@ const TaskTable = ({ setTasksLength }) => {
                       ) : (
                         <span className="text-muted-foreground">All statuses</span>
                       )}
-                      <ChevronRight className="ml-2 h-4 w-4 shrink-0 rotate-90 text-muted-foreground" />
+                      <ChevronRight className="ml-auto h-4 w-4 shrink-0 rotate-90 text-muted-foreground" />
                     </Button>
                   </PopoverTrigger>
                   <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0" align="start">
@@ -678,7 +678,7 @@ const TaskTable = ({ setTasksLength }) => {
                       ) : (
                         <span className="text-muted-foreground">All assignees</span>
                       )}
-                      <ChevronRight className="ml-2 h-4 w-4 shrink-0 rotate-90 text-muted-foreground" />
+                      <ChevronRight className="ml-auto h-4 w-4 shrink-0 rotate-90 text-muted-foreground" />
                     </Button>
                   </PopoverTrigger>
                   <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0" align="start">
@@ -734,12 +734,12 @@ const TaskTable = ({ setTasksLength }) => {
                         !filters.from_date && "text-muted-foreground"
                       )}
                     >
-                      <CalendarIcon className="mr-2 h-4 w-4" />
                       {filters.from_date ? (
                         format(filters.from_date, "dd/MM/yyyy")
                       ) : (
                         <span>dd/mm/yyyy</span>
                       )}
+                      <CalendarIcon className="ml-auto h-4 w-4 shrink-0 opacity-50" />
                     </Button>
                   </PopoverTrigger>
                   <PopoverContent
@@ -773,12 +773,12 @@ const TaskTable = ({ setTasksLength }) => {
                         !filters.to_date && "text-muted-foreground"
                       )}
                     >
-                      <CalendarIcon className="mr-2 h-4 w-4" />
                       {filters.to_date ? (
                         format(filters.to_date, "dd/MM/yyyy")
                       ) : (
                         <span>dd/mm/yyyy</span>
                       )}
+                      <CalendarIcon className="ml-auto h-4 w-4 shrink-0 opacity-50" />
                     </Button>
                   </PopoverTrigger>
                   <PopoverContent

@@ -301,10 +301,10 @@ const ExportApplicantAccidentDetail = () => {
                               !fromDate && "text-muted-foreground"
                             )}
                           >
-                            <CalendarIcon className="mr-2 h-4 w-4" />
                             {fromDate
                               ? format(fromDate, "yyyy-MM-dd")
                               : "Select from date"}
+                            <CalendarIcon className="ml-auto h-4 w-4 shrink-0 opacity-50" />
                           </Button>
                         </PopoverTrigger>
                         <PopoverContent className="w-auto p-0" align="start">
@@ -332,10 +332,10 @@ const ExportApplicantAccidentDetail = () => {
                               !toDate && "text-muted-foreground"
                             )}
                           >
-                            <CalendarIcon className="mr-2 h-4 w-4" />
                             {toDate
                               ? format(toDate, "yyyy-MM-dd")
                               : "Select to date"}
+                            <CalendarIcon className="ml-auto h-4 w-4 shrink-0 opacity-50" />
                           </Button>
                         </PopoverTrigger>
                         <PopoverContent className="w-auto p-0" align="start">
