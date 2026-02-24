@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
 import { FloatingInput, FloatingWrapper } from "@/components/ui/floating-label";
 import {
   Popover,
@@ -83,6 +82,7 @@ const SearchableSelect = ({ label, options, value, onChange, placeholder }) => {
 };
 
 const DatePicker = ({ label, value, onChange }) => {
+  const [open, setOpen] = useState(false);
   const [date, setDate] = useState(value ? new Date(value) : undefined);
 
   useEffect(() => {
@@ -92,17 +92,17 @@ const DatePicker = ({ label, value, onChange }) => {
   const handleSelect = (selectedDate) => {
     setDate(selectedDate);
     onChange(selectedDate ? format(selectedDate, "yyyy-MM-dd") : "");
+    setOpen(false);
   };
 
   return (
-    <div className="space-y-2">
-      <Label className="text-foreground font-medium">{label}</Label>
-      <Popover>
+    <FloatingWrapper label={label} hasValue={!!date} isFocused={open}>
+      <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
           <Button
             variant="outline"
             className={cn(
-              "w-full justify-start text-left font-normal h-11",
+              "w-full justify-start text-left font-normal h-[52px] bg-transparent border border-input",
               !date && "text-muted-foreground"
             )}
           >
@@ -119,7 +119,7 @@ const DatePicker = ({ label, value, onChange }) => {
           />
         </PopoverContent>
       </Popover>
-    </div>
+    </FloatingWrapper>
   );
 };
 

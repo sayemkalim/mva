@@ -354,6 +354,7 @@ const MultiSelect = ({ label, options, value, onChange, placeholder, required, e
 
 const DatePicker = ({ label, value, onChange, required, error }) => {
   const [date, setDate] = useState(value ? new Date(value) : undefined);
+  const [open, setOpen] = useState(false);
 
   useEffect(() => {
     setDate(value ? new Date(value) : undefined);
@@ -366,33 +367,37 @@ const DatePicker = ({ label, value, onChange, required, error }) => {
 
   return (
     <div className="space-y-2">
-      <Label className="text-foreground font-medium">
-        {label} {required && <span className="text-red-500">*</span>}
-      </Label>
-      <Popover>
-        <PopoverTrigger asChild>
-          <Button
-            variant="outline"
-            className={cn(
-              "w-full justify-start text-left font-normal h-11",
-              !date && "text-muted-foreground",
-              error && "border-red-500 focus-visible:ring-red-500"
-            )}
-            type="button"
-          >
-            {date ? format(date, "PPP") : ""}
-            <CalendarIcon className="ml-auto h-4 w-4 shrink-0 opacity-50" />
-          </Button>
-        </PopoverTrigger>
-        <PopoverContent className="w-auto p-0" align="start">
-          <Calendar
-            mode="single"
-            selected={date}
-            onSelect={handleSelect}
-            initialFocus
-          />
-        </PopoverContent>
-      </Popover>
+      <FloatingWrapper
+        label={label}
+        required={required}
+        hasValue={!!date}
+        isFocused={open}
+      >
+        <Popover open={open} onOpenChange={setOpen}>
+          <PopoverTrigger asChild>
+            <Button
+              variant="outline"
+              className={cn(
+                "w-full justify-start text-left font-normal h-[52px] bg-transparent border border-input text-sm",
+                !date && "text-transparent",
+                error && "border-red-500 focus-visible:ring-red-500"
+              )}
+              type="button"
+            >
+              {date ? format(date, "PPP") : ""}
+              <CalendarIcon className="ml-auto h-4 w-4 shrink-0 opacity-50" />
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-auto p-0" align="start">
+            <Calendar
+              mode="single"
+              selected={date}
+              onSelect={handleSelect}
+              initialFocus
+            />
+          </PopoverContent>
+        </Popover>
+      </FloatingWrapper>
       {error && <p className="text-xs font-medium text-red-500">{error}</p>}
     </div>
   );

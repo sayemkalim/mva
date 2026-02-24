@@ -50,6 +50,11 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import {
+  FloatingInput,
+  FloatingTextarea,
+  FloatingWrapper,
+} from "@/components/ui/floating-label";
 import { Navbar2 } from "@/components/navbar2";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -1090,102 +1095,89 @@ const ThirdPartyInvoice = () => {
           <div className="space-y-6 py-4">
             {/* Row 1: Pay To, Amount, Original Amount */}
             <div className="grid grid-cols-3 gap-4">
-              <div className="space-y-2">
-                <Label>Pay To</Label>
-                <Input
-                  placeholder="Enter payee name"
-                  value={form.pay_to}
-                  onChange={(e) => setForm({ ...form, pay_to: e.target.value })}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label>Amount</Label>
-                <Input
-                  type="number"
-                  placeholder="Enter amount"
-                  value={form.amount}
-                  onChange={(e) => setForm({ ...form, amount: e.target.value })}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label>Original Amount</Label>
-                <Input
-                  type="number"
-                  placeholder="Enter original amount"
-                  value={form.original_amount}
-                  onChange={(e) =>
-                    setForm({ ...form, original_amount: e.target.value })
-                  }
-                />
-              </div>
+              <FloatingInput
+                label="Pay To"
+                placeholder="Enter payee name"
+                value={form.pay_to}
+                onChange={(e) => setForm({ ...form, pay_to: e.target.value })}
+              />
+              <FloatingInput
+                label="Amount"
+                type="number"
+                placeholder="Enter amount"
+                value={form.amount}
+                onChange={(e) => setForm({ ...form, amount: e.target.value })}
+              />
+              <FloatingInput
+                label="Original Amount"
+                type="number"
+                placeholder="Enter original amount"
+                value={form.original_amount}
+                onChange={(e) =>
+                  setForm({ ...form, original_amount: e.target.value })
+                }
+              />
             </div>
 
             {/* Row 2: Bill Date, Due Date, Date of Service */}
             <div className="grid grid-cols-3 gap-4">
-              <div className="space-y-2">
-                <Label>Bill Date</Label>
-                <Input
-                  type="date"
-                  value={form.bill_date}
-                  onChange={(e) =>
-                    setForm({ ...form, bill_date: e.target.value })
-                  }
-                />
-              </div>
-              <div className="space-y-2">
-                <Label>Due Date</Label>
-                <Input
-                  type="date"
-                  value={form.due_date}
-                  onChange={(e) =>
-                    setForm({ ...form, due_date: e.target.value })
-                  }
-                />
-              </div>
-              <div className="space-y-2">
-                <Label>Date of Service</Label>
-                <Input
-                  type="date"
-                  value={form.date_of_service}
-                  onChange={(e) =>
-                    setForm({ ...form, date_of_service: e.target.value })
-                  }
-                />
-              </div>
+              <FloatingInput
+                label="Bill Date"
+                type="date"
+                value={form.bill_date}
+                onChange={(e) =>
+                  setForm({ ...form, bill_date: e.target.value })
+                }
+              />
+              <FloatingInput
+                label="Due Date"
+                type="date"
+                value={form.due_date}
+                onChange={(e) =>
+                  setForm({ ...form, due_date: e.target.value })
+                }
+              />
+              <FloatingInput
+                label="Date of Service"
+                type="date"
+                value={form.date_of_service}
+                onChange={(e) =>
+                  setForm({ ...form, date_of_service: e.target.value })
+                }
+              />
             </div>
 
             {/* Row 3: Reference, Category, Type */}
             <div className="grid grid-cols-3 gap-4">
-              <div className="space-y-2">
-                <Label>Reference</Label>
-                <Input
-                  placeholder="Enter reference"
-                  value={form.reference}
-                  onChange={(e) =>
-                    setForm({ ...form, reference: e.target.value })
-                  }
-                />
-              </div>
-              <div className="space-y-2">
-                <Label>Category</Label>
-                <Input
-                  placeholder="Enter category"
-                  value={form.category}
-                  onChange={(e) =>
-                    setForm({ ...form, category: e.target.value })
-                  }
-                />
-              </div>
-              <div className="space-y-2">
-                <Label>Type ID</Label>
+              <FloatingInput
+                label="Reference"
+                placeholder="Enter reference"
+                value={form.reference}
+                onChange={(e) =>
+                  setForm({ ...form, reference: e.target.value })
+                }
+              />
+              <FloatingInput
+                label="Category"
+                placeholder="Enter category"
+                value={form.category}
+                onChange={(e) =>
+                  setForm({ ...form, category: e.target.value })
+                }
+              />
+              <FloatingWrapper
+                label="Type ID"
+                hasValue={!!form.type_id}
+                isFocused={false}
+              >
                 <Select
                   value={String(form.type_id || "")}
                   onValueChange={(value) =>
                     setForm({ ...form, type_id: value })
                   }
                 >
-                  <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Select" />
+                  <SelectTrigger className="w-full h-[52px] bg-transparent border border-input">
+                    <SelectValue placeholder="" />
                   </SelectTrigger>
                   <SelectContent>
                     {methodType.map((item) => (
@@ -1195,7 +1187,7 @@ const ThirdPartyInvoice = () => {
                     ))}
                   </SelectContent>
                 </Select>
-              </div>
+              </FloatingWrapper>
             </div>
 
             {/* Row 4: Paid By */}
@@ -1400,24 +1392,29 @@ const ThirdPartyInvoice = () => {
                     onChange={(e) => setEditingInvoice({ ...editingInvoice, category: e.target.value })}
                   />
                 </div>
-                <div className="space-y-2">
-                  <Label>Type ID</Label>
-                  <Select
-                    value={String(editingInvoice.type_id || "")}
-                    onValueChange={(value) => setEditingInvoice({ ...editingInvoice, type_id: value })}
-                  >
-                    <SelectTrigger className="w-full">
-                      <SelectValue placeholder="Select" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {methodType.map((item) => (
-                        <SelectItem key={item.id} value={String(item.id)}>
-                          {item.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
+              <FloatingWrapper
+                label="Type ID"
+                hasValue={!!editingInvoice.type_id}
+                isFocused={false}
+              >
+                <Select
+                  value={String(editingInvoice.type_id || "")}
+                  onValueChange={(value) =>
+                    setEditingInvoice({ ...editingInvoice, type_id: value })
+                  }
+                >
+                  <SelectTrigger className="w-full h-[52px] bg-transparent border border-input">
+                    <SelectValue placeholder="" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {methodType.map((item) => (
+                      <SelectItem key={item.id} value={String(item.id)}>
+                        {item.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </FloatingWrapper>
               </div>
 
               {/* Row 4: Paid By */}

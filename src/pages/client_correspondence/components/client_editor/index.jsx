@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import {
@@ -40,6 +39,7 @@ import {
 } from "../../helpers/createClient";
 import { getABMeta } from "../../helpers/fetchABMeta";
 import { fetchMatterBySlug } from "@/pages/workstation/helpers/fetchMatterBySlug";
+import { FloatingInput, FloatingTextarea, FloatingWrapper } from "@/components/ui/floating-label";
 
 export default function CorrespondencePage() {
   const { slug, id } = useParams();
@@ -398,225 +398,229 @@ export default function CorrespondencePage() {
               Correspondence Details
             </h2>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              {/* <div className="space-y-2">
-                <Label className="text-foreground font-medium">
-                  Serial Number
-                </Label>
-                <Input
-                  name="sr_no"
-                  value={formData.sr_no}
-                  onChange={handleChange}
-                  placeholder="Enter serial number"
-                  className="h-11"
-                  disabled={mutation.isLoading}
-                />
-              </div> */}
-
               <div className="space-y-2">
-                <Label className="text-foreground font-medium">
-                  Matter <span className="text-red-500">*</span>
-                </Label>
-                <Input
+                <FloatingInput
                   name="matter"
+                  label="Matter"
                   value={formData.matter}
                   onChange={handleChange}
-                  placeholder="Enter matter"
-                  className="h-11"
                   required
                   disabled={mutation.isLoading}
                 />
               </div>
 
               <div className="space-y-2">
-                <Label className="text-foreground font-medium">Date</Label>
-                <Input
+                <FloatingInput
                   type="date"
                   name="date"
+                  label="Date"
                   value={formData.date}
                   onChange={handleChange}
-                  className="h-11"
                   disabled={mutation.isLoading}
                 />
               </div>
 
               <div className="space-y-2">
-                <Label className="text-foreground font-medium">
-                  Type <span className="text-red-500">*</span>
-                </Label>
-                <Popover open={openType} onOpenChange={setOpenType}>
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant="outline"
-                      role="combobox"
-                      aria-expanded={openType}
-                      className="w-full h-11 justify-between"
-                      disabled={mutation.isLoading}
-                    >
-                      {getSelectedTypeLabel()}
-                      <ChevronsUpDown className="ml-auto h-4 w-4 shrink-0 opacity-50" />
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-full p-0" align="start">
-                    <Command>
-                      <CommandInput placeholder="Search type..." />
-                      <CommandList>
-                        <CommandEmpty>No type found.</CommandEmpty>
-                        <CommandGroup>
-                          {metaData?.correspondence_type?.map((type) => (
-                            <CommandItem
-                              key={type.id}
-                              value={type.name}
-                              onSelect={() => {
-                                handleComboboxChange(
-                                  "type_id",
-                                  type.id.toString()
-                                );
-                                setOpenType(false);
-                              }}
-                            >
-                              <Check
-                                className={cn(
-                                  "mr-2 h-4 w-4",
-                                  formData.type_id === type.id.toString()
-                                    ? "opacity-100"
-                                    : "opacity-0"
-                                )}
-                              />
-                              {type.name}
-                            </CommandItem>
-                          ))}
-                        </CommandGroup>
-                      </CommandList>
-                    </Command>
-                  </PopoverContent>
-                </Popover>
+                <FloatingWrapper
+                  label="Type"
+                  required
+                  hasValue={!!formData.type_id}
+                  isFocused={openType}
+                >
+                  <Popover open={openType} onOpenChange={setOpenType}>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="outline"
+                        role="combobox"
+                        aria-expanded={openType}
+                        className="w-full h-[52px] justify-between bg-transparent border border-input"
+                        disabled={mutation.isLoading}
+                      >
+                        {getSelectedTypeLabel() === "Select type"
+                          ? ""
+                          : getSelectedTypeLabel()}
+                        <ChevronsUpDown className="ml-auto h-4 w-4 shrink-0 opacity-50" />
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-full p-0" align="start">
+                      <Command>
+                        <CommandInput placeholder="Search type..." />
+                        <CommandList>
+                          <CommandEmpty>No type found.</CommandEmpty>
+                          <CommandGroup>
+                            {metaData?.correspondence_type?.map((type) => (
+                              <CommandItem
+                                key={type.id}
+                                value={type.name}
+                                onSelect={() => {
+                                  handleComboboxChange(
+                                    "type_id",
+                                    type.id.toString()
+                                  );
+                                  setOpenType(false);
+                                }}
+                              >
+                                <Check
+                                  className={cn(
+                                    "mr-2 h-4 w-4",
+                                    formData.type_id === type.id.toString()
+                                      ? "opacity-100"
+                                      : "opacity-0"
+                                  )}
+                                />
+                                {type.name}
+                              </CommandItem>
+                            ))}
+                          </CommandGroup>
+                        </CommandList>
+                      </Command>
+                    </PopoverContent>
+                  </Popover>
+                </FloatingWrapper>
               </div>
 
               {/* Action Performed By Combobox */}
               <div className="space-y-2">
-                <Label className="text-foreground font-medium">
-                  Action Performed By <span className="text-red-500">*</span>
-                </Label>
-                <Popover open={openAction} onOpenChange={setOpenAction}>
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant="outline"
-                      role="combobox"
-                      aria-expanded={openAction}
-                      className="w-full h-11 justify-between"
-                      disabled={mutation.isLoading}
-                    >
-                      {getSelectedActionLabel()}
-                      <ChevronsUpDown className="ml-auto h-4 w-4 shrink-0 opacity-50" />
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-full p-0" align="start">
-                    <Command>
-                      <CommandInput placeholder="Search action..." />
-                      <CommandList>
-                        <CommandEmpty>No action found.</CommandEmpty>
-                        <CommandGroup>
-                          {metaData?.ActionPerformed?.map((action) => (
-                            <CommandItem
-                              key={action.id}
-                              value={action.name}
-                              onSelect={() => {
-                                handleComboboxChange(
-                                  "action_performed_by_id",
-                                  action.id.toString()
-                                );
-                                setOpenAction(false);
-                              }}
-                            >
-                              <Check
-                                className={cn(
-                                  "mr-2 h-4 w-4",
-                                  formData.action_performed_by_id ===
+                <FloatingWrapper
+                  label="Action Performed By"
+                  required
+                  hasValue={!!formData.action_performed_by_id}
+                  isFocused={openAction}
+                >
+                  <Popover open={openAction} onOpenChange={setOpenAction}>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="outline"
+                        role="combobox"
+                        aria-expanded={openAction}
+                        className="w-full h-[52px] justify-between bg-transparent border border-input"
+                        disabled={mutation.isLoading}
+                      >
+                        {getSelectedActionLabel() ===
+                        "Select action performed by"
+                          ? ""
+                          : getSelectedActionLabel()}
+                        <ChevronsUpDown className="ml-auto h-4 w-4 shrink-0 opacity-50" />
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-full p-0" align="start">
+                      <Command>
+                        <CommandInput placeholder="Search action..." />
+                        <CommandList>
+                          <CommandEmpty>No action found.</CommandEmpty>
+                          <CommandGroup>
+                            {metaData?.ActionPerformed?.map((action) => (
+                              <CommandItem
+                                key={action.id}
+                                value={action.name}
+                                onSelect={() => {
+                                  handleComboboxChange(
+                                    "action_performed_by_id",
                                     action.id.toString()
-                                    ? "opacity-100"
-                                    : "opacity-0"
-                                )}
-                              />
-                              {action.name}
-                            </CommandItem>
-                          ))}
-                        </CommandGroup>
-                      </CommandList>
-                    </Command>
-                  </PopoverContent>
-                </Popover>
+                                  );
+                                  setOpenAction(false);
+                                }}
+                              >
+                                <Check
+                                  className={cn(
+                                    "mr-2 h-4 w-4",
+                                    formData.action_performed_by_id ===
+                                      action.id.toString()
+                                      ? "opacity-100"
+                                      : "opacity-0"
+                                  )}
+                                />
+                                {action.name}
+                              </CommandItem>
+                            ))}
+                          </CommandGroup>
+                        </CommandList>
+                      </Command>
+                    </PopoverContent>
+                  </Popover>
+                </FloatingWrapper>
               </div>
 
               {/* Status Combobox */}
               <div className="space-y-2">
-                <Label className="text-foreground font-medium">
-                  Status <span className="text-red-500">*</span>
-                </Label>
-                <Popover open={openStatus} onOpenChange={setOpenStatus}>
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant="outline"
-                      role="combobox"
-                      aria-expanded={openStatus}
-                      className="w-full h-11 justify-between"
-                      disabled={mutation.isLoading}
-                    >
-                      {getSelectedStatusLabel()}
-                      <ChevronsUpDown className="ml-auto h-4 w-4 shrink-0 opacity-50" />
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-full p-0" align="start">
-                    <Command>
-                      <CommandInput placeholder="Search status..." />
-                      <CommandList>
-                        <CommandEmpty>No status found.</CommandEmpty>
-                        <CommandGroup>
-                          {metaData?.correspondence_status?.map((status) => (
-                            <CommandItem
-                              key={status.id}
-                              value={status.name}
-                              onSelect={() => {
-                                handleComboboxChange(
-                                  "status_id",
-                                  status.id.toString()
-                                );
-                                setOpenStatus(false);
-                              }}
-                            >
-                              <Check
-                                className={cn(
-                                  "mr-2 h-4 w-4",
-                                  formData.status_id === status.id.toString()
-                                    ? "opacity-100"
-                                    : "opacity-0"
-                                )}
-                              />
-                              {status.name}
-                            </CommandItem>
-                          ))}
-                        </CommandGroup>
-                      </CommandList>
-                    </Command>
-                  </PopoverContent>
-                </Popover>
+                <FloatingWrapper
+                  label="Status"
+                  required
+                  hasValue={!!formData.status_id}
+                  isFocused={openStatus}
+                >
+                  <Popover open={openStatus} onOpenChange={setOpenStatus}>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="outline"
+                        role="combobox"
+                        aria-expanded={openStatus}
+                        className="w-full h-[52px] justify-between bg-transparent border border-input"
+                        disabled={mutation.isLoading}
+                      >
+                        {getSelectedStatusLabel() === "Select status"
+                          ? ""
+                          : getSelectedStatusLabel()}
+                        <ChevronsUpDown className="ml-auto h-4 w-4 shrink-0 opacity-50" />
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-full p-0" align="start">
+                      <Command>
+                        <CommandInput placeholder="Search status..." />
+                        <CommandList>
+                          <CommandEmpty>No status found.</CommandEmpty>
+                          <CommandGroup>
+                            {metaData?.correspondence_status?.map((status) => (
+                              <CommandItem
+                                key={status.id}
+                                value={status.name}
+                                onSelect={() => {
+                                  handleComboboxChange(
+                                    "status_id",
+                                    status.id.toString()
+                                  );
+                                  setOpenStatus(false);
+                                }}
+                              >
+                                <Check
+                                  className={cn(
+                                    "mr-2 h-4 w-4",
+                                    formData.status_id === status.id.toString()
+                                      ? "opacity-100"
+                                      : "opacity-0"
+                                  )}
+                                />
+                                {status.name}
+                              </CommandItem>
+                            ))}
+                          </CommandGroup>
+                        </CommandList>
+                      </Command>
+                    </PopoverContent>
+                  </Popover>
+                </FloatingWrapper>
               </div>
 
               {/* Minutes Input with Time Icon - FIXED */}
               <div className="space-y-2">
-                <Label className="text-foreground font-medium">
-                  Time (Hours:Minutes)
-                </Label>
-                <div className="relative">
-                  <Clock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-500" />
-                  <Input
-                    type="time"
-                    value={timeInput}
-                    onChange={handleTimeChange}
-                    placeholder="00:00"
-                    className="h-11 pl-10"
-                    disabled={mutation.isLoading}
-                  />
-                </div>
+                <FloatingWrapper
+                  label="Time (Hours:Minutes)"
+                  hasValue={!!timeInput}
+                  isFocused={false}
+                >
+                  <div className="relative">
+                    <Clock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-500" />
+                    <FloatingInput
+                      type="time"
+                      value={timeInput}
+                      onChange={handleTimeChange}
+                      className="pl-10"
+                      required={false}
+                      aria-label="Time (Hours:Minutes)"
+                      name="time_input"
+                    />
+                  </div>
+                </FloatingWrapper>
                 {formData.minute && (
                   <p className="text-xs text-gray-500">
                     Total minutes: {formData.minute}
@@ -626,23 +630,27 @@ export default function CorrespondencePage() {
 
               {/* Rate Input with $ prefix */}
               <div className="space-y-2">
-                <Label className="text-foreground font-medium">Rate</Label>
-                <div className="relative">
-                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 font-medium">
-                    $
-                  </span>
-                  <Input
-                    name="rate"
-                    type="number"
-                    step="0.01"
-                    value={formData.rate}
-                    onChange={handleChange}
-                    placeholder="0.00"
-                    className="h-11 pl-7"
-                    disabled={mutation.isLoading}
-                    readOnly
-                  />
-                </div>
+                <FloatingWrapper
+                  label="Rate"
+                  hasValue={!!formData.rate}
+                  isFocused={false}
+                >
+                  <div className="relative">
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 font-medium">
+                      $
+                    </span>
+                    <FloatingInput
+                      name="rate"
+                      type="number"
+                      step="0.01"
+                      value={formData.rate}
+                      onChange={handleChange}
+                      className="pl-7"
+                      disabled={mutation.isLoading}
+                      readOnly
+                    />
+                  </div>
+                </FloatingWrapper>
               </div>
             </div>
           </div>
@@ -652,14 +660,12 @@ export default function CorrespondencePage() {
               Description
             </h2>
             <div className="space-y-2">
-              <Label className="text-foreground font-medium">Description</Label>
-              <Textarea
+              <FloatingTextarea
+                label="Description"
                 name="description"
                 value={formData.description}
                 onChange={handleChange}
-                placeholder="Enter description details"
                 rows={4}
-                className="resize-none"
                 disabled={mutation.isLoading}
               />
             </div>

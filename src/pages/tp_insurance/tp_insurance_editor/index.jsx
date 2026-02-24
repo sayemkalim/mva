@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ChevronRight, Loader2, Plus, Trash2 } from "lucide-react";
 import { toast } from "sonner";
@@ -11,6 +10,7 @@ import { createTpInsurance } from "../helpers/createInsurance";
 import { Navbar2 } from "@/components/navbar2";
 import { deleteTpInsurance } from "../helpers/deleteTpInsurance";
 import Billing from "@/components/billing";
+import { FloatingInput } from "@/components/ui/floating-label";
 
 const emptyRecord = {
   id: null,
@@ -245,113 +245,51 @@ export default function TPInsurerForm() {
 
                 {/* Main Fields */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-                  <div className="space-y-2">
-                    <Label
-                      className="text-foreground font-medium cursor-pointer"
-                      htmlFor={`first_name_${idx}`}
-                    >
-                      First Name
-                    </Label>
-                    <Input
-                      id={`firm_name_${idx}`}
-                      value={rec.firm_name}
-                      onChange={(e) =>
-                        updateField(idx, "firm_name", e.target.value)
-                      }
-                      placeholder="Firm Name"
-                      className="h-9 bg-muted border-input"
-                    />
-                  </div>
+                  <FloatingInput
+                    id={`firm_name_${idx}`}
+                    label="Firm Name"
+                    value={rec.firm_name}
+                    onChange={(e) => updateField(idx, "firm_name", e.target.value)}
+                  />
 
-                  <div className="space-y-2">
-                    <Label
-                      className="text-foreground font-medium cursor-pointer"
-                      htmlFor={`last_name_${idx}`}
-                    >
-                      Last Name
-                    </Label>
-                    <Input
-                      id={`last_name_${idx}`}
-                      value={rec.last_name}
-                      onChange={(e) =>
-                        updateField(idx, "last_name", e.target.value)
-                      }
-                      placeholder="Last Name"
-                      className="h-9 bg-muted border-input"
-                    />
-                  </div>
+                  <FloatingInput
+                    id={`last_name_${idx}`}
+                    label="Last Name"
+                    value={rec.last_name}
+                    onChange={(e) => updateField(idx, "last_name", e.target.value)}
+                  />
 
-                  <div className="space-y-2">
-                    <Label
-                      className="text-foreground font-medium cursor-pointer"
-                      htmlFor={`middle_name_${idx}`}
-                    >
-                      Middle Name
-                    </Label>
-                    <Input
-                      id={`middle_name_${idx}`}
-                      value={rec.middle_name}
-                      onChange={(e) =>
-                        updateField(idx, "middle_name", e.target.value)
-                      }
-                      placeholder="Middle Name"
-                      className="h-9 bg-muted border-input"
-                    />
-                  </div>
+                  <FloatingInput
+                    id={`middle_name_${idx}`}
+                    label="Middle Name"
+                    value={rec.middle_name}
+                    onChange={(e) =>
+                      updateField(idx, "middle_name", e.target.value)
+                    }
+                  />
 
-                  <div className="space-y-2">
-                    <Label
-                      className="text-foreground font-medium cursor-pointer"
-                      htmlFor={`insurance_company_${idx}`}
-                    >
-                      Insurance Company
-                    </Label>
-                    <Input
-                      id={`insurance_company_${idx}`}
-                      value={rec.insurance_company}
-                      onChange={(e) =>
-                        updateField(idx, "insurance_company", e.target.value)
-                      }
-                      placeholder="Insurance Company"
-                      className="h-9 bg-muted border-input"
-                    />
-                  </div>
+                  <FloatingInput
+                    id={`insurance_company_${idx}`}
+                    label="Insurance Company"
+                    value={rec.insurance_company}
+                    onChange={(e) =>
+                      updateField(idx, "insurance_company", e.target.value)
+                    }
+                  />
 
-                  <div className="space-y-2">
-                    <Label
-                      className="text-foreground font-medium cursor-pointer"
-                      htmlFor={`policy_no_${idx}`}
-                    >
-                      Policy Number
-                    </Label>
-                    <Input
-                      id={`policy_no_${idx}`}
-                      value={rec.policy_no}
-                      onChange={(e) =>
-                        updateField(idx, "policy_no", e.target.value)
-                      }
-                      placeholder="Policy Number"
-                      className="h-9 bg-muted border-input"
-                    />
-                  </div>
+                  <FloatingInput
+                    id={`policy_no_${idx}`}
+                    label="Policy Number"
+                    value={rec.policy_no}
+                    onChange={(e) => updateField(idx, "policy_no", e.target.value)}
+                  />
 
-                  <div className="space-y-2">
-                    <Label
-                      className="text-foreground font-medium cursor-pointer"
-                      htmlFor={`claim_no_${idx}`}
-                    >
-                      Claim Number
-                    </Label>
-                    <Input
-                      id={`claim_no_${idx}`}
-                      value={rec.claim_no}
-                      onChange={(e) =>
-                        updateField(idx, "claim_no", e.target.value)
-                      }
-                      placeholder="Claim Number"
-                      className="h-9 bg-muted border-input"
-                    />
-                  </div>
+                  <FloatingInput
+                    id={`claim_no_${idx}`}
+                    label="Claim Number"
+                    value={rec.claim_no}
+                    onChange={(e) => updateField(idx, "claim_no", e.target.value)}
+                  />
                 </div>
 
                 {/* Address Section */}
@@ -359,112 +297,59 @@ export default function TPInsurerForm() {
                   Address
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                  <div className="space-y-2">
-                    <Label
-                      className="text-foreground font-medium cursor-pointer"
-                      htmlFor={`unit_number_${idx}`}
-                    >
-                      Unit Number
-                    </Label>
-                    <Input
-                      id={`unit_number_${idx}`}
-                      value={rec.address.unit_number}
-                      onChange={(e) =>
-                        updateAddressField(idx, "unit_number", e.target.value)
-                      }
-                      placeholder="Unit Number"
-                      className="h-9 bg-muted border-input"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label
-                      className="text-foreground font-medium cursor-pointer"
-                      htmlFor={`street_${idx}`}
-                    >
-                      Street
-                    </Label>
-                    <Input
-                      id={`street_${idx}`}
-                      value={rec.address.street}
-                      onChange={(e) =>
-                        updateAddressField(idx, "street", e.target.value)
-                      }
-                      placeholder="Street"
-                      className="h-9 bg-muted border-input"
-                    />
-                  </div>
+                  <FloatingInput
+                    id={`unit_number_${idx}`}
+                    label="Unit Number"
+                    value={rec.address.unit_number}
+                    onChange={(e) =>
+                      updateAddressField(idx, "unit_number", e.target.value)
+                    }
+                  />
 
-                  <div className="space-y-2">
-                    <Label
-                      className="text-foreground font-medium cursor-pointer"
-                      htmlFor={`city_${idx}`}
-                    >
-                      City
-                    </Label>
-                    <Input
-                      id={`city_${idx}`}
-                      value={rec.address.city}
-                      onChange={(e) =>
-                        updateAddressField(idx, "city", e.target.value)
-                      }
-                      placeholder="City"
-                      className="h-9 bg-muted border-input"
-                    />
-                  </div>
+                  <FloatingInput
+                    id={`street_${idx}`}
+                    label="Street"
+                    value={rec.address.street}
+                    onChange={(e) =>
+                      updateAddressField(idx, "street", e.target.value)
+                    }
+                  />
 
-                  <div className="space-y-2">
-                    <Label
-                      className="text-foreground font-medium cursor-pointer"
-                      htmlFor={`province_${idx}`}
-                    >
-                      Province
-                    </Label>
-                    <Input
-                      id={`province_${idx}`}
-                      value={rec.address.province}
-                      onChange={(e) =>
-                        updateAddressField(idx, "province", e.target.value)
-                      }
-                      placeholder="Province"
-                      className="h-9 bg-muted border-input"
-                    />
-                  </div>
+                  <FloatingInput
+                    id={`city_${idx}`}
+                    label="City"
+                    value={rec.address.city}
+                    onChange={(e) =>
+                      updateAddressField(idx, "city", e.target.value)
+                    }
+                  />
 
-                  <div className="space-y-2">
-                    <Label
-                      className="text-foreground font-medium cursor-pointer"
-                      htmlFor={`postal_code_${idx}`}
-                    >
-                      Postal Code
-                    </Label>
-                    <Input
-                      id={`postal_code_${idx}`}
-                      value={rec.address.postal_code}
-                      onChange={(e) =>
-                        updateAddressField(idx, "postal_code", e.target.value)
-                      }
-                      placeholder="Postal Code"
-                      className="h-9 bg-muted border-input"
-                    />
-                  </div>
+                  <FloatingInput
+                    id={`province_${idx}`}
+                    label="Province"
+                    value={rec.address.province}
+                    onChange={(e) =>
+                      updateAddressField(idx, "province", e.target.value)
+                    }
+                  />
 
-                  <div className="space-y-2">
-                    <Label
-                      className="text-foreground font-medium cursor-pointer"
-                      htmlFor={`country_${idx}`}
-                    >
-                      Country
-                    </Label>
-                    <Input
-                      id={`country_${idx}`}
-                      value={rec.address.country}
-                      onChange={(e) =>
-                        updateAddressField(idx, "country", e.target.value)
-                      }
-                      placeholder="Country"
-                      className="h-9 bg-muted border-input"
-                    />
-                  </div>
+                  <FloatingInput
+                    id={`postal_code_${idx}`}
+                    label="Postal Code"
+                    value={rec.address.postal_code}
+                    onChange={(e) =>
+                      updateAddressField(idx, "postal_code", e.target.value)
+                    }
+                  />
+
+                  <FloatingInput
+                    id={`country_${idx}`}
+                    label="Country"
+                    value={rec.address.country}
+                    onChange={(e) =>
+                      updateAddressField(idx, "country", e.target.value)
+                    }
+                  />
                 </div>
               </div>
             ))}

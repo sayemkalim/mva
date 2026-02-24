@@ -3,8 +3,6 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { endpoints } from "@/api/endpoints";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
@@ -16,15 +14,11 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { apiService } from "@/api/api_service/apiService";
 import { Navbar2 } from "@/components/navbar2";
 import NavbarItem from "@/components/navbar/navbar_item";
+import { FloatingInput, FloatingWrapper } from "@/components/ui/floating-label";
 import {
   Building2,
-  Users,
   Loader2,
   Save,
-  Mail,
-  Phone,
-  MapPin,
-  Globe,
 } from "lucide-react";
 
 const FirmSettings = () => {
@@ -44,6 +38,7 @@ const FirmSettings = () => {
     toll_free_number: "",
     website_address: "",
   });
+  const [countryCodeOpen, setCountryCodeOpen] = useState(false);
 
   const breadcrumbs = [
     { title: "Setup", isNavigation: false },
@@ -252,11 +247,10 @@ const FirmSettings = () => {
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="grid gap-3">
-                    <Label htmlFor="first_name">First Name</Label>
-                    <Input
+                    <FloatingInput
                       id="first_name"
                       type="text"
-                      placeholder="John"
+                      label="First Name"
                       value={formData.first_name}
                       onChange={handleChange}
                       required
@@ -264,11 +258,10 @@ const FirmSettings = () => {
                   </div>
 
                   <div className="grid gap-3">
-                    <Label htmlFor="last_name">Last Name</Label>
-                    <Input
+                    <FloatingInput
                       id="last_name"
                       type="text"
-                      placeholder="Doe"
+                      label="Last Name"
                       value={formData.last_name}
                       onChange={handleChange}
                       required
@@ -285,35 +278,43 @@ const FirmSettings = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {/* Phone Number with Country Code */}
                   <div className="grid gap-3">
-                    <Label>Phone Number</Label>
                     <div className="grid grid-cols-5 gap-3">
                       <div className="col-span-2">
-                        <Select
-                          value={formData.country_code_id}
-                          onValueChange={(value) =>
-                            handleSelectChange("country_code_id", value)
-                          }
+                        <FloatingWrapper
+                          label="Country Code"
+                          required
+                          hasValue={!!formData.country_code_id}
+                          isFocused={countryCodeOpen}
                         >
-                          <SelectTrigger>
-                            <SelectValue placeholder="Code" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {countryCodes.map((country) => (
-                              <SelectItem
-                                key={country.id}
-                                value={country.id.toString()}
-                              >
-                                {country.code}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
+                          <Select
+                            open={countryCodeOpen}
+                            onOpenChange={setCountryCodeOpen}
+                            value={formData.country_code_id}
+                            onValueChange={(value) =>
+                              handleSelectChange("country_code_id", value)
+                            }
+                          >
+                            <SelectTrigger className="h-[48px] bg-transparent border border-input text-sm">
+                              <SelectValue placeholder="" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {countryCodes.map((country) => (
+                                <SelectItem
+                                  key={country.id}
+                                  value={country.id.toString()}
+                                >
+                                  {country.code}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </FloatingWrapper>
                       </div>
                       <div className="col-span-3">
-                        <Input
+                        <FloatingInput
                           id="phone_number"
                           type="tel"
-                          placeholder="9999999999"
+                          label="Phone Number"
                           value={formData.phone_number}
                           onChange={handleChange}
                           required
@@ -323,33 +324,30 @@ const FirmSettings = () => {
                   </div>
 
                   <div className="grid gap-3">
-                    <Label htmlFor="fax_number">Fax Number</Label>
-                    <Input
+                    <FloatingInput
                       id="fax_number"
                       type="tel"
-                      placeholder="Fax Number"
+                      label="Fax Number"
                       value={formData.fax_number}
                       onChange={handleChange}
                     />
                   </div>
 
                   <div className="grid gap-3">
-                    <Label htmlFor="toll_free_number">Toll Free Number</Label>
-                    <Input
+                    <FloatingInput
                       id="toll_free_number"
                       type="tel"
-                      placeholder="Toll Free Number"
+                      label="Toll Free Number"
                       value={formData.toll_free_number}
                       onChange={handleChange}
                     />
                   </div>
 
                   <div className="grid gap-3">
-                    <Label htmlFor="business_number">Business Number</Label>
-                    <Input
+                    <FloatingInput
                       id="business_number"
                       type="text"
-                      placeholder="Business Number"
+                      label="Business Number"
                       value={formData.business_number}
                       onChange={handleChange}
                     />
@@ -362,34 +360,24 @@ const FirmSettings = () => {
                 <h3 className="text-sm font-medium mb-4">Firm Details</h3>
                 <div className="grid grid-cols-1 gap-4">
                   <div className="grid gap-3">
-                    <Label htmlFor="firm_name">Firm Name</Label>
-                    <div className="relative">
-                      <Input
-                        id="firm_name"
-                        type="text"
-                        placeholder="Your Firm Name"
-                        value={formData.firm_name}
-                        onChange={handleChange}
-                        className="pr-10"
-                        required
-                      />
-                      <Building2 className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                    </div>
+                    <FloatingInput
+                      id="firm_name"
+                      type="text"
+                      label="Firm Name"
+                      value={formData.firm_name}
+                      onChange={handleChange}
+                      required
+                    />
                   </div>
 
                   <div className="grid gap-3">
-                    <Label htmlFor="website_address">Website Address</Label>
-                    <div className="relative">
-                      <Input
-                        id="website_address"
-                        type="url"
-                        placeholder="https://www.example.com"
-                        value={formData.website_address}
-                        onChange={handleChange}
-                        className="pr-10"
-                      />
-                      <Globe className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                    </div>
+                    <FloatingInput
+                      id="website_address"
+                      type="url"
+                      label="Website Address"
+                      value={formData.website_address}
+                      onChange={handleChange}
+                    />
                   </div>
                 </div>
               </div>
@@ -399,55 +387,50 @@ const FirmSettings = () => {
                 <h3 className="text-sm font-medium mb-4">Address</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="grid gap-3 md:col-span-2">
-                    <Label htmlFor="address">Street Address</Label>
-                    <Input
+                    <FloatingInput
                       id="address"
                       type="text"
-                      placeholder="123 Main Street"
+                      label="Street Address"
                       value={formData.address}
                       onChange={handleChange}
                     />
                   </div>
 
                   <div className="grid gap-3">
-                    <Label htmlFor="city">City</Label>
-                    <Input
+                    <FloatingInput
                       id="city"
                       type="text"
-                      placeholder="City"
+                      label="City"
                       value={formData.city}
                       onChange={handleChange}
                     />
                   </div>
 
                   <div className="grid gap-3">
-                    <Label htmlFor="state">State/Province</Label>
-                    <Input
+                    <FloatingInput
                       id="state"
                       type="text"
-                      placeholder="State/Province"
+                      label="State/Province"
                       value={formData.state}
                       onChange={handleChange}
                     />
                   </div>
 
                   <div className="grid gap-3">
-                    <Label htmlFor="zip_code">Zip/Postal Code</Label>
-                    <Input
+                    <FloatingInput
                       id="zip_code"
                       type="text"
-                      placeholder="Zip/Postal Code"
+                      label="Zip/Postal Code"
                       value={formData.zip_code}
                       onChange={handleChange}
                     />
                   </div>
 
                   <div className="grid gap-3">
-                    <Label htmlFor="country">Country</Label>
-                    <Input
+                    <FloatingInput
                       id="country"
                       type="text"
-                      placeholder="Country"
+                      label="Country"
                       value={formData.country}
                       onChange={handleChange}
                     />

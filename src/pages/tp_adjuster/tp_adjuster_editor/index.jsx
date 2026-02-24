@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ChevronRight, Loader2, Plus, Trash2 } from "lucide-react";
 import { toast } from "sonner";
@@ -13,6 +12,7 @@ import { createTpAdjuster } from "../helpers/createTpAdjuster";
 import { deleteTpAdjuster } from "../helpers/deleteTpAdjuster";
 import Billing from "@/components/billing";
 import { Textarea } from "@/components/ui/textarea";
+import { FloatingInput, FloatingTextarea } from "@/components/ui/floating-label";
 
 const emptyRecord = {
   id: null,
@@ -265,177 +265,107 @@ export default function TPAdjusterForm() {
                 {/* Fields */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
                   <div className="space-y-2">
-                    <Label
-                      htmlFor={`adjuster_company_${idx}`}
-                      className="text-foreground font-medium cursor-pointer"
-                    >
-                      Adjuster Company
-                    </Label>
-                    <Input
+                    <FloatingInput
                       id={`adjuster_company_${idx}`}
+                      label="Adjuster Company"
                       value={rec.adjuster_company}
                       onChange={(e) =>
                         updateField(idx, "adjuster_company", e.target.value)
                       }
-                      placeholder="ABC Insurance"
-                      className="h-9 bg-muted border-input"
                     />
                   </div>
 
                   <div className="space-y-2">
-                    <Label
-                      htmlFor={`adjuster_claim_no_${idx}`}
-                      className="text-foreground font-medium cursor-pointer"
-                    >
-                      Adjuster Claim No
-                    </Label>
-                    <Input
+                    <FloatingInput
                       id={`adjuster_claim_no_${idx}`}
+                      label="Adjuster Claim No"
                       value={rec.adjuster_claim_no}
                       onChange={(e) =>
                         updateField(idx, "adjuster_claim_no", e.target.value)
                       }
-                      placeholder="CLM-12345"
-                      className="h-9 bg-muted border-input"
                     />
                   </div>
 
                   <div className="space-y-2">
-                    <Label
-                      htmlFor={`first_name_${idx}`}
-                      className="text-foreground font-medium cursor-pointer"
-                    >
-                      First Name
-                    </Label>
-                    <Input
+                    <FloatingInput
                       id={`first_name_${idx}`}
+                      label="First Name"
                       value={rec.first_name}
                       onChange={(e) =>
                         updateField(idx, "first_name", e.target.value)
                       }
-                      placeholder="John"
-                      className="h-9 bg-muted border-input"
                     />
                   </div>
 
                   <div className="space-y-2">
-                    <Label
-                      htmlFor={`last_name_${idx}`}
-                      className="text-foreground font-medium cursor-pointer"
-                    >
-                      Last Name
-                    </Label>
-                    <Input
+                    <FloatingInput
                       id={`last_name_${idx}`}
+                      label="Last Name"
                       value={rec.last_name}
                       onChange={(e) =>
                         updateField(idx, "last_name", e.target.value)
                       }
-                      placeholder="Doe"
-                      className="h-9 bg-muted border-input"
                     />
                   </div>
 
                   <div className="space-y-2">
-                    <Label
-                      htmlFor={`toll_free_no_${idx}`}
-                      className="text-foreground font-medium cursor-pointer"
-                    >
-                      Toll Free No
-                    </Label>
-                    <Input
+                    <FloatingInput
                       id={`toll_free_no_${idx}`}
+                      label="Toll Free No"
                       value={rec.toll_free_no}
                       onChange={(e) =>
                         updateField(idx, "toll_free_no", formatPhoneNumber(e.target.value))
                       }
-                      placeholder="(888) 888-8888"
-                      className="h-9 bg-muted border-input"
                     />
                   </div>
 
                   <div className="space-y-2">
-                    <Label
-                      htmlFor={`telephone_${idx}`}
-                      className="text-foreground font-medium cursor-pointer"
-                    >
-                      Telephone
-                    </Label>
-                    <Input
+                    <FloatingInput
                       id={`telephone_${idx}`}
+                      label="Telephone"
                       value={rec.telephone}
                       onChange={(e) =>
                         updateField(idx, "telephone", formatPhoneNumber(e.target.value))
                       }
-                      placeholder="(888) 888-8888"
-                      className="h-9 bg-muted border-input"
                     />
                   </div>
 
                   <div className="space-y-2">
-                    <Label
-                      htmlFor={`ext_${idx}`}
-                      className="text-foreground font-medium cursor-pointer"
-                    >
-                      Ext
-                    </Label>
-                    <Input
+                    <FloatingInput
                       id={`ext_${idx}`}
+                      label="Ext"
                       value={rec.ext}
                       onChange={(e) => updateField(idx, "ext", e.target.value)}
-                      placeholder="101"
-                      className="h-9 bg-muted border-input"
                     />
                   </div>
 
                   <div className="space-y-2">
-                    <Label
-                      htmlFor={`fax_${idx}`}
-                      className="text-foreground font-medium cursor-pointer"
-                    >
-                      Fax
-                    </Label>
-                    <Input
+                    <FloatingInput
                       id={`fax_${idx}`}
+                      label="Fax"
                       value={rec.fax}
                       onChange={(e) => updateField(idx, "fax", formatPhoneNumber(e.target.value))}
-                      placeholder="(888) 888-8888"
-                      className="h-9 bg-muted border-input"
                     />
                   </div>
 
                   <div className="space-y-2">
-                    <Label
-                      htmlFor={`email_${idx}`}
-                      className="text-foreground font-medium cursor-pointer"
-                    >
-                      Email
-                    </Label>
-                    <Input
+                    <FloatingInput
                       id={`email_${idx}`}
+                      label="Email"
                       value={rec.email}
                       onChange={(e) =>
                         updateField(idx, "email", e.target.value)
                       }
-                      placeholder="john@example.com"
-                      className="h-9 bg-muted border-input"
                     />
                   </div>
                 </div>
 
                 <div className="space-y-2 mt-4">
-                  <Label
-                    htmlFor={`note_${idx}`}
-                    className="text-foreground font-medium cursor-pointer"
-                  >
-                    Note
-                  </Label>
-                  <Textarea
+                  <FloatingTextarea
                     id={`note_${idx}`}
+                    label="Note"
                     value={rec.note}
                     onChange={(e) => updateField(idx, "note", e.target.value)}
-                    placeholder="Primary adjuster"
-                    className="h-9 bg-muted border-input"
                   />
                 </div>
               </div>

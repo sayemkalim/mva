@@ -2,9 +2,6 @@ import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import {
   Popover,
   PopoverContent,
@@ -102,14 +99,13 @@ const DatePicker = ({ label, value, onChange }) => {
   };
 
   return (
-    <div className="space-y-2">
-      <Label className="text-foreground font-medium">{label}</Label>
+    <FloatingWrapper label={label} hasValue={!!date} isFocused={open}>
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
           <Button
             variant="outline"
             className={cn(
-              "w-full justify-start text-left font-normal h-11",
+              "w-full justify-start text-left font-normal h-[52px] bg-transparent border border-input",
               !date && "text-muted-foreground"
             )}
           >
@@ -126,7 +122,7 @@ const DatePicker = ({ label, value, onChange }) => {
           />
         </PopoverContent>
       </Popover>
-    </div>
+    </FloatingWrapper>
   );
 };
 

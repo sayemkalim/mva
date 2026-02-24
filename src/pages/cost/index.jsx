@@ -22,7 +22,17 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Plus, ChevronDown, X, Trash2, Pencil, ChevronRight, MoreHorizontal, Lock, Unlock } from "lucide-react";
+import {
+  Plus,
+  ChevronDown,
+  X,
+  Trash2,
+  Pencil,
+  ChevronRight,
+  MoreHorizontal,
+  Lock,
+  Unlock,
+} from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -33,6 +43,11 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import {
+  FloatingInput,
+  FloatingTextarea,
+  FloatingWrapper,
+} from "@/components/ui/floating-label";
 import {
   Select,
   SelectContent,
@@ -191,7 +206,9 @@ const CostList = () => {
         resetHardCostForm();
         resetTimeCardForm();
       } else {
-        toast.error(response?.message || "Failed to add cost. Please try again.");
+        toast.error(
+          response?.message || "Failed to add cost. Please try again.",
+        );
       }
     },
     onError: (error) => {
@@ -205,7 +222,9 @@ const CostList = () => {
       if (response?.Apistatus != false) {
         queryClient.invalidateQueries(["costList", slug]);
       } else {
-        toast.error(response?.message || "Failed to delete cost. Please try again.");
+        toast.error(
+          response?.message || "Failed to delete cost. Please try again.",
+        );
       }
     },
     onError: (error) => {
@@ -216,12 +235,14 @@ const CostList = () => {
   const updateCostMutation = useMutation({
     mutationFn: ({ payload, id }) => updateCost(payload, id),
     onSuccess: (response) => {
-      if(response?.Apistatus != false){
+      if (response?.Apistatus != false) {
         queryClient.invalidateQueries(["costList", slug]);
         setEditDialogOpen(null);
         setEditingCost(null);
-      }else {
-        toast.error(response?.message || "Failed to update cost. Please try again.");
+      } else {
+        toast.error(
+          response?.message || "Failed to update cost. Please try again.",
+        );
       }
     },
     onError: (error) => {
@@ -261,7 +282,9 @@ const CostList = () => {
       !editingCost.quantity ||
       !editingCost.rate
     ) {
-      toast.error("Please fill in all required fields (Timekeeper, Date, Type, Quantity, Rate, Value).");
+      toast.error(
+        "Please fill in all required fields (Timekeeper, Date, Type, Quantity, Rate, Value).",
+      );
       return;
     }
 
@@ -289,7 +312,9 @@ const CostList = () => {
       !editingCost.rate ||
       !editingCost.rate_type_id
     ) {
-      toast.error("Please fill in all required fields (Timekeeper, Date, Type, Time Spent, Rate Level, Rate/Price, Rate Type).");
+      toast.error(
+        "Please fill in all required fields (Timekeeper, Date, Type, Time Spent, Rate Level, Rate/Price, Rate Type).",
+      );
       return;
     }
 
@@ -323,7 +348,9 @@ const CostList = () => {
       !editingCost.pay_to ||
       !editingCost.amount
     ) {
-      toast.error("Please fill in all required fields (Date, Bank Type, Type, Method, Pay to, Amount).");
+      toast.error(
+        "Please fill in all required fields (Date, Bank Type, Type, Method, Pay to, Amount).",
+      );
       return;
     }
 
@@ -352,7 +379,9 @@ const CostList = () => {
       !softCostForm.quantity ||
       !softCostForm.rate
     ) {
-      toast.error("Please fill in all required fields (Timekeeper, Date, Type, Quantity, Rate, Value).");
+      toast.error(
+        "Please fill in all required fields (Timekeeper, Date, Type, Quantity, Rate, Value).",
+      );
       return;
     }
 
@@ -380,7 +409,9 @@ const CostList = () => {
       !timeCardForm.rate ||
       !timeCardForm.rate_type_id
     ) {
-      toast.error("Please fill in all required fields (Timekeeper, Date, Type, Time Spent, Rate Level, Rate/Price, Rate Type).");
+      toast.error(
+        "Please fill in all required fields (Timekeeper, Date, Type, Time Spent, Rate Level, Rate/Price, Rate Type).",
+      );
       return;
     }
 
@@ -414,7 +445,9 @@ const CostList = () => {
       !hardCostForm.pay_to ||
       !hardCostForm.amount
     ) {
-      toast.error("Please fill in all required fields (Date, Bank Type, Type, Method, Pay to, Amount).");
+      toast.error(
+        "Please fill in all required fields (Date, Bank Type, Type, Method, Pay to, Amount).",
+      );
       return;
     }
 
@@ -488,27 +521,34 @@ const CostList = () => {
   };
 
   const parseString = (str) => {
-  if (!str || typeof str !== "string") return "";
-  return str.charAt(0).toUpperCase() + str.slice(1);
-}
+    if (!str || typeof str !== "string") return "";
+    return str.charAt(0).toUpperCase() + str.slice(1);
+  };
 
   return (
-
     <div className="min-h-screen bg-background">
       <Navbar2 />
       <header className="bg-card border-b px-6 py-3">
         <div className="flex items-center justify-end gap-6 text-sm text-foreground">
           <div>
-            Unpaid: <span className="font-semibold">{formatCurrency(unpaid)}</span>
+            Unpaid:{" "}
+            <span className="font-semibold">{formatCurrency(unpaid)}</span>
           </div>
           <div>
-            Unbilled: <span className="font-semibold">{formatCurrency(unbilled)}</span>
+            Unbilled:{" "}
+            <span className="font-semibold">{formatCurrency(unbilled)}</span>
           </div>
           <div>
-            Client Funds-Operating: <span className="font-semibold">{formatCurrency(clientFundsOperating)}</span>
+            Client Funds-Operating:{" "}
+            <span className="font-semibold">
+              {formatCurrency(clientFundsOperating)}
+            </span>
           </div>
           <div>
-            Client Funds-Trust: <span className="font-semibold">{formatCurrency(clientFundsTrust)}</span>
+            Client Funds-Trust:{" "}
+            <span className="font-semibold">
+              {formatCurrency(clientFundsTrust)}
+            </span>
           </div>
         </div>
       </header>
@@ -594,13 +634,19 @@ const CostList = () => {
           <TableBody>
             {isLoading ? (
               <TableRow>
-                <TableCell colSpan={10} className="text-center py-8 text-muted-foreground">
+                <TableCell
+                  colSpan={10}
+                  className="text-center py-8 text-muted-foreground"
+                >
                   Loading...
                 </TableCell>
               </TableRow>
             ) : costs.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={10} className="text-center py-8 text-muted-foreground">
+                <TableCell
+                  colSpan={10}
+                  className="text-center py-8 text-muted-foreground"
+                >
                   No data available
                 </TableCell>
               </TableRow>
@@ -614,16 +660,22 @@ const CostList = () => {
                   <TableRow key={item.id} className="hover:bg-muted">
                     <TableCell>{formatDate(item.date)}</TableCell>
                     <TableCell>{item.type || "-"}</TableCell>
-                    <TableCell>{getSectionTypeLabel(item.section_type)}</TableCell>
+                    <TableCell>
+                      {getSectionTypeLabel(item.section_type)}
+                    </TableCell>
                     <TableCell className="text-muted-foreground">
                       {item.timekeeker || "null"}
                     </TableCell>
                     <TableCell className="text-muted-foreground">
                       {item.description || "null"}
                     </TableCell>
-                    <TableCell>{parseFloat(item.amount || 0).toFixed(2)}</TableCell>
+                    <TableCell>
+                      {parseFloat(item.amount || 0).toFixed(2)}
+                    </TableCell>
                     <TableCell>{runningBalance.toFixed(2)}</TableCell>
-                    <TableCell className="text-orange-500">{parseString(item.status)}</TableCell>
+                    <TableCell className="text-orange-500">
+                      {parseString(item.status)}
+                    </TableCell>
                     <TableCell>
                       {item.isLocked ? (
                         <Lock className="h-4 w-4 text-muted-foreground" />
@@ -634,7 +686,11 @@ const CostList = () => {
                     <TableCell>
                       <Popover>
                         <PopoverTrigger asChild>
-                          <Button variant="ghost" size="icon" className="h-8 w-8">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8"
+                          >
                             <MoreHorizontal className="h-4 w-4" />
                           </Button>
                         </PopoverTrigger>
@@ -651,7 +707,10 @@ const CostList = () => {
                             <button
                               className="flex items-center gap-2 px-3 py-2 text-sm rounded-md hover:bg-accent text-left text-destructive disabled:opacity-50 disabled:cursor-not-allowed"
                               onClick={() => handleDeleteCost(item.id)}
-                              disabled={deleteCostMutation.isPending || item.status === "paid"}
+                              disabled={
+                                deleteCostMutation.isPending ||
+                                item.status === "paid"
+                              }
                             >
                               <Trash2 className="h-4 w-4" />
                               Delete
@@ -668,7 +727,10 @@ const CostList = () => {
         </Table>
       </div>
 
-      <Dialog open={dialogOpen === "timecard"} onOpenChange={(open) => !open && setDialogOpen(null)}>
+      <Dialog
+        open={dialogOpen === "timecard"}
+        onOpenChange={(open) => !open && setDialogOpen(null)}
+      >
         <DialogContent className="w-[70vw] max-w-none max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="text-xl">Add TimeCard</DialogTitle>
@@ -682,155 +744,206 @@ const CostList = () => {
           </DialogHeader>
           <div className="space-y-6 py-4">
             <div className="grid grid-cols-3 gap-4">
-              <div className="space-y-2">
-                <Label>Timekeeper <span className="text-red-500">*</span></Label>
-                <Input 
-                  placeholder="" 
-                  value={timeCardForm.timekeeper}
-                  onChange={(e) => setTimeCardForm({...timeCardForm, timekeeper: e.target.value})}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label>Date <span className="text-red-500">*</span></Label>
-                <Input
-                  type="date"
-                  value={timeCardForm.date}
-                  onChange={(e) => setTimeCardForm({...timeCardForm, date: e.target.value})}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label>Type <span className="text-red-500">*</span></Label>
-                <Input 
-                  value={timeCardForm.type}
-                  disabled
-                />
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <Label>Task</Label>
-              <Input 
-                placeholder="" 
-                value={timeCardForm.task}
-                onChange={(e) => setTimeCardForm({...timeCardForm, task: e.target.value})}
+              <FloatingInput
+                label="Timekeeper"
+                required
+                value={timeCardForm.timekeeper}
+                onChange={(e) =>
+                  setTimeCardForm({
+                    ...timeCardForm,
+                    timekeeper: e.target.value,
+                  })
+                }
+              />
+              <FloatingInput
+                label="Date"
+                type="date"
+                required
+                value={timeCardForm.date}
+                onChange={(e) =>
+                  setTimeCardForm({ ...timeCardForm, date: e.target.value })
+                }
+              />
+              <FloatingInput
+                label="Type"
+                required
+                value={timeCardForm.type}
+                disabled
               />
             </div>
 
-            <div className="space-y-2">
-              <Label>Description</Label>
-              <Textarea 
-                className="min-h-[100px]" 
-                placeholder="" 
-                value={timeCardForm.description}
-                onChange={(e) => setTimeCardForm({...timeCardForm, description: e.target.value})}
-              />
-            </div>
+            <FloatingInput
+              label="Task"
+              value={timeCardForm.task}
+              onChange={(e) =>
+                setTimeCardForm({ ...timeCardForm, task: e.target.value })
+              }
+            />
+
+            <FloatingTextarea
+              label="Description"
+              className="min-h-[100px]"
+              value={timeCardForm.description}
+              onChange={(e) =>
+                setTimeCardForm({
+                  ...timeCardForm,
+                  description: e.target.value,
+                })
+              }
+            />
 
             <div>
               <h3 className="text-lg font-medium mb-4">Time & Amount</h3>
               <div className="grid grid-cols-6 gap-4 mb-4">
-                <div className="space-y-2 col-span-3">
-                  <Label>Time Spent <span className="text-red-500">*</span></Label>
-                  <Select
-                    value={timeCardForm.time_spent_id}
-                    onValueChange={(value) => setTimeCardForm({...timeCardForm, time_spent_id: value})}
+                <div className="col-span-3">
+                  <FloatingWrapper
+                    label="Time Spent"
+                    required
+                    hasValue={!!timeCardForm.time_spent_id}
+                    isFocused={false}
                   >
-                    <SelectTrigger className="w-full">
-                      <SelectValue placeholder="Select" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {timeSpentOptions.map((item) => (
-                        <SelectItem key={item.id} value={String(item.id)}>
-                          {item.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                    <Select
+                      value={timeCardForm.time_spent_id}
+                      onValueChange={(value) =>
+                        setTimeCardForm({
+                          ...timeCardForm,
+                          time_spent_id: value,
+                        })
+                      }
+                    >
+                      <SelectTrigger className="w-full h-[52px] bg-transparent border border-input">
+                        <SelectValue placeholder="" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {timeSpentOptions.map((item) => (
+                          <SelectItem key={item.id} value={String(item.id)}>
+                            {item.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </FloatingWrapper>
                 </div>
-                <div className="space-y-2 col-span-3">
-                  <Label>Time Billed</Label>
-                  <Input 
-                    placeholder="00:00" 
-                    className="w-full" 
+                <div className="col-span-3">
+                  <FloatingInput
+                    label="Time Billed"
+                    placeholder="00:00"
                     value={timeCardForm.time_billed}
-                    onChange={(e) => setTimeCardForm({...timeCardForm, time_billed: e.target.value})}
+                    onChange={(e) =>
+                      setTimeCardForm({
+                        ...timeCardForm,
+                        time_billed: e.target.value,
+                      })
+                    }
                   />
                 </div>
               </div>
 
               <div className="grid grid-cols-6 gap-4">
-                <div className="space-y-2 col-span-2">
-                  <Label>Rate Level <span className="text-red-500">*</span></Label>
-                  <Select
-                    value={timeCardForm.rate_level_id}
-                    onValueChange={(value) => {
-                      const selectedRate = rateLevelOptions.find(item => String(item.id) === value);
-                      setTimeCardForm({
-                        ...timeCardForm, 
-                        rate_level_id: value,
-                        rate: selectedRate?.rate || selectedRate?.value || timeCardForm.rate
-                      });
-                    }}
+                <div className="col-span-2">
+                  <FloatingWrapper
+                    label="Rate Level"
+                    required
+                    hasValue={!!timeCardForm.rate_level_id}
+                    isFocused={false}
                   >
-                    <SelectTrigger className="w-full">
-                      <SelectValue placeholder="Select" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {rateLevelOptions.map((item) => (
-                        <SelectItem key={item.id} value={String(item.id)}>
-                          {item.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                    <Select
+                      value={timeCardForm.rate_level_id}
+                      onValueChange={(value) => {
+                        const selectedRate = rateLevelOptions.find(
+                          (item) => String(item.id) === value,
+                        );
+                        setTimeCardForm({
+                          ...timeCardForm,
+                          rate_level_id: value,
+                          rate:
+                            selectedRate?.rate ||
+                            selectedRate?.value ||
+                            timeCardForm.rate,
+                        });
+                      }}
+                    >
+                      <SelectTrigger className="w-full h-[52px] bg-transparent border border-input">
+                        <SelectValue placeholder="" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {rateLevelOptions.map((item) => (
+                          <SelectItem key={item.id} value={String(item.id)}>
+                            {item.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </FloatingWrapper>
                 </div>
-                <div className="space-y-2 col-span-2">
-                  <Label>Rate/Price <span className="text-red-500">*</span></Label>
-                  <Input 
-                    type="number" 
-                    className="w-full" 
+                <div className="col-span-2">
+                  <FloatingInput
+                    label="Rate/Price"
+                    required
+                    type="number"
                     value={timeCardForm.rate}
-                    onChange={(e) => setTimeCardForm({...timeCardForm, rate: e.target.value})}
+                    onChange={(e) =>
+                      setTimeCardForm({ ...timeCardForm, rate: e.target.value })
+                    }
                   />
                 </div>
-                <div className="space-y-2 col-span-2">
-                  <Label>Rate Type <span className="text-red-500">*</span></Label>
-                  <Select
-                    value={timeCardForm.rate_type_id}
-                    onValueChange={(value) => setTimeCardForm({...timeCardForm, rate_type_id: value})}
+                <div className="col-span-2">
+                  <FloatingWrapper
+                    label="Rate Type"
+                    required
+                    hasValue={!!timeCardForm.rate_type_id}
+                    isFocused={false}
                   >
-                    <SelectTrigger className="w-full">
-                      <SelectValue placeholder="Select" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {rateTypeOptions.map((item) => (
-                        <SelectItem key={item.id} value={String(item.id)}>
-                          {item.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                    <Select
+                      value={timeCardForm.rate_type_id}
+                      onValueChange={(value) =>
+                        setTimeCardForm({
+                          ...timeCardForm,
+                          rate_type_id: value,
+                        })
+                      }
+                    >
+                      <SelectTrigger className="w-full h-[52px] bg-transparent border border-input">
+                        <SelectValue placeholder="" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {rateTypeOptions.map((item) => (
+                          <SelectItem key={item.id} value={String(item.id)}>
+                            {item.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </FloatingWrapper>
                 </div>
               </div>
 
               <div className="text-right mt-4">
                 <p className="text-sm font-medium">
-                  Value: ${
-                    (() => {
-                      const rate = parseFloat(timeCardForm.rate) || 0;
-                      const selectedRateType = rateTypeOptions.find(item => String(item.id) === timeCardForm.rate_type_id);
-                      const rateTypeName = selectedRateType?.name?.toLowerCase() || '';
-                      
-                      if (rateTypeName.includes('flat')) {
-                        return rate.toFixed(2);
-                      } else if (rateTypeName.includes('hourly')) {
-                        const selectedTimeSpent = timeSpentOptions.find(item => String(item.id) === timeCardForm.time_spent_id);
-                        const timeValue = parseFloat(selectedTimeSpent?.minute) || parseFloat(selectedTimeSpent?.hours) || 0;
-                        return (rate * (timeValue/60)).toFixed(2);
-                      }
+                  Value: $
+                  {(() => {
+                    const rate = parseFloat(timeCardForm.rate) || 0;
+                    const selectedRateType = rateTypeOptions.find(
+                      (item) => String(item.id) === timeCardForm.rate_type_id,
+                    );
+                    const rateTypeName =
+                      selectedRateType?.name?.toLowerCase() || "";
+
+                    if (rateTypeName.includes("flat")) {
                       return rate.toFixed(2);
-                    })()
-                  }
+                    } else if (rateTypeName.includes("hourly")) {
+                      const selectedTimeSpent = timeSpentOptions.find(
+                        (item) =>
+                          String(item.id) === timeCardForm.time_spent_id,
+                      );
+                      const timeValue =
+                        parseFloat(selectedTimeSpent?.minute) ||
+                        parseFloat(selectedTimeSpent?.hours) ||
+                        0;
+                      return (rate * (timeValue / 60)).toFixed(2);
+                    }
+                    return rate.toFixed(2);
+                  })()}
                 </p>
               </div>
             </div>
@@ -843,14 +956,22 @@ const CostList = () => {
               </TabsList>
               <TabsContent value="billing" className="space-y-4 pt-4">
                 <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label>Billing Status</Label>
+                  <FloatingWrapper
+                    label="Billing Status"
+                    hasValue={!!timeCardForm.billing_status_id}
+                    isFocused={false}
+                  >
                     <Select
                       value={timeCardForm.billing_status_id}
-                      onValueChange={(value) => setTimeCardForm({...timeCardForm, billing_status_id: value})}
+                      onValueChange={(value) =>
+                        setTimeCardForm({
+                          ...timeCardForm,
+                          billing_status_id: value,
+                        })
+                      }
                     >
-                      <SelectTrigger className="w-full">
-                        <SelectValue placeholder="Select" />
+                      <SelectTrigger className="w-full h-[52px] bg-transparent border border-input">
+                        <SelectValue placeholder="" />
                       </SelectTrigger>
                       <SelectContent>
                         {billingStatusOptions.map((item) => (
@@ -860,24 +981,33 @@ const CostList = () => {
                         ))}
                       </SelectContent>
                     </Select>
-                  </div>
+                  </FloatingWrapper>
                   <div className="flex items-center space-x-2 pt-8">
-                    <Checkbox 
-                      id="hold" 
+                    <Checkbox
+                      id="hold"
                       checked={timeCardForm.hold}
-                      onCheckedChange={(checked) => setTimeCardForm({...timeCardForm, hold: checked})}
+                      onCheckedChange={(checked) =>
+                        setTimeCardForm({ ...timeCardForm, hold: checked })
+                      }
                     />
-                    <Label htmlFor="hold" className="font-normal">Hold</Label>
+                    <Label htmlFor="hold" className="font-normal">
+                      Hold
+                    </Label>
                   </div>
                 </div>
-                <div className="space-y-2">
-                  <Label>Flag</Label>
+                <FloatingWrapper
+                  label="Flag"
+                  hasValue={!!timeCardForm.flag_id}
+                  isFocused={false}
+                >
                   <Select
                     value={timeCardForm.flag_id}
-                    onValueChange={(value) => setTimeCardForm({...timeCardForm, flag_id: value})}
+                    onValueChange={(value) =>
+                      setTimeCardForm({ ...timeCardForm, flag_id: value })
+                    }
                   >
-                    <SelectTrigger className="w-full">
-                      <SelectValue placeholder="Select" />
+                    <SelectTrigger className="w-full h-[52px] bg-transparent border border-input">
+                      <SelectValue placeholder="" />
                     </SelectTrigger>
                     <SelectContent>
                       {flagOptions.map((item) => (
@@ -887,59 +1017,109 @@ const CostList = () => {
                       ))}
                     </SelectContent>
                   </Select>
-                </div>
+                </FloatingWrapper>
               </TabsContent>
               <TabsContent value="note" className="pt-4">
-                <Textarea 
-                  className="min-h-[100px]" 
-                  placeholder="Add notes..." 
+                <FloatingTextarea
+                  label="Note"
+                  className="min-h-[100px]"
+                  placeholder="Add notes..."
                   value={timeCardForm.note}
-                  onChange={(e) => setTimeCardForm({...timeCardForm, note: e.target.value})}
+                  onChange={(e) =>
+                    setTimeCardForm({ ...timeCardForm, note: e.target.value })
+                  }
                 />
               </TabsContent>
               <TabsContent value="tax" className="pt-4">
                 <div className="space-y-4">
                   <div className="flex items-center space-x-2">
-                    <Checkbox 
+                    <Checkbox
                       id="taxable"
                       checked={timeCardForm.taxable}
-                      onCheckedChange={(checked) => setTimeCardForm({...timeCardForm, taxable: checked})}
-                      disabled={!billingStatusOptions.find(item => String(item.id) === timeCardForm.billing_status_id)?.name?.toLowerCase().includes('billable')}
+                      onCheckedChange={(checked) =>
+                        setTimeCardForm({ ...timeCardForm, taxable: checked })
+                      }
+                      disabled={
+                        !billingStatusOptions
+                          .find(
+                            (item) =>
+                              String(item.id) ===
+                              timeCardForm.billing_status_id,
+                          )
+                          ?.name?.toLowerCase()
+                          .includes("billable")
+                      }
                     />
-                    <Label 
-                      htmlFor="taxable" 
-                      className={!billingStatusOptions.find(item => String(item.id) === timeCardForm.billing_status_id)?.name?.toLowerCase().includes('billable') ? "text-muted-foreground cursor-not-allowed" : "cursor-pointer"}
+                    <Label
+                      htmlFor="taxable"
+                      className={
+                        !billingStatusOptions
+                          .find(
+                            (item) =>
+                              String(item.id) ===
+                              timeCardForm.billing_status_id,
+                          )
+                          ?.name?.toLowerCase()
+                          .includes("billable")
+                          ? "text-muted-foreground cursor-not-allowed"
+                          : "cursor-pointer"
+                      }
                     >
                       Taxable
                     </Label>
                   </div>
-                  
-                  {timeCardForm.taxable && billingStatusOptions.find(item => String(item.id) === timeCardForm.billing_status_id)?.name?.toLowerCase().includes('billable') && (
-                    <div className="mt-4 p-4 bg-muted rounded-lg space-y-2">
-                      {(() => {
-                        const rate = parseFloat(timeCardForm.rate) || 0;
-                        const selectedRateType = rateTypeOptions.find(item => String(item.id) === timeCardForm.rate_type_id);
-                        const rateTypeName = selectedRateType?.name?.toLowerCase() || '';
-                        
-                        let value = rate;
-                        if (rateTypeName.includes('hourly')) {
-                          const selectedTimeSpent = timeSpentOptions.find(item => String(item.id) === timeCardForm.time_spent_id);
-                          const timeValue = parseFloat(selectedTimeSpent?.minute) || parseFloat(selectedTimeSpent?.hours) || 0;
-                          value = rate * (timeValue/60);
-                        }
-                        
-                        const taxTotal = value * 0.13;
-                        const cardTotal = value + taxTotal;
-                        
-                        return (
-                          <>
-                            <p className="text-sm"><span className="font-medium">Tax Total (13%):</span> ${taxTotal.toFixed(2)}</p>
-                            <p className="text-sm"><span className="font-medium">Card Total:</span> ${cardTotal.toFixed(2)}</p>
-                          </>
-                        );
-                      })()}
-                    </div>
-                  )}
+
+                  {timeCardForm.taxable &&
+                    billingStatusOptions
+                      .find(
+                        (item) =>
+                          String(item.id) === timeCardForm.billing_status_id,
+                      )
+                      ?.name?.toLowerCase()
+                      .includes("billable") && (
+                      <div className="mt-4 p-4 bg-muted rounded-lg space-y-2">
+                        {(() => {
+                          const rate = parseFloat(timeCardForm.rate) || 0;
+                          const selectedRateType = rateTypeOptions.find(
+                            (item) =>
+                              String(item.id) === timeCardForm.rate_type_id,
+                          );
+                          const rateTypeName =
+                            selectedRateType?.name?.toLowerCase() || "";
+
+                          let value = rate;
+                          if (rateTypeName.includes("hourly")) {
+                            const selectedTimeSpent = timeSpentOptions.find(
+                              (item) =>
+                                String(item.id) === timeCardForm.time_spent_id,
+                            );
+                            const timeValue =
+                              parseFloat(selectedTimeSpent?.minute) ||
+                              parseFloat(selectedTimeSpent?.hours) ||
+                              0;
+                            value = rate * (timeValue / 60);
+                          }
+
+                          const taxTotal = value * 0.13;
+                          const cardTotal = value + taxTotal;
+
+                          return (
+                            <>
+                              <p className="text-sm">
+                                <span className="font-medium">
+                                  Tax Total (13%):
+                                </span>{" "}
+                                ${taxTotal.toFixed(2)}
+                              </p>
+                              <p className="text-sm">
+                                <span className="font-medium">Card Total:</span>{" "}
+                                ${cardTotal.toFixed(2)}
+                              </p>
+                            </>
+                          );
+                        })()}
+                      </div>
+                    )}
                 </div>
               </TabsContent>
             </Tabs>
@@ -948,14 +1128,20 @@ const CostList = () => {
             <Button variant="outline" onClick={() => setDialogOpen(null)}>
               Close
             </Button>
-            <Button onClick={handleTimeCardSubmit} disabled={addCostMutation.isPending}>
+            <Button
+              onClick={handleTimeCardSubmit}
+              disabled={addCostMutation.isPending}
+            >
               {addCostMutation.isPending ? "Saving..." : "Save changes"}
             </Button>
           </div>
         </DialogContent>
       </Dialog>
 
-      <Dialog open={dialogOpen === "soft-cost"} onOpenChange={(open) => !open && setDialogOpen(null)}>
+      <Dialog
+        open={dialogOpen === "soft-cost"}
+        onOpenChange={(open) => !open && setDialogOpen(null)}
+      >
         <DialogContent className="w-[70vw] max-w-none max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="text-xl">Add Soft Cost</DialogTitle>
@@ -969,113 +1155,137 @@ const CostList = () => {
           </DialogHeader>
           <div className="space-y-6 py-4">
             <div className="grid grid-cols-4 gap-4">
-              <div className="space-y-2">
-                <Label>Timekeeper <span className="text-red-500">*</span></Label>
-                <Input 
-                  placeholder="" 
-                  value={softCostForm.timekeeper}
-                  onChange={(e) => setSoftCostForm({...softCostForm, timekeeper: e.target.value})}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label>Date <span className="text-red-500">*</span></Label>
-                <Input
-                  type="date"
-                  value={softCostForm.date}
-                  onChange={(e) => setSoftCostForm({...softCostForm, date: e.target.value})}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label>Type <span className="text-red-500">*</span></Label>
-                <Input 
-                  value={softCostForm.type} 
-                  disabled
-                />
-              </div>
-              <div className="space-y-2">
-                <Label>Expense</Label>
-                <Input 
-                  placeholder="" 
-                  value={softCostForm.expense}
-                  onChange={(e) => setSoftCostForm({...softCostForm, expense: e.target.value})}
-                />
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <Label>Description</Label>
-              <Textarea 
-                className="min-h-[100px]" 
-                placeholder="" 
-                value={softCostForm.description}
-                onChange={(e) => setSoftCostForm({...softCostForm, description: e.target.value})}
+              <FloatingInput
+                label="Timekeeper"
+                required
+                value={softCostForm.timekeeper}
+                onChange={(e) =>
+                  setSoftCostForm({
+                    ...softCostForm,
+                    timekeeper: e.target.value,
+                  })
+                }
+              />
+              <FloatingInput
+                label="Date"
+                type="date"
+                required
+                value={softCostForm.date}
+                onChange={(e) =>
+                  setSoftCostForm({ ...softCostForm, date: e.target.value })
+                }
+              />
+              <FloatingInput
+                label="Type"
+                required
+                value={softCostForm.type}
+                disabled
+              />
+              <FloatingInput
+                label="Expense"
+                value={softCostForm.expense}
+                onChange={(e) =>
+                  setSoftCostForm({ ...softCostForm, expense: e.target.value })
+                }
               />
             </div>
 
+            <FloatingTextarea
+              label="Description"
+              className="min-h-[100px]"
+              value={softCostForm.description}
+              onChange={(e) =>
+                setSoftCostForm({
+                  ...softCostForm,
+                  description: e.target.value,
+                })
+              }
+            />
+
             <div className="grid grid-cols-3 gap-4">
-              <div className="space-y-2">
-                <Label>Quantity <span className="text-red-500">*</span></Label>
-                <Input 
-                  type="number" 
-                  min="1"
-                  placeholder="" 
-                  value={softCostForm.quantity}
-                  onChange={(e) => setSoftCostForm({...softCostForm, quantity: e.target.value})}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label>Rate <span className="text-red-500">*</span></Label>
-                <Input 
-                  type="number" 
-                  placeholder="" 
-                  value={softCostForm.rate}
-                  onChange={(e) => setSoftCostForm({...softCostForm, rate: e.target.value})}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label>Value <span className="text-red-500">*</span></Label>
-                <Input 
-                  type="number" 
-                  placeholder="" 
-                  value={
-                    (() => {
-                      const baseValue = (parseFloat(softCostForm.quantity) || 0) * (parseFloat(softCostForm.rate) || 0);
-                      return softCostForm.taxable ? (baseValue * 1.13).toFixed(2) : baseValue.toFixed(2);
-                    })()
-                  }
-                  disabled
-                />
-              </div>
+              <FloatingInput
+                label="Quantity"
+                required
+                type="number"
+                min="1"
+                value={softCostForm.quantity}
+                onChange={(e) =>
+                  setSoftCostForm({ ...softCostForm, quantity: e.target.value })
+                }
+              />
+              <FloatingInput
+                label="Rate"
+                required
+                type="number"
+                value={softCostForm.rate}
+                onChange={(e) =>
+                  setSoftCostForm({ ...softCostForm, rate: e.target.value })
+                }
+              />
+              <FloatingInput
+                label="Value"
+                required
+                type="number"
+                value={(() => {
+                  const baseValue =
+                    (parseFloat(softCostForm.quantity) || 0) *
+                    (parseFloat(softCostForm.rate) || 0);
+                  return softCostForm.taxable
+                    ? (baseValue * 1.13).toFixed(2)
+                    : baseValue.toFixed(2);
+                })()}
+                disabled
+              />
             </div>
 
-            <div className="space-y-2">
-              <Label>Tax</Label>
-              <Select 
-                value={softCostForm.taxable === true ? "taxable" : softCostForm.taxable === false ? "non-taxable" : undefined}
-                onValueChange={(value) => setSoftCostForm({...softCostForm, taxable: value === "taxable"})}
+            <FloatingWrapper
+              label="Tax"
+              hasValue={softCostForm.taxable !== null}
+              isFocused={false}
+            >
+              <Select
+                value={
+                  softCostForm.taxable === true
+                    ? "taxable"
+                    : softCostForm.taxable === false
+                      ? "non-taxable"
+                      : undefined
+                }
+                onValueChange={(value) =>
+                  setSoftCostForm({
+                    ...softCostForm,
+                    taxable: value === "taxable",
+                  })
+                }
               >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select tax type" />
+                <SelectTrigger className="w-full h-[52px] bg-transparent border border-input">
+                  <SelectValue placeholder="" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="taxable">Taxable</SelectItem>
                   <SelectItem value="non-taxable">Non-Taxable</SelectItem>
                 </SelectContent>
               </Select>
-            </div>
+            </FloatingWrapper>
           </div>
           <div className="flex justify-end gap-2 pt-4 border-t">
             <Button variant="outline" onClick={() => setDialogOpen(null)}>
               Close
             </Button>
-            <Button onClick={handleSoftCostSubmit} disabled={addCostMutation.isPending}>
+            <Button
+              onClick={handleSoftCostSubmit}
+              disabled={addCostMutation.isPending}
+            >
               {addCostMutation.isPending ? "Saving..." : "Save changes"}
             </Button>
           </div>
         </DialogContent>
       </Dialog>
 
-      <Dialog open={dialogOpen === "hard-cost"} onOpenChange={(open) => !open && setDialogOpen(null)}>
+      <Dialog
+        open={dialogOpen === "hard-cost"}
+        onOpenChange={(open) => !open && setDialogOpen(null)}
+      >
         <DialogContent className="w-[70vw] max-w-none max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="text-xl">Add Hard Cost</DialogTitle>
@@ -1089,22 +1299,30 @@ const CostList = () => {
           </DialogHeader>
           <div className="space-y-6 py-4">
             <div className="grid grid-cols-4 gap-4">
-              <div className="space-y-2">
-                <Label>Date <span className="text-red-500">*</span></Label>
-                <Input
-                  type="date"
-                  value={hardCostForm.date}
-                  onChange={(e) => setHardCostForm({...hardCostForm, date: e.target.value})}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label>Bank Type <span className="text-red-500">*</span></Label>
+              <FloatingInput
+                label="Date"
+                type="date"
+                required
+                value={hardCostForm.date}
+                onChange={(e) =>
+                  setHardCostForm({ ...hardCostForm, date: e.target.value })
+                }
+              />
+
+              <FloatingWrapper
+                label="Bank Type"
+                required
+                hasValue={!!hardCostForm.bank_type_id}
+                isFocused={false}
+              >
                 <Select
                   value={hardCostForm.bank_type_id}
-                  onValueChange={(value) => setHardCostForm({...hardCostForm, bank_type_id: value})}
+                  onValueChange={(value) =>
+                    setHardCostForm({ ...hardCostForm, bank_type_id: value })
+                  }
                 >
-                  <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Select" />
+                  <SelectTrigger className="w-full h-[52px] bg-transparent border border-input">
+                    <SelectValue placeholder="" />
                   </SelectTrigger>
                   <SelectContent>
                     {bankTypes.map((item) => (
@@ -1114,23 +1332,32 @@ const CostList = () => {
                     ))}
                   </SelectContent>
                 </Select>
-              </div>
-              <div className="space-y-2">
-                <Label>Type <span className="text-red-500">*</span></Label>
-                <Input 
-                  disabled
-                  value={hardCostForm.type}
-                  onChange={(e) => setHardCostForm({...hardCostForm, type: e.target.value})}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label>Method <span className="text-red-500">*</span></Label>
+              </FloatingWrapper>
+
+              <FloatingInput
+                label="Type"
+                required
+                disabled
+                value={hardCostForm.type}
+                onChange={(e) =>
+                  setHardCostForm({ ...hardCostForm, type: e.target.value })
+                }
+              />
+
+              <FloatingWrapper
+                label="Method"
+                required
+                hasValue={!!hardCostForm.method_id}
+                isFocused={false}
+              >
                 <Select
                   value={hardCostForm.method_id}
-                  onValueChange={(value) => setHardCostForm({...hardCostForm, method_id: value})}
+                  onValueChange={(value) =>
+                    setHardCostForm({ ...hardCostForm, method_id: value })
+                  }
                 >
-                  <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Select" />
+                  <SelectTrigger className="w-full h-[52px] bg-transparent border border-input">
+                    <SelectValue placeholder="" />
                   </SelectTrigger>
                   <SelectContent>
                     {accountingMethods.map((item) => (
@@ -1140,112 +1367,128 @@ const CostList = () => {
                     ))}
                   </SelectContent>
                 </Select>
-              </div>
+              </FloatingWrapper>
             </div>
 
             <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label>Pay to <span className="text-red-500">*</span></Label>
-                <Input 
-                  placeholder="" 
-                  value={hardCostForm.pay_to}
-                  onChange={(e) => setHardCostForm({...hardCostForm, pay_to: e.target.value})}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label>Amount <span className="text-red-500">*</span></Label>
-                <Input 
-                  type="number" 
-                  placeholder="" 
-                  value={hardCostForm.amount}
-                  onChange={(e) => setHardCostForm({...hardCostForm, amount: e.target.value})}
-                />
-              </div>
+              <FloatingInput
+                label="Pay to"
+                required
+                value={hardCostForm.pay_to}
+                onChange={(e) =>
+                  setHardCostForm({ ...hardCostForm, pay_to: e.target.value })
+                }
+              />
+              <FloatingInput
+                label="Amount"
+                required
+                type="number"
+                value={hardCostForm.amount}
+                onChange={(e) =>
+                  setHardCostForm({ ...hardCostForm, amount: e.target.value })
+                }
+              />
             </div>
 
             {/* Address 1 */}
             <div className="space-y-4">
               <h3 className="text-md font-medium">Address 1</h3>
               <div className="grid grid-cols-4 gap-4">
-                <div className="space-y-2">
-                  <Label>Unit Number</Label>
-                  <Input 
-                    placeholder="" 
-                    value={hardCostForm.address_1.unit_number}
-                    onChange={(e) => setHardCostForm({
-                      ...hardCostForm, 
-                      address_1: {...hardCostForm.address_1, unit_number: e.target.value}
-                    })}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label>Street Number</Label>
-                  <Input 
-                    placeholder="" 
-                    value={hardCostForm.address_1.street_number}
-                    onChange={(e) => setHardCostForm({
-                      ...hardCostForm, 
-                      address_1: {...hardCostForm.address_1, street_number: e.target.value}
-                    })}
-                  />
-                </div>
-                <div className="space-y-2 col-span-2">
-                  <Label>Street Name</Label>
-                  <Input 
-                    placeholder="" 
+                <FloatingInput
+                  label="Unit Number"
+                  value={hardCostForm.address_1.unit_number}
+                  onChange={(e) =>
+                    setHardCostForm({
+                      ...hardCostForm,
+                      address_1: {
+                        ...hardCostForm.address_1,
+                        unit_number: e.target.value,
+                      },
+                    })
+                  }
+                />
+                <FloatingInput
+                  label="Street Number"
+                  value={hardCostForm.address_1.street_number}
+                  onChange={(e) =>
+                    setHardCostForm({
+                      ...hardCostForm,
+                      address_1: {
+                        ...hardCostForm.address_1,
+                        street_number: e.target.value,
+                      },
+                    })
+                  }
+                />
+                <div className="col-span-2">
+                  <FloatingInput
+                    label="Street Name"
                     value={hardCostForm.address_1.street_name}
-                    onChange={(e) => setHardCostForm({
-                      ...hardCostForm, 
-                      address_1: {...hardCostForm.address_1, street_name: e.target.value}
-                    })}
+                    onChange={(e) =>
+                      setHardCostForm({
+                        ...hardCostForm,
+                        address_1: {
+                          ...hardCostForm.address_1,
+                          street_name: e.target.value,
+                        },
+                      })
+                    }
                   />
                 </div>
               </div>
               <div className="grid grid-cols-4 gap-4">
-                <div className="space-y-2">
-                  <Label>City</Label>
-                  <Input 
-                    placeholder="" 
-                    value={hardCostForm.address_1.city}
-                    onChange={(e) => setHardCostForm({
-                      ...hardCostForm, 
-                      address_1: {...hardCostForm.address_1, city: e.target.value}
-                    })}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label>Province</Label>
-                  <Input 
-                    placeholder="" 
-                    value={hardCostForm.address_1.province}
-                    onChange={(e) => setHardCostForm({
-                      ...hardCostForm, 
-                      address_1: {...hardCostForm.address_1, province: e.target.value}
-                    })}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label>Postal Code</Label>
-                  <Input 
-                    placeholder="" 
-                    value={hardCostForm.address_1.postal_code}
-                    onChange={(e) => setHardCostForm({
-                      ...hardCostForm, 
-                      address_1: {...hardCostForm.address_1, postal_code: e.target.value}
-                    })}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label>Country</Label>
-                  <Input 
-                    placeholder="" 
-                    value={hardCostForm.address_1.country}
-                    onChange={(e) => setHardCostForm({
-                      ...hardCostForm, 
-                      address_1: {...hardCostForm.address_1, country: e.target.value}
-                    })}
-                  />
-                </div>
+                <FloatingInput
+                  label="City"
+                  value={hardCostForm.address_1.city}
+                  onChange={(e) =>
+                    setHardCostForm({
+                      ...hardCostForm,
+                      address_1: {
+                        ...hardCostForm.address_1,
+                        city: e.target.value,
+                      },
+                    })
+                  }
+                />
+                <FloatingInput
+                  label="Province"
+                  value={hardCostForm.address_1.province}
+                  onChange={(e) =>
+                    setHardCostForm({
+                      ...hardCostForm,
+                      address_1: {
+                        ...hardCostForm.address_1,
+                        province: e.target.value,
+                      },
+                    })
+                  }
+                />
+                <FloatingInput
+                  label="Postal Code"
+                  value={hardCostForm.address_1.postal_code}
+                  onChange={(e) =>
+                    setHardCostForm({
+                      ...hardCostForm,
+                      address_1: {
+                        ...hardCostForm.address_1,
+                        postal_code: e.target.value,
+                      },
+                    })
+                  }
+                />
+                <FloatingInput
+                  label="Country"
+                  value={hardCostForm.address_1.country}
+                  onChange={(e) =>
+                    setHardCostForm({
+                      ...hardCostForm,
+                      address_1: {
+                        ...hardCostForm.address_1,
+                        country: e.target.value,
+                      },
+                    })
+                  }
+                />
               </div>
             </div>
 
@@ -1253,114 +1496,131 @@ const CostList = () => {
             <div className="space-y-4">
               <h3 className="text-md font-medium">Address 2</h3>
               <div className="grid grid-cols-4 gap-4">
-                <div className="space-y-2">
-                  <Label>Unit Number</Label>
-                  <Input 
-                    placeholder="" 
-                    value={hardCostForm.address_2.unit_number}
-                    onChange={(e) => setHardCostForm({
-                      ...hardCostForm, 
-                      address_2: {...hardCostForm.address_2, unit_number: e.target.value}
-                    })}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label>Street Number</Label>
-                  <Input 
-                    placeholder="" 
-                    value={hardCostForm.address_2.street_number}
-                    onChange={(e) => setHardCostForm({
-                      ...hardCostForm, 
-                      address_2: {...hardCostForm.address_2, street_number: e.target.value}
-                    })}
-                  />
-                </div>
-                <div className="space-y-2 col-span-2">
-                  <Label>Street Name</Label>
-                  <Input 
-                    placeholder="" 
+                <FloatingInput
+                  label="Unit Number"
+                  value={hardCostForm.address_2.unit_number}
+                  onChange={(e) =>
+                    setHardCostForm({
+                      ...hardCostForm,
+                      address_2: {
+                        ...hardCostForm.address_2,
+                        unit_number: e.target.value,
+                      },
+                    })
+                  }
+                />
+                <FloatingInput
+                  label="Street Number"
+                  value={hardCostForm.address_2.street_number}
+                  onChange={(e) =>
+                    setHardCostForm({
+                      ...hardCostForm,
+                      address_2: {
+                        ...hardCostForm.address_2,
+                        street_number: e.target.value,
+                      },
+                    })
+                  }
+                />
+                <div className="col-span-2">
+                  <FloatingInput
+                    label="Street Name"
                     value={hardCostForm.address_2.street_name}
-                    onChange={(e) => setHardCostForm({
-                      ...hardCostForm, 
-                      address_2: {...hardCostForm.address_2, street_name: e.target.value}
-                    })}
+                    onChange={(e) =>
+                      setHardCostForm({
+                        ...hardCostForm,
+                        address_2: {
+                          ...hardCostForm.address_2,
+                          street_name: e.target.value,
+                        },
+                      })
+                    }
                   />
                 </div>
               </div>
               <div className="grid grid-cols-4 gap-4">
-                <div className="space-y-2">
-                  <Label>City</Label>
-                  <Input 
-                    placeholder="" 
-                    value={hardCostForm.address_2.city}
-                    onChange={(e) => setHardCostForm({
-                      ...hardCostForm, 
-                      address_2: {...hardCostForm.address_2, city: e.target.value}
-                    })}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label>Province</Label>
-                  <Input 
-                    placeholder="" 
-                    value={hardCostForm.address_2.province}
-                    onChange={(e) => setHardCostForm({
-                      ...hardCostForm, 
-                      address_2: {...hardCostForm.address_2, province: e.target.value}
-                    })}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label>Postal Code</Label>
-                  <Input 
-                    placeholder="" 
-                    value={hardCostForm.address_2.postal_code}
-                    onChange={(e) => setHardCostForm({
-                      ...hardCostForm, 
-                      address_2: {...hardCostForm.address_2, postal_code: e.target.value}
-                    })}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label>Country</Label>
-                  <Input 
-                    placeholder="" 
-                    value={hardCostForm.address_2.country}
-                    onChange={(e) => setHardCostForm({
-                      ...hardCostForm, 
-                      address_2: {...hardCostForm.address_2, country: e.target.value}
-                    })}
-                  />
-                </div>
+                <FloatingInput
+                  label="City"
+                  value={hardCostForm.address_2.city}
+                  onChange={(e) =>
+                    setHardCostForm({
+                      ...hardCostForm,
+                      address_2: {
+                        ...hardCostForm.address_2,
+                        city: e.target.value,
+                      },
+                    })
+                  }
+                />
+                <FloatingInput
+                  label="Province"
+                  value={hardCostForm.address_2.province}
+                  onChange={(e) =>
+                    setHardCostForm({
+                      ...hardCostForm,
+                      address_2: {
+                        ...hardCostForm.address_2,
+                        province: e.target.value,
+                      },
+                    })
+                  }
+                />
+                <FloatingInput
+                  label="Postal Code"
+                  value={hardCostForm.address_2.postal_code}
+                  onChange={(e) =>
+                    setHardCostForm({
+                      ...hardCostForm,
+                      address_2: {
+                        ...hardCostForm.address_2,
+                        postal_code: e.target.value,
+                      },
+                    })
+                  }
+                />
+                <FloatingInput
+                  label="Country"
+                  value={hardCostForm.address_2.country}
+                  onChange={(e) =>
+                    setHardCostForm({
+                      ...hardCostForm,
+                      address_2: {
+                        ...hardCostForm.address_2,
+                        country: e.target.value,
+                      },
+                    })
+                  }
+                />
               </div>
             </div>
 
             <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label>Memo 1</Label>
-                <Textarea 
-                  className="min-h-[80px]" 
-                  placeholder="" 
-                  value={hardCostForm.memo_1}
-                  onChange={(e) => setHardCostForm({...hardCostForm, memo_1: e.target.value})}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label>Memo 2</Label>
-                <Textarea 
-                  className="min-h-[80px]" 
-                  placeholder="" 
-                  value={hardCostForm.memo_2}
-                  onChange={(e) => setHardCostForm({...hardCostForm, memo_2: e.target.value})}
-                />
-              </div>
+              <FloatingTextarea
+                label="Memo 1"
+                className="min-h-[80px]"
+                value={hardCostForm.memo_1}
+                onChange={(e) =>
+                  setHardCostForm({ ...hardCostForm, memo_1: e.target.value })
+                }
+              />
+              <FloatingTextarea
+                label="Memo 2"
+                className="min-h-[80px]"
+                value={hardCostForm.memo_2}
+                onChange={(e) =>
+                  setHardCostForm({ ...hardCostForm, memo_2: e.target.value })
+                }
+              />
             </div>
           </div>
           <div className="flex justify-end gap-2 pt-4 border-t">
             <Button variant="outline" onClick={() => setDialogOpen(null)}>
               Close
             </Button>
-            <Button onClick={handleHardCostSubmit} disabled={addCostMutation.isPending}>
+            <Button
+              onClick={handleHardCostSubmit}
+              disabled={addCostMutation.isPending}
+            >
               {addCostMutation.isPending ? "Saving..." : "Save changes"}
             </Button>
           </div>
@@ -1368,20 +1628,24 @@ const CostList = () => {
       </Dialog>
 
       {/* Delete Confirmation Dialog */}
-      <Dialog open={deleteConfirmId !== null} onOpenChange={(open) => !open && setDeleteConfirmId(null)}>
+      <Dialog
+        open={deleteConfirmId !== null}
+        onOpenChange={(open) => !open && setDeleteConfirmId(null)}
+      >
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle>Delete Cost Entry</DialogTitle>
             <DialogDescription>
-              Are you sure you want to delete this cost entry? This action cannot be undone.
+              Are you sure you want to delete this cost entry? This action
+              cannot be undone.
             </DialogDescription>
           </DialogHeader>
           <div className="flex justify-end gap-2 pt-4">
             <Button variant="outline" onClick={() => setDeleteConfirmId(null)}>
               Cancel
             </Button>
-            <Button 
-              variant="destructive" 
+            <Button
+              variant="destructive"
               onClick={confirmDelete}
               disabled={deleteCostMutation.isPending}
             >
@@ -1391,13 +1655,24 @@ const CostList = () => {
         </DialogContent>
       </Dialog>
 
-      <Dialog open={editDialogOpen === "soft-cost"} onOpenChange={(open) => { if (!open) { setEditDialogOpen(null); setEditingCost(null); } }}>
+      <Dialog
+        open={editDialogOpen === "soft-cost"}
+        onOpenChange={(open) => {
+          if (!open) {
+            setEditDialogOpen(null);
+            setEditingCost(null);
+          }
+        }}
+      >
         <DialogContent className="w-[70vw] max-w-none max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="text-xl">Edit Soft Cost</DialogTitle>
             <DialogDescription>Edit the soft cost entry</DialogDescription>
             <button
-              onClick={() => { setEditDialogOpen(null); setEditingCost(null); }}
+              onClick={() => {
+                setEditDialogOpen(null);
+                setEditingCost(null);
+              }}
               className="absolute right-4 top-4 rounded-sm opacity-70 hover:opacity-100"
             >
               <X className="h-4 w-4" />
@@ -1407,81 +1682,119 @@ const CostList = () => {
             <div className="space-y-6 py-4">
               <div className="grid grid-cols-4 gap-4">
                 <div className="space-y-2">
-                  <Label>Timekeeper <span className="text-red-500">*</span></Label>
-                  <Input 
-                    placeholder="" 
+                  <Label>
+                    Timekeeper <span className="text-red-500">*</span>
+                  </Label>
+                  <Input
+                    placeholder=""
                     value={editingCost.timekeeker || ""}
-                    onChange={(e) => setEditingCost({...editingCost, timekeeker: e.target.value})}
+                    onChange={(e) =>
+                      setEditingCost({
+                        ...editingCost,
+                        timekeeker: e.target.value,
+                      })
+                    }
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label>Date <span className="text-red-500">*</span></Label>
+                  <Label>
+                    Date <span className="text-red-500">*</span>
+                  </Label>
                   <Input
                     type="date"
                     value={editingCost.date || ""}
-                    onChange={(e) => setEditingCost({...editingCost, date: e.target.value})}
+                    onChange={(e) =>
+                      setEditingCost({ ...editingCost, date: e.target.value })
+                    }
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label>Type <span className="text-red-500">*</span></Label>
-                  <Input 
-                    value={editingCost.type || "Expense"} 
-                    disabled
-                  />
+                  <Label>
+                    Type <span className="text-red-500">*</span>
+                  </Label>
+                  <Input value={editingCost.type || "Expense"} disabled />
                 </div>
                 <div className="space-y-2">
                   <Label>Expense</Label>
-                  <Input 
-                    placeholder="" 
+                  <Input
+                    placeholder=""
                     value={editingCost.expesne || ""}
-                    onChange={(e) => setEditingCost({...editingCost, expesne: e.target.value})}
+                    onChange={(e) =>
+                      setEditingCost({
+                        ...editingCost,
+                        expesne: e.target.value,
+                      })
+                    }
                   />
                 </div>
               </div>
 
               <div className="space-y-2">
                 <Label>Description</Label>
-                <Textarea 
-                  className="min-h-[100px]" 
-                  placeholder="" 
+                <Textarea
+                  className="min-h-[100px]"
+                  placeholder=""
                   value={editingCost.description || ""}
-                  onChange={(e) => setEditingCost({...editingCost, description: e.target.value})}
+                  onChange={(e) =>
+                    setEditingCost({
+                      ...editingCost,
+                      description: e.target.value,
+                    })
+                  }
                 />
               </div>
 
               <div className="grid grid-cols-3 gap-4">
                 <div className="space-y-2">
-                  <Label>Quantity <span className="text-red-500">*</span></Label>
-                  <Input 
-                    type="number" 
+                  <Label>
+                    Quantity <span className="text-red-500">*</span>
+                  </Label>
+                  <Input
+                    type="number"
                     min="1"
-                    placeholder="" 
+                    placeholder=""
                     value={editingCost.quantity || ""}
-                    onChange={(e) => setEditingCost({...editingCost, quantity: e.target.value})}
+                    onChange={(e) =>
+                      setEditingCost({
+                        ...editingCost,
+                        quantity: e.target.value,
+                      })
+                    }
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label>Rate <span className="text-red-500">*</span></Label>
-                  <Input 
-                    type="number" 
-                    placeholder="" 
+                  <Label>
+                    Rate <span className="text-red-500">*</span>
+                  </Label>
+                  <Input
+                    type="number"
+                    placeholder=""
                     value={editingCost.rate || ""}
-                    onChange={(e) => setEditingCost({...editingCost, rate: e.target.value})}
+                    onChange={(e) =>
+                      setEditingCost({ ...editingCost, rate: e.target.value })
+                    }
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label>Value <span className="text-red-500">*</span></Label>
-                  <Input 
-                    type="number" 
-                    placeholder="" 
-                    value=
-                    {
-                    (() => {
-                      const baseValue = (parseFloat(editingCost.quantity) || 0) * (parseFloat(editingCost.rate) || 0);
-                      const isTaxable = editingCost.taxable === true || editingCost.taxable === 1 || editingCost.taxable === "true" || editingCost.taxable === "1";
-                      return isTaxable ? (baseValue * 1.13).toFixed(2) : baseValue.toFixed(2);
-                    })()
-                  }
+                  <Label>
+                    Value <span className="text-red-500">*</span>
+                  </Label>
+                  <Input
+                    type="number"
+                    placeholder=""
+                    value={(() => {
+                      const baseValue =
+                        (parseFloat(editingCost.quantity) || 0) *
+                        (parseFloat(editingCost.rate) || 0);
+                      const isTaxable =
+                        editingCost.taxable === true ||
+                        editingCost.taxable === 1 ||
+                        editingCost.taxable === "true" ||
+                        editingCost.taxable === "1";
+                      return isTaxable
+                        ? (baseValue * 1.13).toFixed(2)
+                        : baseValue.toFixed(2);
+                    })()}
                     disabled
                   />
                 </div>
@@ -1489,15 +1802,24 @@ const CostList = () => {
 
               <div className="space-y-2">
                 <Label>Tax</Label>
-                <Select 
+                <Select
                   value={
-                    editingCost.taxable === null || editingCost.taxable === undefined
-                      ? undefined 
-                      : (editingCost.taxable === true || editingCost.taxable === 1 || editingCost.taxable === "true" || editingCost.taxable === "1") 
-                        ? "taxable" 
+                    editingCost.taxable === null ||
+                    editingCost.taxable === undefined
+                      ? undefined
+                      : editingCost.taxable === true ||
+                          editingCost.taxable === 1 ||
+                          editingCost.taxable === "true" ||
+                          editingCost.taxable === "1"
+                        ? "taxable"
                         : "non-taxable"
                   }
-                  onValueChange={(value) => setEditingCost({...editingCost, taxable: value === "taxable"})}
+                  onValueChange={(value) =>
+                    setEditingCost({
+                      ...editingCost,
+                      taxable: value === "taxable",
+                    })
+                  }
                 >
                   <SelectTrigger>
                     <SelectValue placeholder="Select tax type" />
@@ -1511,10 +1833,19 @@ const CostList = () => {
             </div>
           )}
           <div className="flex justify-end gap-2 pt-4 border-t">
-            <Button variant="outline" onClick={() => { setEditDialogOpen(null); setEditingCost(null); }}>
+            <Button
+              variant="outline"
+              onClick={() => {
+                setEditDialogOpen(null);
+                setEditingCost(null);
+              }}
+            >
               Close
             </Button>
-            <Button onClick={handleEditSoftCostSubmit} disabled={updateCostMutation.isPending}>
+            <Button
+              onClick={handleEditSoftCostSubmit}
+              disabled={updateCostMutation.isPending}
+            >
               {updateCostMutation.isPending ? "Updating..." : "Update"}
             </Button>
           </div>
@@ -1522,13 +1853,24 @@ const CostList = () => {
       </Dialog>
 
       {/* Edit Time Card Dialog */}
-      <Dialog open={editDialogOpen === "time-card"} onOpenChange={(open) => { if (!open) { setEditDialogOpen(null); setEditingCost(null); } }}>
+      <Dialog
+        open={editDialogOpen === "time-card"}
+        onOpenChange={(open) => {
+          if (!open) {
+            setEditDialogOpen(null);
+            setEditingCost(null);
+          }
+        }}
+      >
         <DialogContent className="w-[70vw] max-w-none max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="text-xl">Edit TimeCard</DialogTitle>
             <DialogDescription>Edit the timecard entry</DialogDescription>
             <button
-              onClick={() => { setEditDialogOpen(null); setEditingCost(null); }}
+              onClick={() => {
+                setEditDialogOpen(null);
+                setEditingCost(null);
+              }}
               className="absolute right-4 top-4 rounded-sm opacity-70 hover:opacity-100"
             >
               <X className="h-4 w-4" />
@@ -1538,46 +1880,63 @@ const CostList = () => {
             <div className="space-y-6 py-4">
               <div className="grid grid-cols-3 gap-4">
                 <div className="space-y-2">
-                  <Label>Timekeeper <span className="text-red-500">*</span></Label>
-                  <Input 
-                    placeholder="" 
+                  <Label>
+                    Timekeeper <span className="text-red-500">*</span>
+                  </Label>
+                  <Input
+                    placeholder=""
                     value={editingCost.timekeeker || ""}
-                    onChange={(e) => setEditingCost({...editingCost, timekeeker: e.target.value})}
+                    onChange={(e) =>
+                      setEditingCost({
+                        ...editingCost,
+                        timekeeker: e.target.value,
+                      })
+                    }
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label>Date <span className="text-red-500">*</span></Label>
+                  <Label>
+                    Date <span className="text-red-500">*</span>
+                  </Label>
                   <Input
                     type="date"
                     value={editingCost.date || ""}
-                    onChange={(e) => setEditingCost({...editingCost, date: e.target.value})}
+                    onChange={(e) =>
+                      setEditingCost({ ...editingCost, date: e.target.value })
+                    }
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label>Type <span className="text-red-500">*</span></Label>
-                  <Input 
-                    value={editingCost.type || "Lawyer Work"}
-                    disabled
-                  />
+                  <Label>
+                    Type <span className="text-red-500">*</span>
+                  </Label>
+                  <Input value={editingCost.type || "Lawyer Work"} disabled />
                 </div>
               </div>
 
               <div className="space-y-2">
                 <Label>Task</Label>
-                <Input 
-                  placeholder="" 
+                <Input
+                  placeholder=""
                   value={editingCost.task || ""}
-                  onChange={(e) => setEditingCost({...editingCost, task: e.target.value})}
+                  onChange={(e) =>
+                    setEditingCost({ ...editingCost, task: e.target.value })
+                  }
                 />
               </div>
 
               <div className="space-y-2">
                 <Label>Description</Label>
-                <Textarea 
-                  className="min-h-[100px]" 
-                  placeholder="" 
+                <Textarea
+                  className="min-h-[100px]"
+                  placeholder=""
                   value={editingCost.description || ""}
-                  onChange={(e) => setEditingCost({...editingCost, description: e.target.value})}
+                  onChange={(e) =>
+                    setEditingCost({
+                      ...editingCost,
+                      description: e.target.value,
+                    })
+                  }
                 />
               </div>
 
@@ -1585,10 +1944,14 @@ const CostList = () => {
                 <h3 className="text-lg font-medium mb-4">Time & Amount</h3>
                 <div className="grid grid-cols-6 gap-4 mb-4">
                   <div className="space-y-2 col-span-3">
-                    <Label>Time Spent <span className="text-red-500">*</span></Label>
+                    <Label>
+                      Time Spent <span className="text-red-500">*</span>
+                    </Label>
                     <Select
                       value={String(editingCost.time_spent_id || "")}
-                      onValueChange={(value) => setEditingCost({...editingCost, time_spent_id: value})}
+                      onValueChange={(value) =>
+                        setEditingCost({ ...editingCost, time_spent_id: value })
+                      }
                     >
                       <SelectTrigger className="w-full">
                         <SelectValue placeholder="Select" />
@@ -1604,26 +1967,38 @@ const CostList = () => {
                   </div>
                   <div className="space-y-2 col-span-3">
                     <Label>Time Billed</Label>
-                    <Input 
-                      placeholder="00:00" 
-                      className="w-full" 
+                    <Input
+                      placeholder="00:00"
+                      className="w-full"
                       value={editingCost.time_billed || ""}
-                      onChange={(e) => setEditingCost({...editingCost, time_billed: e.target.value})}
+                      onChange={(e) =>
+                        setEditingCost({
+                          ...editingCost,
+                          time_billed: e.target.value,
+                        })
+                      }
                     />
                   </div>
                 </div>
 
                 <div className="grid grid-cols-6 gap-4">
                   <div className="space-y-2 col-span-2">
-                    <Label>Rate Level <span className="text-red-500">*</span></Label>
+                    <Label>
+                      Rate Level <span className="text-red-500">*</span>
+                    </Label>
                     <Select
                       value={String(editingCost.rate_level_id || "")}
                       onValueChange={(value) => {
-                        const selectedRate = rateLevelOptions.find(item => String(item.id) === value);
+                        const selectedRate = rateLevelOptions.find(
+                          (item) => String(item.id) === value,
+                        );
                         setEditingCost({
-                          ...editingCost, 
+                          ...editingCost,
                           rate_level_id: value,
-                          rate: selectedRate?.rate || selectedRate?.value || editingCost.rate
+                          rate:
+                            selectedRate?.rate ||
+                            selectedRate?.value ||
+                            editingCost.rate,
                         });
                       }}
                     >
@@ -1640,19 +2015,27 @@ const CostList = () => {
                     </Select>
                   </div>
                   <div className="space-y-2 col-span-2">
-                    <Label>Rate/Price <span className="text-red-500">*</span></Label>
-                    <Input 
-                      type="number" 
-                      className="w-full" 
+                    <Label>
+                      Rate/Price <span className="text-red-500">*</span>
+                    </Label>
+                    <Input
+                      type="number"
+                      className="w-full"
                       value={editingCost.rate || ""}
-                      onChange={(e) => setEditingCost({...editingCost, rate: e.target.value})}
+                      onChange={(e) =>
+                        setEditingCost({ ...editingCost, rate: e.target.value })
+                      }
                     />
                   </div>
                   <div className="space-y-2 col-span-2">
-                    <Label>Rate Type <span className="text-red-500">*</span></Label>
+                    <Label>
+                      Rate Type <span className="text-red-500">*</span>
+                    </Label>
                     <Select
                       value={String(editingCost.rate_type_id || "")}
-                      onValueChange={(value) => setEditingCost({...editingCost, rate_type_id: value})}
+                      onValueChange={(value) =>
+                        setEditingCost({ ...editingCost, rate_type_id: value })
+                      }
                     >
                       <SelectTrigger className="w-full">
                         <SelectValue placeholder="Select" />
@@ -1670,22 +2053,32 @@ const CostList = () => {
 
                 <div className="text-right mt-4">
                   <p className="text-sm font-medium">
-                    Value: ${
-                      (() => {
-                        const rate = parseFloat(editingCost.rate) || 0;
-                        const selectedRateType = rateTypeOptions.find(item => String(item.id) === String(editingCost.rate_type_id));
-                        const rateTypeName = selectedRateType?.name?.toLowerCase() || '';
-                        
-                        if (rateTypeName.includes('flat')) {
-                          return rate.toFixed(2);
-                        } else if (rateTypeName.includes('hourly')) {
-                          const selectedTimeSpent = timeSpentOptions.find(item => String(item.id) === String(editingCost.time_spent_id));
-                          const timeValue = parseFloat(selectedTimeSpent?.minute) || parseFloat(selectedTimeSpent?.hour) || 0;
-                          return (rate * (timeValue/60)).toFixed(2);
-                        }
+                    Value: $
+                    {(() => {
+                      const rate = parseFloat(editingCost.rate) || 0;
+                      const selectedRateType = rateTypeOptions.find(
+                        (item) =>
+                          String(item.id) === String(editingCost.rate_type_id),
+                      );
+                      const rateTypeName =
+                        selectedRateType?.name?.toLowerCase() || "";
+
+                      if (rateTypeName.includes("flat")) {
                         return rate.toFixed(2);
-                      })()
-                    }
+                      } else if (rateTypeName.includes("hourly")) {
+                        const selectedTimeSpent = timeSpentOptions.find(
+                          (item) =>
+                            String(item.id) ===
+                            String(editingCost.time_spent_id),
+                        );
+                        const timeValue =
+                          parseFloat(selectedTimeSpent?.minute) ||
+                          parseFloat(selectedTimeSpent?.hour) ||
+                          0;
+                        return (rate * (timeValue / 60)).toFixed(2);
+                      }
+                      return rate.toFixed(2);
+                    })()}
                   </p>
                 </div>
               </div>
@@ -1702,7 +2095,12 @@ const CostList = () => {
                       <Label>Billing Status</Label>
                       <Select
                         value={String(editingCost.billing_status_id || "")}
-                        onValueChange={(value) => setEditingCost({...editingCost, billing_status_id: value})}
+                        onValueChange={(value) =>
+                          setEditingCost({
+                            ...editingCost,
+                            billing_status_id: value,
+                          })
+                        }
                       >
                         <SelectTrigger className="w-full">
                           <SelectValue placeholder="Select" />
@@ -1717,19 +2115,25 @@ const CostList = () => {
                       </Select>
                     </div>
                     <div className="flex items-center space-x-2 pt-8">
-                      <Checkbox 
-                        id="edit-hold" 
+                      <Checkbox
+                        id="edit-hold"
                         checked={editingCost.hold || false}
-                        onCheckedChange={(checked) => setEditingCost({...editingCost, hold: checked})}
+                        onCheckedChange={(checked) =>
+                          setEditingCost({ ...editingCost, hold: checked })
+                        }
                       />
-                      <Label htmlFor="edit-hold" className="font-normal">Hold</Label>
+                      <Label htmlFor="edit-hold" className="font-normal">
+                        Hold
+                      </Label>
                     </div>
                   </div>
                   <div className="space-y-2">
                     <Label>Flag</Label>
                     <Select
                       value={String(editingCost.flag_id || "")}
-                      onValueChange={(value) => setEditingCost({...editingCost, flag_id: value})}
+                      onValueChange={(value) =>
+                        setEditingCost({ ...editingCost, flag_id: value })
+                      }
                     >
                       <SelectTrigger className="w-full">
                         <SelectValue placeholder="Select" />
@@ -1745,66 +2149,129 @@ const CostList = () => {
                   </div>
                 </TabsContent>
                 <TabsContent value="note" className="pt-4">
-                  <Textarea 
-                    className="min-h-[100px]" 
-                    placeholder="Add notes..." 
+                  <Textarea
+                    className="min-h-[100px]"
+                    placeholder="Add notes..."
                     value={editingCost.note || ""}
-                    onChange={(e) => setEditingCost({...editingCost, note: e.target.value})}
+                    onChange={(e) =>
+                      setEditingCost({ ...editingCost, note: e.target.value })
+                    }
                   />
                 </TabsContent>
                 <TabsContent value="tax" className="pt-4">
                   <div className="space-y-4">
                     <div className="flex items-center space-x-2">
-                      <Checkbox 
+                      <Checkbox
                         id="edit-taxable"
                         checked={editingCost.taxable}
-                        onCheckedChange={(checked) => setEditingCost({...editingCost, taxable: checked})}
-                        disabled={!billingStatusOptions.find(item => String(item.id) === String(editingCost.billing_status_id))?.name?.toLowerCase().includes('billable')}
+                        onCheckedChange={(checked) =>
+                          setEditingCost({ ...editingCost, taxable: checked })
+                        }
+                        disabled={
+                          !billingStatusOptions
+                            .find(
+                              (item) =>
+                                String(item.id) ===
+                                String(editingCost.billing_status_id),
+                            )
+                            ?.name?.toLowerCase()
+                            .includes("billable")
+                        }
                       />
-                      <Label 
-                        htmlFor="edit-taxable" 
-                        className={!billingStatusOptions.find(item => String(item.id) === String(editingCost.billing_status_id))?.name?.toLowerCase().includes('billable') ? "text-muted-foreground cursor-not-allowed" : "cursor-pointer"}
+                      <Label
+                        htmlFor="edit-taxable"
+                        className={
+                          !billingStatusOptions
+                            .find(
+                              (item) =>
+                                String(item.id) ===
+                                String(editingCost.billing_status_id),
+                            )
+                            ?.name?.toLowerCase()
+                            .includes("billable")
+                            ? "text-muted-foreground cursor-not-allowed"
+                            : "cursor-pointer"
+                        }
                       >
                         Taxable
                       </Label>
                     </div>
-                    
-                    {editingCost.taxable && billingStatusOptions.find(item => String(item.id) === String(editingCost.billing_status_id))?.name?.toLowerCase().includes('billable') && (
-                      <div className="mt-4 p-4 bg-muted rounded-lg space-y-2">
-                        {(() => {
-                          const rate = parseFloat(editingCost.rate) || 0;
-                          const selectedRateType = rateTypeOptions.find(item => String(item.id) === String(editingCost.rate_type_id));
-                          const rateTypeName = selectedRateType?.name?.toLowerCase() || '';
-                          
-                          let value = rate;
-                          if (rateTypeName.includes('hourly')) {
-                            const selectedTimeSpent = timeSpentOptions.find(item => String(item.id) === String(editingCost.time_spent_id));
-                            const timeValue = parseFloat(selectedTimeSpent?.minute) || parseFloat(selectedTimeSpent?.hour) || 0;
-                            value = rate * (timeValue/60);
-                          }
-                          
-                          const taxTotal = value * 0.13;
-                          const cardTotal = value + taxTotal;
-                          
-                          return (
-                            <>
-                              <p className="text-sm"><span className="font-medium">Tax Total (13%):</span> ${taxTotal.toFixed(2)}</p>
-                              <p className="text-sm"><span className="font-medium">Card Total:</span> ${cardTotal.toFixed(2)}</p>
-                            </>
-                          );
-                        })()}
-                      </div>
-                    )}
+
+                    {editingCost.taxable &&
+                      billingStatusOptions
+                        .find(
+                          (item) =>
+                            String(item.id) ===
+                            String(editingCost.billing_status_id),
+                        )
+                        ?.name?.toLowerCase()
+                        .includes("billable") && (
+                        <div className="mt-4 p-4 bg-muted rounded-lg space-y-2">
+                          {(() => {
+                            const rate = parseFloat(editingCost.rate) || 0;
+                            const selectedRateType = rateTypeOptions.find(
+                              (item) =>
+                                String(item.id) ===
+                                String(editingCost.rate_type_id),
+                            );
+                            const rateTypeName =
+                              selectedRateType?.name?.toLowerCase() || "";
+
+                            let value = rate;
+                            if (rateTypeName.includes("hourly")) {
+                              const selectedTimeSpent = timeSpentOptions.find(
+                                (item) =>
+                                  String(item.id) ===
+                                  String(editingCost.time_spent_id),
+                              );
+                              const timeValue =
+                                parseFloat(selectedTimeSpent?.minute) ||
+                                parseFloat(selectedTimeSpent?.hour) ||
+                                0;
+                              value = rate * (timeValue / 60);
+                            }
+
+                            const taxTotal = value * 0.13;
+                            const cardTotal = value + taxTotal;
+
+                            return (
+                              <>
+                                <p className="text-sm">
+                                  <span className="font-medium">
+                                    Tax Total (13%):
+                                  </span>{" "}
+                                  ${taxTotal.toFixed(2)}
+                                </p>
+                                <p className="text-sm">
+                                  <span className="font-medium">
+                                    Card Total:
+                                  </span>{" "}
+                                  ${cardTotal.toFixed(2)}
+                                </p>
+                              </>
+                            );
+                          })()}
+                        </div>
+                      )}
                   </div>
                 </TabsContent>
               </Tabs>
             </div>
           )}
           <div className="flex justify-end gap-2 pt-4 border-t">
-            <Button variant="outline" onClick={() => { setEditDialogOpen(null); setEditingCost(null); }}>
+            <Button
+              variant="outline"
+              onClick={() => {
+                setEditDialogOpen(null);
+                setEditingCost(null);
+              }}
+            >
               Close
             </Button>
-            <Button onClick={handleEditTimeCardSubmit} disabled={updateCostMutation.isPending}>
+            <Button
+              onClick={handleEditTimeCardSubmit}
+              disabled={updateCostMutation.isPending}
+            >
               {updateCostMutation.isPending ? "Updating..." : "Update"}
             </Button>
           </div>
@@ -1812,13 +2279,24 @@ const CostList = () => {
       </Dialog>
 
       {/* Edit Hard Cost Dialog */}
-      <Dialog open={editDialogOpen === "hard-cost"} onOpenChange={(open) => { if (!open) { setEditDialogOpen(null); setEditingCost(null); } }}>
+      <Dialog
+        open={editDialogOpen === "hard-cost"}
+        onOpenChange={(open) => {
+          if (!open) {
+            setEditDialogOpen(null);
+            setEditingCost(null);
+          }
+        }}
+      >
         <DialogContent className="w-[70vw] max-w-none max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="text-xl">Edit Hard Cost</DialogTitle>
             <DialogDescription>Edit the hard cost entry</DialogDescription>
             <button
-              onClick={() => { setEditDialogOpen(null); setEditingCost(null); }}
+              onClick={() => {
+                setEditDialogOpen(null);
+                setEditingCost(null);
+              }}
               className="absolute right-4 top-4 rounded-sm opacity-70 hover:opacity-100"
             >
               <X className="h-4 w-4" />
@@ -1828,18 +2306,26 @@ const CostList = () => {
             <div className="space-y-6 py-4">
               <div className="grid grid-cols-4 gap-4">
                 <div className="space-y-2">
-                  <Label>Date <span className="text-red-500">*</span></Label>
+                  <Label>
+                    Date <span className="text-red-500">*</span>
+                  </Label>
                   <Input
                     type="date"
                     value={editingCost.date || ""}
-                    onChange={(e) => setEditingCost({...editingCost, date: e.target.value})}
+                    onChange={(e) =>
+                      setEditingCost({ ...editingCost, date: e.target.value })
+                    }
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label>Bank Type <span className="text-red-500">*</span></Label>
+                  <Label>
+                    Bank Type <span className="text-red-500">*</span>
+                  </Label>
                   <Select
                     value={String(editingCost.bank_type_id || "")}
-                    onValueChange={(value) => setEditingCost({...editingCost, bank_type_id: value})}
+                    onValueChange={(value) =>
+                      setEditingCost({ ...editingCost, bank_type_id: value })
+                    }
                   >
                     <SelectTrigger className="w-full">
                       <SelectValue placeholder="Select" />
@@ -1854,17 +2340,20 @@ const CostList = () => {
                   </Select>
                 </div>
                 <div className="space-y-2">
-                  <Label>Type <span className="text-red-500">*</span></Label>
-                  <Input 
-                    disabled
-                    value={editingCost.type || "Payment"}
-                  />
+                  <Label>
+                    Type <span className="text-red-500">*</span>
+                  </Label>
+                  <Input disabled value={editingCost.type || "Payment"} />
                 </div>
                 <div className="space-y-2">
-                  <Label>Method <span className="text-red-500">*</span></Label>
+                  <Label>
+                    Method <span className="text-red-500">*</span>
+                  </Label>
                   <Select
                     value={String(editingCost.method_id || "")}
-                    onValueChange={(value) => setEditingCost({...editingCost, method_id: value})}
+                    onValueChange={(value) =>
+                      setEditingCost({ ...editingCost, method_id: value })
+                    }
                   >
                     <SelectTrigger className="w-full">
                       <SelectValue placeholder="Select" />
@@ -1882,20 +2371,28 @@ const CostList = () => {
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label>Pay to <span className="text-red-500">*</span></Label>
-                  <Input 
-                    placeholder="" 
+                  <Label>
+                    Pay to <span className="text-red-500">*</span>
+                  </Label>
+                  <Input
+                    placeholder=""
                     value={editingCost.pay_to || ""}
-                    onChange={(e) => setEditingCost({...editingCost, pay_to: e.target.value})}
+                    onChange={(e) =>
+                      setEditingCost({ ...editingCost, pay_to: e.target.value })
+                    }
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label>Amount <span className="text-red-500">*</span></Label>
-                  <Input 
-                    type="number" 
-                    placeholder="" 
+                  <Label>
+                    Amount <span className="text-red-500">*</span>
+                  </Label>
+                  <Input
+                    type="number"
+                    placeholder=""
                     value={editingCost.amount || ""}
-                    onChange={(e) => setEditingCost({...editingCost, amount: e.target.value})}
+                    onChange={(e) =>
+                      setEditingCost({ ...editingCost, amount: e.target.value })
+                    }
                   />
                 </div>
               </div>
@@ -1906,81 +2403,116 @@ const CostList = () => {
                 <div className="grid grid-cols-4 gap-4">
                   <div className="space-y-2">
                     <Label>Unit Number</Label>
-                    <Input 
-                      placeholder="" 
+                    <Input
+                      placeholder=""
                       value={editingCost.address_1?.unit_number || ""}
-                      onChange={(e) => setEditingCost({
-                        ...editingCost, 
-                        address_1: {...(editingCost.address_1 || {}), unit_number: e.target.value}
-                      })}
+                      onChange={(e) =>
+                        setEditingCost({
+                          ...editingCost,
+                          address_1: {
+                            ...(editingCost.address_1 || {}),
+                            unit_number: e.target.value,
+                          },
+                        })
+                      }
                     />
                   </div>
                   <div className="space-y-2">
                     <Label>Street Number</Label>
-                    <Input 
-                      placeholder="" 
+                    <Input
+                      placeholder=""
                       value={editingCost.address_1?.street_number || ""}
-                      onChange={(e) => setEditingCost({
-                        ...editingCost, 
-                        address_1: {...(editingCost.address_1 || {}), street_number: e.target.value}
-                      })}
+                      onChange={(e) =>
+                        setEditingCost({
+                          ...editingCost,
+                          address_1: {
+                            ...(editingCost.address_1 || {}),
+                            street_number: e.target.value,
+                          },
+                        })
+                      }
                     />
                   </div>
                   <div className="space-y-2 col-span-2">
                     <Label>Street Name</Label>
-                    <Input 
-                      placeholder="" 
+                    <Input
+                      placeholder=""
                       value={editingCost.address_1?.street_name || ""}
-                      onChange={(e) => setEditingCost({
-                        ...editingCost, 
-                        address_1: {...(editingCost.address_1 || {}), street_name: e.target.value}
-                      })}
+                      onChange={(e) =>
+                        setEditingCost({
+                          ...editingCost,
+                          address_1: {
+                            ...(editingCost.address_1 || {}),
+                            street_name: e.target.value,
+                          },
+                        })
+                      }
                     />
                   </div>
                 </div>
                 <div className="grid grid-cols-4 gap-4">
                   <div className="space-y-2">
                     <Label>City</Label>
-                    <Input 
-                      placeholder="" 
+                    <Input
+                      placeholder=""
                       value={editingCost.address_1?.city || ""}
-                      onChange={(e) => setEditingCost({
-                        ...editingCost, 
-                        address_1: {...(editingCost.address_1 || {}), city: e.target.value}
-                      })}
+                      onChange={(e) =>
+                        setEditingCost({
+                          ...editingCost,
+                          address_1: {
+                            ...(editingCost.address_1 || {}),
+                            city: e.target.value,
+                          },
+                        })
+                      }
                     />
                   </div>
                   <div className="space-y-2">
                     <Label>Province</Label>
-                    <Input 
-                      placeholder="" 
+                    <Input
+                      placeholder=""
                       value={editingCost.address_1?.province || ""}
-                      onChange={(e) => setEditingCost({
-                        ...editingCost, 
-                        address_1: {...(editingCost.address_1 || {}), province: e.target.value}
-                      })}
+                      onChange={(e) =>
+                        setEditingCost({
+                          ...editingCost,
+                          address_1: {
+                            ...(editingCost.address_1 || {}),
+                            province: e.target.value,
+                          },
+                        })
+                      }
                     />
                   </div>
                   <div className="space-y-2">
                     <Label>Postal Code</Label>
-                    <Input 
-                      placeholder="" 
+                    <Input
+                      placeholder=""
                       value={editingCost.address_1?.postal_code || ""}
-                      onChange={(e) => setEditingCost({
-                        ...editingCost, 
-                        address_1: {...(editingCost.address_1 || {}), postal_code: e.target.value}
-                      })}
+                      onChange={(e) =>
+                        setEditingCost({
+                          ...editingCost,
+                          address_1: {
+                            ...(editingCost.address_1 || {}),
+                            postal_code: e.target.value,
+                          },
+                        })
+                      }
                     />
                   </div>
                   <div className="space-y-2">
                     <Label>Country</Label>
-                    <Input 
-                      placeholder="" 
+                    <Input
+                      placeholder=""
                       value={editingCost.address_1?.country || ""}
-                      onChange={(e) => setEditingCost({
-                        ...editingCost, 
-                        address_1: {...(editingCost.address_1 || {}), country: e.target.value}
-                      })}
+                      onChange={(e) =>
+                        setEditingCost({
+                          ...editingCost,
+                          address_1: {
+                            ...(editingCost.address_1 || {}),
+                            country: e.target.value,
+                          },
+                        })
+                      }
                     />
                   </div>
                 </div>
@@ -1992,81 +2524,116 @@ const CostList = () => {
                 <div className="grid grid-cols-4 gap-4">
                   <div className="space-y-2">
                     <Label>Unit Number</Label>
-                    <Input 
-                      placeholder="" 
+                    <Input
+                      placeholder=""
                       value={editingCost.address_2?.unit_number || ""}
-                      onChange={(e) => setEditingCost({
-                        ...editingCost, 
-                        address_2: {...(editingCost.address_2 || {}), unit_number: e.target.value}
-                      })}
+                      onChange={(e) =>
+                        setEditingCost({
+                          ...editingCost,
+                          address_2: {
+                            ...(editingCost.address_2 || {}),
+                            unit_number: e.target.value,
+                          },
+                        })
+                      }
                     />
                   </div>
                   <div className="space-y-2">
                     <Label>Street Number</Label>
-                    <Input 
-                      placeholder="" 
+                    <Input
+                      placeholder=""
                       value={editingCost.address_2?.street_number || ""}
-                      onChange={(e) => setEditingCost({
-                        ...editingCost, 
-                        address_2: {...(editingCost.address_2 || {}), street_number: e.target.value}
-                      })}
+                      onChange={(e) =>
+                        setEditingCost({
+                          ...editingCost,
+                          address_2: {
+                            ...(editingCost.address_2 || {}),
+                            street_number: e.target.value,
+                          },
+                        })
+                      }
                     />
                   </div>
                   <div className="space-y-2 col-span-2">
                     <Label>Street Name</Label>
-                    <Input 
-                      placeholder="" 
+                    <Input
+                      placeholder=""
                       value={editingCost.address_2?.street_name || ""}
-                      onChange={(e) => setEditingCost({
-                        ...editingCost, 
-                        address_2: {...(editingCost.address_2 || {}), street_name: e.target.value}
-                      })}
+                      onChange={(e) =>
+                        setEditingCost({
+                          ...editingCost,
+                          address_2: {
+                            ...(editingCost.address_2 || {}),
+                            street_name: e.target.value,
+                          },
+                        })
+                      }
                     />
                   </div>
                 </div>
                 <div className="grid grid-cols-4 gap-4">
                   <div className="space-y-2">
                     <Label>City</Label>
-                    <Input 
-                      placeholder="" 
+                    <Input
+                      placeholder=""
                       value={editingCost.address_2?.city || ""}
-                      onChange={(e) => setEditingCost({
-                        ...editingCost, 
-                        address_2: {...(editingCost.address_2 || {}), city: e.target.value}
-                      })}
+                      onChange={(e) =>
+                        setEditingCost({
+                          ...editingCost,
+                          address_2: {
+                            ...(editingCost.address_2 || {}),
+                            city: e.target.value,
+                          },
+                        })
+                      }
                     />
                   </div>
                   <div className="space-y-2">
                     <Label>Province</Label>
-                    <Input 
-                      placeholder="" 
+                    <Input
+                      placeholder=""
                       value={editingCost.address_2?.province || ""}
-                      onChange={(e) => setEditingCost({
-                        ...editingCost, 
-                        address_2: {...(editingCost.address_2 || {}), province: e.target.value}
-                      })}
+                      onChange={(e) =>
+                        setEditingCost({
+                          ...editingCost,
+                          address_2: {
+                            ...(editingCost.address_2 || {}),
+                            province: e.target.value,
+                          },
+                        })
+                      }
                     />
                   </div>
                   <div className="space-y-2">
                     <Label>Postal Code</Label>
-                    <Input 
-                      placeholder="" 
+                    <Input
+                      placeholder=""
                       value={editingCost.address_2?.postal_code || ""}
-                      onChange={(e) => setEditingCost({
-                        ...editingCost, 
-                        address_2: {...(editingCost.address_2 || {}), postal_code: e.target.value}
-                      })}
+                      onChange={(e) =>
+                        setEditingCost({
+                          ...editingCost,
+                          address_2: {
+                            ...(editingCost.address_2 || {}),
+                            postal_code: e.target.value,
+                          },
+                        })
+                      }
                     />
                   </div>
                   <div className="space-y-2">
                     <Label>Country</Label>
-                    <Input 
-                      placeholder="" 
+                    <Input
+                      placeholder=""
                       value={editingCost.address_2?.country || ""}
-                      onChange={(e) => setEditingCost({
-                        ...editingCost, 
-                        address_2: {...(editingCost.address_2 || {}), country: e.target.value}
-                      })}
+                      onChange={(e) =>
+                        setEditingCost({
+                          ...editingCost,
+                          address_2: {
+                            ...(editingCost.address_2 || {}),
+                            country: e.target.value,
+                          },
+                        })
+                      }
                     />
                   </div>
                 </div>
@@ -2075,30 +2642,43 @@ const CostList = () => {
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label>Memo 1</Label>
-                  <Textarea 
-                    className="min-h-[80px]" 
-                    placeholder="" 
+                  <Textarea
+                    className="min-h-[80px]"
+                    placeholder=""
                     value={editingCost.memo_1 || ""}
-                    onChange={(e) => setEditingCost({...editingCost, memo_1: e.target.value})}
+                    onChange={(e) =>
+                      setEditingCost({ ...editingCost, memo_1: e.target.value })
+                    }
                   />
                 </div>
                 <div className="space-y-2">
                   <Label>Memo 2</Label>
-                  <Textarea 
-                    className="min-h-[80px]" 
-                    placeholder="" 
+                  <Textarea
+                    className="min-h-[80px]"
+                    placeholder=""
                     value={editingCost.memo_2 || ""}
-                    onChange={(e) => setEditingCost({...editingCost, memo_2: e.target.value})}
+                    onChange={(e) =>
+                      setEditingCost({ ...editingCost, memo_2: e.target.value })
+                    }
                   />
                 </div>
               </div>
             </div>
           )}
           <div className="flex justify-end gap-2 pt-4 border-t">
-            <Button variant="outline" onClick={() => { setEditDialogOpen(null); setEditingCost(null); }}>
+            <Button
+              variant="outline"
+              onClick={() => {
+                setEditDialogOpen(null);
+                setEditingCost(null);
+              }}
+            >
               Close
             </Button>
-            <Button onClick={handleEditHardCostSubmit} disabled={updateCostMutation.isPending}>
+            <Button
+              onClick={handleEditHardCostSubmit}
+              disabled={updateCostMutation.isPending}
+            >
               {updateCostMutation.isPending ? "Updating..." : "Update"}
             </Button>
           </div>

@@ -30,9 +30,11 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
+import {
+  FloatingInput,
+  FloatingTextarea,
+  FloatingWrapper,
+} from "@/components/ui/floating-label";
 import {
   Select,
   SelectContent,
@@ -402,24 +404,29 @@ const formatDate = (dateString) => {
           </DialogHeader>
           <div className="space-y-6 py-4">
             <div className="grid grid-cols-4 gap-4">
-              <div className="space-y-2">
-                <Label>Date <span className="text-red-500">*</span></Label>
-                <Input
-                  type="date"
-                  value={form.date}
-                  onChange={(e) => setForm({...form, date: e.target.value})}
-                  required
-                />
-              </div>
-              <div className="space-y-2">
-                <Label>Bank Type <span className="text-red-500">*</span></Label>
+              <FloatingInput
+                label="Date"
+                type="date"
+                value={form.date}
+                onChange={(e) => setForm({ ...form, date: e.target.value })}
+                required
+              />
+
+              <FloatingWrapper
+                label="Bank Type"
+                required
+                hasValue={!!form.banktype_id}
+                isFocused={false}
+              >
                 <Select
                   value={form.banktype_id}
-                  onValueChange={(value) => setForm({...form, banktype_id: value})}
+                  onValueChange={(value) =>
+                    setForm({ ...form, banktype_id: value })
+                  }
                   required
                 >
-                  <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Select" />
+                  <SelectTrigger className="w-full h-[52px] bg-transparent border border-input">
+                    <SelectValue placeholder="" />
                   </SelectTrigger>
                   <SelectContent>
                     {bankTypes.map((item) => (
@@ -429,16 +436,23 @@ const formatDate = (dateString) => {
                     ))}
                   </SelectContent>
                 </Select>
-              </div>
-              <div className="space-y-2">
-                <Label>Method <span className="text-red-500">*</span></Label>
+              </FloatingWrapper>
+
+              <FloatingWrapper
+                label="Method"
+                required
+                hasValue={!!form.method_id}
+                isFocused={false}
+              >
                 <Select
                   value={form.method_id}
-                  onValueChange={(value) => setForm({...form, method_id: value})}
+                  onValueChange={(value) =>
+                    setForm({ ...form, method_id: value })
+                  }
                   required
                 >
-                  <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Select" />
+                  <SelectTrigger className="w-full h-[52px] bg-transparent border border-input">
+                    <SelectValue placeholder="" />
                   </SelectTrigger>
                   <SelectContent>
                     {accountingMethods.map((item) => (
@@ -448,16 +462,23 @@ const formatDate = (dateString) => {
                     ))}
                   </SelectContent>
                 </Select>
-              </div>
-              <div className="space-y-2">
-                <Label>Type <span className="text-red-500">*</span></Label>
+              </FloatingWrapper>
+
+              <FloatingWrapper
+                label="Type"
+                required
+                hasValue={!!form.type_id}
+                isFocused={false}
+              >
                 <Select
                   value={form.type_id}
-                  onValueChange={(value) => setForm({...form, type_id: value})}
+                  onValueChange={(value) =>
+                    setForm({ ...form, type_id: value })
+                  }
                   required
                 >
-                  <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Select" />
+                  <SelectTrigger className="w-full h-[52px] bg-transparent border border-input">
+                    <SelectValue placeholder="" />
                   </SelectTrigger>
                   <SelectContent>
                     {depositTypes.map((item) => (
@@ -467,35 +488,32 @@ const formatDate = (dateString) => {
                     ))}
                   </SelectContent>
                 </Select>
-              </div>
+              </FloatingWrapper>
             </div>
 
             <div className="grid grid-cols-4 gap-4">
-              <div className="space-y-2">
-                <Label>Payor <span className="text-red-500">*</span></Label>
-                <Input 
-                  placeholder="" 
-                  value={form.pay_or}
-                  onChange={(e) => setForm({...form, pay_or: e.target.value})}
-                  required
-                />
-              </div>
-              <div className="space-y-2">
-                <Label>Amount <span className="text-red-500">*</span></Label>
-                <Input 
-                  type="number" 
-                  placeholder="" 
-                  value={form.amount}
-                  onChange={(e) => setForm({...form, amount: e.target.value})}
-                  required
-                />
-              </div>
-              <div className="space-y-2 col-span-2">
-                <Label>Reference</Label>
-                <Input 
-                  placeholder="" 
+              <FloatingInput
+                label="Payor"
+                value={form.pay_or}
+                onChange={(e) => setForm({ ...form, pay_or: e.target.value })}
+                required
+              />
+
+              <FloatingInput
+                label="Amount"
+                type="number"
+                value={form.amount}
+                onChange={(e) => setForm({ ...form, amount: e.target.value })}
+                required
+              />
+
+              <div className="col-span-2">
+                <FloatingInput
+                  label="Reference"
                   value={form.refffrence}
-                  onChange={(e) => setForm({...form, refffrence: e.target.value})}
+                  onChange={(e) =>
+                    setForm({ ...form, refffrence: e.target.value })
+                  }
                 />
               </div>
             </div>
@@ -504,79 +522,69 @@ const formatDate = (dateString) => {
             <div className="space-y-4">
               <h3 className="text-md font-medium">Address</h3>
               <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label>Address Line 1</Label>
-                  <Input 
-                    placeholder="" 
-                    value={form.address_1st}
-                    onChange={(e) => setForm({...form, address_1st: e.target.value})}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label>Address Line 2</Label>
-                  <Input 
-                    placeholder="" 
-                    value={form.address_2nd}
-                    onChange={(e) => setForm({...form, address_2nd: e.target.value})}
-                  />
-                </div>
+                <FloatingInput
+                  label="Address Line 1"
+                  value={form.address_1st}
+                  onChange={(e) =>
+                    setForm({ ...form, address_1st: e.target.value })
+                  }
+                />
+                <FloatingInput
+                  label="Address Line 2"
+                  value={form.address_2nd}
+                  onChange={(e) =>
+                    setForm({ ...form, address_2nd: e.target.value })
+                  }
+                />
               </div>
               <div className="grid grid-cols-4 gap-4">
-                <div className="space-y-2">
-                  <Label>City</Label>
-                  <Input 
-                    placeholder="" 
-                    value={form.city}
-                    onChange={(e) => setForm({...form, city: e.target.value})}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label>State/Province</Label>
-                  <Input 
-                    placeholder="" 
-                    value={form.state_province}
-                    onChange={(e) => setForm({...form, state_province: e.target.value})}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label>Zip/Postal Code</Label>
-                  <Input 
-                    placeholder="" 
-                    value={form.zip_postal_code}
-                    onChange={(e) => setForm({...form, zip_postal_code: e.target.value})}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label>Country</Label>
-                  <Input 
-                    placeholder="" 
-                    value={form.country}
-                    onChange={(e) => setForm({...form, country: e.target.value})}
-                  />
-                </div>
+                <FloatingInput
+                  label="City"
+                  value={form.city}
+                  onChange={(e) => setForm({ ...form, city: e.target.value })}
+                />
+                <FloatingInput
+                  label="State/Province"
+                  value={form.state_province}
+                  onChange={(e) =>
+                    setForm({ ...form, state_province: e.target.value })
+                  }
+                />
+                <FloatingInput
+                  label="Zip/Postal Code"
+                  value={form.zip_postal_code}
+                  onChange={(e) =>
+                    setForm({ ...form, zip_postal_code: e.target.value })
+                  }
+                />
+                <FloatingInput
+                  label="Country"
+                  value={form.country}
+                  onChange={(e) =>
+                    setForm({ ...form, country: e.target.value })
+                  }
+                />
               </div>
             </div>
 
             {/* Memos */}
             <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label>Memo 1</Label>
-                <Textarea 
-                  className="min-h-[80px]" 
-                  placeholder="" 
-                  value={form.memo_1st}
-                  onChange={(e) => setForm({...form, memo_1st: e.target.value})}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label>Memo 2</Label>
-                <Textarea 
-                  className="min-h-[80px]" 
-                  placeholder="" 
-                  value={form.memo_2nd}
-                  onChange={(e) => setForm({...form, memo_2nd: e.target.value})}
-                />
-              </div>
+              <FloatingTextarea
+                label="Memo 1"
+                className="min-h-[80px]"
+                value={form.memo_1st}
+                onChange={(e) =>
+                  setForm({ ...form, memo_1st: e.target.value })
+                }
+              />
+              <FloatingTextarea
+                label="Memo 2"
+                className="min-h-[80px]"
+                value={form.memo_2nd}
+                onChange={(e) =>
+                  setForm({ ...form, memo_2nd: e.target.value })
+                }
+              />
             </div>
           </div>
           <div className="flex justify-end gap-2 pt-4 border-t">
@@ -605,24 +613,31 @@ const formatDate = (dateString) => {
           {editingDeposit && (
             <div className="space-y-6 py-4">
               <div className="grid grid-cols-4 gap-4">
-                <div className="space-y-2">
-                  <Label>Date <span className="text-red-500">*</span></Label>
-                  <Input
-                    type="date"
-                    value={editingDeposit.date || ""}
-                    onChange={(e) => setEditingDeposit({...editingDeposit, date: e.target.value})}
-                    required
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label>Bank Type <span className="text-red-500">*</span></Label>
+                <FloatingInput
+                  label="Date"
+                  type="date"
+                  value={editingDeposit.date || ""}
+                  onChange={(e) =>
+                    setEditingDeposit({ ...editingDeposit, date: e.target.value })
+                  }
+                  required
+                />
+
+                <FloatingWrapper
+                  label="Bank Type"
+                  required
+                  hasValue={!!editingDeposit.banktype_id}
+                  isFocused={false}
+                >
                   <Select
                     value={String(editingDeposit.banktype_id || "")}
-                    onValueChange={(value) => setEditingDeposit({...editingDeposit, banktype_id: value})}
+                    onValueChange={(value) =>
+                      setEditingDeposit({ ...editingDeposit, banktype_id: value })
+                    }
                     required
                   >
-                    <SelectTrigger className="w-full">
-                      <SelectValue placeholder="Select" />
+                    <SelectTrigger className="w-full h-[52px] bg-transparent border border-input">
+                      <SelectValue placeholder="" />
                     </SelectTrigger>
                     <SelectContent>
                       {bankTypes.map((item) => (
@@ -632,16 +647,23 @@ const formatDate = (dateString) => {
                       ))}
                     </SelectContent>
                   </Select>
-                </div>
-                <div className="space-y-2">
-                  <Label>Method <span className="text-red-500">*</span></Label>
+                </FloatingWrapper>
+
+                <FloatingWrapper
+                  label="Method"
+                  required
+                  hasValue={!!editingDeposit.method_id}
+                  isFocused={false}
+                >
                   <Select
                     value={String(editingDeposit.method_id || "")}
-                    onValueChange={(value) => setEditingDeposit({...editingDeposit, method_id: value})}
+                    onValueChange={(value) =>
+                      setEditingDeposit({ ...editingDeposit, method_id: value })
+                    }
                     required
                   >
-                    <SelectTrigger className="w-full">
-                      <SelectValue placeholder="Select" />
+                    <SelectTrigger className="w-full h-[52px] bg-transparent border border-input">
+                      <SelectValue placeholder="" />
                     </SelectTrigger>
                     <SelectContent>
                       {accountingMethods.map((item) => (
@@ -651,16 +673,23 @@ const formatDate = (dateString) => {
                       ))}
                     </SelectContent>
                   </Select>
-                </div>
-                <div className="space-y-2">
-                  <Label>Type <span className="text-red-500">*</span></Label>
+                </FloatingWrapper>
+
+                <FloatingWrapper
+                  label="Type"
+                  required
+                  hasValue={!!editingDeposit.type_id}
+                  isFocused={false}
+                >
                   <Select
                     value={String(editingDeposit.type_id || "")}
-                    onValueChange={(value) => setEditingDeposit({...editingDeposit, type_id: value})}
+                    onValueChange={(value) =>
+                      setEditingDeposit({ ...editingDeposit, type_id: value })
+                    }
                     required
                   >
-                    <SelectTrigger className="w-full">
-                      <SelectValue placeholder="Select" />
+                    <SelectTrigger className="w-full h-[52px] bg-transparent border border-input">
+                      <SelectValue placeholder="" />
                     </SelectTrigger>
                     <SelectContent>
                       {depositTypes.map((item) => (
@@ -670,35 +699,39 @@ const formatDate = (dateString) => {
                       ))}
                     </SelectContent>
                   </Select>
-                </div>
+                </FloatingWrapper>
               </div>
 
               <div className="grid grid-cols-4 gap-4">
-                <div className="space-y-2">
-                  <Label>Payor <span className="text-red-500">*</span></Label>
-                  <Input 
-                    placeholder="" 
-                    value={editingDeposit.pay_or || ""}
-                    onChange={(e) => setEditingDeposit({...editingDeposit, pay_or: e.target.value})}
-                    required
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label>Amount <span className="text-red-500">*</span></Label>
-                  <Input 
-                    type="number" 
-                    placeholder="" 
-                    value={editingDeposit.amount || ""}
-                    onChange={(e) => setEditingDeposit({...editingDeposit, amount: e.target.value})}
-                    required
-                  />
-                </div>
-                <div className="space-y-2 col-span-2">
-                  <Label>Reference</Label>
-                  <Input 
-                    placeholder="" 
+                <FloatingInput
+                  label="Payor"
+                  value={editingDeposit.pay_or || ""}
+                  onChange={(e) =>
+                    setEditingDeposit({ ...editingDeposit, pay_or: e.target.value })
+                  }
+                  required
+                />
+
+                <FloatingInput
+                  label="Amount"
+                  type="number"
+                  value={editingDeposit.amount || ""}
+                  onChange={(e) =>
+                    setEditingDeposit({ ...editingDeposit, amount: e.target.value })
+                  }
+                  required
+                />
+
+                <div className="col-span-2">
+                  <FloatingInput
+                    label="Reference"
                     value={editingDeposit.refffrence || ""}
-                    onChange={(e) => setEditingDeposit({...editingDeposit, refffrence: e.target.value})}
+                    onChange={(e) =>
+                      setEditingDeposit({
+                        ...editingDeposit,
+                        refffrence: e.target.value,
+                      })
+                    }
                   />
                 </div>
               </div>
@@ -707,79 +740,92 @@ const formatDate = (dateString) => {
               <div className="space-y-4">
                 <h3 className="text-md font-medium">Address</h3>
                 <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label>Address Line 1</Label>
-                    <Input 
-                      placeholder="" 
-                      value={editingDeposit.address_1st || ""}
-                      onChange={(e) => setEditingDeposit({...editingDeposit, address_1st: e.target.value})}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Address Line 2</Label>
-                    <Input 
-                      placeholder="" 
-                      value={editingDeposit.address_2nd || ""}
-                      onChange={(e) => setEditingDeposit({...editingDeposit, address_2nd: e.target.value})}
-                    />
-                  </div>
+                  <FloatingInput
+                    label="Address Line 1"
+                    value={editingDeposit.address_1st || ""}
+                    onChange={(e) =>
+                      setEditingDeposit({
+                        ...editingDeposit,
+                        address_1st: e.target.value,
+                      })
+                    }
+                  />
+                  <FloatingInput
+                    label="Address Line 2"
+                    value={editingDeposit.address_2nd || ""}
+                    onChange={(e) =>
+                      setEditingDeposit({
+                        ...editingDeposit,
+                        address_2nd: e.target.value,
+                      })
+                    }
+                  />
                 </div>
                 <div className="grid grid-cols-4 gap-4">
-                  <div className="space-y-2">
-                    <Label>City</Label>
-                    <Input 
-                      placeholder="" 
-                      value={editingDeposit.city || ""}
-                      onChange={(e) => setEditingDeposit({...editingDeposit, city: e.target.value})}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label>State/Province</Label>
-                    <Input 
-                      placeholder="" 
-                      value={editingDeposit.state_province || ""}
-                      onChange={(e) => setEditingDeposit({...editingDeposit, state_province: e.target.value})}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Zip/Postal Code</Label>
-                    <Input 
-                      placeholder="" 
-                      value={editingDeposit.zip_postal_code || ""}
-                      onChange={(e) => setEditingDeposit({...editingDeposit, zip_postal_code: e.target.value})}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Country</Label>
-                    <Input 
-                      placeholder="" 
-                      value={editingDeposit.country || ""}
-                      onChange={(e) => setEditingDeposit({...editingDeposit, country: e.target.value})}
-                    />
-                  </div>
+                  <FloatingInput
+                    label="City"
+                    value={editingDeposit.city || ""}
+                    onChange={(e) =>
+                      setEditingDeposit({ ...editingDeposit, city: e.target.value })
+                    }
+                  />
+                  <FloatingInput
+                    label="State/Province"
+                    value={editingDeposit.state_province || ""}
+                    onChange={(e) =>
+                      setEditingDeposit({
+                        ...editingDeposit,
+                        state_province: e.target.value,
+                      })
+                    }
+                  />
+                  <FloatingInput
+                    label="Zip/Postal Code"
+                    value={editingDeposit.zip_postal_code || ""}
+                    onChange={(e) =>
+                      setEditingDeposit({
+                        ...editingDeposit,
+                        zip_postal_code: e.target.value,
+                      })
+                    }
+                  />
+                  <FloatingInput
+                    label="Country"
+                    value={editingDeposit.country || ""}
+                    onChange={(e) =>
+                      setEditingDeposit({
+                        ...editingDeposit,
+                        country: e.target.value,
+                      })
+                    }
+                  />
                 </div>
               </div>
 
               {/* Memos */}
               <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label>Memo 1</Label>
-                  <Textarea 
-                    className="min-h-[80px]" 
-                    placeholder="" 
-                    value={editingDeposit.memo_1st || ""}
-                    onChange={(e) => setEditingDeposit({...editingDeposit, memo_1st: e.target.value})}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label>Memo 2</Label>
-                  <Textarea 
-                    className="min-h-[80px]" 
-                    placeholder="" 
-                    value={editingDeposit.memo_2nd || ""}
-                    onChange={(e) => setEditingDeposit({...editingDeposit, memo_2nd: e.target.value})}
-                  />
-                </div>
+                <FloatingTextarea
+                  label="Memo 1"
+                  className="min-h-[80px]"
+                  value={editingDeposit.memo_1st || ""}
+                  onChange={(e) =>
+                    setEditingDeposit({
+                      ...editingDeposit,
+                      memo_1st: e.target.value,
+                    })
+                  }
+                />
+                <FloatingTextarea
+                  label="Memo 2"
+                  className="min-h-[80px]"
+                  value={editingDeposit.memo_2nd || ""}
+                  onChange={(e) =>
+                    setEditingDeposit({
+                      ...editingDeposit,
+                      memo_2nd: e.target.value,
+                    })
+                  }
+                />
               </div>
             </div>
           )}

@@ -3,10 +3,10 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
+import { FloatingInput } from "@/components/ui/floating-label";
 import { Loader2, ChevronRight, Plus, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -359,142 +359,98 @@ export default function Adjuster() {
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                  <div className="space-y-2">
-                    <Label className="text-foreground font-medium">
-                      Insurance Company
-                    </Label>
-                    <Input
-                      value={adjuster.insurance_company}
-                      onChange={(e) =>
-                        handleChange(index, "insurance_company", e.target.value)
-                      }
-                      placeholder="ABC Insurance"
-                      className="h-9 bg-card border-input"
-                    />
-                  </div>
+                  <FloatingInput
+                    label="Insurance Company"
+                    value={adjuster.insurance_company}
+                    onChange={(e) =>
+                      handleChange(index, "insurance_company", e.target.value)
+                    }
+                  />
 
-                  <div className="space-y-2">
-                    <Label className="text-foreground font-medium">
-                      First Name
-                    </Label>
-                    <Input
-                      value={adjuster.first_name}
-                      onChange={(e) =>
-                        handleChange(index, "first_name", e.target.value)
-                      }
-                      placeholder="John"
-                      className="h-9 bg-card border-input"
-                    />
-                  </div>
+                  <FloatingInput
+                    label="First Name"
+                    value={adjuster.first_name}
+                    onChange={(e) =>
+                      handleChange(index, "first_name", e.target.value)
+                    }
+                  />
 
-                  <div className="space-y-2">
-                    <Label className="text-foreground font-medium">
-                      Last Name
-                    </Label>
-                    <Input
-                      value={adjuster.last_name}
-                      onChange={(e) =>
-                        handleChange(index, "last_name", e.target.value)
-                      }
-                      placeholder="Doe"
-                      className="h-9 bg-card border-input"
-                    />
-                  </div>
+                  <FloatingInput
+                    label="Last Name"
+                    value={adjuster.last_name}
+                    onChange={(e) =>
+                      handleChange(index, "last_name", e.target.value)
+                    }
+                  />
 
-                  <div className="space-y-2">
-                    <Label className="text-foreground font-medium">
-                      Claim Number
-                    </Label>
-                    <Input
-                      value={adjuster.claim_no}
-                      onChange={(e) =>
-                        handleChange(index, "claim_no", e.target.value)
-                      }
-                      placeholder="CLM-12345"
-                      className="h-9 bg-card border-input"
-                    />
-                  </div>
+                  <FloatingInput
+                    label="Claim Number"
+                    value={adjuster.claim_no}
+                    onChange={(e) =>
+                      handleChange(index, "claim_no", e.target.value)
+                    }
+                  />
 
-                  <div className="space-y-2">
-                    <Label className="text-foreground font-medium">
-                      Policy Number
-                    </Label>
-                    <Input
-                      value={adjuster.policy_no}
-                      onChange={(e) =>
-                        handleChange(index, "policy_no", e.target.value)
-                      }
-                      placeholder="POL-99991"
-                      className="h-9 bg-card border-input"
-                    />
-                  </div>
+                  <FloatingInput
+                    label="Policy Number"
+                    value={adjuster.policy_no}
+                    onChange={(e) =>
+                      handleChange(index, "policy_no", e.target.value)
+                    }
+                  />
 
-                  <div className="space-y-2">
-                    <Label className="text-foreground font-medium">
-                      Toll Free Number
-                    </Label>
-                    <Input
-                      value={adjuster.toll_free_no}
-                      onChange={(e) =>
-                        handleChange(index, "toll_free_no", formatPhoneNumber(e.target.value))
-                      }
-                      placeholder="(888) 888-8888"
-                      className="h-9 bg-card border-input"
-                    />
-                  </div>
+                  <FloatingInput
+                    label="Toll Free Number"
+                    value={adjuster.toll_free_no}
+                    onChange={(e) =>
+                      handleChange(
+                        index,
+                        "toll_free_no",
+                        formatPhoneNumber(e.target.value),
+                      )
+                    }
+                  />
 
-                  <div className="space-y-2">
-                    <Label className="text-foreground font-medium">
-                      Telephone
-                    </Label>
-                    <Input
-                      value={adjuster.telephone}
-                      onChange={(e) =>
-                        handleChange(index, "telephone", formatPhoneNumber(e.target.value))
-                      }
-                      placeholder="(888) 888-8888"
-                      className="h-9 bg-card border-input"
-                    />
-                  </div>
+                  <FloatingInput
+                    label="Telephone"
+                    value={adjuster.telephone}
+                    onChange={(e) =>
+                      handleChange(
+                        index,
+                        "telephone",
+                        formatPhoneNumber(e.target.value),
+                      )
+                    }
+                  />
 
-                  <div className="space-y-2">
-                    <Label className="text-foreground font-medium">
-                      Extension
-                    </Label>
-                    <Input
-                      value={adjuster.ext}
-                      onChange={(e) =>
-                        handleChange(index, "ext", e.target.value)
-                      }
-                      placeholder="101"
-                      className="h-9 bg-card border-input"
-                    />
-                  </div>
+                  <FloatingInput
+                    label="Extension"
+                    value={adjuster.ext}
+                    onChange={(e) =>
+                      handleChange(index, "ext", e.target.value)
+                    }
+                  />
 
-                  <div className="space-y-2">
-                    <Label className="text-foreground font-medium">Fax</Label>
-                    <Input
-                      value={adjuster.fax}
-                      onChange={(e) =>
-                        handleChange(index, "fax", formatPhoneNumber(e.target.value))
-                      }
-                      placeholder="(888) 888-8888"
-                      className="h-9 bg-card border-input"
-                    />
-                  </div>
+                  <FloatingInput
+                    label="Fax"
+                    value={adjuster.fax}
+                    onChange={(e) =>
+                      handleChange(
+                        index,
+                        "fax",
+                        formatPhoneNumber(e.target.value),
+                      )
+                    }
+                  />
 
-                  <div className="space-y-2">
-                    <Label className="text-foreground font-medium">Email</Label>
-                    <Input
-                      type="email"
-                      value={adjuster.email}
-                      onChange={(e) =>
-                        handleChange(index, "email", e.target.value)
-                      }
-                      placeholder="john@example.com"
-                      className="h-9 bg-card border-input"
-                    />
-                  </div>
+                  <FloatingInput
+                    label="Email"
+                    type="email"
+                    value={adjuster.email}
+                    onChange={(e) =>
+                      handleChange(index, "email", e.target.value)
+                    }
+                  />
 
                   <div className="space-y-2 md:col-span-3">
                     <Label className="text-foreground font-medium">Note</Label>

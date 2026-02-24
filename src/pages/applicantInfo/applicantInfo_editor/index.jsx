@@ -3,7 +3,6 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import {
@@ -43,6 +42,7 @@ import {
   CommandList,
 } from "@/components/ui/command";
 import Billing from "@/components/billing";
+import { FloatingInput, FloatingWrapper } from "@/components/ui/floating-label";
 
 function ShadcnSelect({
   value,
@@ -65,63 +65,65 @@ function ShadcnSelect({
   };
 
   return (
-    <Popover
-      open={isOpen}
-      onOpenChange={(open) =>
-        setPopoverOpen &&
-        setPopoverOpen((p = {}) => ({ ...p, [popoverKey]: open }))
-      }
-    >
-      <PopoverTrigger asChild>
-        <Button
-          variant="outline"
-          role="combobox"
-          className="w-full justify-between font-normal bg-muted"
-          type="button"
-        >
-          {selected ? selected.name : placeholder}
-          <ChevronsUpDown className="ml-auto h-4 w-4 shrink-0 opacity-50" />
-        </Button>
-      </PopoverTrigger>
-
-      <PopoverContent
-        className="w-[var(--radix-popover-trigger-width)] p-0"
-        align="start"
+    <FloatingWrapper label={label} hasValue={!!selected} isFocused={isOpen}>
+      <Popover
+        open={isOpen}
+        onOpenChange={(open) =>
+          setPopoverOpen &&
+          setPopoverOpen((p = {}) => ({ ...p, [popoverKey]: open }))
+        }
       >
-        <Command>
-          <CommandInput placeholder={label.toLowerCase()} />
-          <CommandEmpty>No results found.</CommandEmpty>
-          <CommandGroup>
-            <CommandItem
-              value=""
-              onSelect={() => handleSelect("")}
-              className="italic text-muted-foreground"
-            >
-              <Check
-                className={`mr-2 h-4 w-4 ${!value ? "opacity-100" : "opacity-0"
-                  }`}
-              />
-              None
-            </CommandItem>
-            {options.map((opt) => (
+        <PopoverTrigger asChild>
+          <Button
+            variant="outline"
+            role="combobox"
+            className="w-full justify-between font-normal h-[48px] bg-transparent border border-input text-sm"
+            type="button"
+          >
+            {selected ? selected.name : ""}
+            <ChevronsUpDown className="ml-auto h-4 w-4 shrink-0 opacity-50" />
+          </Button>
+        </PopoverTrigger>
+
+        <PopoverContent
+          className="w-[var(--radix-popover-trigger-width)] p-0"
+          align="start"
+        >
+          <Command>
+            <CommandInput placeholder={label.toLowerCase()} />
+            <CommandEmpty>No results found.</CommandEmpty>
+            <CommandGroup>
               <CommandItem
-                key={opt.id}
-                value={opt.name}
-                onSelect={() => handleSelect(opt.id)}
+                value=""
+                onSelect={() => handleSelect("")}
+                className="italic text-muted-foreground"
               >
                 <Check
-                  className={`mr-2 h-4 w-4 ${String(value) === String(opt.id)
-                    ? "opacity-100"
-                    : "opacity-0"
+                  className={`mr-2 h-4 w-4 ${!value ? "opacity-100" : "opacity-0"
                     }`}
                 />
-                {opt.name}
+                None
               </CommandItem>
-            ))}
-          </CommandGroup>
-        </Command>
-      </PopoverContent>
-    </Popover>
+              {options.map((opt) => (
+                <CommandItem
+                  key={opt.id}
+                  value={opt.name}
+                  onSelect={() => handleSelect(opt.id)}
+                >
+                  <Check
+                    className={`mr-2 h-4 w-4 ${String(value) === String(opt.id)
+                      ? "opacity-100"
+                      : "opacity-0"
+                      }`}
+                  />
+                  {opt.name}
+                </CommandItem>
+              ))}
+            </CommandGroup>
+          </Command>
+        </PopoverContent>
+      </Popover>
+    </FloatingWrapper>
   );
 }
 
@@ -715,12 +717,6 @@ export default function ApplicantInformation() {
                 {/* Row 1 */}
                 <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
                   <div className="space-y-2">
-                    <Label
-                      htmlFor="gender_id"
-                      className="text-foreground font-medium"
-                    >
-                      Gender
-                    </Label>
                     <ShadcnSelect
                       popoverKey="gender"
                       popoverOpen={popoverOpen}
@@ -734,52 +730,33 @@ export default function ApplicantInformation() {
                   </div>
 
                   <div className="space-y-2">
-                    <Label
-                      htmlFor="last_name"
-                      className="text-foreground font-medium"
-                    >
-                      Last Name<span className="text-red-600">*</span>
-                    </Label>
-                    <Input
+                    <FloatingInput
                       id="last_name"
                       name="last_name"
+                      label="Last Name"
+                      required
                       value={formData.last_name}
                       onChange={handleChange}
-                      placeholder="Doe"
-                      className="w-full h-9 bg-muted border-input"
                     />
                   </div>
 
                   <div className="space-y-2">
-                    <Label
-                      htmlFor="first_name"
-                      className="text-foreground font-medium"
-                    >
-                      First Name<span className="text-red-600">*</span>
-                    </Label>
-                    <Input
+                    <FloatingInput
                       id="first_name"
                       name="first_name"
+                      label="First Name"
+                      required
                       value={formData.first_name}
                       onChange={handleChange}
-                      placeholder="John"
-                      className="w-full h-9 bg-muted border-input"
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label
-                      htmlFor="middle_name"
-                      className="text-foreground font-medium"
-                    >
-                      Middle Name
-                    </Label>
-                    <Input
+                    <FloatingInput
                       id="middle_name"
                       name="middle_name"
+                      label="Middle Name"
                       value={formData.middle_name}
                       onChange={handleChange}
-                      placeholder="Michael"
-                      className="w-full h-9 bg-muted border-input"
                     />
                   </div>
 
@@ -790,26 +767,16 @@ export default function ApplicantInformation() {
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
                   <div className="space-y-2">
-                    <Label htmlFor="email" className="text-foreground font-medium">
-                      Email
-                    </Label>
-                    <Input
+                    <FloatingInput
                       id="email"
                       name="email"
                       type="email"
+                      label="Email"
                       value={formData.email}
                       onChange={handleChange}
-                      placeholder="john.doe@example.com"
-                      className="w-full h-9 bg-muted border-input"
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label
-                      htmlFor="marital_status_id"
-                      className="text-foreground font-medium"
-                    >
-                      Marital Status
-                    </Label>
                     <ShadcnSelect
                       popoverKey="marital_status"
                       popoverOpen={popoverOpen}
@@ -825,16 +792,13 @@ export default function ApplicantInformation() {
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="dob" className="text-foreground font-medium">
-                      Date of Birth
-                    </Label>
-                    <Input
+                    <FloatingInput
                       id="dob"
                       name="dob"
                       type="date"
+                      label="Date of Birth"
                       value={formData.dob}
                       onChange={handleChange}
-                      className="w-full h-9 bg-muted border-input"
                     />
                   </div>
                 </div>
@@ -842,12 +806,6 @@ export default function ApplicantInformation() {
                 {/* Row 3 */}
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                   <div className="space-y-2">
-                    <Label
-                      htmlFor="canadian_resident_id"
-                      className="text-foreground font-medium"
-                    >
-                      Canadian Resident
-                    </Label>
                     <ShadcnSelect
                       popoverKey="canadian_resident"
                       popoverOpen={popoverOpen}
@@ -863,12 +821,6 @@ export default function ApplicantInformation() {
                   </div>
 
                   <div className="space-y-2">
-                    <Label
-                      htmlFor="resident_status_id"
-                      className="text-foreground font-medium"
-                    >
-                      Resident Status
-                    </Label>
                     <ShadcnSelect
                       popoverKey="resident_status"
                       popoverOpen={popoverOpen}
@@ -884,19 +836,12 @@ export default function ApplicantInformation() {
                   </div>
 
                   <div className="space-y-2">
-                    <Label
-                      htmlFor="language_spoken"
-                      className="text-foreground font-medium"
-                    >
-                      Language Spoken
-                    </Label>
-                    <Input
+                    <FloatingInput
                       id="language_spoken"
                       name="language_spoken"
+                      label="Language Spoken"
                       value={formData.language_spoken}
                       onChange={handleChange}
-                      placeholder="English"
-                      className="w-full h-9 bg-muted border-input"
                     />
                   </div>
                 </div>
@@ -904,12 +849,6 @@ export default function ApplicantInformation() {
                 {/* Row 4 */}
                 <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
                   <div className="space-y-2">
-                    <Label
-                      htmlFor="contact_method_id"
-                      className="text-foreground font-medium"
-                    >
-                      Contact Method
-                    </Label>
                     <ShadcnSelect
                       popoverKey="contact_method"
                       popoverOpen={popoverOpen}
@@ -925,47 +864,42 @@ export default function ApplicantInformation() {
                   </div>
 
                   <div className="space-y-2">
-                    <Label
-                      htmlFor="telephone"
-                      className="text-foreground font-medium"
-                    >
-                      Telephone
-                    </Label>
-                    <Input
+                    <FloatingInput
                       id="telephone"
                       name="telephone"
+                      label="Telephone"
                       value={formData.telephone}
-                      onChange={(e) => setFormData(prev => ({ ...prev, telephone: formatPhoneNumber(e.target.value) }))}
-                      placeholder="(888) 888-8888"
-                      className="w-full h-9 bg-muted border-input"
+                      onChange={(e) =>
+                        setFormData((prev) => ({
+                          ...prev,
+                          telephone: formatPhoneNumber(e.target.value),
+                        }))
+                      }
                     />
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="ext" className="text-foreground font-medium">
-                      Ext
-                    </Label>
-                    <Input
+                    <FloatingInput
                       id="ext"
                       name="ext"
+                      label="Ext"
                       value={formData.ext}
                       onChange={handleChange}
-                      placeholder="2"
-                      className="w-full h-9 bg-muted border-input"
                     />
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="fax" className="text-foreground font-medium">
-                      Fax
-                    </Label>
-                    <Input
+                    <FloatingInput
                       id="fax"
                       name="fax"
+                      label="Fax"
                       value={formData.fax}
-                      onChange={(e) => setFormData(prev => ({ ...prev, fax: formatPhoneNumber(e.target.value) }))}
-                      placeholder="(888) 888-8888"
-                      className="w-full h-9 bg-muted border-input"
+                      onChange={(e) =>
+                        setFormData((prev) => ({
+                          ...prev,
+                          fax: formatPhoneNumber(e.target.value),
+                        }))
+                      }
                     />
                   </div>
                 </div>
@@ -1111,104 +1045,62 @@ export default function ApplicantInformation() {
               </h2>
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <div className="space-y-2">
-                  <Label
-                    htmlFor="social_media_facebook"
-                    className="text-foreground font-medium"
-                  >
-                    Facebook
-                  </Label>
-                  <Input
+                  <FloatingInput
                     id="social_media_facebook"
                     name="social_media_facebook"
+                    label="Facebook"
                     value={formData.social_media_facebook}
                     onChange={handleChange}
-                    placeholder="https://facebook.com/john.doe"
-                    className="w-full h-9 bg-muted border-input"
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label
-                    htmlFor="social_media_instagram"
-                    className="text-foreground font-medium"
-                  >
-                    Instagram
-                  </Label>
-                  <Input
+                  <FloatingInput
                     id="social_media_instagram"
                     name="social_media_instagram"
+                    label="Instagram"
                     value={formData.social_media_instagram}
                     onChange={handleChange}
-                    placeholder="https://instagram.com/johndoe"
-                    className="w-full h-9 bg-muted border-input"
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label
-                    htmlFor="social_media_tiktok"
-                    className="text-foreground font-medium"
-                  >
-                    TikTok
-                  </Label>
-                  <Input
+                  <FloatingInput
                     id="social_media_tiktok"
                     name="social_media_tiktok"
+                    label="TikTok"
                     value={formData.social_media_tiktok}
                     onChange={handleChange}
-                    placeholder="@johndoe"
-                    className="w-full h-9 bg-muted border-input"
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label
-                    htmlFor="social_media_x"
-                    className="text-foreground font-medium"
-                  >
-                    X (Twitter)
-                  </Label>
-                  <Input
+                  <FloatingInput
                     id="social_media_x"
                     name="social_media_x"
+                    label="X (Twitter)"
                     value={formData.social_media_x}
                     onChange={handleChange}
-                    placeholder="@john_doe"
-                    className="w-full h-9 bg-muted border-input"
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label
-                    htmlFor="social_media_snapchat"
-                    className="text-foreground font-medium"
-                  >
-                    Snapchat
-                  </Label>
-                  <Input
+                  <FloatingInput
                     id="social_media_snapchat"
                     name="social_media_snapchat"
+                    label="Snapchat"
                     value={formData.social_media_snapchat}
                     onChange={handleChange}
-                    placeholder="john_snap"
-                    className="w-full h-9 bg-muted border-input"
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label
-                    htmlFor="social_media_linkedin"
-                    className="text-foreground font-medium"
-                  >
-                    LinkedIn
-                  </Label>
-                  <Input
+                  <FloatingInput
                     id="social_media_linkedin"
                     name="social_media_linkedin"
+                    label="LinkedIn"
                     value={formData.social_media_linkedin}
                     onChange={handleChange}
-                    placeholder="https://linkedin.com/in/john-doe"
-                    className="w-full h-9 bg-muted border-input"
                   />
                 </div>
               </div>
@@ -1235,7 +1127,6 @@ export default function ApplicantInformation() {
               {formData.reaches.map((reach, index) => (
                 <div key={index} className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                   <div className="space-y-2">
-                    <Label className="text-foreground font-medium">Day</Label>
                     <ShadcnSelect
                       popoverKey={`reaches-${index}-day`}
                       popoverOpen={popoverOpen}
@@ -1252,18 +1143,18 @@ export default function ApplicantInformation() {
 
                   <div className="space-y-2">
                     <Label className="text-foreground font-medium">Time</Label>
-                    <Input
+                    <FloatingInput
                       type="time"
+                      label="Time"
                       value={reach.time}
                       onChange={(e) =>
                         handleArrayChange(
                           "reaches",
                           index,
                           "time",
-                          e.target.value
+                          e.target.value,
                         )
                       }
-                      className="w-full h-9 bg-muted border-input"
                     />
                   </div>
 
@@ -1290,12 +1181,6 @@ export default function ApplicantInformation() {
               </h2>
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <div className="space-y-2">
-                  <Label
-                    htmlFor="client_availability_away_id"
-                    className="text-foreground font-medium"
-                  >
-                    Away Status
-                  </Label>
                   <ShadcnSelect
                     popoverKey="client_availability_away"
                     popoverOpen={popoverOpen}
@@ -1317,13 +1202,13 @@ export default function ApplicantInformation() {
                   >
                     From Date
                   </Label>
-                  <Input
+                  <FloatingInput
                     id="client_availability_from"
                     name="client_availability_from"
                     type="date"
+                    label="From Date"
                     value={formData.client_availability_from}
                     onChange={handleChange}
-                    className="w-full h-9 bg-muted border-input"
                   />
                 </div>
 
@@ -1334,13 +1219,13 @@ export default function ApplicantInformation() {
                   >
                     To Date
                   </Label>
-                  <Input
+                  <FloatingInput
                     id="client_availability_to"
                     name="client_availability_to"
                     type="date"
+                    label="To Date"
                     value={formData.client_availability_to}
                     onChange={handleChange}
-                    className="w-full h-9 bg-muted border-input"
                   />
                 </div>
               </div>
@@ -1353,122 +1238,100 @@ export default function ApplicantInformation() {
               </h2>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 <div className="space-y-2">
-                  <Label className="text-foreground font-medium">
-                    Unit Number
-                  </Label>
-                  <Input
+                  <FloatingInput
+                    label="Unit Number"
                     value={formData.current_address.unit_number}
                     onChange={(e) =>
                       handleAddressChange(
                         "current_address",
                         "unit_number",
-                        e.target.value
+                        e.target.value,
                       )
                     }
-                    placeholder="5B"
-                    className="w-full h-9 bg-muted border-input"
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label className="text-foreground font-medium">
-                    Street Number
-                  </Label>
-                  <Input
+                  <FloatingInput
+                    label="Street Number"
                     value={formData.current_address.street_number}
                     onChange={(e) =>
                       handleAddressChange(
                         "current_address",
                         "street_number",
-                        e.target.value
+                        e.target.value,
                       )
                     }
-                    placeholder="221"
-                    className="w-full h-9 bg-muted border-input"
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label className="text-foreground font-medium">
-                    Street Name
-                  </Label>
-                  <Input
+                  <FloatingInput
+                    label="Street Name"
                     value={formData.current_address.street_name}
                     onChange={(e) =>
                       handleAddressChange(
                         "current_address",
                         "street_name",
-                        e.target.value
+                        e.target.value,
                       )
                     }
-                    placeholder="King Street West"
-                    className="w-full h-9 bg-muted border-input"
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label className="text-foreground font-medium">City</Label>
-                  <Input
+                  <FloatingInput
+                    label="City"
                     value={formData.current_address.city}
                     onChange={(e) =>
                       handleAddressChange(
                         "current_address",
                         "city",
-                        e.target.value
+                        e.target.value,
                       )
                     }
-                    placeholder="Toronto"
-                    className="w-full h-9 bg-muted border-input"
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label className="text-foreground font-medium">Province</Label>
-                  <Input
+                  <FloatingInput
+                    label="Province"
                     value={formData.current_address.province}
                     onChange={(e) =>
                       handleAddressChange(
                         "current_address",
                         "province",
-                        e.target.value
+                        e.target.value,
                       )
                     }
-                    placeholder="Ontario"
-                    className="w-full h-9 bg-muted border-input"
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label className="text-foreground font-medium">
-                    Postal Code
-                  </Label>
-                  <Input
+                  <FloatingInput
+                    label="Postal Code"
                     value={formData.current_address.postal_code}
                     onChange={(e) =>
                       handleAddressChange(
                         "current_address",
                         "postal_code",
-                        e.target.value
+                        e.target.value,
                       )
                     }
-                    placeholder="M5H 1K5"
-                    className="w-full h-9 bg-muted border-input"
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label className="text-foreground font-medium">Country</Label>
-                  <Input
+                  <FloatingInput
+                    label="Country"
                     value={formData.current_address.country}
                     onChange={(e) =>
                       handleAddressChange(
                         "current_address",
                         "country",
-                        e.target.value
+                        e.target.value,
                       )
                     }
-                    placeholder="Canada"
-                    className="w-full h-9 bg-muted border-input"
                   />
                 </div>
               </div>
@@ -1496,128 +1359,106 @@ export default function ApplicantInformation() {
               {!formData.mailing_address?.sameascurrent && (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                   <div className="space-y-2">
-                    <Label className="text-foreground font-medium">
-                      Unit Number
-                    </Label>
-                    <Input
+                    <FloatingInput
+                      label="Unit Number"
                       value={formData.mailing_address.unit_number}
                       onChange={(e) =>
                         handleAddressChange(
                           "mailing_address",
                           "unit_number",
-                          e.target.value
+                          e.target.value,
                         )
                       }
-                      placeholder="5B"
-                      className="w-full h-9 bg-muted border-input"
                       disabled={formData.mailing_address?.sameascurrent ?? false}
                     />
                   </div>
 
                   <div className="space-y-2">
-                    <Label className="text-foreground font-medium">
-                      Street Number
-                    </Label>
-                    <Input
+                    <FloatingInput
+                      label="Street Number"
                       value={formData.mailing_address.street_number}
                       onChange={(e) =>
                         handleAddressChange(
                           "mailing_address",
                           "street_number",
-                          e.target.value
+                          e.target.value,
                         )
                       }
-                      placeholder="221"
-                      className="w-full h-9 bg-muted border-input"
                       disabled={formData.mailing_address?.sameascurrent ?? false}
                     />
                   </div>
 
                   <div className="space-y-2">
-                    <Label className="text-foreground font-medium">
-                      Street Name
-                    </Label>
-                    <Input
+                    <FloatingInput
+                      label="Street Name"
                       value={formData.mailing_address.street_name}
                       onChange={(e) =>
                         handleAddressChange(
                           "mailing_address",
                           "street_name",
-                          e.target.value
+                          e.target.value,
                         )
                       }
-                      placeholder="King Street West"
-                      className="w-full h-9 bg-muted border-input"
                       disabled={formData.mailing_address?.sameascurrent ?? false}
                     />
                   </div>
 
                   <div className="space-y-2">
-                    <Label className="text-foreground font-medium">City</Label>
-                    <Input
+                    <FloatingInput
+                      label="City"
                       value={formData.mailing_address.city}
                       onChange={(e) =>
                         handleAddressChange(
                           "mailing_address",
                           "city",
-                          e.target.value
+                          e.target.value,
                         )
                       }
-                      placeholder="Toronto"
-                      className="w-full h-9 bg-muted border-input"
                       disabled={formData.mailing_address?.sameascurrent ?? false}
                     />
                   </div>
 
                   <div className="space-y-2">
-                    <Label className="text-foreground font-medium">Province</Label>
-                    <Input
+                    <FloatingInput
+                      label="Province"
                       value={formData.mailing_address.province}
                       onChange={(e) =>
                         handleAddressChange(
                           "mailing_address",
                           "province",
-                          e.target.value
+                          e.target.value,
                         )
                       }
-                      placeholder="Ontario"
-                      className="w-full h-9 bg-muted border-input"
                       disabled={formData.mailing_address?.sameascurrent ?? false}
                     />
                   </div>
 
                   <div className="space-y-2">
-                    <Label className="text-foreground font-medium">
-                      Postal Code
-                    </Label>
-                    <Input
+                    <FloatingInput
+                      label="Postal Code"
                       value={formData.mailing_address.postal_code}
                       onChange={(e) =>
                         handleAddressChange(
                           "mailing_address",
                           "postal_code",
-                          e.target.value
+                          e.target.value,
                         )
                       }
-                      placeholder="M5H 1K5"
-                      className="w-full h-9 bg-muted border-input"
                       disabled={formData.mailing_address?.sameascurrent ?? false}
                     />
                   </div>
 
                   <div className="space-y-2">
-                    <Label className="text-foreground font-medium">Country</Label>
-                    <Input
+                    <FloatingInput
+                      label="Country"
                       value={formData.mailing_address.country}
                       onChange={(e) =>
                         handleAddressChange(
                           "mailing_address",
                           "country",
-                          e.target.value
+                          e.target.value,
                         )
                       }
-                      placeholder="Canada"
-                      className="w-full h-9 bg-muted border-input"
                       disabled={formData.mailing_address?.sameascurrent ?? false}
                     />
                   </div>
@@ -1632,80 +1473,47 @@ export default function ApplicantInformation() {
               </h2>
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <div className="space-y-2">
-                  <Label
-                    htmlFor="family_member_first_name"
-                    className="text-foreground font-medium"
-                  >
-                    First Name
-                  </Label>
-                  <Input
+                  <FloatingInput
                     id="family_member_first_name"
                     name="family_member_first_name"
+                    label="First Name"
                     value={formData.family_member_first_name}
                     onChange={handleChange}
-                    placeholder="Jane"
-                    className="w-full h-9 bg-muted border-input"
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label
-                    htmlFor="family_member_middle_name"
-                    className="text-foreground font-medium"
-                  >
-                    Middle Name
-                  </Label>
-                  <Input
+                  <FloatingInput
                     id="family_member_middle_name"
                     name="family_member_middle_name"
+                    label="Middle Name"
                     value={formData.family_member_middle_name}
                     onChange={handleChange}
-                    placeholder="K"
-                    className="w-full h-9 bg-muted border-input"
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label
-                    htmlFor="family_member_last_name"
-                    className="text-foreground font-medium"
-                  >
-                    Last Name
-                  </Label>
-                  <Input
+                  <FloatingInput
                     id="family_member_last_name"
                     name="family_member_last_name"
+                    label="Last Name"
                     value={formData.family_member_last_name}
                     onChange={handleChange}
-                    placeholder="Doe"
-                    className="w-full h-9 bg-muted border-input"
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label
-                    htmlFor="family_member_dob"
-                    className="text-foreground font-medium"
-                  >
-                    Date of Birth
-                  </Label>
-                  <Input
+                  <FloatingInput
                     id="family_member_dob"
                     name="family_member_dob"
                     type="date"
+                    label="Date of Birth"
                     value={formData.family_member_dob}
                     onChange={handleChange}
-                    className="w-full h-9 bg-muted border-input"
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label
-                    htmlFor="family_member_spouse_status_id"
-                    className="text-foreground font-medium"
-                  >
-                    Spouse Status
-                  </Label>
                   <ShadcnSelect
                     popoverKey="family_member_spouse_status"
                     popoverOpen={popoverOpen}
@@ -1721,12 +1529,6 @@ export default function ApplicantInformation() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label
-                    htmlFor="family_member_employment_status_id"
-                    className="text-foreground font-medium"
-                  >
-                    Employment Status
-                  </Label>
                   <ShadcnSelect
                     popoverKey="family_member_employment_status"
                     popoverOpen={popoverOpen}
@@ -1745,54 +1547,40 @@ export default function ApplicantInformation() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label
-                    htmlFor="family_member_annual_income"
-                    className="text-foreground font-medium"
-                  >
-                    Annual Income
-                  </Label>
-                  <Input
+                  <FloatingInput
                     id="family_member_annual_income"
                     name="family_member_annual_income"
+                    label="Annual Income"
                     value={formData.family_member_annual_income}
                     onChange={handleChange}
-                    placeholder="85000"
-                    className="w-full h-9 bg-muted border-input"
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label
-                    htmlFor="family_member_telephone"
-                    className="text-foreground font-medium"
-                  >
-                    Telephone
-                  </Label>
-                  <Input
+                  <FloatingInput
                     id="family_member_telephone"
                     name="family_member_telephone"
+                    label="Telephone"
                     value={formData.family_member_telephone}
-                    onChange={(e) => setFormData(prev => ({ ...prev, family_member_telephone: formatPhoneNumber(e.target.value) }))}
-                    placeholder="(888) 888-8888"
-                    className="w-full h-9 bg-muted border-input"
+                    onChange={(e) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        family_member_telephone: formatPhoneNumber(
+                          e.target.value,
+                        ),
+                      }))
+                    }
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label
-                    htmlFor="family_member_email"
-                    className="text-foreground font-medium"
-                  >
-                    Email
-                  </Label>
-                  <Input
+                  <FloatingInput
                     id="family_member_email"
                     name="family_member_email"
                     type="email"
+                    label="Email"
                     value={formData.family_member_email}
                     onChange={handleChange}
-                    placeholder="jane.doe@example.com"
-                    className="w-full h-9 bg-muted border-input"
                   />
                 </div>
 
@@ -1819,122 +1607,100 @@ export default function ApplicantInformation() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               <div className="space-y-2">
-                <Label className="text-foreground font-medium">
-                  Unit Number
-                </Label>
-                <Input
+                <FloatingInput
+                  label="Unit Number"
                   value={formData.family_member_address.unit_number}
                   onChange={(e) =>
                     handleAddressChange(
                       "family_member_address",
                       "unit_number",
-                      e.target.value
+                      e.target.value,
                     )
                   }
-                  placeholder="5B"
-                  className="w-full h-9 bg-muted border-input"
                 />
               </div>
 
               <div className="space-y-2">
-                <Label className="text-foreground font-medium">
-                  Street Number
-                </Label>
-                <Input
+                <FloatingInput
+                  label="Street Number"
                   value={formData.family_member_address.street_number}
                   onChange={(e) =>
                     handleAddressChange(
                       "family_member_address",
                       "street_number",
-                      e.target.value
+                      e.target.value,
                     )
                   }
-                  placeholder="221"
-                  className="w-full h-9 bg-muted border-input"
                 />
               </div>
 
               <div className="space-y-2">
-                <Label className="text-foreground font-medium">
-                  Street Name
-                </Label>
-                <Input
+                <FloatingInput
+                  label="Street Name"
                   value={formData.family_member_address.street_name}
                   onChange={(e) =>
                     handleAddressChange(
                       "family_member_address",
                       "street_name",
-                      e.target.value
+                      e.target.value,
                     )
                   }
-                  placeholder="King Street West"
-                  className="w-full h-9 bg-muted border-input"
                 />
               </div>
 
               <div className="space-y-2">
-                <Label className="text-foreground font-medium">City</Label>
-                <Input
+                <FloatingInput
+                  label="City"
                   value={formData.family_member_address.city}
                   onChange={(e) =>
                     handleAddressChange(
                       "family_member_address",
                       "city",
-                      e.target.value
+                      e.target.value,
                     )
                   }
-                  placeholder="Toronto"
-                  className="w-full h-9 bg-muted border-input"
                 />
               </div>
 
               <div className="space-y-2">
-                <Label className="text-foreground font-medium">Province</Label>
-                <Input
+                <FloatingInput
+                  label="Province"
                   value={formData.family_member_address.province}
                   onChange={(e) =>
                     handleAddressChange(
                       "family_member_address",
                       "province",
-                      e.target.value
+                      e.target.value,
                     )
                   }
-                  placeholder="Ontario"
-                  className="w-full h-9 bg-muted border-input"
                 />
               </div>
 
               <div className="space-y-2">
-                <Label className="text-foreground font-medium">
-                  Postal Code
-                </Label>
-                <Input
+                <FloatingInput
+                  label="Postal Code"
                   value={formData.family_member_address.postal_code}
                   onChange={(e) =>
                     handleAddressChange(
                       "family_member_address",
                       "postal_code",
-                      e.target.value
+                      e.target.value,
                     )
                   }
-                  placeholder="M5H 1K5"
-                  className="w-full h-9 bg-muted border-input"
                 />
               </div>
 
               <div className="space-y-2">
-                <Label className="text-foreground font-medium">Country</Label>
-                <Input
+                <FloatingInput
+                  label="Country"
                   value={formData.family_member_address.country}
                   onChange={(e) =>
                     handleAddressChange(
                       "family_member_address",
                       "country",
-                      e.target.value
+                      e.target.value,
                     )
                   }
-                  placeholder="Canada"
-                  className="w-full h-9 bg-muted border-input"
                 />
               </div>
             </div>
@@ -1998,78 +1764,63 @@ export default function ApplicantInformation() {
 
                   <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
                     <div className="space-y-2">
-                      <Label className="text-foreground font-medium">
-                        First Name
-                      </Label>
-                      <Input
+                      <FloatingInput
+                        label="First Name"
                         value={child.first_name}
                         onChange={(e) =>
                           handleArrayChange(
                             "children",
                             index,
                             "first_name",
-                            e.target.value
+                            e.target.value,
                           )
                         }
-                        placeholder="Anna"
-                        className="w-full h-9 bg-card border-input"
                       />
                     </div>
 
                     <div className="space-y-2">
-                      <Label className="text-foreground font-medium">
-                        Middle Name
-                      </Label>
-                      <Input
+                      <FloatingInput
+                        label="Middle Name"
                         value={child.middle_number}
                         onChange={(e) =>
                           handleArrayChange(
                             "children",
                             index,
                             "middle_number",
-                            e.target.value
+                            e.target.value,
                           )
                         }
-                        placeholder="M"
-                        className="w-full h-9 bg-card border-input"
                       />
                     </div>
 
                     <div className="space-y-2">
-                      <Label className="text-foreground font-medium">
-                        Last Name
-                      </Label>
-                      <Input
+                      <FloatingInput
+                        label="Last Name"
                         value={child.last_name}
                         onChange={(e) =>
                           handleArrayChange(
                             "children",
                             index,
                             "last_name",
-                            e.target.value
+                            e.target.value,
                           )
                         }
-                        placeholder="Doe"
-                        className="w-full h-9 bg-card border-input"
                       />
                     </div>
 
                     <div className="space-y-2">
-                      <Label className="text-foreground font-medium">
-                        Date of Birth
-                      </Label>
-                      <Input
+                      <FloatingInput
                         type="date"
+                        label="Date of Birth"
                         value={child.dob}
                         onChange={(e) =>
                           handleArrayChange(
                             "children",
                             index,
                             "dob",
-                            e.target.value
+                            e.target.value,
                           )
                         }
-                        className="w-full h-9 bg-card border-input"
                       />
                     </div>
                   </div>
@@ -2096,21 +1847,18 @@ export default function ApplicantInformation() {
               {formData.meeting_clients.map((meeting, index) => (
                 <div key={index} className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                   <div className="space-y-2">
-                    <Label className="text-foreground font-medium">
-                      Meeting Date
-                    </Label>
-                    <Input
+                    <FloatingInput
                       type="date"
+                      label="Meeting Date"
                       value={meeting.date}
                       onChange={(e) =>
                         handleArrayChange(
                           "meeting_clients",
                           index,
                           "date",
-                          e.target.value
+                          e.target.value,
                         )
                       }
-                      className="w-full h-9 bg-muted border-input"
                     />
                   </div>
 
