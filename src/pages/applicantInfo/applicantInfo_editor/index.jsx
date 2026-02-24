@@ -26,6 +26,7 @@ import { createApplicantInfo } from "../helpers/createApplicantInfo";
 import { getApplicantMeta } from "../helpers/fetchApplicantInfoMetadata";
 import { fetchApplicantInfoBySlug } from "../helpers/fetchApplicantInfoBySlug";
 import { uploadAttachment } from "../helpers/uploadAttachment";
+import { getSocialMediaPlatforms } from "../helpers/fetchSocialMediaPlatforms";
 import { Navbar2 } from "@/components/navbar2";
 import { Checkbox } from "@/components/ui/checkbox";
 import { formatPhoneNumber } from "@/lib/utils";
@@ -47,13 +48,14 @@ import Billing from "@/components/billing";
 function ShadcnSelect({
   value,
   onValueChange,
-  options = [],
+  options: rawOptions = [],
   placeholder = "Select",
   label = "Select",
   popoverKey,
   popoverOpen,
   setPopoverOpen,
 }) {
+  const options = Array.isArray(rawOptions) ? rawOptions : [];
   const selected = options.find((o) => String(o.id) === String(value)) || null;
   const isOpen = !!(popoverOpen && popoverOpen[popoverKey]);
 
@@ -91,34 +93,36 @@ function ShadcnSelect({
         <Command>
           <CommandInput placeholder={label.toLowerCase()} />
           <CommandEmpty>No results found.</CommandEmpty>
-          <CommandGroup>
-            <CommandItem
-              value=""
-              onSelect={() => handleSelect("")}
-              className="italic text-muted-foreground"
-            >
-              <Check
-                className={`mr-2 h-4 w-4 ${!value ? "opacity-100" : "opacity-0"
-                  }`}
-              />
-              None
-            </CommandItem>
-            {options.map((opt) => (
+          <CommandList>
+            <CommandGroup>
               <CommandItem
-                key={opt.id}
-                value={opt.name}
-                onSelect={() => handleSelect(opt.id)}
+                value=""
+                onSelect={() => handleSelect("")}
+                className="italic text-muted-foreground"
               >
                 <Check
-                  className={`mr-2 h-4 w-4 ${String(value) === String(opt.id)
-                    ? "opacity-100"
-                    : "opacity-0"
+                  className={`mr-2 h-4 w-4 ${!value ? "opacity-100" : "opacity-0"
                     }`}
                 />
-                {opt.name}
+                None
               </CommandItem>
-            ))}
-          </CommandGroup>
+              {options.map((opt) => (
+                <CommandItem
+                  key={opt.id}
+                  value={opt.name}
+                  onSelect={() => handleSelect(opt.id)}
+                >
+                  <Check
+                    className={`mr-2 h-4 w-4 ${String(value) === String(opt.id)
+                      ? "opacity-100"
+                      : "opacity-0"
+                      }`}
+                  />
+                  {opt.name}
+                </CommandItem>
+              ))}
+            </CommandGroup>
+          </CommandList>
         </Command>
       </PopoverContent>
     </Popover>
@@ -143,6 +147,24 @@ export default function ApplicantInformation() {
   });
 
   const metadata = apiResponse?.response || {};
+
+  const { data: socialMediaSync } = useQuery({
+    queryKey: ["socialMediaPlatforms"],
+    queryFn: getSocialMediaPlatforms,
+    staleTime: 5 * 60 * 1000,
+  });
+
+  const socialMediaOptions = Array.isArray(socialMediaSync?.response)
+    ? socialMediaSync.response
+    : [
+      { id: "Facebook", name: "Facebook" },
+      { id: "Instagram", name: "Instagram" },
+      { id: "TikTok", name: "TikTok" },
+      { id: "X (Twitter)", name: "X (Twitter)" },
+      { id: "Snapchat", name: "Snapchat" },
+      { id: "LinkedIn", name: "LinkedIn" },
+      { id: "Other", name: "Other social media platforms" },
+    ];
 
   const { data: applicantData, isLoading: isLoadingApplicant } = useQuery({
     queryKey: ["applicantInfo", slug],
@@ -238,12 +260,7 @@ export default function ApplicantInformation() {
     file: null,
     fileName: "",
     filePreview: null,
-    social_media_facebook: "",
-    social_media_instagram: "",
-    social_media_tiktok: "",
-    social_media_x: "",
-    social_media_snapchat: "",
-    social_media_linkedin: "",
+    social_media_platform: [{ platform_name: "", platform_value: "", platform_status: "Active" }],
     reaches: [{ day_id: "", time: "" }],
     client_availability_away_id: "",
     client_availability_from: "",
@@ -366,12 +383,15 @@ export default function ApplicantInformation() {
           : "",
         filePreview: applicantData.attachment?.path || null,
 
-        social_media_facebook: applicantData.social_media_facebook ?? "",
-        social_media_instagram: applicantData.social_media_instagram ?? "",
-        social_media_tiktok: applicantData.social_media_tiktok ?? "",
-        social_media_x: applicantData.social_media_x ?? "",
-        social_media_snapchat: applicantData.social_media_snapchat ?? "",
-        social_media_linkedin: applicantData.social_media_linkedin ?? "",
+        social_media_platform:
+          applicantData.social_media_platform &&
+            applicantData.social_media_platform.length > 0
+            ? applicantData.social_media_platform.map((p) => ({
+              platform_name: p.platform_name ?? "",
+              platform_value: p.platform_value ?? "",
+              platform_status: p.platform_status ?? "Active",
+            }))
+            : [{ platform_name: "", platform_value: "", platform_status: "Active" }],
         reaches:
           applicantData.reach && applicantData.reach.length > 0
             ? applicantData.reach.map((r) => ({
@@ -566,12 +586,13 @@ export default function ApplicantInformation() {
       fax: formData.fax || null,
       email: formData.email,
       attachment_id: formData.attachment_id || null,
-      social_media_facebook: formData.social_media_facebook || null,
-      social_media_instagram: formData.social_media_instagram || null,
-      social_media_tiktok: formData.social_media_tiktok || null,
-      social_media_x: formData.social_media_x || null,
-      social_media_snapchat: formData.social_media_snapchat || null,
-      social_media_linkedin: formData.social_media_linkedin || null,
+      social_media_platform: formData.social_media_platform
+        .map((p) => ({
+          platform_name: p.platform_name || null,
+          platform_value: p.platform_value || null,
+          platform_status: p.platform_status || "Active",
+        }))
+        .filter((p) => p.platform_name || p.platform_value),
 
       reaches: formData.reaches
         .map((r, idx) => {
@@ -1106,112 +1127,106 @@ export default function ApplicantInformation() {
 
 
             <div className="space-y-6 pt-6 border-t">
-              <h2 className="text-xl font-semibold text-foreground">
-                Social Media
-              </h2>
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <div className="space-y-2">
-                  <Label
-                    htmlFor="social_media_facebook"
-                    className="text-foreground font-medium"
-                  >
-                    Facebook
-                  </Label>
-                  <Input
-                    id="social_media_facebook"
-                    name="social_media_facebook"
-                    value={formData.social_media_facebook}
-                    onChange={handleChange}
-                    placeholder="https://facebook.com/john.doe"
-                    className="w-full h-9 bg-muted border-input"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label
-                    htmlFor="social_media_instagram"
-                    className="text-foreground font-medium"
-                  >
-                    Instagram
-                  </Label>
-                  <Input
-                    id="social_media_instagram"
-                    name="social_media_instagram"
-                    value={formData.social_media_instagram}
-                    onChange={handleChange}
-                    placeholder="https://instagram.com/johndoe"
-                    className="w-full h-9 bg-muted border-input"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label
-                    htmlFor="social_media_tiktok"
-                    className="text-foreground font-medium"
-                  >
-                    TikTok
-                  </Label>
-                  <Input
-                    id="social_media_tiktok"
-                    name="social_media_tiktok"
-                    value={formData.social_media_tiktok}
-                    onChange={handleChange}
-                    placeholder="@johndoe"
-                    className="w-full h-9 bg-muted border-input"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label
-                    htmlFor="social_media_x"
-                    className="text-foreground font-medium"
-                  >
-                    X (Twitter)
-                  </Label>
-                  <Input
-                    id="social_media_x"
-                    name="social_media_x"
-                    value={formData.social_media_x}
-                    onChange={handleChange}
-                    placeholder="@john_doe"
-                    className="w-full h-9 bg-muted border-input"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label
-                    htmlFor="social_media_snapchat"
-                    className="text-foreground font-medium"
-                  >
-                    Snapchat
-                  </Label>
-                  <Input
-                    id="social_media_snapchat"
-                    name="social_media_snapchat"
-                    value={formData.social_media_snapchat}
-                    onChange={handleChange}
-                    placeholder="john_snap"
-                    className="w-full h-9 bg-muted border-input"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label
-                    htmlFor="social_media_linkedin"
-                    className="text-foreground font-medium"
-                  >
-                    LinkedIn
-                  </Label>
-                  <Input
-                    id="social_media_linkedin"
-                    name="social_media_linkedin"
-                    value={formData.social_media_linkedin}
-                    onChange={handleChange}
-                    placeholder="https://linkedin.com/in/john-doe"
-                    className="w-full h-9 bg-muted border-input"
-                  />
-                </div>
+              <div className="flex items-center justify-between">
+                <h2 className="text-xl font-semibold text-foreground">
+                  Social Media
+                </h2>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() =>
+                    addArrayItem("social_media_platform", {
+                      platform_name: "",
+                      platform_value: "",
+                      platform_status: "Active",
+                    })
+                  }
+                >
+                  Add Platform
+                </Button>
               </div>
+
+              {formData.social_media_platform.map((platform, index) => (
+                <div key={index} className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+                  <div className="space-y-2">
+                    <Label className="text-foreground font-medium">Site</Label>
+                    <ShadcnSelect
+                      popoverKey={`social-${index}-site`}
+                      popoverOpen={popoverOpen}
+                      setPopoverOpen={setPopoverOpen}
+                      value={platform.platform_name}
+                      onValueChange={(val) =>
+                        handleArrayChange(
+                          "social_media_platform",
+                          index,
+                          "platform_name",
+                          val
+                        )
+                      }
+                      options={socialMediaOptions}
+                      placeholder="Select site"
+                      label="Social Media Site"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label className="text-foreground font-medium">Link</Label>
+                    <Input
+                      value={platform.platform_value}
+                      onChange={(e) =>
+                        handleArrayChange(
+                          "social_media_platform",
+                          index,
+                          "platform_value",
+                          e.target.value
+                        )
+                      }
+                      placeholder="https://..."
+                      className="w-full h-9 bg-muted border-input"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label className="text-foreground font-medium">Status</Label>
+                    <ShadcnSelect
+                      popoverKey={`social-${index}-status`}
+                      popoverOpen={popoverOpen}
+                      setPopoverOpen={setPopoverOpen}
+                      value={platform.platform_status}
+                      onValueChange={(val) =>
+                        handleArrayChange(
+                          "social_media_platform",
+                          index,
+                          "platform_status",
+                          val
+                        )
+                      }
+                      options={[
+                        { id: "Active", name: "Active" },
+                        { id: "Inactive", name: "Inactive" },
+                      ]}
+                      placeholder="Select status"
+                      label="Status"
+                    />
+                  </div>
+
+                  <div className="flex items-end">
+                    <Button
+                      type="button"
+                      variant="destructive"
+                      size="sm"
+                      onClick={() =>
+                        removeArrayItem("social_media_platform", index)
+                      }
+                      disabled={formData.social_media_platform.length === 1}
+                      className="w-full h-9"
+                    >
+                      Remove
+                    </Button>
+                  </div>
+                </div>
+              ))}
             </div>
 
             {/* Best Times to Reach */}

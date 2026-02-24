@@ -404,6 +404,6 @@ export const endpoints = {
   documentiDeleteFolder: "api/v2/file/document-i/folders/delete",
   sortFolders: "api/v2/file/document-i/folders/sort",
   sortDocuments: "api/v2/file/document-i/document/sort",
-
+  socialMediaPlatforms: "api/v2/file/applicant-information/social-media-platforms",
 };
 
