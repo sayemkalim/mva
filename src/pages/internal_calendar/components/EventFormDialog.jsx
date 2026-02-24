@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { toast } from "sonner";
@@ -34,8 +34,8 @@ import { deleteAttachment } from "@/pages/task/helpers/deleteTask";
 import ContactSearch from "@/pages/calender/components/ContactSearch";
 // import ContactSearch from "./ContactSearch";
 
-// Attachment Uploader Component
-const AttachmentUploader = ({ files, onFilesChange, onUpload, onDelete }) => {
+// Memoized Attachment Uploader Component
+const AttachmentUploader = React.memo(({ files, onFilesChange, onUpload, onDelete }) => {
   const [isDragging, setIsDragging] = useState(false);
   const [previewUrls, setPreviewUrls] = useState({});
   const fileInputRef = useRef(null);
@@ -57,42 +57,42 @@ const AttachmentUploader = ({ files, onFilesChange, onUpload, onDelete }) => {
     };
   }, [files]);
 
-  const handleDragEnter = (e) => {
+  const handleDragEnter = useCallback((e) => {
     e.preventDefault();
     e.stopPropagation();
     setIsDragging(true);
-  };
+  }, []);
 
-  const handleDragLeave = (e) => {
+  const handleDragLeave = useCallback((e) => {
     e.preventDefault();
     e.stopPropagation();
     setIsDragging(false);
-  };
+  }, []);
 
-  const handleDragOver = (e) => {
+  const handleDragOver = useCallback((e) => {
     e.preventDefault();
     e.stopPropagation();
-  };
+  }, []);
 
-  const handleDrop = (e) => {
+  const handleDrop = useCallback((e) => {
     e.preventDefault();
     e.stopPropagation();
     setIsDragging(false);
     const droppedFiles = Array.from(e.dataTransfer.files);
     handleFiles(droppedFiles);
-  };
+  }, []);
 
-  const handleBoxClick = () => {
+  const handleBoxClick = useCallback(() => {
     fileInputRef.current?.click();
-  };
+  }, []);
 
-  const handleFileInputChange = (e) => {
+  const handleFileInputChange = useCallback((e) => {
     const selectedFiles = Array.from(e.target.files);
     handleFiles(selectedFiles);
     e.target.value = "";
-  };
+  }, []);
 
-  const handleFiles = (fileList) => {
+  const handleFiles = useCallback((fileList) => {
     const newFiles = fileList.map((file) => ({
       tempId: `temp_${Date.now()}_${Math.random()}`,
       name: file.name,
@@ -108,9 +108,9 @@ const AttachmentUploader = ({ files, onFilesChange, onUpload, onDelete }) => {
     newFiles.forEach((fileData) => {
       onUpload(fileData);
     });
-  };
+  }, [files, onFilesChange, onUpload]);
 
-  const handleRemoveFile = (e, fileToRemove) => {
+  const handleRemoveFile = useCallback((e, fileToRemove) => {
     e.stopPropagation();
     if (fileToRemove.uploaded && fileToRemove.id) {
       onDelete(fileToRemove.id, fileToRemove.tempId);
@@ -120,22 +120,23 @@ const AttachmentUploader = ({ files, onFilesChange, onUpload, onDelete }) => {
     if (previewUrls[fileToRemove.tempId]) {
       URL.revokeObjectURL(previewUrls[fileToRemove.tempId]);
     }
-  };
+  }, [files, onFilesChange, onDelete, previewUrls]);
 
-  const isImageFile = (fileType) => {
+  const isImageFile = useCallback((fileType) => {
     return fileType && fileType.startsWith("image/");
-  };
+  }, []);
 
-  const formatFileSize = (bytes) => {
+  const formatFileSize = useCallback((bytes) => {
     if (bytes === 0) return "0 Bytes";
     const k = 1024;
     const sizes = ["Bytes", "KB", "MB", "GB"];
     const i = Math.floor(Math.log(bytes) / Math.log(k));
     return Math.round((bytes / Math.pow(k, i)) * 100) / 100 + " " + sizes[i];
-  };
+  }, []);
 
-  const isAnyFileUploading = files.some(
-    (file) => file.uploading && !file.uploaded
+  const isAnyFileUploading = useMemo(
+    () => files.some((file) => file.uploading && !file.uploaded),
+    [files]
   );
 
   return (
@@ -292,11 +293,15 @@ const AttachmentUploader = ({ files, onFilesChange, onUpload, onDelete }) => {
       </div>
     </div>
   );
-};
+});
+
+// Add display name for better debugging
+AttachmentUploader.displayName = 'AttachmentUploader';
 
 const EventFormDialog = ({ open, onClose, event, slotInfo, onDelete }) => {
   const queryClient = useQueryClient();
   const isEditing = !!event;
+  const debounceRef = useRef(null);
 
   const { data: metaData } = useQuery({
     queryKey: ["eventMeta"],
@@ -311,17 +316,17 @@ const EventFormDialog = ({ open, onClose, event, slotInfo, onDelete }) => {
 
   const eventDetails = eventDetailsData?.response?.event;
 
-  const meta = metaData?.response || {};
-  const categories = meta.event_categories || [];
-  const statuses = meta.event_status || [];
-  const priorities = meta.event_priority || [];
-  const repeats = meta.event_repeat || [];
-  const reminderTypes = meta.event_reminders_type || [];
-  const reminderTimings = meta.event_reminders_timing || [];
-  const reminderRelatives = meta.event_reminders_relative || [];
-  const participantStatuses = meta.event_participants_status || [];
-  const participantEmails = meta.participants_email || [];
-  const participantRoles = meta.participants_roles || [];
+  const meta = useMemo(() => metaData?.response || {}, [metaData]);
+  const categories = useMemo(() => meta.event_categories || [], [meta.event_categories]);
+  const statuses = useMemo(() => meta.event_status || [], [meta.event_status]);
+  const priorities = useMemo(() => meta.event_priority || [], [meta.event_priority]);
+  const repeats = useMemo(() => meta.event_repeat || [], [meta.event_repeat]);
+  const reminderTypes = useMemo(() => meta.event_reminders_type || [], [meta.event_reminders_type]);
+  const reminderTimings = useMemo(() => meta.event_reminders_timing || [], [meta.event_reminders_timing]);
+  const reminderRelatives = useMemo(() => meta.event_reminders_relative || [], [meta.event_reminders_relative]);
+  const participantStatuses = useMemo(() => meta.event_participants_status || [], [meta.event_participants_status]);
+  const participantEmails = useMemo(() => meta.participants_email || [], [meta.participants_email]);
+  const participantRoles = useMemo(() => meta.participants_roles || [], [meta.participants_roles]);
 
   const [formData, setFormData] = useState({
     title: "",
@@ -546,18 +551,18 @@ const EventFormDialog = ({ open, onClose, event, slotInfo, onDelete }) => {
     },
   });
 
-  const handleFilesChange = (newFiles) => {
+  const handleFilesChange = useCallback((newFiles) => {
     setUploadedFiles(newFiles);
-  };
+  }, []);
 
-  const handleFileUpload = (fileData) => {
+  const handleFileUpload = useCallback((fileData) => {
     uploadMutation.mutate({
       file: fileData.fileObject,
       tempId: fileData.tempId,
     });
-  };
+  }, [uploadMutation]);
 
-  const handleFileDelete = (attachmentId, tempId) => {
+  const handleFileDelete = useCallback((attachmentId, tempId) => {
     if (attachmentId) {
       deleteAttachmentMutation.mutate(attachmentId);
     } else {
@@ -565,22 +570,34 @@ const EventFormDialog = ({ open, onClose, event, slotInfo, onDelete }) => {
         prev.filter((file) => file.tempId !== tempId)
       );
     }
-  };
+  }, [deleteAttachmentMutation]);
 
-  const handleChange = (field, value) => {
+  // Debounced change handler to prevent excessive re-renders
+  const handleChange = useCallback((field, value) => {
+    if (debounceRef.current) {
+      clearTimeout(debounceRef.current);
+    }
+    
+    debounceRef.current = setTimeout(() => {
+      setFormData((prev) => ({ ...prev, [field]: value }));
+    }, 100);
+  }, []);
+
+  // Immediate change handler for critical fields
+  const handleImmediateChange = useCallback((field, value) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
-  };
+  }, []);
 
-  const handleContactSelect = (contact) => {
+  const handleContactSelect = useCallback((contact) => {
     setFormData((prev) => ({
       ...prev,
       initial_id: contact.id ? String(contact.id) : "",
       slug: contact.slug || "",
     }));
     setSelectedContactName(contact.contact_name || "");
-  };
+  }, []);
 
-  const openReminderDialog = () => {
+  const openReminderDialog = useCallback(() => {
     setNewReminder({
       type_id: reminderTypes.length > 0 ? String(reminderTypes[0].id) : "",
       timing_id: reminderTimings.length > 0 ? String(reminderTimings[0].id) : "",
@@ -588,34 +605,34 @@ const EventFormDialog = ({ open, onClose, event, slotInfo, onDelete }) => {
       relative_id: reminderRelatives.length > 0 ? String(reminderRelatives[0].id) : "",
     });
     setReminderDialogOpen(true);
-  };
+  }, [reminderTypes, reminderTimings, reminderRelatives]);
 
-  const handleNewReminderChange = (field, value) => {
+  const handleNewReminderChange = useCallback((field, value) => {
     setNewReminder((prev) => ({ ...prev, [field]: value }));
-  };
+  }, []);
 
-  const confirmAddReminder = () => {
+  const confirmAddReminder = useCallback(() => {
     if (!newReminder.type_id || !newReminder.timing_id || !newReminder.relative_id) {
       toast.error("Please fill in all reminder fields.");
       return;
     }
     setReminders((prev) => [...prev, { ...newReminder }]);
     setReminderDialogOpen(false);
-  };
+  }, [newReminder]);
 
-  const updateReminder = (index, field, value) => {
+  const updateReminder = useCallback((index, field, value) => {
     setReminders((prev) =>
       prev.map((reminder, i) =>
         i === index ? { ...reminder, [field]: value } : reminder
       )
     );
-  };
+  }, []);
 
-  const removeReminder = (index) => {
+  const removeReminder = useCallback((index) => {
     setReminders((prev) => prev.filter((_, i) => i !== index));
-  };
+  }, []);
 
-  const openParticipantDialog = () => {
+  const openParticipantDialog = useCallback(() => {
     setNewParticipant({
       user_id: participantEmails.length > 0 ? String(participantEmails[0].id) : "",
       role_id: participantRoles.length > 0 ? String(participantRoles[0].id) : "",
@@ -623,34 +640,34 @@ const EventFormDialog = ({ open, onClose, event, slotInfo, onDelete }) => {
       comment: "",
     });
     setParticipantDialogOpen(true);
-  };
+  }, [participantEmails, participantRoles, participantStatuses]);
 
-  const handleNewParticipantChange = (field, value) => {
+  const handleNewParticipantChange = useCallback((field, value) => {
     setNewParticipant((prev) => ({ ...prev, [field]: value }));
-  };
+  }, []);
 
-  const confirmAddParticipant = () => {
+  const confirmAddParticipant = useCallback(() => {
     if (!newParticipant.user_id) {
       toast.error("Please select a user.");
       return;
     }
     setParticipants((prev) => [...prev, { ...newParticipant }]);
     setParticipantDialogOpen(false);
-  };
+  }, [newParticipant]);
 
-  const updateParticipant = (index, field, value) => {
+  const updateParticipant = useCallback((index, field, value) => {
     setParticipants((prev) =>
       prev.map((participant, i) =>
         i === index ? { ...participant, [field]: value } : participant
       )
     );
-  };
+  }, []);
 
-  const removeParticipant = (index) => {
+  const removeParticipant = useCallback((index) => {
     setParticipants((prev) => prev.filter((_, i) => i !== index));
-  };
+  }, []);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = useCallback((e) => {
     e.preventDefault();
 
     if (!formData.title.trim()) {
@@ -700,9 +717,18 @@ const EventFormDialog = ({ open, onClose, event, slotInfo, onDelete }) => {
     } else {
       createEventMutation(payload);
     }
-  };
+  }, [formData, reminders, participants, attachmentIds, isEditing, event, updateEventMutation, createEventMutation]);
 
   const isLoading = isCreating || isUpdating;
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      if (debounceRef.current) {
+        clearTimeout(debounceRef.current);
+      }
+    };
+  }, []);
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
@@ -728,7 +754,7 @@ const EventFormDialog = ({ open, onClose, event, slotInfo, onDelete }) => {
                   <Input
                     id="title"
                     value={formData.title}
-                    onChange={(e) => handleChange("title", e.target.value)}
+                    onChange={(e) => handleImmediateChange("title", e.target.value)}
                     placeholder="Enter event title"
                   />
                 </div>
@@ -748,7 +774,7 @@ const EventFormDialog = ({ open, onClose, event, slotInfo, onDelete }) => {
                   <Checkbox
                     id="all_day"
                     checked={formData.all_day}
-                    onCheckedChange={(checked) => handleChange("all_day", checked)}
+                    onCheckedChange={(checked) => handleImmediateChange("all_day", checked)}
                   />
                   <Label htmlFor="all_day" className="cursor-pointer">
                     All day event
@@ -762,7 +788,7 @@ const EventFormDialog = ({ open, onClose, event, slotInfo, onDelete }) => {
                       id="start_date"
                       type="date"
                       value={formData.start_date}
-                      onChange={(e) => handleChange("start_date", e.target.value)}
+                      onChange={(e) => handleImmediateChange("start_date", e.target.value)}
                     />
                   </div>
                   {!formData.all_day && (
@@ -772,7 +798,7 @@ const EventFormDialog = ({ open, onClose, event, slotInfo, onDelete }) => {
                         id="start_time"
                         type="time"
                         value={formData.start_time}
-                        onChange={(e) => handleChange("start_time", e.target.value)}
+                        onChange={(e) => handleImmediateChange("start_time", e.target.value)}
                       />
                     </div>
                   )}
@@ -785,7 +811,7 @@ const EventFormDialog = ({ open, onClose, event, slotInfo, onDelete }) => {
                       id="end_date"
                       type="date"
                       value={formData.end_date}
-                      onChange={(e) => handleChange("end_date", e.target.value)}
+                      onChange={(e) => handleImmediateChange("end_date", e.target.value)}
                     />
                   </div>
                   {!formData.all_day && (
@@ -795,7 +821,7 @@ const EventFormDialog = ({ open, onClose, event, slotInfo, onDelete }) => {
                         id="end_time"
                         type="time"
                         value={formData.end_time}
-                        onChange={(e) => handleChange("end_time", e.target.value)}
+                        onChange={(e) => handleImmediateChange("end_time", e.target.value)}
                       />
                     </div>
                   )}
@@ -1365,4 +1391,5 @@ const EventFormDialog = ({ open, onClose, event, slotInfo, onDelete }) => {
   );
 };
 
-export default EventFormDialog;
+// Memoize the main component to prevent unnecessary re-renders
+export default React.memo(EventFormDialog);
