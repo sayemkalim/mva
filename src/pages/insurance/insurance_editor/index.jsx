@@ -155,20 +155,48 @@ export default function Insurance() {
   const createMutation = useMutation({
     mutationFn: createInsurance,
     onSuccess: (data) => {
-      const resp = data?.response;
-      if (resp?.Apistatus === false) {
-        toast.error(resp?.message || "Validation failed");
-        return;
+      console.log("Response DATA", data);
+
+      const responseData = data?.response || data;
+      const apiStatus = responseData?.Apistatus;
+
+      if (apiStatus === true) {
+        toast.success(responseData?.message || "Insurance information saved successfully!");
+      } else if (apiStatus === false || responseData?.message === "Server Error") {
+        const errors = responseData?.errors;
+        if (errors && typeof errors === "object") {
+          const messages = [];
+          Object.entries(errors).forEach(([key, val]) => {
+            if (Array.isArray(val)) {
+              messages.push(`${key}: ${val.join(", ")}`);
+            } else if (typeof val === "object") {
+              messages.push(`${key}: ${JSON.stringify(val)}`);
+            } else {
+              messages.push(`${key}: ${String(val)}`);
+            }
+          });
+          const message = messages.join(" — ");
+          toast.error(message || "Validation failed. See console for details.");
+          console.error("API returned errors:", errors);
+        } else {
+          toast.error(
+            data?.message ||
+            data?.response?.message ||
+            "Failed to save information. Please try again."
+          );
+          console.error("Create mutation returned:", data);
+        }
       }
-      toast.success(resp?.message || "Insurance information saved successfully!");
     },
     onError: (error) => {
       console.error("Mutation Error:", error);
       const errorData = error.response?.data;
-      if (errorData?.Apistatus === false) {
-        toast.error(errorData?.message || "Validation failed");
+      if (errorData?.message) {
+        toast.error(errorData.message);
+      } else if (errorData?.Apistatus === false) {
+        toast.error("Validation failed");
       } else {
-        toast.error(errorData?.message || "Failed to save information. Please try again.");
+        toast.error("Server Error. Please try again.");
       }
     },
   });
@@ -185,7 +213,7 @@ export default function Insurance() {
       city: "",
       province: "",
       postal_code: "",
-      country: "Canada",
+      country: "",
     },
     policy_no: "",
     claim_no: "",
@@ -239,7 +267,7 @@ export default function Insurance() {
           city: insuranceData.address?.city || "",
           province: insuranceData.address?.province || "",
           postal_code: insuranceData.address?.postal_code || "",
-          country: insuranceData.address?.country || "Canada",
+          country: insuranceData.address?.country || "",
         },
         policy_no: insuranceData.policy_no || "",
         claim_no: insuranceData.claim_no || "",

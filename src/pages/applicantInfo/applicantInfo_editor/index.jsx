@@ -4,6 +4,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { FloatingInput, FloatingTextarea, FloatingWrapper } from "@/components/ui/floating-label";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import {
@@ -738,13 +739,9 @@ export default function ApplicantInformation() {
                 {/* Row 1 */}
                 <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
                   <div className="space-y-2">
-                    <Label
-                      htmlFor="gender_id"
-                      className="text-foreground font-medium"
-                    >
-                      Gender
-                    </Label>
-                    <ShadcnSelect
+                    
+                    <FloatingWrapper label="Gender" hasValue={!!(formData.gender_id)}>
+  <ShadcnSelect
                       popoverKey="gender"
                       popoverOpen={popoverOpen}
                       setPopoverOpen={setPopoverOpen}
@@ -754,16 +751,12 @@ export default function ApplicantInformation() {
                       placeholder="Select gender"
                       label="Gender"
                     />
+</FloatingWrapper>
                   </div>
 
                   <div className="space-y-2">
-                    <Label
-                      htmlFor="last_name"
-                      className="text-foreground font-medium"
-                    >
-                      Last Name<span className="text-red-600">*</span>
-                    </Label>
-                    <Input
+                    
+                    <FloatingInput label="Last Name" required
                       id="last_name"
                       name="last_name"
                       value={formData.last_name}
@@ -774,13 +767,8 @@ export default function ApplicantInformation() {
                   </div>
 
                   <div className="space-y-2">
-                    <Label
-                      htmlFor="first_name"
-                      className="text-foreground font-medium"
-                    >
-                      First Name<span className="text-red-600">*</span>
-                    </Label>
-                    <Input
+                    
+                    <FloatingInput label="First Name" required
                       id="first_name"
                       name="first_name"
                       value={formData.first_name}
@@ -790,13 +778,8 @@ export default function ApplicantInformation() {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label
-                      htmlFor="middle_name"
-                      className="text-foreground font-medium"
-                    >
-                      Middle Name
-                    </Label>
-                    <Input
+                    
+                    <FloatingInput label="Middle Name"
                       id="middle_name"
                       name="middle_name"
                       value={formData.middle_name}
@@ -813,10 +796,8 @@ export default function ApplicantInformation() {
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
                   <div className="space-y-2">
-                    <Label htmlFor="email" className="text-foreground font-medium">
-                      Email
-                    </Label>
-                    <Input
+                    
+                    <FloatingInput label="Email"
                       id="email"
                       name="email"
                       type="email"
@@ -827,13 +808,9 @@ export default function ApplicantInformation() {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label
-                      htmlFor="marital_status_id"
-                      className="text-foreground font-medium"
-                    >
-                      Marital Status
-                    </Label>
-                    <ShadcnSelect
+                    
+                    <FloatingWrapper label="Marital Status" hasValue={!!(formData.marital_status_id)}>
+  <ShadcnSelect
                       popoverKey="marital_status"
                       popoverOpen={popoverOpen}
                       setPopoverOpen={setPopoverOpen}
@@ -845,13 +822,12 @@ export default function ApplicantInformation() {
                       placeholder="Select status"
                       label="Marital Status"
                     />
+</FloatingWrapper>
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="dob" className="text-foreground font-medium">
-                      Date of Birth
-                    </Label>
-                    <Input
+                    
+                    <FloatingInput label="Date of Birth"
                       id="dob"
                       name="dob"
                       type="date"
@@ -865,13 +841,9 @@ export default function ApplicantInformation() {
                 {/* Row 3 */}
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                   <div className="space-y-2">
-                    <Label
-                      htmlFor="canadian_resident_id"
-                      className="text-foreground font-medium"
-                    >
-                      Canadian Resident
-                    </Label>
-                    <ShadcnSelect
+                    
+                    <FloatingWrapper label="Canadian Resident" hasValue={!!(formData.canadian_resident_id)}>
+  <ShadcnSelect
                       popoverKey="canadian_resident"
                       popoverOpen={popoverOpen}
                       setPopoverOpen={setPopoverOpen}
@@ -883,16 +855,13 @@ export default function ApplicantInformation() {
                       placeholder="Select option"
                       label="Canadian Resident"
                     />
+</FloatingWrapper>
                   </div>
 
                   <div className="space-y-2">
-                    <Label
-                      htmlFor="resident_status_id"
-                      className="text-foreground font-medium"
-                    >
-                      Resident Status
-                    </Label>
-                    <ShadcnSelect
+                    
+                    <FloatingWrapper label="Resident Status" hasValue={!!(formData.resident_status_id)}>
+  <ShadcnSelect
                       popoverKey="resident_status"
                       popoverOpen={popoverOpen}
                       setPopoverOpen={setPopoverOpen}
@@ -904,16 +873,12 @@ export default function ApplicantInformation() {
                       placeholder="Select status"
                       label="Resident Status"
                     />
+</FloatingWrapper>
                   </div>
 
                   <div className="space-y-2">
-                    <Label
-                      htmlFor="language_spoken"
-                      className="text-foreground font-medium"
-                    >
-                      Language Spoken
-                    </Label>
-                    <Input
+                    
+                    <FloatingInput label="Language Spoken"
                       id="language_spoken"
                       name="language_spoken"
                       value={formData.language_spoken}
@@ -927,13 +892,9 @@ export default function ApplicantInformation() {
                 {/* Row 4 */}
                 <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
                   <div className="space-y-2">
-                    <Label
-                      htmlFor="contact_method_id"
-                      className="text-foreground font-medium"
-                    >
-                      Contact Method
-                    </Label>
-                    <ShadcnSelect
+                    
+                    <FloatingWrapper label="Contact Method" hasValue={!!(formData.contact_method_id)}>
+  <ShadcnSelect
                       popoverKey="contact_method"
                       popoverOpen={popoverOpen}
                       setPopoverOpen={setPopoverOpen}
@@ -945,16 +906,12 @@ export default function ApplicantInformation() {
                       placeholder="Select method"
                       label="Contact Method"
                     />
+</FloatingWrapper>
                   </div>
 
                   <div className="space-y-2">
-                    <Label
-                      htmlFor="telephone"
-                      className="text-foreground font-medium"
-                    >
-                      Telephone
-                    </Label>
-                    <Input
+                    
+                    <FloatingInput label="Telephone"
                       id="telephone"
                       name="telephone"
                       value={formData.telephone}
@@ -965,10 +922,8 @@ export default function ApplicantInformation() {
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="ext" className="text-foreground font-medium">
-                      Ext
-                    </Label>
-                    <Input
+                    
+                    <FloatingInput label="Ext"
                       id="ext"
                       name="ext"
                       value={formData.ext}
@@ -979,10 +934,8 @@ export default function ApplicantInformation() {
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="fax" className="text-foreground font-medium">
-                      Fax
-                    </Label>
-                    <Input
+                    
+                    <FloatingInput label="Fax"
                       id="fax"
                       name="fax"
                       value={formData.fax}
@@ -1152,8 +1105,9 @@ export default function ApplicantInformation() {
               {formData.social_media_platform.map((platform, index) => (
                 <div key={index} className="grid grid-cols-1 lg:grid-cols-4 gap-6">
                   <div className="space-y-2">
-                    <Label className="text-foreground font-medium">Site</Label>
-                    <ShadcnSelect
+                    
+                    <FloatingWrapper label="Platform" hasValue={!!(platform.platform_name)}>
+  <ShadcnSelect
                       popoverKey={`social-${index}-site`}
                       popoverOpen={popoverOpen}
                       setPopoverOpen={setPopoverOpen}
@@ -1170,11 +1124,12 @@ export default function ApplicantInformation() {
                       placeholder="Select site"
                       label="Social Media Site"
                     />
+</FloatingWrapper>
                   </div>
 
                   <div className="space-y-2">
-                    <Label className="text-foreground font-medium">Link</Label>
-                    <Input
+                    
+                    <FloatingInput label="Link"
                       value={platform.platform_value}
                       onChange={(e) =>
                         handleArrayChange(
@@ -1190,8 +1145,9 @@ export default function ApplicantInformation() {
                   </div>
 
                   <div className="space-y-2">
-                    <Label className="text-foreground font-medium">Status</Label>
-                    <ShadcnSelect
+                    
+                    <FloatingWrapper label="Status" hasValue={!!(platform.platform_status)}>
+  <ShadcnSelect
                       popoverKey={`social-${index}-status`}
                       popoverOpen={popoverOpen}
                       setPopoverOpen={setPopoverOpen}
@@ -1211,6 +1167,7 @@ export default function ApplicantInformation() {
                       placeholder="Select status"
                       label="Status"
                     />
+</FloatingWrapper>
                   </div>
 
                   <div className="flex items-end">
@@ -1252,8 +1209,9 @@ export default function ApplicantInformation() {
               {formData.reaches.map((reach, index) => (
                 <div key={index} className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                   <div className="space-y-2">
-                    <Label className="text-foreground font-medium">Day</Label>
-                    <ShadcnSelect
+                    
+                    <FloatingWrapper label="Day" hasValue={!!(reach.day_id)}>
+  <ShadcnSelect
                       popoverKey={`reaches-${index}-day`}
                       popoverOpen={popoverOpen}
                       setPopoverOpen={setPopoverOpen}
@@ -1265,11 +1223,12 @@ export default function ApplicantInformation() {
                       placeholder="Select day"
                       label="Day"
                     />
+</FloatingWrapper>
                   </div>
 
                   <div className="space-y-2">
-                    <Label className="text-foreground font-medium">Time</Label>
-                    <Input
+                    
+                    <FloatingInput label="Time"
                       type="time"
                       value={reach.time}
                       onChange={(e) =>
@@ -1307,13 +1266,9 @@ export default function ApplicantInformation() {
               </h2>
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <div className="space-y-2">
-                  <Label
-                    htmlFor="client_availability_away_id"
-                    className="text-foreground font-medium"
-                  >
-                    Away Status
-                  </Label>
-                  <ShadcnSelect
+                  
+                  <FloatingWrapper label="Away Status" hasValue={!!(formData.client_availability_away_id)}>
+  <ShadcnSelect
                     popoverKey="client_availability_away"
                     popoverOpen={popoverOpen}
                     setPopoverOpen={setPopoverOpen}
@@ -1325,16 +1280,12 @@ export default function ApplicantInformation() {
                     placeholder="Select status"
                     label="Away Status"
                   />
+</FloatingWrapper>
                 </div>
 
                 <div className="space-y-2">
-                  <Label
-                    htmlFor="client_availability_from"
-                    className="text-foreground font-medium"
-                  >
-                    From Date
-                  </Label>
-                  <Input
+                  
+                  <FloatingInput label="From Date"
                     id="client_availability_from"
                     name="client_availability_from"
                     type="date"
@@ -1345,13 +1296,8 @@ export default function ApplicantInformation() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label
-                    htmlFor="client_availability_to"
-                    className="text-foreground font-medium"
-                  >
-                    To Date
-                  </Label>
-                  <Input
+                  
+                  <FloatingInput label="To Date"
                     id="client_availability_to"
                     name="client_availability_to"
                     type="date"
@@ -1370,10 +1316,8 @@ export default function ApplicantInformation() {
               </h2>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 <div className="space-y-2">
-                  <Label className="text-foreground font-medium">
-                    Unit Number
-                  </Label>
-                  <Input
+                  
+                  <FloatingInput label="Unit Number"
                     value={formData.current_address.unit_number}
                     onChange={(e) =>
                       handleAddressChange(
@@ -1388,10 +1332,8 @@ export default function ApplicantInformation() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label className="text-foreground font-medium">
-                    Street Number
-                  </Label>
-                  <Input
+                  
+                  <FloatingInput label="Street Number"
                     value={formData.current_address.street_number}
                     onChange={(e) =>
                       handleAddressChange(
@@ -1406,10 +1348,8 @@ export default function ApplicantInformation() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label className="text-foreground font-medium">
-                    Street Name
-                  </Label>
-                  <Input
+                  
+                  <FloatingInput label="Street Name"
                     value={formData.current_address.street_name}
                     onChange={(e) =>
                       handleAddressChange(
@@ -1424,8 +1364,8 @@ export default function ApplicantInformation() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label className="text-foreground font-medium">City</Label>
-                  <Input
+                  
+                  <FloatingInput label="City"
                     value={formData.current_address.city}
                     onChange={(e) =>
                       handleAddressChange(
@@ -1440,8 +1380,8 @@ export default function ApplicantInformation() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label className="text-foreground font-medium">Province</Label>
-                  <Input
+                  
+                  <FloatingInput label="Province"
                     value={formData.current_address.province}
                     onChange={(e) =>
                       handleAddressChange(
@@ -1456,10 +1396,8 @@ export default function ApplicantInformation() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label className="text-foreground font-medium">
-                    Postal Code
-                  </Label>
-                  <Input
+                  
+                  <FloatingInput label="Postal Code"
                     value={formData.current_address.postal_code}
                     onChange={(e) =>
                       handleAddressChange(
@@ -1474,8 +1412,8 @@ export default function ApplicantInformation() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label className="text-foreground font-medium">Country</Label>
-                  <Input
+                  
+                  <FloatingInput label="Country"
                     value={formData.current_address.country}
                     onChange={(e) =>
                       handleAddressChange(
@@ -1513,10 +1451,8 @@ export default function ApplicantInformation() {
               {!formData.mailing_address?.sameascurrent && (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                   <div className="space-y-2">
-                    <Label className="text-foreground font-medium">
-                      Unit Number
-                    </Label>
-                    <Input
+                    
+                    <FloatingInput label="Unit Number"
                       value={formData.mailing_address.unit_number}
                       onChange={(e) =>
                         handleAddressChange(
@@ -1532,10 +1468,8 @@ export default function ApplicantInformation() {
                   </div>
 
                   <div className="space-y-2">
-                    <Label className="text-foreground font-medium">
-                      Street Number
-                    </Label>
-                    <Input
+                    
+                    <FloatingInput label="Street Number"
                       value={formData.mailing_address.street_number}
                       onChange={(e) =>
                         handleAddressChange(
@@ -1551,10 +1485,8 @@ export default function ApplicantInformation() {
                   </div>
 
                   <div className="space-y-2">
-                    <Label className="text-foreground font-medium">
-                      Street Name
-                    </Label>
-                    <Input
+                    
+                    <FloatingInput label="Street Name"
                       value={formData.mailing_address.street_name}
                       onChange={(e) =>
                         handleAddressChange(
@@ -1570,8 +1502,8 @@ export default function ApplicantInformation() {
                   </div>
 
                   <div className="space-y-2">
-                    <Label className="text-foreground font-medium">City</Label>
-                    <Input
+                    
+                    <FloatingInput label="City"
                       value={formData.mailing_address.city}
                       onChange={(e) =>
                         handleAddressChange(
@@ -1587,8 +1519,8 @@ export default function ApplicantInformation() {
                   </div>
 
                   <div className="space-y-2">
-                    <Label className="text-foreground font-medium">Province</Label>
-                    <Input
+                    
+                    <FloatingInput label="Province"
                       value={formData.mailing_address.province}
                       onChange={(e) =>
                         handleAddressChange(
@@ -1604,10 +1536,8 @@ export default function ApplicantInformation() {
                   </div>
 
                   <div className="space-y-2">
-                    <Label className="text-foreground font-medium">
-                      Postal Code
-                    </Label>
-                    <Input
+                    
+                    <FloatingInput label="Postal Code"
                       value={formData.mailing_address.postal_code}
                       onChange={(e) =>
                         handleAddressChange(
@@ -1623,8 +1553,8 @@ export default function ApplicantInformation() {
                   </div>
 
                   <div className="space-y-2">
-                    <Label className="text-foreground font-medium">Country</Label>
-                    <Input
+                    
+                    <FloatingInput label="Country"
                       value={formData.mailing_address.country}
                       onChange={(e) =>
                         handleAddressChange(
@@ -1649,13 +1579,8 @@ export default function ApplicantInformation() {
               </h2>
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <div className="space-y-2">
-                  <Label
-                    htmlFor="family_member_first_name"
-                    className="text-foreground font-medium"
-                  >
-                    First Name
-                  </Label>
-                  <Input
+                  
+                  <FloatingInput label="First Name"
                     id="family_member_first_name"
                     name="family_member_first_name"
                     value={formData.family_member_first_name}
@@ -1666,13 +1591,8 @@ export default function ApplicantInformation() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label
-                    htmlFor="family_member_middle_name"
-                    className="text-foreground font-medium"
-                  >
-                    Middle Name
-                  </Label>
-                  <Input
+                  
+                  <FloatingInput label="Middle Name"
                     id="family_member_middle_name"
                     name="family_member_middle_name"
                     value={formData.family_member_middle_name}
@@ -1683,13 +1603,8 @@ export default function ApplicantInformation() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label
-                    htmlFor="family_member_last_name"
-                    className="text-foreground font-medium"
-                  >
-                    Last Name
-                  </Label>
-                  <Input
+                  
+                  <FloatingInput label="Last Name"
                     id="family_member_last_name"
                     name="family_member_last_name"
                     value={formData.family_member_last_name}
@@ -1700,13 +1615,8 @@ export default function ApplicantInformation() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label
-                    htmlFor="family_member_dob"
-                    className="text-foreground font-medium"
-                  >
-                    Date of Birth
-                  </Label>
-                  <Input
+                  
+                  <FloatingInput label="Date of Birth"
                     id="family_member_dob"
                     name="family_member_dob"
                     type="date"
@@ -1717,13 +1627,9 @@ export default function ApplicantInformation() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label
-                    htmlFor="family_member_spouse_status_id"
-                    className="text-foreground font-medium"
-                  >
-                    Spouse Status
-                  </Label>
-                  <ShadcnSelect
+                  
+                  <FloatingWrapper label="Spouse Status" hasValue={!!(formData.family_member_spouse_status_id)}>
+  <ShadcnSelect
                     popoverKey="family_member_spouse_status"
                     popoverOpen={popoverOpen}
                     setPopoverOpen={setPopoverOpen}
@@ -1735,16 +1641,13 @@ export default function ApplicantInformation() {
                     placeholder="Select status"
                     label="Spouse Status"
                   />
+</FloatingWrapper>
                 </div>
 
                 <div className="space-y-2">
-                  <Label
-                    htmlFor="family_member_employment_status_id"
-                    className="text-foreground font-medium"
-                  >
-                    Employment Status
-                  </Label>
-                  <ShadcnSelect
+                  
+                  <FloatingWrapper label="Employment Status" hasValue={!!(formData.family_member_employment_status_id)}>
+  <ShadcnSelect
                     popoverKey="family_member_employment_status"
                     popoverOpen={popoverOpen}
                     setPopoverOpen={setPopoverOpen}
@@ -1759,16 +1662,12 @@ export default function ApplicantInformation() {
                     placeholder="Select status"
                     label="Employment Status"
                   />
+</FloatingWrapper>
                 </div>
 
                 <div className="space-y-2">
-                  <Label
-                    htmlFor="family_member_annual_income"
-                    className="text-foreground font-medium"
-                  >
-                    Annual Income
-                  </Label>
-                  <Input
+                  
+                  <FloatingInput label="Annual Income"
                     id="family_member_annual_income"
                     name="family_member_annual_income"
                     value={formData.family_member_annual_income}
@@ -1779,13 +1678,8 @@ export default function ApplicantInformation() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label
-                    htmlFor="family_member_telephone"
-                    className="text-foreground font-medium"
-                  >
-                    Telephone
-                  </Label>
-                  <Input
+                  
+                  <FloatingInput label="Telephone"
                     id="family_member_telephone"
                     name="family_member_telephone"
                     value={formData.family_member_telephone}
@@ -1796,13 +1690,8 @@ export default function ApplicantInformation() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label
-                    htmlFor="family_member_email"
-                    className="text-foreground font-medium"
-                  >
-                    Email
-                  </Label>
-                  <Input
+                  
+                  <FloatingInput label="Email"
                     id="family_member_email"
                     name="family_member_email"
                     type="email"
@@ -1814,13 +1703,8 @@ export default function ApplicantInformation() {
                 </div>
 
                 <div className="space-y-2 lg:col-span-3">
-                  <Label
-                    htmlFor="family_member_note"
-                    className="text-foreground font-medium"
-                  >
-                    Note
-                  </Label>
-                  <Textarea
+                  
+                  <FloatingTextarea label="Note"
                     id="family_member_note"
                     name="family_member_note"
                     value={formData.family_member_note}
@@ -1836,10 +1720,8 @@ export default function ApplicantInformation() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               <div className="space-y-2">
-                <Label className="text-foreground font-medium">
-                  Unit Number
-                </Label>
-                <Input
+                
+                <FloatingInput label="Unit Number"
                   value={formData.family_member_address.unit_number}
                   onChange={(e) =>
                     handleAddressChange(
@@ -1854,10 +1736,8 @@ export default function ApplicantInformation() {
               </div>
 
               <div className="space-y-2">
-                <Label className="text-foreground font-medium">
-                  Street Number
-                </Label>
-                <Input
+                
+                <FloatingInput label="Street Number"
                   value={formData.family_member_address.street_number}
                   onChange={(e) =>
                     handleAddressChange(
@@ -1872,10 +1752,8 @@ export default function ApplicantInformation() {
               </div>
 
               <div className="space-y-2">
-                <Label className="text-foreground font-medium">
-                  Street Name
-                </Label>
-                <Input
+                
+                <FloatingInput label="Street Name"
                   value={formData.family_member_address.street_name}
                   onChange={(e) =>
                     handleAddressChange(
@@ -1890,8 +1768,8 @@ export default function ApplicantInformation() {
               </div>
 
               <div className="space-y-2">
-                <Label className="text-foreground font-medium">City</Label>
-                <Input
+                
+                <FloatingInput label="City"
                   value={formData.family_member_address.city}
                   onChange={(e) =>
                     handleAddressChange(
@@ -1906,8 +1784,8 @@ export default function ApplicantInformation() {
               </div>
 
               <div className="space-y-2">
-                <Label className="text-foreground font-medium">Province</Label>
-                <Input
+                
+                <FloatingInput label="Province"
                   value={formData.family_member_address.province}
                   onChange={(e) =>
                     handleAddressChange(
@@ -1922,10 +1800,8 @@ export default function ApplicantInformation() {
               </div>
 
               <div className="space-y-2">
-                <Label className="text-foreground font-medium">
-                  Postal Code
-                </Label>
-                <Input
+                
+                <FloatingInput label="Postal Code"
                   value={formData.family_member_address.postal_code}
                   onChange={(e) =>
                     handleAddressChange(
@@ -1940,8 +1816,8 @@ export default function ApplicantInformation() {
               </div>
 
               <div className="space-y-2">
-                <Label className="text-foreground font-medium">Country</Label>
-                <Input
+                
+                <FloatingInput label="Country"
                   value={formData.family_member_address.country}
                   onChange={(e) =>
                     handleAddressChange(
@@ -2015,10 +1891,8 @@ export default function ApplicantInformation() {
 
                   <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
                     <div className="space-y-2">
-                      <Label className="text-foreground font-medium">
-                        First Name
-                      </Label>
-                      <Input
+                      
+                      <FloatingInput label="First Name"
                         value={child.first_name}
                         onChange={(e) =>
                           handleArrayChange(
@@ -2034,10 +1908,8 @@ export default function ApplicantInformation() {
                     </div>
 
                     <div className="space-y-2">
-                      <Label className="text-foreground font-medium">
-                        Middle Name
-                      </Label>
-                      <Input
+                      
+                      <FloatingInput label="Middle Name"
                         value={child.middle_number}
                         onChange={(e) =>
                           handleArrayChange(
@@ -2053,10 +1925,8 @@ export default function ApplicantInformation() {
                     </div>
 
                     <div className="space-y-2">
-                      <Label className="text-foreground font-medium">
-                        Last Name
-                      </Label>
-                      <Input
+                      
+                      <FloatingInput label="Last Name"
                         value={child.last_name}
                         onChange={(e) =>
                           handleArrayChange(
@@ -2072,10 +1942,8 @@ export default function ApplicantInformation() {
                     </div>
 
                     <div className="space-y-2">
-                      <Label className="text-foreground font-medium">
-                        Date of Birth
-                      </Label>
-                      <Input
+                      
+                      <FloatingInput label="Date of Birth"
                         type="date"
                         value={child.dob}
                         onChange={(e) =>
@@ -2113,10 +1981,8 @@ export default function ApplicantInformation() {
               {formData.meeting_clients.map((meeting, index) => (
                 <div key={index} className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                   <div className="space-y-2">
-                    <Label className="text-foreground font-medium">
-                      Meeting Date
-                    </Label>
-                    <Input
+                    
+                    <FloatingInput label="Meeting Date"
                       type="date"
                       value={meeting.date}
                       onChange={(e) =>
