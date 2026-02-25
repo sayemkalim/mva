@@ -1,11 +1,11 @@
 import { apiService } from "@/api/api_service/apiService";
 import { endpoints } from "@/api/endpoints";
 
-export const fetchTaskList = async (queryString = "") => {
+export const fetchTaskList = async (queryString = "", paginationQuery = "") => {
   try {
     const endpoint = queryString
-      ? `${endpoints.filterTasks}?${queryString}`
-      : `${endpoints.taskList}?per_page=25`;
+      ? `${endpoints.filterTasks}?${queryString}&${paginationQuery}`
+      : `${endpoints.taskList}?${paginationQuery}`;
 
     const apiResponse = await apiService({
       endpoint: endpoint,

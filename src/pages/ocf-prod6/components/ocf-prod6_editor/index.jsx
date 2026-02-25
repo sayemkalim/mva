@@ -4,14 +4,29 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { FloatingInput } from "@/components/ui/floating-label";
-import { Loader2, ChevronRight } from "lucide-react";
+import { FloatingInput, FloatingWrapper } from "@/components/ui/floating-label";
+import { Loader2, ChevronRight, Check, ChevronsUpDown } from "lucide-react";
+import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { Navbar2 } from "@/components/navbar2";
 import { createOcfProd6, updateOcfProd6 } from "../../helpers/createOcfProd6";
 import { fetchOcfProd6ById } from "../../helpers/fetchOcfProd6ById";
 import Billing from "@/components/billing";
 import { formatPhoneNumber } from "@/utils/formatters";
+import { getApplicantMeta } from "@/pages/applicantInfo/helpers/fetchApplicantInfoMetadata";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
 
 export default function OCFProd6Page() {
   const { id, slug } = useParams();
@@ -29,6 +44,13 @@ export default function OCFProd6Page() {
     enabled: Boolean(isEditMode && id),
   });
 
+  const { data: applicantMetaRaw } = useQuery({
+    queryKey: ["applicantMeta"],
+    queryFn: getApplicantMeta,
+    staleTime: 5 * 60 * 1000,
+  });
+
+  const applicantMeta = applicantMetaRaw?.response || applicantMetaRaw;
   const ocfRecord = ocfResp?.data || null;
 
   const [formData, setFormData] = useState({
@@ -56,6 +78,79 @@ export default function OCFProd6Page() {
       amount: "",
     })),
   });
+
+  const [openStates, setOpenStates] = useState({});
+
+  const toggleOpen = (key, value) => {
+    setOpenStates((prev) => ({ ...prev, [key]: value }));
+  };
+
+  const SearchableDropdown = ({ label, value, onChange, options, placeholder, openKey }) => {
+    const isOpen = openStates[openKey] || false;
+    return (
+      <FloatingWrapper label={label} hasValue={!!value} isFocused={isOpen}>
+        <Popover open={isOpen} onOpenChange={(v) => toggleOpen(openKey, v)}>
+          <PopoverTrigger asChild>
+            <Button
+              variant="outline"
+              role="combobox"
+              aria-expanded={isOpen}
+              className="w-full justify-between h-[52px] font-normal bg-transparent border border-input"
+            >
+              {value
+                ? options?.find((option) => option.name === value)?.name || value
+                : ""}
+              <ChevronsUpDown className="ml-auto h-4 w-4 shrink-0 opacity-50" />
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-[--radix-popover-trigger-width] p-0" align="start">
+            <Command>
+              <CommandInput placeholder="Search..." />
+              <CommandList>
+                <CommandEmpty>No results found.</CommandEmpty>
+                <CommandGroup>
+                  <CommandItem
+                    onSelect={() => {
+                      onChange("");
+                      toggleOpen(openKey, false);
+                    }}
+                    className="italic text-muted-foreground"
+                  >
+                    <Check
+                      className={cn(
+                        "mr-2 h-4 w-4",
+                        !value ? "opacity-100" : "opacity-0"
+                      )}
+                    />
+                    None
+                  </CommandItem>
+                  {options?.map((option) => (
+                    <CommandItem
+                      key={option.id}
+                      value={option.name}
+                      onSelect={() => {
+                        const newVal = value === option.name ? "" : option.name;
+                        onChange(newVal);
+                        toggleOpen(openKey, false);
+                      }}
+                    >
+                      <Check
+                        className={cn(
+                          "mr-2 h-4 w-4",
+                          value === option.name ? "opacity-100" : "opacity-0"
+                        )}
+                      />
+                      {option.name}
+                    </CommandItem>
+                  ))}
+                </CommandGroup>
+              </CommandList>
+            </Command>
+          </PopoverContent>
+        </Popover>
+      </FloatingWrapper>
+    );
+  };
 
   useEffect(() => {
     if (!ocfRecord) return;
@@ -215,10 +310,13 @@ export default function OCFProd6Page() {
                 value={formData.applicant.middle_name}
                 onChange={(v) => handleApplicantChange("middle_name", v)}
               />
-              <Field
+              <SearchableDropdown
                 label="Gender"
                 value={formData.applicant.gender}
                 onChange={(v) => handleApplicantChange("gender", v)}
+                options={applicantMeta?.contact_gender}
+                placeholder="Select Gender"
+                openKey="gender"
               />
               <Field
                 type="date"

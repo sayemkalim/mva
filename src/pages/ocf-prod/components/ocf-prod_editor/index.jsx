@@ -29,6 +29,7 @@ import {
 import { Loader2, ChevronRight, Calendar as CalendarIcon, Check, ChevronsUpDown } from "lucide-react";
 import { getABMeta } from "@/pages/medical_centre/helpers/fetchABMeta";
 import { getEmploymentMeta } from "@/pages/employment/helpers/fetchIEmploymentMetadata";
+import { getApplicantMeta } from "@/pages/applicantInfo/helpers/fetchApplicantInfoMetadata";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { Navbar2 } from "@/components/navbar2";
@@ -246,8 +247,15 @@ export default function OCFProdPage() {
     staleTime: 5 * 60 * 1000,
   });
 
+  const { data: applicantMetaRaw } = useQuery({
+    queryKey: ["applicantMeta"],
+    queryFn: getApplicantMeta,
+    staleTime: 5 * 60 * 1000,
+  });
+
   const employmentMetadata = employmentMetaRaw?.response;
   const metaData = metaDataRaw?.response;
+  const applicantMeta = applicantMetaRaw?.response || applicantMetaRaw;
   const [openStates, setOpenStates] = useState({});
 
   const toggleOpen = (key, value) => {
@@ -672,10 +680,10 @@ export default function OCFProdPage() {
               <FloatingInput label="First Name" value={formData.first_name} onChange={(e) => handleFieldChange("first_name", e.target.value)} />
               <FloatingInput label="Middle Name" value={formData.middle_name} onChange={(e) => handleFieldChange("middle_name", e.target.value)} />
               <FloatingInput label="Last Name" value={formData.last_name} onChange={(e) => handleFieldChange("last_name", e.target.value)} />
-              <FloatingInput label="Gender" value={formData.gender} onChange={(e) => handleFieldChange("gender", e.target.value)} />
+              <SearchableDropdown label="Gender" value={formData.gender} onChange={(val) => handleFieldChange("gender", val)} options={applicantMeta?.contact_gender} placeholder="Select" openKey="gender" />
               <FloatingInput label="Date of Birth" type="date" value={formData.date_of_birth} onChange={(e) => handleFieldChange("date_of_birth", e.target.value)} />
               <FloatingInput label="Language" value={formData.language} onChange={(e) => handleFieldChange("language", e.target.value)} />
-              <FloatingInput label="Marital Status" value={formData.marital_status} onChange={(e) => handleFieldChange("marital_status", e.target.value)} />
+              <SearchableDropdown label="Marital Status" value={formData.marital_status} onChange={(val) => handleFieldChange("marital_status", val)} options={applicantMeta?.marital_status} placeholder="Select" openKey="marital_status" />
               <FloatingInput label="Driver Licence No" value={formData.driver_licence_no} onChange={(e) => handleFieldChange("driver_licence_no", e.target.value)} />
             </div>
 

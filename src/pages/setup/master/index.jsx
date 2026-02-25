@@ -10,7 +10,7 @@ import { formatSlugToTitle } from "./helpers/formatSlugToTitle";
 const Master = ({ slug }) => {
   const paramInitialState = {
     page: 1,
-    per_page: 50,
+    per_page: 25,
     search: "",
   };
   

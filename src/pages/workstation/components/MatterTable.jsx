@@ -11,8 +11,7 @@ import { toast } from "sonner";
 import { fetchWorkstationList } from "../helpers/fetchWorkstationList";
 import { deleteBlog } from "../helpers/deleteBlog";
 
-// The component expects setBlogsLength and params from props
-const MatterTable = ({ setBlogsLength, params = {} }) => {
+const MatterTable = ({ setBlogsLength, params = {}, setParams }) => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
@@ -27,8 +26,6 @@ const MatterTable = ({ setBlogsLength, params = {} }) => {
 
   const [openDelete, setOpenDelete] = useState(false);
   const [selectedWorkstation, setSelectedWorkstation] = useState(null);
-  const [currentPage, setCurrentPage] = useState(1);
-  const perPage = 10;
 
   const onOpenDialog = (row) => {
     setOpenDelete(true);
@@ -54,9 +51,18 @@ const MatterTable = ({ setBlogsLength, params = {} }) => {
       },
     });
 
-  const workstations = Array.isArray(apiWorkstationResponse?.response?.data)
-    ? apiWorkstationResponse.response.data
-    : [];
+  const workstations = Array.isArray(apiWorkstationResponse?.data)
+    ? apiWorkstationResponse.data
+    : Array.isArray(apiWorkstationResponse?.response?.data)
+      ? apiWorkstationResponse.response.data
+      : [];
+
+  const paginationMeta = apiWorkstationResponse?.pagination || apiWorkstationResponse?.response?.pagination || {
+    last_page: 1,
+    current_page: 1,
+    per_page: 25,
+    total: 0,
+  };
 
   // Save id and name to localStorage whenever workstations data changes
   useEffect(() => {
@@ -71,15 +77,8 @@ const MatterTable = ({ setBlogsLength, params = {} }) => {
   }, [workstations]);
 
   useEffect(() => {
-    setBlogsLength(workstations?.length || 0);
-  }, [workstations, setBlogsLength]);
-
-  // Pagination calculations
-  const totalPages = Math.ceil(workstations.length / perPage);
-  const paginatedData = workstations.slice(
-    (currentPage - 1) * perPage,
-    currentPage * perPage
-  );
+    setBlogsLength(paginationMeta?.total || workstations?.length || 0);
+  }, [paginationMeta?.total, workstations, setBlogsLength]);
 
   const onNavigateToEdit = (workstation) => {
     if (!workstation?.slug) {
@@ -181,14 +180,14 @@ const MatterTable = ({ setBlogsLength, params = {} }) => {
     <>
       <CustomTable
         columns={columns}
-        data={paginatedData}
+        data={workstations}
         isLoading={isLoading}
         error={error}
         onRowClick={handleRowClick}
-        totalPages={totalPages}
-        currentPage={currentPage}
-        perPage={perPage}
-        onPageChange={setCurrentPage}
+        totalPages={paginationMeta.last_page || 1}
+        currentPage={params.page || 1}
+        perPage={params.per_page || 25}
+        onPageChange={(page) => setParams((prev) => ({ ...prev, page }))}
       />
       <CustomDialog
         onOpen={openDelete}

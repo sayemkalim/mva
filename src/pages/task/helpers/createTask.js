@@ -43,7 +43,7 @@ export const updateTask = async (id, data) => {
 
     const apiResponse = await apiService({
       endpoint: `${endpoints.updateTask}/update/${id}`,
-      method: "POST",
+      method: "PUT",
       data,
       headers: {
         "Content-Type": "application/json",

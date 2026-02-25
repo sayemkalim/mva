@@ -61,7 +61,7 @@ import { deleteTask } from "../helpers/deleteTask";
 import { getABMeta } from "../helpers/fetchABMeta";
 import { updateStatus, searchContact } from "../helpers/createTask";
 
-const TaskTable = ({ setTasksLength }) => {
+const TaskTable = ({ setTasksLength, params, setParams }) => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
@@ -113,10 +113,14 @@ const TaskTable = ({ setTasksLength }) => {
     error,
     refetch,
   } = useQuery({
-    queryKey: ["taskList", filters],
+    queryKey: ["taskList", filters, params?.page, params?.search, params?.per_page],
     queryFn: () => {
       const queryString = buildQueryParams(filters);
-      return fetchTaskList(queryString);
+      let paginationQuery = `page=${params?.page || 1}&per_page=${params?.per_page || 25}`;
+      if (params?.search) {
+        paginationQuery += `&search=${encodeURIComponent(params?.search)}`;
+      }
+      return fetchTaskList(queryString, paginationQuery);
     },
   });
 
@@ -152,8 +156,16 @@ const TaskTable = ({ setTasksLength }) => {
     isLoading: isSearchingContacts,
   } = useQuery({
     queryKey: ["searchContacts", debouncedClientSearch],
-    queryFn: () => searchContact({ searchBar: debouncedClientSearch }),
-    enabled: debouncedClientSearch.length > 0,
+    queryFn: async () => {
+      try {
+        const res = await searchContact({ searchBar: debouncedClientSearch });
+        return res;
+      } catch (err) {
+        console.error("An error occurred while searching client", err);
+        return { response: { data: [] } };
+      }
+    },
+    enabled: debouncedClientSearch.length > 2,
   });
 
   const searchedContacts = contactsResponse?.response?.data || [];
@@ -183,9 +195,15 @@ const TaskTable = ({ setTasksLength }) => {
       to_date: null,
     });
     setClientSearchQuery("");
+    if (setParams) {
+      setParams((prev) => ({ ...prev, page: 1 }));
+    }
   };
 
   const handleApplyFilters = () => {
+    if (setParams) {
+      setParams((prev) => ({ ...prev, page: 1 }));
+    }
     setOpenFilter(false);
     toast.success("Filters applied successfully");
   };
@@ -464,6 +482,14 @@ const TaskTable = ({ setTasksLength }) => {
         data={tasks}
         isLoading={isLoading}
         error={error}
+        totalPages={apiTaskResponse?.response?.pagination?.last_page || 1}
+        currentPage={apiTaskResponse?.response?.pagination?.current_page || 1}
+        perPage={apiTaskResponse?.response?.pagination?.per_page || params?.per_page || 25}
+        onPageChange={(newPage) => {
+          if (setParams) {
+            setParams((prev) => ({ ...prev, page: newPage }));
+          }
+        }}
       // onRowClick={handleRowClick}
       />
 

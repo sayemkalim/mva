@@ -12,7 +12,7 @@ const UserSetup = () => {
 
   const paramInitialState = {
     page: 1,
-    per_page: 50,
+    per_page: 25,
     search: "",
   };
   const [usersLength, setUsersLength] = useState(0);

@@ -67,8 +67,16 @@ const ContactSearch = ({ value, onChange, label, initialContactName }) => {
     error,
   } = useQuery({
     queryKey: ["searchContacts", debouncedSearch],
-    queryFn: () => searchContact({ searchBar: debouncedSearch }),
-    enabled: debouncedSearch.length > 0,
+    queryFn: async () => {
+      try {
+        const res = await searchContact({ searchBar: debouncedSearch });
+        return res;
+      } catch (err) {
+        console.error("Error searching contacts:", err);
+        return { response: { data: [] } };
+      }
+    },
+    enabled: debouncedSearch.length > 2,
     staleTime: 300000,
   });
 
@@ -809,7 +817,7 @@ export default function TaskPage() {
     isLoading: loadingTask,
     isError: taskError,
   } = useQuery({
-    queryKey: ["task", slug],
+    queryKey: ["task", id],
     queryFn: () => fetchTaskById(id),
     enabled: !!id && isEditMode,
   });
@@ -821,6 +829,11 @@ export default function TaskPage() {
       return createTask(data);
     },
     onSuccess: (data) => {
+      if (data?.error) {
+        const errorData = data?.response?.data || data?.response;
+        toast.error(errorData?.message || data?.message || "Failed to create Task");
+        return;
+      }
       const resp = data?.response;
       if (resp?.Apistatus === false) {
         toast.error(resp?.message || "Validation failed");
@@ -831,20 +844,21 @@ export default function TaskPage() {
       navigate(-1);
     },
     onError: (error) => {
-      const errorData = error.response?.data;
-      if (errorData?.Apistatus === false) {
-        toast.error(errorData?.message || "Validation failed");
-      } else {
-        toast.error(errorData?.message || "Failed to create Task");
-      }
+      const errorData = error.response?.data || error.response;
+      toast.error(errorData?.message || "Failed to create Task");
     },
   });
 
   const updateMutation = useMutation({
     mutationFn: (payload) => {
-      return updateTask(slug, payload);
+      return updateTask(id, payload);
     },
     onSuccess: (data) => {
+      if (data?.error) {
+        const errorData = data?.response?.data || data?.response;
+        toast.error(errorData?.message || data?.message || "Failed to update task");
+        return;
+      }
       const resp = data?.response;
       if (resp?.Apistatus === false) {
         toast.error(resp?.message || "Validation failed");
@@ -852,17 +866,13 @@ export default function TaskPage() {
       }
       toast.success(resp?.message || "Task updated successfully!");
       queryClient.invalidateQueries(["taskList"]);
-      queryClient.invalidateQueries(["task", slug]);
+      queryClient.invalidateQueries(["task", id]);
       navigate(-1);
     },
     onError: (error) => {
       console.error("❌ Update Error:", error);
-      const errorData = error.response?.data;
-      if (errorData?.Apistatus === false) {
-        toast.error(errorData?.message || " failed");
-      } else {
-        toast.error(errorData?.message || "Failed to update task");
-      }
+      const errorData = error.response?.data || error.response;
+      toast.error(errorData?.message || "Failed to update task");
     },
   });
 

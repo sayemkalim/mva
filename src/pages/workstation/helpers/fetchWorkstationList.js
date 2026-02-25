@@ -9,9 +9,13 @@ export const fetchWorkstationList = async ({
   year = "",
   start_date = "",
   end_date = "",
+  page = 1,
+  per_page = 25,
 } = {}) => {
   try {
     const params = new URLSearchParams();
+    if (page) params.append("page", page);
+    if (per_page) params.append("per_page", per_page);
     if (search && search.trim()) {
       params.append("search", search);
     }
