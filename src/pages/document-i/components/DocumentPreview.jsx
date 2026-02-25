@@ -96,15 +96,44 @@ const DocumentPreview = ({ document }) => {
     return officeExtensions.includes(extension?.toLowerCase());
   };
 
-  const handleDownload = () => {
+  const handleDownload = async () => {
     if (attachment?.path) {
-      const link = globalThis.document.createElement('a');
-      link.href = attachment.path;
-      link.download = attachment.original_name || 'document';
-      link.target = '_blank';
-      globalThis.document.body.appendChild(link);
-      link.click();
-      globalThis.document.body.removeChild(link);
+      try {
+        setIsLoading(true);
+        
+        // Fetch the file as a blob to force download
+        const response = await fetch(attachment.path);
+        if (!response.ok) {
+          throw new Error('Failed to fetch file');
+        }
+        
+        const blob = await response.blob();
+        const blobUrl = URL.createObjectURL(blob);
+        
+        const link = globalThis.document.createElement('a');
+        link.href = blobUrl;
+        link.download = attachment.original_name || 'document';
+        link.style.display = 'none';
+        
+        globalThis.document.body.appendChild(link);
+        link.click();
+        globalThis.document.body.removeChild(link);
+        
+        // Clean up the blob URL
+        URL.revokeObjectURL(blobUrl);
+      } catch (error) {
+        console.error('Download failed:', error);
+        // Fallback to direct link if fetch fails
+        const link = globalThis.document.createElement('a');
+        link.href = attachment.path;
+        link.download = attachment.original_name || 'document';
+        link.target = '_blank';
+        globalThis.document.body.appendChild(link);
+        link.click();
+        globalThis.document.body.removeChild(link);
+      } finally {
+        setIsLoading(false);
+      }
     }
   };
 

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useParams, useNavigate } from "react-router-dom";
 import { fetchList } from "./helper/fetchList";
@@ -118,7 +118,7 @@ const CostList = () => {
 
   const resetSoftCostForm = () => {
     setSoftCostForm({
-      timekeeper: "",
+      timekeeper: timeKeeperValue,
       date: "",
       type: "Expense",
       expense: "",
@@ -163,7 +163,7 @@ const CostList = () => {
 
   const resetTimeCardForm = () => {
     setTimeCardForm({
-      timekeeper: "",
+      timekeeper: timeKeeperValue,
       date: "",
       type: "Lawyer Work",
       task: "",
@@ -280,7 +280,6 @@ const CostList = () => {
   };
 
   const handleEditTimeCardSubmit = () => {
-    console.log("Editing Cost:");
     if (
       !editingCost.timekeeker ||
       !editingCost.date ||
@@ -454,6 +453,15 @@ const CostList = () => {
   const rateTypeOptions = metaData?.accounting_rate_type || [];
   const billingStatusOptions = metaData?.accounting_billing_status || [];
   const flagOptions = metaData?.accounting_flag || [];
+  const timeKeeperValue = metaData?.TimeKeeper || "";
+
+  // Set timekeeper value from meta when available
+  useEffect(() => {
+    if (timeKeeperValue) {
+      setSoftCostForm(prev => ({ ...prev, timekeeper: timeKeeperValue }));
+      setTimeCardForm(prev => ({ ...prev, timekeeper: timeKeeperValue }));
+    }
+  }, [timeKeeperValue]);
 
   const costs = data?.data || [];
   const unpaid = data?.unpaid || "0.00";
@@ -687,7 +695,9 @@ const CostList = () => {
                 <Input 
                   placeholder="" 
                   value={timeCardForm.timekeeper}
-                  onChange={(e) => setTimeCardForm({...timeCardForm, timekeeper: e.target.value})}
+                  readOnly
+                  disabled
+                  className="bg-muted text-muted-foreground"
                 />
               </div>
               <div className="space-y-2">
@@ -788,6 +798,7 @@ const CostList = () => {
                   <Label>Rate/Price <span className="text-red-500">*</span></Label>
                   <Input 
                     type="number" 
+                    min="0"
                     className="w-full" 
                     value={timeCardForm.rate}
                     onChange={(e) => setTimeCardForm({...timeCardForm, rate: e.target.value})}
@@ -974,7 +985,9 @@ const CostList = () => {
                 <Input 
                   placeholder="" 
                   value={softCostForm.timekeeper}
-                  onChange={(e) => setSoftCostForm({...softCostForm, timekeeper: e.target.value})}
+                  readOnly
+                  disabled
+                  className="bg-muted text-muted-foreground"
                 />
               </div>
               <div className="space-y-2">
@@ -1027,6 +1040,7 @@ const CostList = () => {
                 <Label>Rate <span className="text-red-500">*</span></Label>
                 <Input 
                   type="number" 
+                  min="0"
                   placeholder="" 
                   value={softCostForm.rate}
                   onChange={(e) => setSoftCostForm({...softCostForm, rate: e.target.value})}
@@ -1036,6 +1050,7 @@ const CostList = () => {
                 <Label>Value <span className="text-red-500">*</span></Label>
                 <Input 
                   type="number" 
+                  min="0"
                   placeholder="" 
                   value={
                     (() => {
@@ -1156,6 +1171,7 @@ const CostList = () => {
                 <Label>Amount <span className="text-red-500">*</span></Label>
                 <Input 
                   type="number" 
+                  min="0"
                   placeholder="" 
                   value={hardCostForm.amount}
                   onChange={(e) => setHardCostForm({...hardCostForm, amount: e.target.value})}
@@ -1465,6 +1481,7 @@ const CostList = () => {
                   <Input 
                     type="number" 
                     placeholder="" 
+                    min="0"
                     value={editingCost.rate || ""}
                     onChange={(e) => setEditingCost({...editingCost, rate: e.target.value})}
                   />
@@ -1474,6 +1491,7 @@ const CostList = () => {
                   <Input 
                     type="number" 
                     placeholder="" 
+                    min="0"
                     value=
                     {
                     (() => {
@@ -1644,6 +1662,7 @@ const CostList = () => {
                     <Input 
                       type="number" 
                       className="w-full" 
+                      min="0"
                       value={editingCost.rate || ""}
                       onChange={(e) => setEditingCost({...editingCost, rate: e.target.value})}
                     />
@@ -1894,6 +1913,7 @@ const CostList = () => {
                   <Input 
                     type="number" 
                     placeholder="" 
+                    min="0"
                     value={editingCost.amount || ""}
                     onChange={(e) => setEditingCost({...editingCost, amount: e.target.value})}
                   />

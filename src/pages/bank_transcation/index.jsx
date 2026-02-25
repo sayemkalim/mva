@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useParams } from "react-router-dom";
 import { fetchList } from "./helper/fetchList";
@@ -237,6 +237,22 @@ const BankTransaction = () => {
   const accountingMethods = metaData?.accounting_banking_method || [];
   const depositTypes = metaData?.accounting_banking_type || [];
 
+  // Filter deposit types based on selected bank type
+  const getFilteredDepositTypes = (selectedBankTypeId) => {
+    const selectedBankType = bankTypes.find(bt => String(bt.id) === String(selectedBankTypeId));
+    const isOperatingBank = selectedBankType?.name?.toLowerCase().includes('operating');
+    
+    if (isOperatingBank) {
+      // Remove withdrawal options for operating bank
+      return depositTypes.filter(dt => !dt.name?.toLowerCase().includes('withdrawal'));
+    }
+    
+    return depositTypes;
+  };
+
+  const filteredDepositTypesAdd = getFilteredDepositTypes(form.banktype_id);
+  const filteredDepositTypesEdit = editingDeposit ? getFilteredDepositTypes(editingDeposit.banktype_id) : depositTypes;
+
   const deposits = data?.data || [];
   const unpaid = data?.unpaid || "0.00";
   const unbilled = data?.unbilled || "0.00";
@@ -415,7 +431,9 @@ const formatDate = (dateString) => {
                 <Label>Bank Type <span className="text-red-500">*</span></Label>
                 <Select
                   value={form.banktype_id}
-                  onValueChange={(value) => setForm({...form, banktype_id: value})}
+                  onValueChange={(value) => {
+                    setForm({...form, banktype_id: value, type_id: ""});
+                  }}
                   required
                 >
                   <SelectTrigger className="w-full">
@@ -460,7 +478,7 @@ const formatDate = (dateString) => {
                     <SelectValue placeholder="Select" />
                   </SelectTrigger>
                   <SelectContent>
-                    {depositTypes.map((item) => (
+                    {filteredDepositTypesAdd.map((item) => (
                       <SelectItem key={item.id} value={String(item.id)}>
                         {item.name}
                       </SelectItem>
@@ -485,6 +503,7 @@ const formatDate = (dateString) => {
                 <Input 
                   type="number" 
                   placeholder="" 
+                  min="0"
                   value={form.amount}
                   onChange={(e) => setForm({...form, amount: e.target.value})}
                   required
@@ -618,8 +637,11 @@ const formatDate = (dateString) => {
                   <Label>Bank Type <span className="text-red-500">*</span></Label>
                   <Select
                     value={String(editingDeposit.banktype_id || "")}
-                    onValueChange={(value) => setEditingDeposit({...editingDeposit, banktype_id: value})}
+                    onValueChange={(value) => {
+                      setEditingDeposit({...editingDeposit, banktype_id: value, type_id: ""});
+                    }}
                     required
+                    disabled={true}
                   >
                     <SelectTrigger className="w-full">
                       <SelectValue placeholder="Select" />
@@ -658,12 +680,13 @@ const formatDate = (dateString) => {
                     value={String(editingDeposit.type_id || "")}
                     onValueChange={(value) => setEditingDeposit({...editingDeposit, type_id: value})}
                     required
+                    disabled={true}
                   >
                     <SelectTrigger className="w-full">
                       <SelectValue placeholder="Select" />
                     </SelectTrigger>
                     <SelectContent>
-                      {depositTypes.map((item) => (
+                      {filteredDepositTypesEdit.map((item) => (
                         <SelectItem key={item.id} value={String(item.id)}>
                           {item.name}
                         </SelectItem>
@@ -688,6 +711,7 @@ const formatDate = (dateString) => {
                   <Input 
                     type="number" 
                     placeholder="" 
+                    min="0"
                     value={editingDeposit.amount || ""}
                     onChange={(e) => setEditingDeposit({...editingDeposit, amount: e.target.value})}
                     required
