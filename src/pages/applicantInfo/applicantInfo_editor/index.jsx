@@ -25,6 +25,7 @@ import { createApplicantInfo } from "../helpers/createApplicantInfo";
 import { getApplicantMeta } from "../helpers/fetchApplicantInfoMetadata";
 import { fetchApplicantInfoBySlug } from "../helpers/fetchApplicantInfoBySlug";
 import { uploadAttachment } from "../helpers/uploadAttachment";
+import { getSocialMediaPlatforms } from "../helpers/fetchSocialMediaPlatforms";
 import { Navbar2 } from "@/components/navbar2";
 import { Checkbox } from "@/components/ui/checkbox";
 import { formatPhoneNumber } from "@/lib/utils";
@@ -47,13 +48,14 @@ import { FloatingInput, FloatingWrapper } from "@/components/ui/floating-label";
 function ShadcnSelect({
   value,
   onValueChange,
-  options = [],
+  options: rawOptions = [],
   placeholder = "Select",
   label = "Select",
   popoverKey,
   popoverOpen,
   setPopoverOpen,
 }) {
+  const options = Array.isArray(rawOptions) ? rawOptions : [];
   const selected = options.find((o) => String(o.id) === String(value)) || null;
   const isOpen = !!(popoverOpen && popoverOpen[popoverKey]);
 
@@ -127,7 +129,7 @@ function ShadcnSelect({
   );
 }
 
-export default function ApplicantInformation() {
+function ApplicantInfoEditor() {
   const { slug } = useParams();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
@@ -145,6 +147,24 @@ export default function ApplicantInformation() {
   });
 
   const metadata = apiResponse?.response || {};
+
+  const { data: socialMediaSync } = useQuery({
+    queryKey: ["socialMediaPlatforms"],
+    queryFn: getSocialMediaPlatforms,
+    staleTime: 5 * 60 * 1000,
+  });
+
+  const socialMediaOptions = Array.isArray(socialMediaSync?.response)
+    ? socialMediaSync.response
+    : [
+      { id: "Facebook", name: "Facebook" },
+      { id: "Instagram", name: "Instagram" },
+      { id: "TikTok", name: "TikTok" },
+      { id: "X (Twitter)", name: "X (Twitter)" },
+      { id: "Snapchat", name: "Snapchat" },
+      { id: "LinkedIn", name: "LinkedIn" },
+      { id: "Other", name: "Other social media platforms" },
+    ];
 
   const { data: applicantData, isLoading: isLoadingApplicant } = useQuery({
     queryKey: ["applicantInfo", slug],
@@ -240,12 +260,7 @@ export default function ApplicantInformation() {
     file: null,
     fileName: "",
     filePreview: null,
-    social_media_facebook: "",
-    social_media_instagram: "",
-    social_media_tiktok: "",
-    social_media_x: "",
-    social_media_snapchat: "",
-    social_media_linkedin: "",
+    social_media_platform: [{ platform_name: "", platform_value: "", platform_status: "Active" }],
     reaches: [{ day_id: "", time: "" }],
     client_availability_away_id: "",
     client_availability_from: "",
@@ -292,7 +307,7 @@ export default function ApplicantInformation() {
     meeting_clients: [{ date: "" }],
     child_check: false,
   });
-  const [popoverOpen, setPopoverOpen] = useState({});
+  const [selectPopoverOpen, setSelectPopoverOpen] = useState({});
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
 
   const [mailingAddressBackup, setMailingAddressBackup] = useState(null);
@@ -368,12 +383,15 @@ export default function ApplicantInformation() {
           : "",
         filePreview: applicantData.attachment?.path || null,
 
-        social_media_facebook: applicantData.social_media_facebook ?? "",
-        social_media_instagram: applicantData.social_media_instagram ?? "",
-        social_media_tiktok: applicantData.social_media_tiktok ?? "",
-        social_media_x: applicantData.social_media_x ?? "",
-        social_media_snapchat: applicantData.social_media_snapchat ?? "",
-        social_media_linkedin: applicantData.social_media_linkedin ?? "",
+        social_media_platform:
+          applicantData.social_media_platform &&
+            applicantData.social_media_platform.length > 0
+            ? applicantData.social_media_platform.map((p) => ({
+              platform_name: p.platform_name ?? "",
+              platform_value: p.platform_value ?? "",
+              platform_status: p.platform_status ?? "Active",
+            }))
+            : [{ platform_name: "", platform_value: "", platform_status: "Active" }],
         reaches:
           applicantData.reach && applicantData.reach.length > 0
             ? applicantData.reach.map((r) => ({
@@ -568,12 +586,13 @@ export default function ApplicantInformation() {
       fax: formData.fax || null,
       email: formData.email,
       attachment_id: formData.attachment_id || null,
-      social_media_facebook: formData.social_media_facebook || null,
-      social_media_instagram: formData.social_media_instagram || null,
-      social_media_tiktok: formData.social_media_tiktok || null,
-      social_media_x: formData.social_media_x || null,
-      social_media_snapchat: formData.social_media_snapchat || null,
-      social_media_linkedin: formData.social_media_linkedin || null,
+      social_media_platform: formData.social_media_platform
+        .map((p) => ({
+          platform_name: p.platform_name || null,
+          platform_value: p.platform_value || null,
+          platform_status: p.platform_status || "Active",
+        }))
+        .filter((p) => p.platform_name || p.platform_value),
 
       reaches: formData.reaches
         .map((r, idx) => {
@@ -719,8 +738,8 @@ export default function ApplicantInformation() {
                   <div className="space-y-2">
                     <ShadcnSelect
                       popoverKey="gender"
-                      popoverOpen={popoverOpen}
-                      setPopoverOpen={setPopoverOpen}
+                      popoverOpen={selectPopoverOpen}
+                      setPopoverOpen={setSelectPopoverOpen}
                       value={formData.gender_id}
                       onValueChange={(val) => handleSelectChange("gender_id", val)}
                       options={metadata?.contact_gender || []}
@@ -779,8 +798,8 @@ export default function ApplicantInformation() {
                   <div className="space-y-2">
                     <ShadcnSelect
                       popoverKey="marital_status"
-                      popoverOpen={popoverOpen}
-                      setPopoverOpen={setPopoverOpen}
+                      popoverOpen={selectPopoverOpen}
+                      setPopoverOpen={setSelectPopoverOpen}
                       value={formData.marital_status_id}
                       onValueChange={(val) =>
                         handleSelectChange("marital_status_id", val)
@@ -808,8 +827,8 @@ export default function ApplicantInformation() {
                   <div className="space-y-2">
                     <ShadcnSelect
                       popoverKey="canadian_resident"
-                      popoverOpen={popoverOpen}
-                      setPopoverOpen={setPopoverOpen}
+                      popoverOpen={selectPopoverOpen}
+                      setPopoverOpen={setSelectPopoverOpen}
                       value={formData.canadian_resident_id}
                       onValueChange={(val) =>
                         handleSelectChange("canadian_resident_id", val)
@@ -823,8 +842,8 @@ export default function ApplicantInformation() {
                   <div className="space-y-2">
                     <ShadcnSelect
                       popoverKey="resident_status"
-                      popoverOpen={popoverOpen}
-                      setPopoverOpen={setPopoverOpen}
+                      popoverOpen={selectPopoverOpen}
+                      setPopoverOpen={setSelectPopoverOpen}
                       value={formData.resident_status_id}
                       onValueChange={(val) =>
                         handleSelectChange("resident_status_id", val)
@@ -851,8 +870,8 @@ export default function ApplicantInformation() {
                   <div className="space-y-2">
                     <ShadcnSelect
                       popoverKey="contact_method"
-                      popoverOpen={popoverOpen}
-                      setPopoverOpen={setPopoverOpen}
+                      popoverOpen={selectPopoverOpen}
+                      setPopoverOpen={setSelectPopoverOpen}
                       value={formData.contact_method_id}
                       onValueChange={(val) =>
                         handleSelectChange("contact_method_id", val)
@@ -1104,6 +1123,87 @@ export default function ApplicantInformation() {
                   />
                 </div>
               </div>
+
+              {formData.social_media_platform.map((platform, index) => (
+                <div key={index} className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+                  <div className="space-y-2">
+                    <Label className="text-foreground font-medium">Site</Label>
+                    <ShadcnSelect
+                      popoverKey={`social-${index}-site`}
+                      popoverOpen={selectPopoverOpen}
+                      setPopoverOpen={setSelectPopoverOpen}
+                      value={platform.platform_name}
+                      onValueChange={(val) =>
+                        handleArrayChange(
+                          "social_media_platform",
+                          index,
+                          "platform_name",
+                          val
+                        )
+                      }
+                      options={socialMediaOptions}
+                      placeholder="Select site"
+                      label="Social Media Site"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <FloatingInput
+                      label="Link"
+                      value={platform.platform_value}
+                      onChange={(e) =>
+                        handleArrayChange(
+                          "social_media_platform",
+                          index,
+                          "platform_value",
+                          e.target.value
+                        )
+                      }
+                      placeholder="https://..."
+                      className="w-full h-9 bg-muted border-input"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label className="text-foreground font-medium">Status</Label>
+                    <ShadcnSelect
+                      popoverKey={`social-${index}-status`}
+                      popoverOpen={selectPopoverOpen}
+                      setPopoverOpen={setSelectPopoverOpen}
+                      value={platform.platform_status}
+                      onValueChange={(val) =>
+                        handleArrayChange(
+                          "social_media_platform",
+                          index,
+                          "platform_status",
+                          val
+                        )
+                      }
+                      options={[
+                        { id: "Active", name: "Active" },
+                        { id: "Inactive", name: "Inactive" },
+                      ]}
+                      placeholder="Select status"
+                      label="Status"
+                    />
+                  </div>
+
+                  <div className="flex items-end">
+                    <Button
+                      type="button"
+                      variant="destructive"
+                      size="sm"
+                      onClick={() =>
+                        removeArrayItem("social_media_platform", index)
+                      }
+                      disabled={formData.social_media_platform.length === 1}
+                      className="w-full h-9"
+                    >
+                      Remove
+                    </Button>
+                  </div>
+                </div>
+              ))}
             </div>
 
             {/* Best Times to Reach */}
@@ -1129,8 +1229,8 @@ export default function ApplicantInformation() {
                   <div className="space-y-2">
                     <ShadcnSelect
                       popoverKey={`reaches-${index}-day`}
-                      popoverOpen={popoverOpen}
-                      setPopoverOpen={setPopoverOpen}
+                      popoverOpen={selectPopoverOpen}
+                      setPopoverOpen={setSelectPopoverOpen}
                       value={reach.day_id}
                       onValueChange={(val) =>
                         handleArrayChange("reaches", index, "day_id", val)
@@ -1183,8 +1283,8 @@ export default function ApplicantInformation() {
                 <div className="space-y-2">
                   <ShadcnSelect
                     popoverKey="client_availability_away"
-                    popoverOpen={popoverOpen}
-                    setPopoverOpen={setPopoverOpen}
+                    popoverOpen={selectPopoverOpen}
+                    setPopoverOpen={setSelectPopoverOpen}
                     value={formData.client_availability_away_id}
                     onValueChange={(val) =>
                       handleSelectChange("client_availability_away_id", val)
@@ -1516,8 +1616,8 @@ export default function ApplicantInformation() {
                 <div className="space-y-2">
                   <ShadcnSelect
                     popoverKey="family_member_spouse_status"
-                    popoverOpen={popoverOpen}
-                    setPopoverOpen={setPopoverOpen}
+                    popoverOpen={selectPopoverOpen}
+                    setPopoverOpen={setSelectPopoverOpen}
                     value={formData.family_member_spouse_status_id}
                     onValueChange={(val) =>
                       handleSelectChange("family_member_spouse_status_id", val)
@@ -1531,8 +1631,8 @@ export default function ApplicantInformation() {
                 <div className="space-y-2">
                   <ShadcnSelect
                     popoverKey="family_member_employment_status"
-                    popoverOpen={popoverOpen}
-                    setPopoverOpen={setPopoverOpen}
+                    popoverOpen={selectPopoverOpen}
+                    setPopoverOpen={setSelectPopoverOpen}
                     value={formData.family_member_employment_status_id}
                     onValueChange={(val) =>
                       handleSelectChange(
@@ -1930,3 +2030,5 @@ export default function ApplicantInformation() {
     </div >
   );
 }
+
+export default ApplicantInfoEditor;

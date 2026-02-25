@@ -47,7 +47,6 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import {
@@ -1095,28 +1094,36 @@ const ThirdPartyInvoice = () => {
           <div className="space-y-6 py-4">
             {/* Row 1: Pay To, Amount, Original Amount */}
             <div className="grid grid-cols-3 gap-4">
-              <FloatingInput
-                label="Pay To"
-                placeholder="Enter payee name"
-                value={form.pay_to}
-                onChange={(e) => setForm({ ...form, pay_to: e.target.value })}
-              />
-              <FloatingInput
-                label="Amount"
-                type="number"
-                placeholder="Enter amount"
-                value={form.amount}
-                onChange={(e) => setForm({ ...form, amount: e.target.value })}
-              />
-              <FloatingInput
-                label="Original Amount"
-                type="number"
-                placeholder="Enter original amount"
-                value={form.original_amount}
-                onChange={(e) =>
-                  setForm({ ...form, original_amount: e.target.value })
-                }
-              />
+              <div className="space-y-2">
+                <FloatingInput
+                  label="Pay To"
+                  placeholder="Enter payee name"
+                  value={form.pay_to}
+                  onChange={(e) => setForm({ ...form, pay_to: e.target.value })}
+                />
+              </div>
+              <div className="space-y-2">
+                <FloatingInput
+                  label="Amount"
+                  type="number"
+                  min="0"
+                  placeholder="Enter amount"
+                  value={form.amount}
+                  onChange={(e) => setForm({ ...form, amount: e.target.value })}
+                />
+              </div>
+              <div className="space-y-2">
+                <FloatingInput
+                  label="Original Amount"
+                  type="number"
+                  min="0"
+                  placeholder="Enter original amount"
+                  value={form.original_amount}
+                  onChange={(e) =>
+                    setForm({ ...form, original_amount: e.target.value })
+                  }
+                />
+              </div>
             </div>
 
             {/* Row 2: Bill Date, Due Date, Date of Service */}
@@ -1193,8 +1200,8 @@ const ThirdPartyInvoice = () => {
             {/* Row 4: Paid By */}
             <div className="grid grid-cols-3 gap-4">
               <div className="space-y-2">
-                <Label>Paid By</Label>
-                <Input
+                <FloatingInput
+                  label="Paid By"
                   placeholder="Enter paid by (optional)"
                   value={form.paid_by}
                   onChange={(e) =>
@@ -1237,28 +1244,22 @@ const ThirdPartyInvoice = () => {
 
             {/* Row 6: Memos */}
             <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label>Memo 1</Label>
-                <Textarea
-                  className="min-h-[80px]"
-                  placeholder="Enter memo"
-                  value={form.memo_1st}
-                  onChange={(e) =>
-                    setForm({ ...form, memo_1st: e.target.value })
-                  }
-                />
-              </div>
-              <div className="space-y-2">
-                <Label>Memo 2</Label>
-                <Textarea
-                  className="min-h-[80px]"
-                  placeholder="Enter additional memo"
-                  value={form.memo_2nd}
-                  onChange={(e) =>
-                    setForm({ ...form, memo_2nd: e.target.value })
-                  }
-                />
-              </div>
+              <FloatingTextarea
+                label="Memo 1"
+                placeholder="Enter memo"
+                value={form.memo_1st}
+                onChange={(e) =>
+                  setForm({ ...form, memo_1st: e.target.value })
+                }
+              />
+              <FloatingTextarea
+                label="Memo 2"
+                placeholder="Enter additional memo"
+                value={form.memo_2nd}
+                onChange={(e) =>
+                  setForm({ ...form, memo_2nd: e.target.value })
+                }
+              />
             </div>
 
             {/* Row 7: Attachments */}
@@ -1319,26 +1320,28 @@ const ThirdPartyInvoice = () => {
               {/* Row 1: Pay To, Amount, Original Amount */}
               <div className="grid grid-cols-3 gap-4">
                 <div className="space-y-2">
-                  <Label>Pay To</Label>
-                  <Input
+                  <FloatingInput
+                    label="Pay To"
                     placeholder="Enter payee name"
                     value={editingInvoice.pay_to}
                     onChange={(e) => setEditingInvoice({ ...editingInvoice, pay_to: e.target.value })}
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label>Amount</Label>
-                  <Input
+                  <FloatingInput
+                    label="Amount"
                     type="number"
+                    min="0"
                     placeholder="Enter amount"
                     value={editingInvoice.amount}
                     onChange={(e) => setEditingInvoice({ ...editingInvoice, amount: e.target.value })}
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label>Original Amount</Label>
-                  <Input
+                  <FloatingInput
+                    label="Original Amount"
                     type="number"
+                    min="0"
                     placeholder="Enter original amount"
                     value={editingInvoice.original_amount}
                     onChange={(e) => setEditingInvoice({ ...editingInvoice, original_amount: e.target.value })}
@@ -1349,24 +1352,24 @@ const ThirdPartyInvoice = () => {
               {/* Row 2: Bill Date, Due Date, Date of Service */}
               <div className="grid grid-cols-3 gap-4">
                 <div className="space-y-2">
-                  <Label>Bill Date</Label>
-                  <Input
+                  <FloatingInput
+                    label="Bill Date"
                     type="date"
                     value={editingInvoice.bill_date}
                     onChange={(e) => setEditingInvoice({ ...editingInvoice, bill_date: e.target.value })}
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label>Due Date</Label>
-                  <Input
+                  <FloatingInput
+                    label="Due Date"
                     type="date"
                     value={editingInvoice.due_date}
                     onChange={(e) => setEditingInvoice({ ...editingInvoice, due_date: e.target.value })}
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label>Date of Service</Label>
-                  <Input
+                  <FloatingInput
+                    label="Date of Service"
                     type="date"
                     value={editingInvoice.date_of_service}
                     onChange={(e) => setEditingInvoice({ ...editingInvoice, date_of_service: e.target.value })}
@@ -1377,16 +1380,16 @@ const ThirdPartyInvoice = () => {
               {/* Row 3: Reference, Category, Type */}
               <div className="grid grid-cols-3 gap-4">
                 <div className="space-y-2">
-                  <Label>Reference</Label>
-                  <Input
+                  <FloatingInput
+                    label="Reference"
                     placeholder="Enter reference"
                     value={editingInvoice.reference}
                     onChange={(e) => setEditingInvoice({ ...editingInvoice, reference: e.target.value })}
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label>Category</Label>
-                  <Input
+                  <FloatingInput
+                    label="Category"
                     placeholder="Enter category"
                     value={editingInvoice.category}
                     onChange={(e) => setEditingInvoice({ ...editingInvoice, category: e.target.value })}
@@ -1420,8 +1423,8 @@ const ThirdPartyInvoice = () => {
               {/* Row 4: Paid By */}
               <div className="grid grid-cols-3 gap-4">
                 <div className="space-y-2">
-                  <Label>Paid By</Label>
-                  <Input
+                  <FloatingInput
+                    label="Paid By"
                     placeholder="Enter paid by (optional)"
                     value={editingInvoice.paid_by}
                     onChange={(e) => setEditingInvoice({ ...editingInvoice, paid_by: e.target.value })}
@@ -1455,24 +1458,18 @@ const ThirdPartyInvoice = () => {
 
               {/* Row 6: Memos */}
               <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label>Memo 1</Label>
-                  <Textarea
-                    className="min-h-[80px]"
-                    placeholder="Enter memo"
-                    value={editingInvoice.memo_1st}
-                    onChange={(e) => setEditingInvoice({ ...editingInvoice, memo_1st: e.target.value })}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label>Memo 2</Label>
-                  <Textarea
-                    className="min-h-[80px]"
-                    placeholder="Enter additional memo"
-                    value={editingInvoice.memo_2nd}
-                    onChange={(e) => setEditingInvoice({ ...editingInvoice, memo_2nd: e.target.value })}
-                  />
-                </div>
+                <FloatingTextarea
+                  label="Memo 1"
+                  placeholder="Enter memo"
+                  value={editingInvoice.memo_1st}
+                  onChange={(e) => setEditingInvoice({ ...editingInvoice, memo_1st: e.target.value })}
+                />
+                <FloatingTextarea
+                  label="Memo 2"
+                  placeholder="Enter additional memo"
+                  value={editingInvoice.memo_2nd}
+                  onChange={(e) => setEditingInvoice({ ...editingInvoice, memo_2nd: e.target.value })}
+                />
               </div>
 
               {/* Row 7: Attachments */}
@@ -1571,7 +1568,8 @@ const ThirdPartyInvoice = () => {
               <div className="space-y-4">
                 <div className="grid grid-cols-[100px_1fr] items-center gap-2">
                   <Label>Date</Label>
-                  <Input
+                  <FloatingInput
+                    label="Date"
                     type="date"
                     value={payForm.pay_date}
                     onChange={(e) => setPayForm({ ...payForm, pay_date: e.target.value })}
@@ -1579,7 +1577,8 @@ const ThirdPartyInvoice = () => {
                 </div>
                 <div className="grid grid-cols-[100px_1fr] items-center gap-2">
                   <Label>Type</Label>
-                  <Input
+                  <FloatingInput
+                    label="Type"
                     disabled
                     type="text"
                     value={payForm.pay_type}
@@ -1606,7 +1605,8 @@ const ThirdPartyInvoice = () => {
                 </div>
                 <div className="grid grid-cols-[100px_1fr] items-center gap-2">
                   <Label>Pay To</Label>
-                  <Input
+                  <FloatingInput
+                    label="Pay To"
                     placeholder="Enter payee"
                     value={payForm.pay_to}
                     onChange={(e) => setPayForm({ ...payForm, pay_to: e.target.value })}
@@ -1614,7 +1614,8 @@ const ThirdPartyInvoice = () => {
                 </div>
                 <div className="grid grid-cols-[100px_1fr] items-center gap-2">
                   <Label>Memo 1</Label>
-                  <Input
+                  <FloatingInput
+                    label="Memo 1"
                     placeholder="Enter memo"
                     value={payForm.memo_1st}
                     onChange={(e) => setPayForm({ ...payForm, memo_1st: e.target.value })}
@@ -1622,7 +1623,8 @@ const ThirdPartyInvoice = () => {
                 </div>
                 <div className="grid grid-cols-[100px_1fr] items-center gap-2">
                   <Label>Memo 2</Label>
-                  <Input
+                  <FloatingInput
+                    label="Memo 2"
                     placeholder="Enter memo"
                     value={payForm.memo_2nd}
                     onChange={(e) => setPayForm({ ...payForm, memo_2nd: e.target.value })}
@@ -1634,9 +1636,11 @@ const ThirdPartyInvoice = () => {
               <div className="space-y-4">
                 <div className="grid grid-cols-[100px_1fr] items-center gap-2">
                   <Label>Amount</Label>
-                  <Input
+                  <FloatingInput
+                    label="Amount"
                     disabled
                     type="number"
+                    min="0"
                     placeholder="Enter amount"
                     value={payForm.amount | initialAmount}
                     onChange={(e) => setPayForm({ ...payForm, amount: e.target.value })}
@@ -1702,9 +1706,11 @@ const ThirdPartyInvoice = () => {
                         <TableCell>{formatCurrency(bill.amount)}</TableCell>
                         <TableCell>{formatCurrency(bill.remaining_amount || bill.balance)}</TableCell>
                         <TableCell>
-                          <Input
+                          <FloatingInput
+                            label="Applied Amount"
                             type="number"
                             className="w-28"
+                            min="0"
                             value={appliedAmounts[bill.id] || ""}
                             onChange={(e) => {
                               const enteredValue = parseFloat(e.target.value) || 0;

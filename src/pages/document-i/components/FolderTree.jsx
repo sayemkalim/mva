@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   DndContext,
@@ -67,7 +67,7 @@ import { sortFolders } from "../helpers/sortFolders";
 import { sortDocuments } from "../helpers/sortDocuments";
 import { uploadAttachment } from "../helpers/uploadAttachment";
 
-const DocumentItem = ({ document, slug, dragAttributes, dragListeners, isDragging, onDocumentClick }) => {
+const DocumentItem = ({ document, slug, dragAttributes, dragListeners, isDragging, onDocumentClick, selectedDocumentId }) => {
   const queryClient = useQueryClient();
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [fileData, setFileData] = useState(null);
@@ -312,22 +312,34 @@ const DocumentItem = ({ document, slug, dragAttributes, dragListeners, isDraggin
     }));
   };
 
-  const handleDocumentClick = () => {
+  const handleDocumentClick = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
     if (onDocumentClick && !isDragging) {
       onDocumentClick(document);
     }
   };
 
+  const isSelected = selectedDocumentId && (selectedDocumentId === document.id || selectedDocumentId == document.id);
+
   return (
     <div 
-      className="group flex items-center gap-3 py-2 px-3 ml-4 bg-gray-100 dark:hover:bg-blue-950/30 cursor-pointer transition-all duration-200 border border-transparent hover:border-gray-100 dark:hover:border-blue-800"
+      className={cn(
+        "group flex items-center gap-3 py-2 px-3 ml-4 cursor-pointer transition-all duration-200 border rounded-md",
+        isSelected 
+          ? "bg-blue-100 dark:bg-blue-900/50 border-blue-300 dark:border-blue-600 shadow-md ring-1 ring-blue-200 dark:ring-blue-700" 
+          : "bg-gray-50 dark:bg-gray-800/50 border-transparent hover:bg-gray-100 dark:hover:bg-gray-700/50 hover:border-gray-200 dark:hover:border-gray-600"
+      )}
       onClick={handleDocumentClick}
+      data-document-item="true"
     >
       {dragAttributes && dragListeners && (
         <div 
           {...dragAttributes} 
           {...dragListeners}
           className="cursor-grab active:cursor-grabbing p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors"
+          onClick={(e) => e.stopPropagation()}
         >
           <GripVertical className="h-3 w-3 text-gray-400" />
         </div>
@@ -336,7 +348,10 @@ const DocumentItem = ({ document, slug, dragAttributes, dragListeners, isDraggin
         {handleGetDocIcon(document?.attachment?.extension || 'pdf')}
       </div>
       <div className="flex flex-col min-w-0 flex-1">
-        <span className="text-sm font-medium text-foreground truncate">
+        <span className={cn(
+          "text-sm font-medium truncate",
+          isSelected ? "text-blue-900 dark:text-blue-100 font-semibold" : "text-foreground"
+        )}>
           {document.title || "Untitled Document"}
         </span>
       </div>
@@ -551,7 +566,7 @@ const DocumentItem = ({ document, slug, dragAttributes, dragListeners, isDraggin
   );
 };
 
-const SortableDocumentItem = ({ document, slug, folderId, onDocumentClick }) => {
+const SortableDocumentItem = ({ document, slug, folderId, onDocumentClick, selectedDocumentId }) => {
   const {
     attributes,
     listeners,
@@ -583,12 +598,13 @@ const SortableDocumentItem = ({ document, slug, folderId, onDocumentClick }) => 
         dragListeners={listeners}
         isDragging={isDragging}
         onDocumentClick={onDocumentClick}
+        selectedDocumentId={selectedDocumentId}
       />
     </div>
   );
 };
 
-const SortableFolderItem = ({ folder, level = 0, isSubFolder = false, slug, parentId = null, count = 0, onDocumentClick }) => {
+const SortableFolderItem = ({ folder, level = 0, isSubFolder = false, slug, parentId = null, count = 0, onDocumentClick, selectedDocumentId }) => {
   const {
     attributes,
     listeners,
@@ -617,6 +633,7 @@ const SortableFolderItem = ({ folder, level = 0, isSubFolder = false, slug, pare
         isDragging={isDragging}
         count={count}
         onDocumentClick={onDocumentClick}
+        selectedDocumentId={selectedDocumentId}
       />
     </div>
   );
@@ -632,12 +649,40 @@ const FolderItem = ({
   dragAttributes, 
   dragListeners, 
   isDragging,
-  onDocumentClick
+  onDocumentClick,
+  selectedDocumentId
 }) => {
-  const [isOpen, setIsOpen] = useState(false);
   const [isRenaming, setIsRenaming] = useState(false);
   const [newName, setNewName] = useState(folder.name || "");
   const queryClient = useQueryClient();
+  
+  // Check if this folder or any subfolder contains the selected document
+  const containsSelectedDocument = useMemo(() => {
+    if (!selectedDocumentId) return false;
+    
+    const checkFolder = (folderToCheck) => {
+      // Check documents in current folder
+      if (folderToCheck.documents?.some(doc => doc.id === selectedDocumentId)) {
+        return true;
+      }
+      // Check subfolders recursively
+      if (folderToCheck.subFolders?.length > 0) {
+        return folderToCheck.subFolders.some(subFolder => checkFolder(subFolder));
+      }
+      return false;
+    };
+    
+    return checkFolder(folder);
+  }, [selectedDocumentId, folder]);
+  
+  const [isOpen, setIsOpen] = useState(() => containsSelectedDocument);
+  
+  // Update isOpen when selectedDocumentId changes
+  useEffect(() => {
+    if (containsSelectedDocument && !isOpen) {
+      setIsOpen(true);
+    }
+  }, [containsSelectedDocument, isOpen]);
 
   const renameMutation = useMutation({
     mutationFn: ({ folderId, name }) => renameFolder(folderId, name),
@@ -710,7 +755,17 @@ const FolderItem = ({
   const hasDocuments = folder.documents && folder.documents.length > 0;
   const hasChildren = hasSubFolders || hasDocuments;
 
-  const toggleOpen = () => {
+  const toggleOpen = (e) => {
+    // Don't toggle if clicking on a document item
+    if (e.target.closest('[data-document-item="true"]')) {
+      return;
+    }
+    
+    // Don't toggle if clicking on interactive elements
+    if (e.target.closest('button') || e.target.closest('[role="button"]') || e.target.closest('.cursor-grab')) {
+      return;
+    }
+    
     if (hasChildren) {
       setIsOpen(!isOpen);
     }
@@ -755,6 +810,7 @@ const FolderItem = ({
           {...dragAttributes} 
           {...dragListeners}
           className="cursor-grab active:cursor-grabbing p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors"
+          onClick={(e) => e.stopPropagation()}
         >
           <GripVertical className="h-4 w-4 text-gray-400" />
         </div>
@@ -763,6 +819,12 @@ const FolderItem = ({
             "w-5 h-5 flex items-center justify-center rounded transition-transform duration-200",
             isOpen && "rotate-0"
           )}
+          onClick={(e) => {
+            e.stopPropagation();
+            if (hasChildren) {
+              setIsOpen(!isOpen);
+            }
+          }}
         >
           {hasChildren ? (
             isOpen ? (
@@ -899,6 +961,7 @@ const FolderItem = ({
               "ml-6 pl-4 border-l-2 border-dashed border-border/60",
               level > 0 && "ml-12"
             )}
+            onClick={(e) => e.stopPropagation()}
           >
             {hasSubFolders && (
               <SortableContext
@@ -914,6 +977,7 @@ const FolderItem = ({
                     slug={slug}
                     parentId={folder.id}
                     onDocumentClick={onDocumentClick}
+                    selectedDocumentId={selectedDocumentId}
                   />
                 ))}
               </SortableContext>
@@ -930,6 +994,7 @@ const FolderItem = ({
                     slug={slug}
                     folderId={folder.id}
                     onDocumentClick={onDocumentClick}
+                    selectedDocumentId={selectedDocumentId}
                   />
                 ))}
               </SortableContext>
@@ -941,7 +1006,7 @@ const FolderItem = ({
   );
 };
 
-const FolderTree = ({ folders = [], isLoading = false, slug, onDocumentClick }) => {
+const FolderTree = ({ folders = [], isLoading = false, slug, onDocumentClick, selectedDocumentId }) => {
   const [items, setItems] = useState(folders);
   const queryClient = useQueryClient();
   
@@ -1156,6 +1221,7 @@ const FolderTree = ({ folders = [], isLoading = false, slug, onDocumentClick }) 
               parentId={null}
               count={index + 1}
               onDocumentClick={onDocumentClick}
+              selectedDocumentId={selectedDocumentId}
             />
           ))}
         </SortableContext>

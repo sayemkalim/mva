@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useParams, useNavigate } from "react-router-dom";
 import { fetchList } from "./helper/fetchList";
@@ -133,7 +133,7 @@ const CostList = () => {
 
   const resetSoftCostForm = () => {
     setSoftCostForm({
-      timekeeper: "",
+      timekeeper: timeKeeperValue,
       date: "",
       type: "Expense",
       expense: "",
@@ -178,7 +178,7 @@ const CostList = () => {
 
   const resetTimeCardForm = () => {
     setTimeCardForm({
-      timekeeper: "",
+      timekeeper: timeKeeperValue,
       date: "",
       type: "Lawyer Work",
       task: "",
@@ -303,7 +303,6 @@ const CostList = () => {
   };
 
   const handleEditTimeCardSubmit = () => {
-    console.log("Editing Cost:");
     if (
       !editingCost.timekeeker ||
       !editingCost.date ||
@@ -487,6 +486,15 @@ const CostList = () => {
   const rateTypeOptions = metaData?.accounting_rate_type || [];
   const billingStatusOptions = metaData?.accounting_billing_status || [];
   const flagOptions = metaData?.accounting_flag || [];
+  const timeKeeperValue = metaData?.TimeKeeper || "";
+
+  // Set timekeeper value from meta when available
+  useEffect(() => {
+    if (timeKeeperValue) {
+      setSoftCostForm(prev => ({ ...prev, timekeeper: timeKeeperValue }));
+      setTimeCardForm(prev => ({ ...prev, timekeeper: timeKeeperValue }));
+    }
+  }, [timeKeeperValue]);
 
   const costs = data?.data || [];
   const unpaid = data?.unpaid || "0.00";
@@ -881,6 +889,7 @@ const CostList = () => {
                     label="Rate/Price"
                     required
                     type="number"
+                    min="0"
                     value={timeCardForm.rate}
                     onChange={(e) =>
                       setTimeCardForm({ ...timeCardForm, rate: e.target.value })
@@ -1155,38 +1164,65 @@ const CostList = () => {
           </DialogHeader>
           <div className="space-y-6 py-4">
             <div className="grid grid-cols-4 gap-4">
-              <FloatingInput
-                label="Timekeeper"
-                required
-                value={softCostForm.timekeeper}
-                onChange={(e) =>
-                  setSoftCostForm({
-                    ...softCostForm,
-                    timekeeper: e.target.value,
-                  })
-                }
-              />
-              <FloatingInput
-                label="Date"
-                type="date"
-                required
-                value={softCostForm.date}
-                onChange={(e) =>
-                  setSoftCostForm({ ...softCostForm, date: e.target.value })
-                }
-              />
-              <FloatingInput
-                label="Type"
-                required
-                value={softCostForm.type}
-                disabled
-              />
-              <FloatingInput
-                label="Expense"
-                value={softCostForm.expense}
-                onChange={(e) =>
-                  setSoftCostForm({ ...softCostForm, expense: e.target.value })
-                }
+              <div className="space-y-2">
+                <Label>
+                  Timekeeper <span className="text-red-500">*</span>
+                </Label>
+                <FloatingInput
+                  label="Timekeeper"
+                  placeholder=""
+                  value={softCostForm.timekeeper}
+                  readOnly
+                  disabled
+                  className="bg-muted text-muted-foreground"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>
+                  Date <span className="text-red-500">*</span>
+                </Label>
+                <FloatingInput
+                  label="Date"
+                  type="date"
+                  value={softCostForm.date}
+                  onChange={(e) =>
+                    setSoftCostForm({ ...softCostForm, date: e.target.value })
+                  }
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>
+                  Type <span className="text-red-500">*</span>
+                </Label>
+                <FloatingInput
+                  label="Type"
+                  value={softCostForm.type}
+                  disabled
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Expense</Label>
+                <FloatingInput
+                  label="Expense"
+                  placeholder=""
+                  value={softCostForm.expense}
+                  onChange={(e) =>
+                    setSoftCostForm({
+                      ...softCostForm,
+                      expense: e.target.value,
+                    })
+                  }
+                />
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label>Description</Label>
+              <Textarea 
+                className="min-h-[100px]" 
+                placeholder="" 
+                value={softCostForm.description}
+                onChange={(e) => setSoftCostForm({...softCostForm, description: e.target.value})}
               />
             </div>
 
@@ -1203,39 +1239,59 @@ const CostList = () => {
             />
 
             <div className="grid grid-cols-3 gap-4">
-              <FloatingInput
-                label="Quantity"
-                required
-                type="number"
-                min="1"
-                value={softCostForm.quantity}
-                onChange={(e) =>
-                  setSoftCostForm({ ...softCostForm, quantity: e.target.value })
-                }
-              />
-              <FloatingInput
-                label="Rate"
-                required
-                type="number"
-                value={softCostForm.rate}
-                onChange={(e) =>
-                  setSoftCostForm({ ...softCostForm, rate: e.target.value })
-                }
-              />
-              <FloatingInput
-                label="Value"
-                required
-                type="number"
-                value={(() => {
-                  const baseValue =
-                    (parseFloat(softCostForm.quantity) || 0) *
-                    (parseFloat(softCostForm.rate) || 0);
-                  return softCostForm.taxable
-                    ? (baseValue * 1.13).toFixed(2)
-                    : baseValue.toFixed(2);
-                })()}
-                disabled
-              />
+              <div className="space-y-2">
+                <Label>
+                  Quantity <span className="text-red-500">*</span>
+                </Label>
+                <FloatingInput
+                  label="Quantity"
+                  type="number"
+                  min="1"
+                  placeholder=""
+                  value={softCostForm.quantity}
+                  onChange={(e) =>
+                    setSoftCostForm({
+                      ...softCostForm,
+                      quantity: e.target.value,
+                    })
+                  }
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>
+                  Rate <span className="text-red-500">*</span>
+                </Label>
+                <FloatingInput
+                  label="Rate"
+                  type="number"
+                  min="0"
+                  placeholder=""
+                  value={softCostForm.rate}
+                  onChange={(e) =>
+                    setSoftCostForm({ ...softCostForm, rate: e.target.value })
+                  }
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>
+                  Value <span className="text-red-500">*</span>
+                </Label>
+                <FloatingInput
+                  label="Value"
+                  type="number"
+                  min="0"
+                  placeholder=""
+                  value={(() => {
+                    const baseValue =
+                      (parseFloat(softCostForm.quantity) || 0) *
+                      (parseFloat(softCostForm.rate) || 0);
+                    return softCostForm.taxable
+                      ? (baseValue * 1.13).toFixed(2)
+                      : baseValue.toFixed(2);
+                  })()}
+                  disabled
+                />
+              </div>
             </div>
 
             <FloatingWrapper
@@ -1371,23 +1427,28 @@ const CostList = () => {
             </div>
 
             <div className="grid grid-cols-2 gap-4">
-              <FloatingInput
-                label="Pay to"
-                required
-                value={hardCostForm.pay_to}
-                onChange={(e) =>
-                  setHardCostForm({ ...hardCostForm, pay_to: e.target.value })
-                }
-              />
-              <FloatingInput
-                label="Amount"
-                required
-                type="number"
-                value={hardCostForm.amount}
-                onChange={(e) =>
-                  setHardCostForm({ ...hardCostForm, amount: e.target.value })
-                }
-              />
+              <div className="space-y-2">
+                <FloatingInput
+                  label="Pay to"
+                  required
+                  value={hardCostForm.pay_to}
+                  onChange={(e) =>
+                    setHardCostForm({ ...hardCostForm, pay_to: e.target.value })
+                  }
+                />
+              </div>
+              <div className="space-y-2">
+                <FloatingInput
+                  label="Amount"
+                  required
+                  type="number"
+                  min="0"
+                  value={hardCostForm.amount}
+                  onChange={(e) =>
+                    setHardCostForm({ ...hardCostForm, amount: e.target.value })
+                  }
+                />
+              </div>
             </div>
 
             {/* Address 1 */}
@@ -1685,7 +1746,8 @@ const CostList = () => {
                   <Label>
                     Timekeeper <span className="text-red-500">*</span>
                   </Label>
-                  <Input
+                  <FloatingInput
+                    label="Timekeeper"
                     placeholder=""
                     value={editingCost.timekeeker || ""}
                     onChange={(e) =>
@@ -1700,7 +1762,8 @@ const CostList = () => {
                   <Label>
                     Date <span className="text-red-500">*</span>
                   </Label>
-                  <Input
+                  <FloatingInput
+                    label="Date"
                     type="date"
                     value={editingCost.date || ""}
                     onChange={(e) =>
@@ -1712,11 +1775,16 @@ const CostList = () => {
                   <Label>
                     Type <span className="text-red-500">*</span>
                   </Label>
-                  <Input value={editingCost.type || "Expense"} disabled />
+                  <FloatingInput
+                    label="Type"
+                    value={editingCost.type || "Expense"}
+                    disabled
+                  />
                 </div>
                 <div className="space-y-2">
                   <Label>Expense</Label>
-                  <Input
+                  <FloatingInput
+                    label="Expense"
                     placeholder=""
                     value={editingCost.expesne || ""}
                     onChange={(e) =>
@@ -1749,7 +1817,8 @@ const CostList = () => {
                   <Label>
                     Quantity <span className="text-red-500">*</span>
                   </Label>
-                  <Input
+                  <FloatingInput
+                    label="Quantity"
                     type="number"
                     min="1"
                     placeholder=""
@@ -1766,9 +1835,11 @@ const CostList = () => {
                   <Label>
                     Rate <span className="text-red-500">*</span>
                   </Label>
-                  <Input
+                  <FloatingInput
+                    label="Rate"
                     type="number"
                     placeholder=""
+                    min="0"
                     value={editingCost.rate || ""}
                     onChange={(e) =>
                       setEditingCost({ ...editingCost, rate: e.target.value })
@@ -1779,9 +1850,11 @@ const CostList = () => {
                   <Label>
                     Value <span className="text-red-500">*</span>
                   </Label>
-                  <Input
+                  <FloatingInput
+                    label="Value"
                     type="number"
                     placeholder=""
+                    min="0"
                     value={(() => {
                       const baseValue =
                         (parseFloat(editingCost.quantity) || 0) *
@@ -1883,7 +1956,8 @@ const CostList = () => {
                   <Label>
                     Timekeeper <span className="text-red-500">*</span>
                   </Label>
-                  <Input
+                  <FloatingInput
+                    label="Timekeeper"
                     placeholder=""
                     value={editingCost.timekeeker || ""}
                     onChange={(e) =>
@@ -1898,7 +1972,8 @@ const CostList = () => {
                   <Label>
                     Date <span className="text-red-500">*</span>
                   </Label>
-                  <Input
+                  <FloatingInput
+                    label="Date"
                     type="date"
                     value={editingCost.date || ""}
                     onChange={(e) =>
@@ -1910,13 +1985,18 @@ const CostList = () => {
                   <Label>
                     Type <span className="text-red-500">*</span>
                   </Label>
-                  <Input value={editingCost.type || "Lawyer Work"} disabled />
+                  <FloatingInput
+                    label="Type"
+                    value={editingCost.type || "Lawyer Work"}
+                    disabled
+                  />
                 </div>
               </div>
 
               <div className="space-y-2">
                 <Label>Task</Label>
-                <Input
+                <FloatingInput
+                  label="Task"
                   placeholder=""
                   value={editingCost.task || ""}
                   onChange={(e) =>
@@ -1965,20 +2045,21 @@ const CostList = () => {
                       </SelectContent>
                     </Select>
                   </div>
-                  <div className="space-y-2 col-span-3">
-                    <Label>Time Billed</Label>
-                    <Input
-                      placeholder="00:00"
-                      className="w-full"
-                      value={editingCost.time_billed || ""}
-                      onChange={(e) =>
-                        setEditingCost({
-                          ...editingCost,
-                          time_billed: e.target.value,
-                        })
-                      }
-                    />
-                  </div>
+                <div className="space-y-2 col-span-3">
+                  <Label>Time Billed</Label>
+                  <FloatingInput
+                    label="Time Billed"
+                    placeholder="00:00"
+                    className="w-full"
+                    value={editingCost.time_billed || ""}
+                    onChange={(e) =>
+                      setEditingCost({
+                        ...editingCost,
+                        time_billed: e.target.value,
+                      })
+                    }
+                  />
+                </div>
                 </div>
 
                 <div className="grid grid-cols-6 gap-4">
@@ -2018,9 +2099,11 @@ const CostList = () => {
                     <Label>
                       Rate/Price <span className="text-red-500">*</span>
                     </Label>
-                    <Input
+                    <FloatingInput
+                      label="Rate/Price"
                       type="number"
                       className="w-full"
+                      min="0"
                       value={editingCost.rate || ""}
                       onChange={(e) =>
                         setEditingCost({ ...editingCost, rate: e.target.value })
@@ -2309,7 +2392,8 @@ const CostList = () => {
                   <Label>
                     Date <span className="text-red-500">*</span>
                   </Label>
-                  <Input
+                  <FloatingInput
+                    label="Date"
                     type="date"
                     value={editingCost.date || ""}
                     onChange={(e) =>
@@ -2343,7 +2427,11 @@ const CostList = () => {
                   <Label>
                     Type <span className="text-red-500">*</span>
                   </Label>
-                  <Input disabled value={editingCost.type || "Payment"} />
+                  <FloatingInput
+                    label="Type"
+                    disabled
+                    value={editingCost.type || "Payment"}
+                  />
                 </div>
                 <div className="space-y-2">
                   <Label>
@@ -2371,11 +2459,9 @@ const CostList = () => {
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label>
-                    Pay to <span className="text-red-500">*</span>
-                  </Label>
-                  <Input
-                    placeholder=""
+                  <FloatingInput
+                    label="Pay to"
+                    required
                     value={editingCost.pay_to || ""}
                     onChange={(e) =>
                       setEditingCost({ ...editingCost, pay_to: e.target.value })
@@ -2383,12 +2469,11 @@ const CostList = () => {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label>
-                    Amount <span className="text-red-500">*</span>
-                  </Label>
-                  <Input
+                  <FloatingInput
+                    label="Amount"
+                    required
                     type="number"
-                    placeholder=""
+                    min="0"
                     value={editingCost.amount || ""}
                     onChange={(e) =>
                       setEditingCost({ ...editingCost, amount: e.target.value })
@@ -2403,7 +2488,8 @@ const CostList = () => {
                 <div className="grid grid-cols-4 gap-4">
                   <div className="space-y-2">
                     <Label>Unit Number</Label>
-                    <Input
+                    <FloatingInput
+                      label="Unit Number"
                       placeholder=""
                       value={editingCost.address_1?.unit_number || ""}
                       onChange={(e) =>
@@ -2419,7 +2505,8 @@ const CostList = () => {
                   </div>
                   <div className="space-y-2">
                     <Label>Street Number</Label>
-                    <Input
+                    <FloatingInput
+                      label="Street Number"
                       placeholder=""
                       value={editingCost.address_1?.street_number || ""}
                       onChange={(e) =>
@@ -2435,7 +2522,8 @@ const CostList = () => {
                   </div>
                   <div className="space-y-2 col-span-2">
                     <Label>Street Name</Label>
-                    <Input
+                    <FloatingInput
+                      label="Street Name"
                       placeholder=""
                       value={editingCost.address_1?.street_name || ""}
                       onChange={(e) =>
@@ -2453,7 +2541,8 @@ const CostList = () => {
                 <div className="grid grid-cols-4 gap-4">
                   <div className="space-y-2">
                     <Label>City</Label>
-                    <Input
+                    <FloatingInput
+                      label="City"
                       placeholder=""
                       value={editingCost.address_1?.city || ""}
                       onChange={(e) =>
@@ -2469,7 +2558,8 @@ const CostList = () => {
                   </div>
                   <div className="space-y-2">
                     <Label>Province</Label>
-                    <Input
+                    <FloatingInput
+                      label="Province"
                       placeholder=""
                       value={editingCost.address_1?.province || ""}
                       onChange={(e) =>
@@ -2485,7 +2575,8 @@ const CostList = () => {
                   </div>
                   <div className="space-y-2">
                     <Label>Postal Code</Label>
-                    <Input
+                    <FloatingInput
+                      label="Postal Code"
                       placeholder=""
                       value={editingCost.address_1?.postal_code || ""}
                       onChange={(e) =>
@@ -2501,7 +2592,8 @@ const CostList = () => {
                   </div>
                   <div className="space-y-2">
                     <Label>Country</Label>
-                    <Input
+                    <FloatingInput
+                      label="Country"
                       placeholder=""
                       value={editingCost.address_1?.country || ""}
                       onChange={(e) =>
@@ -2524,7 +2616,8 @@ const CostList = () => {
                 <div className="grid grid-cols-4 gap-4">
                   <div className="space-y-2">
                     <Label>Unit Number</Label>
-                    <Input
+                    <FloatingInput
+                      label="Unit Number"
                       placeholder=""
                       value={editingCost.address_2?.unit_number || ""}
                       onChange={(e) =>
@@ -2540,7 +2633,8 @@ const CostList = () => {
                   </div>
                   <div className="space-y-2">
                     <Label>Street Number</Label>
-                    <Input
+                    <FloatingInput
+                      label="Street Number"
                       placeholder=""
                       value={editingCost.address_2?.street_number || ""}
                       onChange={(e) =>
@@ -2556,7 +2650,8 @@ const CostList = () => {
                   </div>
                   <div className="space-y-2 col-span-2">
                     <Label>Street Name</Label>
-                    <Input
+                    <FloatingInput
+                      label="Street Name"
                       placeholder=""
                       value={editingCost.address_2?.street_name || ""}
                       onChange={(e) =>
@@ -2574,7 +2669,8 @@ const CostList = () => {
                 <div className="grid grid-cols-4 gap-4">
                   <div className="space-y-2">
                     <Label>City</Label>
-                    <Input
+                    <FloatingInput
+                      label="City"
                       placeholder=""
                       value={editingCost.address_2?.city || ""}
                       onChange={(e) =>
@@ -2590,7 +2686,8 @@ const CostList = () => {
                   </div>
                   <div className="space-y-2">
                     <Label>Province</Label>
-                    <Input
+                    <FloatingInput
+                      label="Province"
                       placeholder=""
                       value={editingCost.address_2?.province || ""}
                       onChange={(e) =>
@@ -2606,7 +2703,8 @@ const CostList = () => {
                   </div>
                   <div className="space-y-2">
                     <Label>Postal Code</Label>
-                    <Input
+                    <FloatingInput
+                      label="Postal Code"
                       placeholder=""
                       value={editingCost.address_2?.postal_code || ""}
                       onChange={(e) =>
@@ -2622,7 +2720,8 @@ const CostList = () => {
                   </div>
                   <div className="space-y-2">
                     <Label>Country</Label>
-                    <Input
+                    <FloatingInput
+                      label="Country"
                       placeholder=""
                       value={editingCost.address_2?.country || ""}
                       onChange={(e) =>
