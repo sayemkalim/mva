@@ -140,8 +140,8 @@ export default function ClientSettlementPage() {
 
   // Calculate tax and final price when price changes
   useEffect(() => {
-    if (formData.price) {
-      const priceValue = parseFloat(formData.price) || 0;
+    const priceValue = parseFloat(formData.price) || 0;
+    if (priceValue > 0) {
       const taxValue = (priceValue * hstRate) / 100;
       const finalPriceValue = priceValue + taxValue;
 
@@ -150,13 +150,20 @@ export default function ClientSettlementPage() {
         tax: taxValue.toFixed(2),
         final_price: finalPriceValue.toFixed(2),
       }));
+    } else {
+      // Clear tax and final price when price is 0 or empty
+      setFormData((prev) => ({
+        ...prev,
+        tax: "",
+        final_price: "",
+      }));
     }
   }, [formData.price, hstRate]);
 
   // Calculate price for contingency billing when settlement_amount or percentage changes
   useEffect(() => {
     if (
-      formData.billing_method_id === "2" &&
+      String(formData.billing_method_id) === "516" &&
       formData.settlement_amount &&
       formData.percentage
     ) {
@@ -182,17 +189,28 @@ export default function ClientSettlementPage() {
     }));
   };
 
+  const handleBillingMethodChange = (billingMethodId) => {
+    // Clear all fields when billing method changes
+    setFormData({
+      billing_method_id: billingMethodId,
+      settlement_amount: "",
+      percentage: "",
+      price: "",
+      tax: "",
+      final_price: "",
+    });
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
     saveMutation.mutate({ slug, data: formData });
   };
 
-  const isContingency = formData.billing_method_id === "2";
-  const isFixed = formData.billing_method_id === "1";
-  const isHourly = formData.billing_method_id === "3";
+  const isContingency = String(formData.billing_method_id) === "516";
+  const isFixed = String(formData.billing_method_id) === "515";
+  const isHourly = String(formData.billing_method_id) === "517";
 
-  // Show settlement_amount and percentage for both Fixed and Contingency
-  const showSettlementFields = isFixed || isContingency;
+  const showSettlementFields = isContingency;
 
   if (loadingMeta || loadingClientSettlement) {
     return (
@@ -252,7 +270,7 @@ export default function ClientSettlementPage() {
                 label="Billing Method"
                 options={meta.accounting_billing_method || []}
                 value={formData.billing_method_id}
-                onChange={(val) => handleFieldChange("billing_method_id", val)}
+                onChange={handleBillingMethodChange}
                 placeholder="Select billing method"
               />
             </div>
@@ -291,8 +309,8 @@ export default function ClientSettlementPage() {
                   step="0.01"
                   value={formData.price}
                   onChange={(e) => handleFieldChange("price", e.target.value)}
-                  disabled={isContingency || isHourly}
-                  readOnly={isContingency || isHourly}
+                  disabled={isContingency}
+                  readOnly={isContingency}
                 />
                 {isFixed && (
                   <p className="text-xs text-gray-500 mt-1">Enter fixed price</p>
@@ -304,7 +322,7 @@ export default function ClientSettlementPage() {
                 )}
                 {isHourly && (
                   <p className="text-xs text-gray-500 mt-1">
-                    Readonly for hourly billing
+                    Enter hourly rate or total amount
                   </p>
                 )}
               </div>

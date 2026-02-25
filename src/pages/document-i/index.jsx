@@ -104,6 +104,7 @@ const DocumentI = () => {
                 isLoading={isLoading} 
                 slug={slug}
                 onDocumentClick={handleDocumentClick}
+                selectedDocumentId={selectedDocument?.id}
               />
             </div>
             
@@ -119,6 +120,7 @@ const DocumentI = () => {
               isLoading={isLoading} 
               slug={slug}
               onDocumentClick={handleDocumentClick}
+              selectedDocumentId={selectedDocument?.id}
             />
           </div>
         )}

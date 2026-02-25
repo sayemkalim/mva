@@ -1102,6 +1102,7 @@ const ThirdPartyInvoice = () => {
                 <Label>Amount</Label>
                 <Input
                   type="number"
+                  min="0"
                   placeholder="Enter amount"
                   value={form.amount}
                   onChange={(e) => setForm({ ...form, amount: e.target.value })}
@@ -1111,6 +1112,7 @@ const ThirdPartyInvoice = () => {
                 <Label>Original Amount</Label>
                 <Input
                   type="number"
+                  min="0"
                   placeholder="Enter original amount"
                   value={form.original_amount}
                   onChange={(e) =>
@@ -1338,6 +1340,7 @@ const ThirdPartyInvoice = () => {
                   <Label>Amount</Label>
                   <Input
                     type="number"
+                    min="0"
                     placeholder="Enter amount"
                     value={editingInvoice.amount}
                     onChange={(e) => setEditingInvoice({ ...editingInvoice, amount: e.target.value })}
@@ -1347,6 +1350,7 @@ const ThirdPartyInvoice = () => {
                   <Label>Original Amount</Label>
                   <Input
                     type="number"
+                    min="0"
                     placeholder="Enter original amount"
                     value={editingInvoice.original_amount}
                     onChange={(e) => setEditingInvoice({ ...editingInvoice, original_amount: e.target.value })}
@@ -1640,6 +1644,7 @@ const ThirdPartyInvoice = () => {
                   <Input
                     disabled
                     type="number"
+                    min="0"
                     placeholder="Enter amount"
                     value={payForm.amount | initialAmount}
                     onChange={(e) => setPayForm({ ...payForm, amount: e.target.value })}
@@ -1708,6 +1713,7 @@ const ThirdPartyInvoice = () => {
                           <Input
                             type="number"
                             className="w-28"
+                            min="0"
                             value={appliedAmounts[bill.id] || ""}
                             onChange={(e) => {
                               const enteredValue = parseFloat(e.target.value) || 0;
