@@ -20,6 +20,11 @@ import { downloadPaymentHistory } from "./helpers/downloadPaymentHistory";
 import { downloadInvoice } from "./helpers/downloadInvoice";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import {
+  FloatingInput,
+  FloatingTextarea,
+  FloatingWrapper,
+} from "@/components/ui/floating-label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { fetchMeta } from "../cost/helper/fetchMeta.js";
 import {
@@ -1309,10 +1314,8 @@ const Invoice = () => {
               </h3>
               <div className="space-y-4">
                 <div>
-                  <label className="text-sm font-medium mb-1 block">
-                    Invoice #
-                  </label>
-                  <Input
+                  <FloatingInput
+                    label="Invoice #"
                     value={invoiceNumber}
                     onChange={(e) => setInvoiceNumber(e.target.value)}
                     placeholder="00001"
@@ -1320,20 +1323,16 @@ const Invoice = () => {
                   />
                 </div>
                 <div>
-                  <label className="text-sm font-medium mb-1 block">
-                    Invoice Date
-                  </label>
-                  <Input
+                  <FloatingInput
+                    label="Invoice Date"
                     type="date"
                     value={invoiceDate}
                     onChange={handleInvoiceDateChange}
                   />
                 </div>
                 <div>
-                  <label className="text-sm font-medium mb-1 block">
-                    Due Date
-                  </label>
-                  <Input
+                  <FloatingInput
+                    label="Due Date"
                     type="date"
                     value={dueDate}
                     onChange={(e) => setDueDate(e.target.value)}
@@ -1489,30 +1488,24 @@ const Invoice = () => {
               </h3>
               <div className="space-y-4">
                 <div>
-                  <label className="text-sm font-medium mb-1 block">
-                    Invoice #
-                  </label>
-                  <Input
+                  <FloatingInput
+                    label="Invoice #"
                     value={editInvoiceNumber}
                     placeholder="00001"
                     disabled
                   />
                 </div>
                 <div>
-                  <label className="text-sm font-medium mb-1 block">
-                    Invoice Date
-                  </label>
-                  <Input
+                  <FloatingInput
+                    label="Invoice Date"
                     type="date"
                     value={editInvoiceDate}
                     onChange={(e) => setEditInvoiceDate(e.target.value)}
                   />
                 </div>
                 <div>
-                  <label className="text-sm font-medium mb-1 block">
-                    Due Date
-                  </label>
-                  <Input
+                  <FloatingInput
+                    label="Due Date"
                     type="date"
                     value={editDueDate}
                     onChange={(e) => setEditDueDate(e.target.value)}

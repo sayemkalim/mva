@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import {
@@ -30,6 +29,7 @@ import { cn } from "@/lib/utils";
 
 import { Navbar2 } from "@/components/navbar2";
 import Billing from "@/components/billing";
+import { FloatingInput, FloatingTextarea, FloatingWrapper } from "@/components/ui/floating-label";
 
 import { getABMeta } from "../../helpers/fetchABMeta";
 import {
@@ -340,158 +340,172 @@ export default function InsuranceExaminationPage() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {/* Assessment Status */}
               <div className="space-y-2">
-                <Label className="text-foreground font-medium">
-                  Assessment Status <span className="text-red-500">*</span>
-                </Label>
-                <Popover
-                  open={openAssessmentStatus}
-                  onOpenChange={setOpenAssessmentStatus}
+                <FloatingWrapper
+                  label="Assessment Status"
+                  required
+                  hasValue={!!formData.assessment_status_id}
+                  isFocused={openAssessmentStatus}
                 >
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant="outline"
-                      role="combobox"
-                      aria-expanded={openAssessmentStatus}
-                      className="w-full h-11 justify-between"
-                      disabled={mutation.isLoading}
-                    >
-                      {getSelectedLabel(
-                        formData.assessment_status_id,
-                        metaData?.examination_assessment_status,
-                        "Select assessment status"
-                      )}
-                      <ChevronsUpDown className="ml-auto h-4 w-4 shrink-0 opacity-50" />
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-full p-0" align="start">
-                    <Command>
-                      <CommandInput placeholder="Search status..." />
-                      <CommandList>
-                        <CommandEmpty>No status found.</CommandEmpty>
-                        <CommandGroup>
-                          {metaData?.examination_assessment_status?.map(
-                            (status) => (
-                              <CommandItem
-                                key={status.id}
-                                value={status.name}
-                                onSelect={() => {
-                                  handleComboboxChange(
-                                    "assessment_status_id",
-                                    status.id.toString()
-                                  );
-                                  setOpenAssessmentStatus(false);
-                                }}
-                              >
-                                <Check
-                                  className={cn(
-                                    "mr-2 h-4 w-4",
-                                    formData.assessment_status_id ===
+                  <Popover
+                    open={openAssessmentStatus}
+                    onOpenChange={setOpenAssessmentStatus}
+                  >
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="outline"
+                        role="combobox"
+                        aria-expanded={openAssessmentStatus}
+                        className="w-full h-[52px] justify-between bg-transparent border border-input"
+                        disabled={mutation.isLoading}
+                      >
+                        {getSelectedLabel(
+                          formData.assessment_status_id,
+                          metaData?.examination_assessment_status,
+                          "Select assessment status"
+                        ) === "Select assessment status"
+                          ? ""
+                          : getSelectedLabel(
+                              formData.assessment_status_id,
+                              metaData?.examination_assessment_status,
+                              "Select assessment status"
+                            )}
+                        <ChevronsUpDown className="ml-auto h-4 w-4 shrink-0 opacity-50" />
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-full p-0" align="start">
+                      <Command>
+                        <CommandInput placeholder="Search status..." />
+                        <CommandList>
+                          <CommandEmpty>No status found.</CommandEmpty>
+                          <CommandGroup>
+                            {metaData?.examination_assessment_status?.map(
+                              (status) => (
+                                <CommandItem
+                                  key={status.id}
+                                  value={status.name}
+                                  onSelect={() => {
+                                    handleComboboxChange(
+                                      "assessment_status_id",
                                       status.id.toString()
-                                      ? "opacity-100"
-                                      : "opacity-0"
-                                  )}
-                                />
-                                {status.name}
-                              </CommandItem>
-                            )
-                          )}
-                        </CommandGroup>
-                      </CommandList>
-                    </Command>
-                  </PopoverContent>
-                </Popover>
+                                    );
+                                    setOpenAssessmentStatus(false);
+                                  }}
+                                >
+                                  <Check
+                                    className={cn(
+                                      "mr-2 h-4 w-4",
+                                      formData.assessment_status_id ===
+                                        status.id.toString()
+                                        ? "opacity-100"
+                                        : "opacity-0"
+                                    )}
+                                  />
+                                  {status.name}
+                                </CommandItem>
+                              )
+                            )}
+                          </CommandGroup>
+                        </CommandList>
+                      </Command>
+                    </PopoverContent>
+                  </Popover>
+                </FloatingWrapper>
               </div>
 
               {/* IE Received Date */}
               <div className="space-y-2">
-                <Label className="text-foreground font-medium">
-                  IE Received in Our Office
-                </Label>
-                <Input
+                <FloatingInput
                   type="date"
                   name="ie_received_in_our_office"
+                  label="IE Received in Our Office"
                   value={formData.ie_received_in_our_office}
                   onChange={handleChange}
-                  className="h-11"
                   disabled={mutation.isLoading}
                 />
               </div>
 
               {/* Type of Assessment */}
               <div className="space-y-2">
-                <Label className="text-foreground font-medium">
-                  Type of Assessment <span className="text-red-500">*</span>
-                </Label>
-                <Popover
-                  open={openTypeOfAssessment}
-                  onOpenChange={setOpenTypeOfAssessment}
+                <FloatingWrapper
+                  label="Type of Assessment"
+                  required
+                  hasValue={!!formData.type_of_assessment_id}
+                  isFocused={openTypeOfAssessment}
                 >
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant="outline"
-                      role="combobox"
-                      aria-expanded={openTypeOfAssessment}
-                      className="w-full h-11 justify-between"
-                      disabled={mutation.isLoading}
-                    >
-                      {getSelectedLabel(
-                        formData.type_of_assessment_id,
-                        metaData?.examination_type_of_assessment,
-                        "Select type of assessment"
-                      )}
-                      <ChevronsUpDown className="ml-auto h-4 w-4 shrink-0 opacity-50" />
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-full p-0" align="start">
-                    <Command>
-                      <CommandInput placeholder="Search type..." />
-                      <CommandList>
-                        <CommandEmpty>No type found.</CommandEmpty>
-                        <CommandGroup>
-                          {metaData?.examination_type_of_assessment?.map(
-                            (type) => (
-                              <CommandItem
-                                key={type.id}
-                                value={type.name}
-                                onSelect={() => {
-                                  handleComboboxChange(
-                                    "type_of_assessment_id",
-                                    type.id.toString()
-                                  );
-                                  setOpenTypeOfAssessment(false);
-                                }}
-                              >
-                                <Check
-                                  className={cn(
-                                    "mr-2 h-4 w-4",
-                                    formData.type_of_assessment_id ===
+                  <Popover
+                    open={openTypeOfAssessment}
+                    onOpenChange={setOpenTypeOfAssessment}
+                  >
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="outline"
+                        role="combobox"
+                        aria-expanded={openTypeOfAssessment}
+                        className="w-full h-[52px] justify-between bg-transparent border border-input"
+                        disabled={mutation.isLoading}
+                      >
+                        {getSelectedLabel(
+                          formData.type_of_assessment_id,
+                          metaData?.examination_type_of_assessment,
+                          "Select type of assessment"
+                        ) === "Select type of assessment"
+                          ? ""
+                          : getSelectedLabel(
+                              formData.type_of_assessment_id,
+                              metaData?.examination_type_of_assessment,
+                              "Select type of assessment"
+                            )}
+                        <ChevronsUpDown className="ml-auto h-4 w-4 shrink-0 opacity-50" />
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-full p-0" align="start">
+                      <Command>
+                        <CommandInput placeholder="Search type..." />
+                        <CommandList>
+                          <CommandEmpty>No type found.</CommandEmpty>
+                          <CommandGroup>
+                            {metaData?.examination_type_of_assessment?.map(
+                              (type) => (
+                                <CommandItem
+                                  key={type.id}
+                                  value={type.name}
+                                  onSelect={() => {
+                                    handleComboboxChange(
+                                      "type_of_assessment_id",
                                       type.id.toString()
-                                      ? "opacity-100"
-                                      : "opacity-0"
-                                  )}
-                                />
-                                {type.name}
-                              </CommandItem>
-                            )
-                          )}
-                        </CommandGroup>
-                      </CommandList>
-                    </Command>
-                  </PopoverContent>
-                </Popover>
+                                    );
+                                    setOpenTypeOfAssessment(false);
+                                  }}
+                                >
+                                  <Check
+                                    className={cn(
+                                      "mr-2 h-4 w-4",
+                                      formData.type_of_assessment_id ===
+                                        type.id.toString()
+                                        ? "opacity-100"
+                                        : "opacity-0"
+                                    )}
+                                  />
+                                  {type.name}
+                                </CommandItem>
+                              )
+                            )}
+                          </CommandGroup>
+                        </CommandList>
+                      </Command>
+                    </PopoverContent>
+                  </Popover>
+                </FloatingWrapper>
               </div>
 
               {/* Date of Assessment */}
               <div className="space-y-2">
-                <Label className="text-foreground font-medium">
-                  Date of Assessment <span className="text-red-500">*</span>
-                </Label>
-                <Input
+                <FloatingInput
                   type="date"
                   name="date_of_assessment"
+                  label="Date of Assessment"
                   value={formData.date_of_assessment}
                   onChange={handleChange}
-                  className="h-11"
                   required
                   disabled={mutation.isLoading}
                 />
@@ -499,44 +513,43 @@ export default function InsuranceExaminationPage() {
 
               {/* Time */}
               <div className="space-y-2">
-                <Label className="text-foreground font-medium">Time</Label>
-                <div className="relative">
-                  <Clock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-500" />
-                  <Input
-                    type="time"
-                    name="time"
-                    value={formData.time}
-                    onChange={handleChange}
-                    className="h-11 pl-10"
-                    disabled={mutation.isLoading}
-                  />
-                </div>
+                <FloatingWrapper
+                  label="Time"
+                  hasValue={!!formData.time}
+                  isFocused={false}
+                >
+                  <div className="relative">
+                    <Clock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-500" />
+                    <FloatingInput
+                      type="time"
+                      name="time"
+                      value={formData.time}
+                      onChange={handleChange}
+                      className="pl-10"
+                      disabled={mutation.isLoading}
+                    />
+                  </div>
+                </FloatingWrapper>
               </div>
 
               {/* Location */}
               <div className="space-y-2">
-                <Label className="text-foreground font-medium">Location</Label>
-                <Input
+                <FloatingInput
                   name="location"
+                  label="Location"
                   value={formData.location}
                   onChange={handleChange}
-                  placeholder="Enter location"
-                  className="h-11"
                   disabled={mutation.isLoading}
                 />
               </div>
 
               {/* Assessor Name */}
               <div className="space-y-2">
-                <Label className="text-foreground font-medium">
-                  Assessor Name
-                </Label>
-                <Input
+                <FloatingInput
                   name="assessor_name"
+                  label="Assessor Name"
                   value={formData.assessor_name}
                   onChange={handleChange}
-                  placeholder="Enter assessor name"
-                  className="h-11"
                   disabled={mutation.isLoading}
                 />
               </div>
@@ -551,264 +564,297 @@ export default function InsuranceExaminationPage() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {/* Informed to Client */}
               <div className="space-y-2">
-                <Label className="text-foreground font-medium">
-                  Informed to Client
-                </Label>
-                <Popover
-                  open={openInformedToClient}
-                  onOpenChange={setOpenInformedToClient}
+                <FloatingWrapper
+                  label="Informed to Client"
+                  hasValue={!!formData.informed_to_client_id}
+                  isFocused={openInformedToClient}
                 >
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant="outline"
-                      role="combobox"
-                      aria-expanded={openInformedToClient}
-                      className="w-full h-11 justify-between"
-                      disabled={mutation.isLoading}
-                    >
-                      {getSelectedLabel(
-                        formData.informed_to_client_id,
-                        metaData?.yes_no_option,
-                        "Select option"
-                      )}
-                      <ChevronsUpDown className="ml-auto h-4 w-4 shrink-0 opacity-50" />
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-full p-0" align="start">
-                    <Command>
-                      <CommandList>
-                        <CommandEmpty>No option found.</CommandEmpty>
-                        <CommandGroup>
-                          {metaData?.yes_no_option?.map((option) => (
-                            <CommandItem
-                              key={option.id}
-                              value={option.name}
-                              onSelect={() => {
-                                handleComboboxChange(
-                                  "informed_to_client_id",
-                                  option.id.toString()
-                                );
-                                setOpenInformedToClient(false);
-                              }}
-                            >
-                              <Check
-                                className={cn(
-                                  "mr-2 h-4 w-4",
-                                  formData.informed_to_client_id ===
-                                    option.id.toString()
-                                    ? "opacity-100"
-                                    : "opacity-0"
-                                )}
-                              />
-                              {option.name}
-                            </CommandItem>
-                          ))}
-                        </CommandGroup>
-                      </CommandList>
-                    </Command>
-                  </PopoverContent>
-                </Popover>
-              </div>
-
-              {/* Mode of Communication */}
-              <div className="space-y-2">
-                <Label className="text-foreground font-medium">
-                  Mode of Communication
-                </Label>
-                <Popover
-                  open={openModeCommunication}
-                  onOpenChange={setOpenModeCommunication}
-                >
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant="outline"
-                      role="combobox"
-                      aria-expanded={openModeCommunication}
-                      className="w-full h-11 justify-between"
-                      disabled={mutation.isLoading}
-                    >
-                      {getSelectedLabel(
-                        formData.mode_of_communication_id,
-                        metaData?.insurance_mode_of_communication,
-                        "Select mode"
-                      )}
-                      <ChevronsUpDown className="ml-auto h-4 w-4 shrink-0 opacity-50" />
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-full p-0" align="start">
-                    <Command>
-                      <CommandInput placeholder="Search mode..." />
-                      <CommandList>
-                        <CommandEmpty>No mode found.</CommandEmpty>
-                        <CommandGroup>
-                          {metaData?.insurance_mode_of_communication?.map(
-                            (mode) => (
+                  <Popover
+                    open={openInformedToClient}
+                    onOpenChange={setOpenInformedToClient}
+                  >
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="outline"
+                        role="combobox"
+                        aria-expanded={openInformedToClient}
+                        className="w-full h-[52px] justify-between bg-transparent border border-input"
+                        disabled={mutation.isLoading}
+                      >
+                        {getSelectedLabel(
+                          formData.informed_to_client_id,
+                          metaData?.yes_no_option,
+                          "Select option"
+                        ) === "Select option"
+                          ? ""
+                          : getSelectedLabel(
+                              formData.informed_to_client_id,
+                              metaData?.yes_no_option,
+                              "Select option"
+                            )}
+                        <ChevronsUpDown className="ml-auto h-4 w-4 shrink-0 opacity-50" />
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-full p-0" align="start">
+                      <Command>
+                        <CommandList>
+                          <CommandEmpty>No option found.</CommandEmpty>
+                          <CommandGroup>
+                            {metaData?.yes_no_option?.map((option) => (
                               <CommandItem
-                                key={mode.id}
-                                value={mode.name}
+                                key={option.id}
+                                value={option.name}
                                 onSelect={() => {
                                   handleComboboxChange(
-                                    "mode_of_communication_id",
-                                    mode.id.toString()
+                                    "informed_to_client_id",
+                                    option.id.toString()
                                   );
-                                  setOpenModeCommunication(false);
+                                  setOpenInformedToClient(false);
                                 }}
                               >
                                 <Check
                                   className={cn(
                                     "mr-2 h-4 w-4",
-                                    formData.mode_of_communication_id ===
-                                      mode.id.toString()
+                                    formData.informed_to_client_id ===
+                                      option.id.toString()
                                       ? "opacity-100"
                                       : "opacity-0"
                                   )}
                                 />
-                                {mode.name}
+                                {option.name}
                               </CommandItem>
-                            )
-                          )}
-                        </CommandGroup>
-                      </CommandList>
-                    </Command>
-                  </PopoverContent>
-                </Popover>
+                            ))}
+                          </CommandGroup>
+                        </CommandList>
+                      </Command>
+                    </PopoverContent>
+                  </Popover>
+                </FloatingWrapper>
+              </div>
+
+              {/* Mode of Communication */}
+              <div className="space-y-2">
+                <FloatingWrapper
+                  label="Mode of Communication"
+                  hasValue={!!formData.mode_of_communication_id}
+                  isFocused={openModeCommunication}
+                >
+                  <Popover
+                    open={openModeCommunication}
+                    onOpenChange={setOpenModeCommunication}
+                  >
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="outline"
+                        role="combobox"
+                        aria-expanded={openModeCommunication}
+                        className="w-full h-[52px] justify-between bg-transparent border border-input"
+                        disabled={mutation.isLoading}
+                      >
+                        {getSelectedLabel(
+                          formData.mode_of_communication_id,
+                          metaData?.insurance_mode_of_communication,
+                          "Select mode"
+                        ) === "Select mode"
+                          ? ""
+                          : getSelectedLabel(
+                              formData.mode_of_communication_id,
+                              metaData?.insurance_mode_of_communication,
+                              "Select mode"
+                            )}
+                        <ChevronsUpDown className="ml-auto h-4 w-4 shrink-0 opacity-50" />
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-full p-0" align="start">
+                      <Command>
+                        <CommandInput placeholder="Search mode..." />
+                        <CommandList>
+                          <CommandEmpty>No mode found.</CommandEmpty>
+                          <CommandGroup>
+                            {metaData?.insurance_mode_of_communication?.map(
+                              (mode) => (
+                                <CommandItem
+                                  key={mode.id}
+                                  value={mode.name}
+                                  onSelect={() => {
+                                    handleComboboxChange(
+                                      "mode_of_communication_id",
+                                      mode.id.toString()
+                                    );
+                                    setOpenModeCommunication(false);
+                                  }}
+                                >
+                                  <Check
+                                    className={cn(
+                                      "mr-2 h-4 w-4",
+                                      formData.mode_of_communication_id ===
+                                        mode.id.toString()
+                                        ? "opacity-100"
+                                        : "opacity-0"
+                                    )}
+                                  />
+                                  {mode.name}
+                                </CommandItem>
+                              )
+                            )}
+                          </CommandGroup>
+                        </CommandList>
+                      </Command>
+                    </PopoverContent>
+                  </Popover>
+                </FloatingWrapper>
               </div>
 
               {/* Communication Date */}
               <div className="space-y-2">
-                <Label className="text-foreground font-medium">
-                  Communication Date
-                </Label>
-                <Input
+                <FloatingInput
                   type="date"
                   name="communication_date"
+                  label="Communication Date"
                   value={formData.communication_date}
                   onChange={handleChange}
-                  className="h-11"
                   disabled={mutation.isLoading}
                 />
               </div>
 
               {/* Required Transportation */}
               <div className="space-y-2">
-                <Label className="text-foreground font-medium">
-                  Required Transportation
-                </Label>
-                <Popover
-                  open={openRequiredTransportation}
-                  onOpenChange={setOpenRequiredTransportation}
+                <FloatingWrapper
+                  label="Required Transportation"
+                  hasValue={!!formData.required_transportation_id}
+                  isFocused={openRequiredTransportation}
                 >
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant="outline"
-                      role="combobox"
-                      aria-expanded={openRequiredTransportation}
-                      className="w-full h-11 justify-between"
-                      disabled={mutation.isLoading}
-                    >
-                      {getSelectedLabel(
-                        formData.required_transportation_id,
-                        metaData?.yes_no_option,
-                        "Select option"
-                      )}
-                      <ChevronsUpDown className="ml-auto h-4 w-4 shrink-0 opacity-50" />
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-full p-0" align="start">
-                    <Command>
-                      <CommandList>
-                        <CommandEmpty>No option found.</CommandEmpty>
-                        <CommandGroup>
-                          {metaData?.yes_no_option?.map((option) => (
-                            <CommandItem
-                              key={option.id}
-                              value={option.name}
-                              onSelect={() => {
-                                handleComboboxChange(
-                                  "required_transportation_id",
-                                  option.id.toString()
-                                );
-                                setOpenRequiredTransportation(false);
-                              }}
-                            >
-                              <Check
-                                className={cn(
-                                  "mr-2 h-4 w-4",
-                                  formData.required_transportation_id ===
+                  <Popover
+                    open={openRequiredTransportation}
+                    onOpenChange={setOpenRequiredTransportation}
+                  >
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="outline"
+                        role="combobox"
+                        aria-expanded={openRequiredTransportation}
+                        className="w-full h-[52px] justify-between bg-transparent border border-input"
+                        disabled={mutation.isLoading}
+                      >
+                        {getSelectedLabel(
+                          formData.required_transportation_id,
+                          metaData?.yes_no_option,
+                          "Select option"
+                        ) === "Select option"
+                          ? ""
+                          : getSelectedLabel(
+                              formData.required_transportation_id,
+                              metaData?.yes_no_option,
+                              "Select option"
+                            )}
+                        <ChevronsUpDown className="ml-auto h-4 w-4 shrink-0 opacity-50" />
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-full p-0" align="start">
+                      <Command>
+                        <CommandList>
+                          <CommandEmpty>No option found.</CommandEmpty>
+                          <CommandGroup>
+                            {metaData?.yes_no_option?.map((option) => (
+                              <CommandItem
+                                key={option.id}
+                                value={option.name}
+                                onSelect={() => {
+                                  handleComboboxChange(
+                                    "required_transportation_id",
                                     option.id.toString()
-                                    ? "opacity-100"
-                                    : "opacity-0"
-                                )}
-                              />
-                              {option.name}
-                            </CommandItem>
-                          ))}
-                        </CommandGroup>
-                      </CommandList>
-                    </Command>
-                  </PopoverContent>
-                </Popover>
+                                  );
+                                  setOpenRequiredTransportation(false);
+                                }}
+                              >
+                                <Check
+                                  className={cn(
+                                    "mr-2 h-4 w-4",
+                                    formData.required_transportation_id ===
+                                      option.id.toString()
+                                      ? "opacity-100"
+                                      : "opacity-0"
+                                  )}
+                                />
+                                {option.name}
+                              </CommandItem>
+                            ))}
+                          </CommandGroup>
+                        </CommandList>
+                      </Command>
+                    </PopoverContent>
+                  </Popover>
+                </FloatingWrapper>
               </div>
 
               {/* Required Interpreter */}
               <div className="space-y-2">
-                <Label className="text-foreground font-medium">
-                  Required Interpreter
-                </Label>
-                <Popover
-                  open={openRequiredInterpreter}
-                  onOpenChange={setOpenRequiredInterpreter}
+                <FloatingWrapper
+                  label="Required Interpreter"
+                  hasValue={!!formData.required_interpreter_id}
+                  isFocused={openRequiredInterpreter}
                 >
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant="outline"
-                      role="combobox"
-                      aria-expanded={openRequiredInterpreter}
-                      className="w-full h-11 justify-between"
-                      disabled={mutation.isLoading}
-                    >
-                      {getSelectedLabel(
-                        formData.required_interpreter_id,
-                        metaData?.yes_no_option,
-                        "Select option"
-                      )}
-                      <ChevronsUpDown className="ml-auto h-4 w-4 shrink-0 opacity-50" />
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-full p-0" align="start">
-                    <Command>
-                      <CommandList>
-                        <CommandEmpty>No option found.</CommandEmpty>
-                        <CommandGroup>
-                          {metaData?.yes_no_option?.map((option) => (
-                            <CommandItem
-                              key={option.id}
-                              value={option.name}
-                              onSelect={() => {
-                                handleComboboxChange(
-                                  "required_interpreter_id",
-                                  option.id.toString()
-                                );
-                                setOpenRequiredInterpreter(false);
-                              }}
-                            >
-                              <Check
-                                className={cn(
-                                  "mr-2 h-4 w-4",
-                                  formData.required_interpreter_id ===
+                  <Popover
+                    open={openRequiredInterpreter}
+                    onOpenChange={setOpenRequiredInterpreter}
+                  >
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="outline"
+                        role="combobox"
+                        aria-expanded={openRequiredInterpreter}
+                        className="w-full h-[52px] justify-between bg-transparent border border-input"
+                        disabled={mutation.isLoading}
+                      >
+                        {getSelectedLabel(
+                          formData.required_interpreter_id,
+                          metaData?.yes_no_option,
+                          "Select option"
+                        ) === "Select option"
+                          ? ""
+                          : getSelectedLabel(
+                              formData.required_interpreter_id,
+                              metaData?.yes_no_option,
+                              "Select option"
+                            )}
+                        <ChevronsUpDown className="ml-auto h-4 w-4 shrink-0 opacity-50" />
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-full p-0" align="start">
+                      <Command>
+                        <CommandList>
+                          <CommandEmpty>No option found.</CommandEmpty>
+                          <CommandGroup>
+                            {metaData?.yes_no_option?.map((option) => (
+                              <CommandItem
+                                key={option.id}
+                                value={option.name}
+                                onSelect={() => {
+                                  handleComboboxChange(
+                                    "required_interpreter_id",
                                     option.id.toString()
-                                    ? "opacity-100"
-                                    : "opacity-0"
-                                )}
-                              />
-                              {option.name}
-                            </CommandItem>
-                          ))}
-                        </CommandGroup>
-                      </CommandList>
-                    </Command>
-                  </PopoverContent>
-                </Popover>
+                                  );
+                                  setOpenRequiredInterpreter(false);
+                                }}
+                              >
+                                <Check
+                                  className={cn(
+                                    "mr-2 h-4 w-4",
+                                    formData.required_interpreter_id ===
+                                      option.id.toString()
+                                      ? "opacity-100"
+                                      : "opacity-0"
+                                  )}
+                                />
+                                {option.name}
+                              </CommandItem>
+                            ))}
+                          </CommandGroup>
+                        </CommandList>
+                      </Command>
+                    </PopoverContent>
+                  </Popover>
+                </FloatingWrapper>
               </div>
             </div>
           </div>
@@ -821,267 +867,300 @@ export default function InsuranceExaminationPage() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {/* Communication Date 2nd */}
               <div className="space-y-2">
-                <Label className="text-foreground font-medium">
-                  Communication Date
-                </Label>
-                <Input
+                <FloatingInput
                   type="date"
                   name="communication_date_2nd"
+                  label="Communication Date"
                   value={formData.communication_date_2nd}
                   onChange={handleChange}
-                  className="h-11"
                   disabled={mutation.isLoading}
                 />
               </div>
 
               {/* Mode of Communication 2nd */}
               <div className="space-y-2">
-                <Label className="text-foreground font-medium">
-                  Mode of Communication
-                </Label>
-                <Popover
-                  open={openModeCommunication2nd}
-                  onOpenChange={setOpenModeCommunication2nd}
+                <FloatingWrapper
+                  label="Mode of Communication"
+                  hasValue={!!formData.mode_of_communication_2nd_id}
+                  isFocused={openModeCommunication2nd}
                 >
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant="outline"
-                      role="combobox"
-                      aria-expanded={openModeCommunication2nd}
-                      className="w-full h-11 justify-between"
-                      disabled={mutation.isLoading}
-                    >
-                      {getSelectedLabel(
-                        formData.mode_of_communication_2nd_id,
-                        metaData?.insurance_mode_of_communication,
-                        "Select mode"
-                      )}
-                      <ChevronsUpDown className="ml-auto h-4 w-4 shrink-0 opacity-50" />
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-full p-0" align="start">
-                    <Command>
-                      <CommandInput placeholder="Search mode..." />
-                      <CommandList>
-                        <CommandEmpty>No mode found.</CommandEmpty>
-                        <CommandGroup>
-                          {metaData?.insurance_mode_of_communication?.map(
-                            (mode) => (
-                              <CommandItem
-                                key={mode.id}
-                                value={mode.name}
-                                onSelect={() => {
-                                  handleComboboxChange(
-                                    "mode_of_communication_2nd_id",
-                                    mode.id.toString()
-                                  );
-                                  setOpenModeCommunication2nd(false);
-                                }}
-                              >
-                                <Check
-                                  className={cn(
-                                    "mr-2 h-4 w-4",
-                                    formData.mode_of_communication_2nd_id ===
+                  <Popover
+                    open={openModeCommunication2nd}
+                    onOpenChange={setOpenModeCommunication2nd}
+                  >
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="outline"
+                        role="combobox"
+                        aria-expanded={openModeCommunication2nd}
+                        className="w-full h-[52px] justify-between bg-transparent border border-input"
+                        disabled={mutation.isLoading}
+                      >
+                        {getSelectedLabel(
+                          formData.mode_of_communication_2nd_id,
+                          metaData?.insurance_mode_of_communication,
+                          "Select mode"
+                        ) === "Select mode"
+                          ? ""
+                          : getSelectedLabel(
+                              formData.mode_of_communication_2nd_id,
+                              metaData?.insurance_mode_of_communication,
+                              "Select mode"
+                            )}
+                        <ChevronsUpDown className="ml-auto h-4 w-4 shrink-0 opacity-50" />
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-full p-0" align="start">
+                      <Command>
+                        <CommandInput placeholder="Search mode..." />
+                        <CommandList>
+                          <CommandEmpty>No mode found.</CommandEmpty>
+                          <CommandGroup>
+                            {metaData?.insurance_mode_of_communication?.map(
+                              (mode) => (
+                                <CommandItem
+                                  key={mode.id}
+                                  value={mode.name}
+                                  onSelect={() => {
+                                    handleComboboxChange(
+                                      "mode_of_communication_2nd_id",
                                       mode.id.toString()
-                                      ? "opacity-100"
-                                      : "opacity-0"
-                                  )}
-                                />
-                                {mode.name}
-                              </CommandItem>
-                            )
-                          )}
-                        </CommandGroup>
-                      </CommandList>
-                    </Command>
-                  </PopoverContent>
-                </Popover>
+                                    );
+                                    setOpenModeCommunication2nd(false);
+                                  }}
+                                >
+                                  <Check
+                                    className={cn(
+                                      "mr-2 h-4 w-4",
+                                      formData.mode_of_communication_2nd_id ===
+                                        mode.id.toString()
+                                        ? "opacity-100"
+                                        : "opacity-0"
+                                    )}
+                                  />
+                                  {mode.name}
+                                </CommandItem>
+                              )
+                            )}
+                          </CommandGroup>
+                        </CommandList>
+                      </Command>
+                    </PopoverContent>
+                  </Popover>
+                </FloatingWrapper>
               </div>
 
               {/* Reminder to Client */}
               <div className="space-y-2">
-                <Label className="text-foreground font-medium">
-                  Reminder to Client
-                </Label>
-                <Popover
-                  open={openReminderToClient}
-                  onOpenChange={setOpenReminderToClient}
+                <FloatingWrapper
+                  label="Reminder to Client"
+                  hasValue={!!formData.reminder_to_client_id}
+                  isFocused={openReminderToClient}
                 >
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant="outline"
-                      role="combobox"
-                      aria-expanded={openReminderToClient}
-                      className="w-full h-11 justify-between"
-                      disabled={mutation.isLoading}
-                    >
-                      {getSelectedLabel(
-                        formData.reminder_to_client_id,
-                        metaData?.examination_reminder_to_client,
-                        "Select reminder"
-                      )}
-                      <ChevronsUpDown className="ml-auto h-4 w-4 shrink-0 opacity-50" />
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-full p-0" align="start">
-                    <Command>
-                      <CommandInput placeholder="Search reminder..." />
-                      <CommandList>
-                        <CommandEmpty>No reminder found.</CommandEmpty>
-                        <CommandGroup>
-                          {metaData?.examination_reminder_to_client?.map(
-                            (reminder) => (
+                  <Popover
+                    open={openReminderToClient}
+                    onOpenChange={setOpenReminderToClient}
+                  >
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="outline"
+                        role="combobox"
+                        aria-expanded={openReminderToClient}
+                        className="w-full h-[52px] justify-between bg-transparent border border-input"
+                        disabled={mutation.isLoading}
+                      >
+                        {getSelectedLabel(
+                          formData.reminder_to_client_id,
+                          metaData?.examination_reminder_to_client,
+                          "Select reminder"
+                        ) === "Select reminder"
+                          ? ""
+                          : getSelectedLabel(
+                              formData.reminder_to_client_id,
+                              metaData?.examination_reminder_to_client,
+                              "Select reminder"
+                            )}
+                        <ChevronsUpDown className="ml-auto h-4 w-4 shrink-0 opacity-50" />
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-full p-0" align="start">
+                      <Command>
+                        <CommandInput placeholder="Search reminder..." />
+                        <CommandList>
+                          <CommandEmpty>No reminder found.</CommandEmpty>
+                          <CommandGroup>
+                            {metaData?.examination_reminder_to_client?.map(
+                              (reminder) => (
+                                <CommandItem
+                                  key={reminder.id}
+                                  value={reminder.name}
+                                  onSelect={() => {
+                                    handleComboboxChange(
+                                      "reminder_to_client_id",
+                                      reminder.id.toString()
+                                    );
+                                    setOpenReminderToClient(false);
+                                  }}
+                                >
+                                  <Check
+                                    className={cn(
+                                      "mr-2 h-4 w-4",
+                                      formData.reminder_to_client_id ===
+                                        reminder.id.toString()
+                                        ? "opacity-100"
+                                        : "opacity-0"
+                                    )}
+                                  />
+                                  {reminder.name}
+                                </CommandItem>
+                              )
+                            )}
+                          </CommandGroup>
+                        </CommandList>
+                      </Command>
+                    </PopoverContent>
+                  </Popover>
+                </FloatingWrapper>
+              </div>
+
+              {/* Informed Transportation */}
+              <div className="space-y-2">
+                <FloatingWrapper
+                  label="Informed Transportation"
+                  hasValue={!!formData.informed_transporation_id}
+                  isFocused={openInformedTransportation}
+                >
+                  <Popover
+                    open={openInformedTransportation}
+                    onOpenChange={setOpenInformedTransportation}
+                  >
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="outline"
+                        role="combobox"
+                        aria-expanded={openInformedTransportation}
+                        className="w-full h-[52px] justify-between bg-transparent border border-input"
+                        disabled={mutation.isLoading}
+                      >
+                        {getSelectedLabel(
+                          formData.informed_transporation_id,
+                          metaData?.yes_no_option,
+                          "Select option"
+                        ) === "Select option"
+                          ? ""
+                          : getSelectedLabel(
+                              formData.informed_transporation_id,
+                              metaData?.yes_no_option,
+                              "Select option"
+                            )}
+                        <ChevronsUpDown className="ml-auto h-4 w-4 shrink-0 opacity-50" />
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-full p-0" align="start">
+                      <Command>
+                        <CommandList>
+                          <CommandEmpty>No option found.</CommandEmpty>
+                          <CommandGroup>
+                            {metaData?.yes_no_option?.map((option) => (
                               <CommandItem
-                                key={reminder.id}
-                                value={reminder.name}
+                                key={option.id}
+                                value={option.name}
                                 onSelect={() => {
                                   handleComboboxChange(
-                                    "reminder_to_client_id",
-                                    reminder.id.toString()
+                                    "informed_transporation_id",
+                                    option.id.toString()
                                   );
-                                  setOpenReminderToClient(false);
+                                  setOpenInformedTransportation(false);
                                 }}
                               >
                                 <Check
                                   className={cn(
                                     "mr-2 h-4 w-4",
-                                    formData.reminder_to_client_id ===
-                                      reminder.id.toString()
+                                    formData.informed_transporation_id ===
+                                      option.id.toString()
                                       ? "opacity-100"
                                       : "opacity-0"
                                   )}
                                 />
-                                {reminder.name}
+                                {option.name}
                               </CommandItem>
-                            )
-                          )}
-                        </CommandGroup>
-                      </CommandList>
-                    </Command>
-                  </PopoverContent>
-                </Popover>
-              </div>
-
-              {/* Informed Transportation */}
-              <div className="space-y-2">
-                <Label className="text-foreground font-medium">
-                  Informed Transportation
-                </Label>
-                <Popover
-                  open={openInformedTransportation}
-                  onOpenChange={setOpenInformedTransportation}
-                >
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant="outline"
-                      role="combobox"
-                      aria-expanded={openInformedTransportation}
-                      className="w-full h-11 justify-between"
-                      disabled={mutation.isLoading}
-                    >
-                      {getSelectedLabel(
-                        formData.informed_transporation_id,
-                        metaData?.yes_no_option,
-                        "Select option"
-                      )}
-                      <ChevronsUpDown className="ml-auto h-4 w-4 shrink-0 opacity-50" />
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-full p-0" align="start">
-                    <Command>
-                      <CommandList>
-                        <CommandEmpty>No option found.</CommandEmpty>
-                        <CommandGroup>
-                          {metaData?.yes_no_option?.map((option) => (
-                            <CommandItem
-                              key={option.id}
-                              value={option.name}
-                              onSelect={() => {
-                                handleComboboxChange(
-                                  "informed_transporation_id",
-                                  option.id.toString()
-                                );
-                                setOpenInformedTransportation(false);
-                              }}
-                            >
-                              <Check
-                                className={cn(
-                                  "mr-2 h-4 w-4",
-                                  formData.informed_transporation_id ===
-                                    option.id.toString()
-                                    ? "opacity-100"
-                                    : "opacity-0"
-                                )}
-                              />
-                              {option.name}
-                            </CommandItem>
-                          ))}
-                        </CommandGroup>
-                      </CommandList>
-                    </Command>
-                  </PopoverContent>
-                </Popover>
+                            ))}
+                          </CommandGroup>
+                        </CommandList>
+                      </Command>
+                    </PopoverContent>
+                  </Popover>
+                </FloatingWrapper>
               </div>
 
               {/* Informed Interpreter */}
               <div className="space-y-2">
-                <Label className="text-foreground font-medium">
-                  Informed Interpreter
-                </Label>
-                <Popover
-                  open={openInformedInterpreter}
-                  onOpenChange={setOpenInformedInterpreter}
+                <FloatingWrapper
+                  label="Informed Interpreter"
+                  hasValue={!!formData.informed_interpreter_id}
+                  isFocused={openInformedInterpreter}
                 >
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant="outline"
-                      role="combobox"
-                      aria-expanded={openInformedInterpreter}
-                      className="w-full h-11 justify-between"
-                      disabled={mutation.isLoading}
-                    >
-                      {getSelectedLabel(
-                        formData.informed_interpreter_id,
-                        metaData?.yes_no_option,
-                        "Select option"
-                      )}
-                      <ChevronsUpDown className="ml-auto h-4 w-4 shrink-0 opacity-50" />
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-full p-0" align="start">
-                    <Command>
-                      <CommandList>
-                        <CommandEmpty>No option found.</CommandEmpty>
-                        <CommandGroup>
-                          {metaData?.yes_no_option?.map((option) => (
-                            <CommandItem
-                              key={option.id}
-                              value={option.name}
-                              onSelect={() => {
-                                handleComboboxChange(
-                                  "informed_interpreter_id",
-                                  option.id.toString()
-                                );
-                                setOpenInformedInterpreter(false);
-                              }}
-                            >
-                              <Check
-                                className={cn(
-                                  "mr-2 h-4 w-4",
-                                  formData.informed_interpreter_id ===
+                  <Popover
+                    open={openInformedInterpreter}
+                    onOpenChange={setOpenInformedInterpreter}
+                  >
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="outline"
+                        role="combobox"
+                        aria-expanded={openInformedInterpreter}
+                        className="w-full h-[52px] justify-between bg-transparent border border-input"
+                        disabled={mutation.isLoading}
+                      >
+                        {getSelectedLabel(
+                          formData.informed_interpreter_id,
+                          metaData?.yes_no_option,
+                          "Select option"
+                        ) === "Select option"
+                          ? ""
+                          : getSelectedLabel(
+                              formData.informed_interpreter_id,
+                              metaData?.yes_no_option,
+                              "Select option"
+                            )}
+                        <ChevronsUpDown className="ml-auto h-4 w-4 shrink-0 opacity-50" />
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-full p-0" align="start">
+                      <Command>
+                        <CommandList>
+                          <CommandEmpty>No option found.</CommandEmpty>
+                          <CommandGroup>
+                            {metaData?.yes_no_option?.map((option) => (
+                              <CommandItem
+                                key={option.id}
+                                value={option.name}
+                                onSelect={() => {
+                                  handleComboboxChange(
+                                    "informed_interpreter_id",
                                     option.id.toString()
-                                    ? "opacity-100"
-                                    : "opacity-0"
-                                )}
-                              />
-                              {option.name}
-                            </CommandItem>
-                          ))}
-                        </CommandGroup>
-                      </CommandList>
-                    </Command>
-                  </PopoverContent>
-                </Popover>
+                                  );
+                                  setOpenInformedInterpreter(false);
+                                }}
+                              >
+                                <Check
+                                  className={cn(
+                                    "mr-2 h-4 w-4",
+                                    formData.informed_interpreter_id ===
+                                      option.id.toString()
+                                      ? "opacity-100"
+                                      : "opacity-0"
+                                  )}
+                                />
+                                {option.name}
+                              </CommandItem>
+                            ))}
+                          </CommandGroup>
+                        </CommandList>
+                      </Command>
+                    </PopoverContent>
+                  </Popover>
+                </FloatingWrapper>
               </div>
             </div>
           </div>
@@ -1094,97 +1173,99 @@ export default function InsuranceExaminationPage() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {/* Response from Adjuster */}
               <div className="space-y-2 md:col-span-2 lg:col-span-3">
-                <Label className="text-foreground font-medium">
-                  Response from Adjuster
-                </Label>
-                <Textarea
+                <FloatingTextarea
                   name="response_from_adjuster"
+                  label="Response from Adjuster"
                   value={formData.response_from_adjuster}
                   onChange={handleChange}
                   placeholder="Enter response from adjuster"
-                  rows={3}
-                  className="resize-none"
                   disabled={mutation.isLoading}
                 />
               </div>
 
               {/* Communication Date 3rd */}
               <div className="space-y-2">
-                <Label className="text-foreground font-medium">
-                  Communication Date
-                </Label>
-                <Input
+                <FloatingInput
                   type="date"
                   name="communication_date_3rd"
+                  label="Communication Date"
                   value={formData.communication_date_3rd}
                   onChange={handleChange}
-                  className="h-11"
                   disabled={mutation.isLoading}
                 />
               </div>
 
               {/* Mode of Communication 3rd */}
               <div className="space-y-2">
-                <Label className="text-foreground font-medium">
-                  Mode of Communication
-                </Label>
-                <Popover
-                  open={openModeCommunication3rd}
-                  onOpenChange={setOpenModeCommunication3rd}
+                <FloatingWrapper
+                  label="Mode of Communication"
+                  hasValue={!!formData.mode_of_communication_3rd_id}
+                  isFocused={openModeCommunication3rd}
                 >
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant="outline"
-                      role="combobox"
-                      aria-expanded={openModeCommunication3rd}
-                      className="w-full h-11 justify-between"
-                      disabled={mutation.isLoading}
-                    >
-                      {getSelectedLabel(
-                        formData.mode_of_communication_3rd_id,
-                        metaData?.insurance_mode_of_communication,
-                        "Select mode"
-                      )}
-                      <ChevronsUpDown className="ml-auto h-4 w-4 shrink-0 opacity-50" />
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-full p-0" align="start">
-                    <Command>
-                      <CommandInput placeholder="Search mode..." />
-                      <CommandList>
-                        <CommandEmpty>No mode found.</CommandEmpty>
-                        <CommandGroup>
-                          {metaData?.insurance_mode_of_communication?.map(
-                            (mode) => (
-                              <CommandItem
-                                key={mode.id}
-                                value={mode.name}
-                                onSelect={() => {
-                                  handleComboboxChange(
-                                    "mode_of_communication_3rd_id",
-                                    mode.id.toString()
-                                  );
-                                  setOpenModeCommunication3rd(false);
-                                }}
-                              >
-                                <Check
-                                  className={cn(
-                                    "mr-2 h-4 w-4",
-                                    formData.mode_of_communication_3rd_id ===
+                  <Popover
+                    open={openModeCommunication3rd}
+                    onOpenChange={setOpenModeCommunication3rd}
+                  >
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="outline"
+                        role="combobox"
+                        aria-expanded={openModeCommunication3rd}
+                        className="w-full h-[52px] justify-between bg-transparent border border-input"
+                        disabled={mutation.isLoading}
+                      >
+                        {getSelectedLabel(
+                          formData.mode_of_communication_3rd_id,
+                          metaData?.insurance_mode_of_communication,
+                          "Select mode"
+                        ) === "Select mode"
+                          ? ""
+                          : getSelectedLabel(
+                              formData.mode_of_communication_3rd_id,
+                              metaData?.insurance_mode_of_communication,
+                              "Select mode"
+                            )}
+                        <ChevronsUpDown className="ml-auto h-4 w-4 shrink-0 opacity-50" />
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-full p-0" align="start">
+                      <Command>
+                        <CommandInput placeholder="Search mode..." />
+                        <CommandList>
+                          <CommandEmpty>No mode found.</CommandEmpty>
+                          <CommandGroup>
+                            {metaData?.insurance_mode_of_communication?.map(
+                              (mode) => (
+                                <CommandItem
+                                  key={mode.id}
+                                  value={mode.name}
+                                  onSelect={() => {
+                                    handleComboboxChange(
+                                      "mode_of_communication_3rd_id",
                                       mode.id.toString()
-                                      ? "opacity-100"
-                                      : "opacity-0"
-                                  )}
-                                />
-                                {mode.name}
-                              </CommandItem>
-                            )
-                          )}
-                        </CommandGroup>
-                      </CommandList>
-                    </Command>
-                  </PopoverContent>
-                </Popover>
+                                    );
+                                    setOpenModeCommunication3rd(false);
+                                  }}
+                                >
+                                  <Check
+                                    className={cn(
+                                      "mr-2 h-4 w-4",
+                                      formData.mode_of_communication_3rd_id ===
+                                        mode.id.toString()
+                                        ? "opacity-100"
+                                        : "opacity-0"
+                                    )}
+                                  />
+                                  {mode.name}
+                                </CommandItem>
+                              )
+                            )}
+                          </CommandGroup>
+                        </CommandList>
+                      </Command>
+                    </PopoverContent>
+                  </Popover>
+                </FloatingWrapper>
               </div>
             </div>
           </div>
@@ -1197,98 +1278,102 @@ export default function InsuranceExaminationPage() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {/* IE Result */}
               <div className="space-y-2 md:col-span-2 lg:col-span-3">
-                <Label className="text-foreground font-medium">IE Result</Label>
-                <Textarea
+                <FloatingTextarea
                   name="ie_result"
+                  label="IE Result"
                   value={formData.ie_result}
                   onChange={handleChange}
                   placeholder="Enter IE result"
-                  rows={3}
-                  className="resize-none"
                   disabled={mutation.isLoading}
                 />
               </div>
 
               {/* IE Status */}
               <div className="space-y-2">
-                <Label className="text-foreground font-medium">IE Status</Label>
-                <Popover open={openIEStatus} onOpenChange={setOpenIEStatus}>
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant="outline"
-                      role="combobox"
-                      aria-expanded={openIEStatus}
-                      className="w-full h-11 justify-between"
-                      disabled={mutation.isLoading}
-                    >
-                      {getSelectedLabel(
-                        formData.ie_status_id,
-                        metaData?.examination_ie_status,
-                        "Select IE status"
-                      )}
-                      <ChevronsUpDown className="ml-auto h-4 w-4 shrink-0 opacity-50" />
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-full p-0" align="start">
-                    <Command>
-                      <CommandInput placeholder="Search status..." />
-                      <CommandList>
-                        <CommandEmpty>No status found.</CommandEmpty>
-                        <CommandGroup>
-                          {metaData?.examination_ie_status?.map((status) => (
-                            <CommandItem
-                              key={status.id}
-                              value={status.name}
-                              onSelect={() => {
-                                handleComboboxChange(
-                                  "ie_status_id",
-                                  status.id.toString()
-                                );
-                                setOpenIEStatus(false);
-                              }}
-                            >
-                              <Check
-                                className={cn(
-                                  "mr-2 h-4 w-4",
-                                  formData.ie_status_id === status.id.toString()
-                                    ? "opacity-100"
-                                    : "opacity-0"
-                                )}
-                              />
-                              {status.name}
-                            </CommandItem>
-                          ))}
-                        </CommandGroup>
-                      </CommandList>
-                    </Command>
-                  </PopoverContent>
-                </Popover>
+                <FloatingWrapper
+                  label="IE Status"
+                  hasValue={!!formData.ie_status_id}
+                  isFocused={openIEStatus}
+                >
+                  <Popover open={openIEStatus} onOpenChange={setOpenIEStatus}>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="outline"
+                        role="combobox"
+                        aria-expanded={openIEStatus}
+                        className="w-full h-[52px] justify-between bg-transparent border border-input"
+                        disabled={mutation.isLoading}
+                      >
+                        {getSelectedLabel(
+                          formData.ie_status_id,
+                          metaData?.examination_ie_status,
+                          "Select IE status"
+                        ) === "Select IE status"
+                          ? ""
+                          : getSelectedLabel(
+                              formData.ie_status_id,
+                              metaData?.examination_ie_status,
+                              "Select IE status"
+                            )}
+                        <ChevronsUpDown className="ml-auto h-4 w-4 shrink-0 opacity-50" />
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-full p-0" align="start">
+                      <Command>
+                        <CommandInput placeholder="Search status..." />
+                        <CommandList>
+                          <CommandEmpty>No status found.</CommandEmpty>
+                          <CommandGroup>
+                            {metaData?.examination_ie_status?.map((status) => (
+                              <CommandItem
+                                key={status.id}
+                                value={status.name}
+                                onSelect={() => {
+                                  handleComboboxChange(
+                                    "ie_status_id",
+                                    status.id.toString()
+                                  );
+                                  setOpenIEStatus(false);
+                                }}
+                              >
+                                <Check
+                                  className={cn(
+                                    "mr-2 h-4 w-4",
+                                    formData.ie_status_id ===
+                                      status.id.toString()
+                                      ? "opacity-100"
+                                      : "opacity-0"
+                                  )}
+                                />
+                                {status.name}
+                              </CommandItem>
+                            ))}
+                          </CommandGroup>
+                        </CommandList>
+                      </Command>
+                    </PopoverContent>
+                  </Popover>
+                </FloatingWrapper>
               </div>
 
               {/* Partially Approved */}
               <div className="space-y-2">
-                <Label className="text-foreground font-medium">
-                  Partially Approved
-                </Label>
-                <Input
+                <FloatingInput
                   name="partially_approved"
+                  label="Partially Approved"
                   value={formData.partially_approved}
                   onChange={handleChange}
-                  placeholder="Enter details"
-                  className="h-11"
                   disabled={mutation.isLoading}
                 />
               </div>
 
               {/* Referred To */}
               <div className="space-y-2">
-                <Label className="text-foreground font-medium">Referred To</Label>
-                <Input
+                <FloatingInput
                   name="referred_to"
+                  label="Referred To"
                   value={formData.referred_to}
                   onChange={handleChange}
-                  placeholder="Enter referral details"
-                  className="h-11"
                   disabled={mutation.isLoading}
                 />
               </div>
@@ -1303,93 +1388,97 @@ export default function InsuranceExaminationPage() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {/* Mode of Communication 4th */}
               <div className="space-y-2">
-                <Label className="text-foreground font-medium">
-                  Mode of Communication
-                </Label>
-                <Popover
-                  open={openModeCommunication4th}
-                  onOpenChange={setOpenModeCommunication4th}
+                <FloatingWrapper
+                  label="Mode of Communication"
+                  hasValue={!!formData.mode_of_communication_4th_id}
+                  isFocused={openModeCommunication4th}
                 >
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant="outline"
-                      role="combobox"
-                      aria-expanded={openModeCommunication4th}
-                      className="w-full h-11 justify-between"
-                      disabled={mutation.isLoading}
-                    >
-                      {getSelectedLabel(
-                        formData.mode_of_communication_4th_id,
-                        metaData?.insurance_mode_of_communication,
-                        "Select mode"
-                      )}
-                      <ChevronsUpDown className="ml-auto h-4 w-4 shrink-0 opacity-50" />
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-full p-0" align="start">
-                    <Command>
-                      <CommandInput placeholder="Search mode..." />
-                      <CommandList>
-                        <CommandEmpty>No mode found.</CommandEmpty>
-                        <CommandGroup>
-                          {metaData?.insurance_mode_of_communication?.map(
-                            (mode) => (
-                              <CommandItem
-                                key={mode.id}
-                                value={mode.name}
-                                onSelect={() => {
-                                  handleComboboxChange(
-                                    "mode_of_communication_4th_id",
-                                    mode.id.toString()
-                                  );
-                                  setOpenModeCommunication4th(false);
-                                }}
-                              >
-                                <Check
-                                  className={cn(
-                                    "mr-2 h-4 w-4",
-                                    formData.mode_of_communication_4th_id ===
+                  <Popover
+                    open={openModeCommunication4th}
+                    onOpenChange={setOpenModeCommunication4th}
+                  >
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="outline"
+                        role="combobox"
+                        aria-expanded={openModeCommunication4th}
+                        className="w-full h-[52px] justify-between bg-transparent border border-input"
+                        disabled={mutation.isLoading}
+                      >
+                        {getSelectedLabel(
+                          formData.mode_of_communication_4th_id,
+                          metaData?.insurance_mode_of_communication,
+                          "Select mode"
+                        ) === "Select mode"
+                          ? ""
+                          : getSelectedLabel(
+                              formData.mode_of_communication_4th_id,
+                              metaData?.insurance_mode_of_communication,
+                              "Select mode"
+                            )}
+                        <ChevronsUpDown className="ml-auto h-4 w-4 shrink-0 opacity-50" />
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-full p-0" align="start">
+                      <Command>
+                        <CommandInput placeholder="Search mode..." />
+                        <CommandList>
+                          <CommandEmpty>No mode found.</CommandEmpty>
+                          <CommandGroup>
+                            {metaData?.insurance_mode_of_communication?.map(
+                              (mode) => (
+                                <CommandItem
+                                  key={mode.id}
+                                  value={mode.name}
+                                  onSelect={() => {
+                                    handleComboboxChange(
+                                      "mode_of_communication_4th_id",
                                       mode.id.toString()
-                                      ? "opacity-100"
-                                      : "opacity-0"
-                                  )}
-                                />
-                                {mode.name}
-                              </CommandItem>
-                            )
-                          )}
-                        </CommandGroup>
-                      </CommandList>
-                    </Command>
-                  </PopoverContent>
-                </Popover>
+                                    );
+                                    setOpenModeCommunication4th(false);
+                                  }}
+                                >
+                                  <Check
+                                    className={cn(
+                                      "mr-2 h-4 w-4",
+                                      formData.mode_of_communication_4th_id ===
+                                        mode.id.toString()
+                                        ? "opacity-100"
+                                        : "opacity-0"
+                                    )}
+                                  />
+                                  {mode.name}
+                                </CommandItem>
+                              )
+                            )}
+                          </CommandGroup>
+                        </CommandList>
+                      </Command>
+                    </PopoverContent>
+                  </Popover>
+                </FloatingWrapper>
               </div>
 
               {/* Communication Date 4th */}
               <div className="space-y-2">
-                <Label className="text-foreground font-medium">
-                  Communication Date
-                </Label>
-                <Input
+                <FloatingInput
                   type="date"
                   name="communication_date_4th"
+                  label="Communication Date"
                   value={formData.communication_date_4th}
                   onChange={handleChange}
-                  className="h-11"
                   disabled={mutation.isLoading}
                 />
               </div>
 
               {/* Note */}
               <div className="space-y-2 md:col-span-2 lg:col-span-3">
-                <Label className="text-foreground font-medium">Note</Label>
-                <Textarea
+                <FloatingTextarea
                   name="note"
+                  label="Note"
                   value={formData.note}
                   onChange={handleChange}
                   placeholder="Enter notes"
-                  rows={4}
-                  className="resize-none"
                   disabled={mutation.isLoading}
                 />
               </div>

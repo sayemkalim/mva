@@ -26,14 +26,23 @@ import { Textarea } from "@/components/ui/textarea";
 import { Navbar2 } from "@/components/navbar2";
 import { formatPhoneNumber } from "@/lib/utils";
 import Billing from "@/components/billing";
-import { FloatingInput, FloatingTextarea, FloatingWrapper } from "@/components/ui/floating-label";
+import {
+  FloatingInput,
+  FloatingTextarea,
+  FloatingWrapper,
+} from "@/components/ui/floating-label";
 
 const SearchableSelect = ({ label, options, value, onChange, placeholder }) => {
   const [open, setOpen] = useState(false);
   const selected = options.find((opt) => String(opt.id) === String(value));
 
   return (
-    <FloatingWrapper label={label} hasValue={!!selected} isFocused={open} className="max-w-sm">
+    <FloatingWrapper
+      label={label}
+      hasValue={!!selected}
+      isFocused={open}
+      className="max-w-sm"
+    >
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
           <Button
@@ -60,8 +69,9 @@ const SearchableSelect = ({ label, options, value, onChange, placeholder }) => {
                   className="cursor-pointer italic text-muted-foreground"
                 >
                   <Check
-                    className={`mr-2 h-4 w-4 ${!value ? "opacity-100" : "opacity-0"
-                      }`}
+                    className={`mr-2 h-4 w-4 ${
+                      !value ? "opacity-100" : "opacity-0"
+                    }`}
                   />
                   None
                 </CommandItem>
@@ -75,10 +85,11 @@ const SearchableSelect = ({ label, options, value, onChange, placeholder }) => {
                     value={opt.name}
                   >
                     <Check
-                      className={`mr-2 h-4 w-4 ${String(value) === String(opt.id)
-                        ? "opacity-100"
-                        : "opacity-0"
-                        }`}
+                      className={`mr-2 h-4 w-4 ${
+                        String(value) === String(opt.id)
+                          ? "opacity-100"
+                          : "opacity-0"
+                      }`}
                     />
                     {opt.name}
                   </CommandItem>
@@ -284,29 +295,124 @@ export default function AbCounselPage() {
 
           {/* Address Fields */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <FloatingInput label="Unit Number" name="address.unit_number" value={formData.address.unit_number} onChange={handleInputChange} />
-            <FloatingInput label="Street Number" name="address.street_number" value={formData.address.street_number} onChange={handleInputChange} />
-            <FloatingInput label="Street Name" name="address.street_name" value={formData.address.street_name} onChange={handleInputChange} />
-            <FloatingInput label="City" name="address.city" value={formData.address.city} onChange={handleInputChange} />
-            <FloatingInput label="Province" name="address.province" value={formData.address.province} onChange={handleInputChange} />
-            <FloatingInput label="Postal Code" name="address.postal_code" value={formData.address.postal_code} onChange={handleInputChange} />
-            <FloatingInput label="Country" name="address.country" value={formData.address.country} onChange={handleInputChange} />
+            <FloatingInput
+              label="Unit Number"
+              name="address.unit_number"
+              value={formData.address.unit_number}
+              onChange={handleInputChange}
+            />
+            <FloatingInput
+              label="Street Number"
+              name="address.street_number"
+              value={formData.address.street_number}
+              onChange={handleInputChange}
+            />
+            <FloatingInput
+              label="Street Name"
+              name="address.street_name"
+              value={formData.address.street_name}
+              onChange={handleInputChange}
+            />
+            <FloatingInput
+              label="City"
+              name="address.city"
+              value={formData.address.city}
+              onChange={handleInputChange}
+            />
+            <FloatingInput
+              label="Province"
+              name="address.province"
+              value={formData.address.province}
+              onChange={handleInputChange}
+            />
+            <FloatingInput
+              label="Postal Code"
+              name="address.postal_code"
+              value={formData.address.postal_code}
+              onChange={handleInputChange}
+            />
+            <FloatingInput
+              label="Country"
+              name="address.country"
+              value={formData.address.country}
+              onChange={handleInputChange}
+            />
           </div>
 
           {/* Primary Contact Details */}
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-            <FloatingInput label="Telephone" name="telephone" value={formData.telephone} onChange={(e) => setFormData(prev => ({ ...prev, telephone: formatPhoneNumber(e.target.value) }))} />
-            <FloatingInput label="Ext" name="ext" value={formData.ext} onChange={handleInputChange} />
-            <FloatingInput label="Fax" name="fax" value={formData.fax} onChange={(e) => setFormData(prev => ({ ...prev, fax: formatPhoneNumber(e.target.value) }))} />
-            <FloatingInput label="Email" name="email" value={formData.email} onChange={handleInputChange} />
+            <FloatingInput
+              label="Telephone"
+              name="telephone"
+              value={formData.telephone}
+              onChange={(e) =>
+                setFormData((prev) => ({
+                  ...prev,
+                  telephone: formatPhoneNumber(e.target.value),
+                }))
+              }
+            />
+            <FloatingInput
+              label="Ext"
+              name="ext"
+              value={formData.ext}
+              onChange={handleInputChange}
+            />
+            <FloatingInput
+              label="Fax"
+              name="fax"
+              value={formData.fax}
+              onChange={(e) =>
+                setFormData((prev) => ({
+                  ...prev,
+                  fax: formatPhoneNumber(e.target.value),
+                }))
+              }
+            />
+            <FloatingInput
+              label="Email"
+              name="email"
+              value={formData.email}
+              onChange={handleInputChange}
+            />
           </div>
 
           {/* Secondary Contact Details */}
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-            <FloatingInput label="Telephone 2nd" name="telephone_2nd" value={formData.telephone_2nd} onChange={(e) => setFormData(prev => ({ ...prev, telephone_2nd: formatPhoneNumber(e.target.value) }))} />
-            <FloatingInput label="Ext 2nd" name="ext_2nd" value={formData.ext_2nd} onChange={handleInputChange} />
-            <FloatingInput label="Fax 2nd" name="fax_2nd" value={formData.fax_2nd} onChange={(e) => setFormData(prev => ({ ...prev, fax_2nd: formatPhoneNumber(e.target.value) }))} />
-            <FloatingInput label="Email 2nd" name="email_2nd" value={formData.email_2nd} onChange={handleInputChange} />
+            <FloatingInput
+              label="Telephone 2nd"
+              name="telephone_2nd"
+              value={formData.telephone_2nd}
+              onChange={(e) =>
+                setFormData((prev) => ({
+                  ...prev,
+                  telephone_2nd: formatPhoneNumber(e.target.value),
+                }))
+              }
+            />
+            <FloatingInput
+              label="Ext 2nd"
+              name="ext_2nd"
+              value={formData.ext_2nd}
+              onChange={handleInputChange}
+            />
+            <FloatingInput
+              label="Fax 2nd"
+              name="fax_2nd"
+              value={formData.fax_2nd}
+              onChange={(e) =>
+                setFormData((prev) => ({
+                  ...prev,
+                  fax_2nd: formatPhoneNumber(e.target.value),
+                }))
+              }
+            />
+            <FloatingInput
+              label="Email 2nd"
+              name="email_2nd"
+              value={formData.email_2nd}
+              onChange={handleInputChange}
+            />
           </div>
 
           {/* Type Selector */}

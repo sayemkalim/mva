@@ -254,7 +254,7 @@ function ChildrenPanel({ item, onClose }) {
     const mainContent = document.querySelector('[data-slot="sidebar-inset"]');
     if (mainContent) {
       mainContent.style.transition = "margin-left 0.2s ease";
-      mainContent.style.marginLeft = "14rem";
+      mainContent.style.marginLeft = "12rem";
     }
     return () => {
       if (mainContent) {
@@ -284,10 +284,10 @@ function ChildrenPanel({ item, onClose }) {
   return createPortal(
     <div
       ref={panelRef}
-      className="fixed inset-y-0 z-[15] flex flex-col bg-sidebar border-r border-sidebar-border shadow-lg"
-      style={{ left: `${sidebarRect.right}px`, width: "14rem" }}
+      className="fixed inset-y-0 z-[15] flex flex-col  border-r border-sidebar-border shadow-lg"
+      style={{ left: `${sidebarRect.right}px`, width: "12rem" }}
     >
-      <div className="flex items-center gap-3 px-2 py-4 border-b border-sidebar-border">
+      <div className="flex items-center gap-3 px-2 py-4 border-b border-sidebar-border bg-green-500">
         <button
           onClick={onClose}
           className="p-1.5 rounded-md hover:bg-sidebar-accent transition-colors"
@@ -298,7 +298,7 @@ function ChildrenPanel({ item, onClose }) {
           {item.title}
         </span>
       </div>
-      <div className="flex-1 overflow-y-auto p-3 [&::-webkit-scrollbar]:hidden">
+      <div className="flex-1 overflow-y-auto p-3 [&::-webkit-scrollbar]:hidden bg-[#a8dfc5]">
         <SidebarMenuSub className="ml-0 pl-3 mr-1 border-l-0">
           <RecursiveMenuItems items={item.items} depth={1} />
         </SidebarMenuSub>

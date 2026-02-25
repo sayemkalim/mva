@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import {
@@ -20,6 +19,7 @@ import Billing from "@/components/billing";
 import { uploadAttachment } from "../../helpers/uploadAttachment";
 import { fetchLatById } from "../../helpers/fetchLatById";
 import { createPolice, updatePolice } from "../../helpers/createPolice";
+import { FloatingInput, FloatingTextarea } from "@/components/ui/floating-label";
 
 export default function PoliceReportPage() {
   const { slug, id } = useParams();
@@ -268,26 +268,23 @@ export default function PoliceReportPage() {
             </h2> */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <div className="space-y-2">
-                <Label className="text-foreground font-medium">Name</Label>
-                <Input
+                <FloatingInput
                   name="name"
+                  label="Name"
                   value={formData.name}
                   onChange={handleChange}
-                  placeholder="Enter name"
-                  className="h-11"
                   required
                   disabled={mutation.isLoading}
                 />
               </div>
 
               <div className="space-y-2">
-                <Label className="text-foreground font-medium">Date</Label>
-                <Input
+                <FloatingInput
                   type="date"
                   name="date"
+                  label="Date"
                   value={formData.date}
                   onChange={handleChange}
-                  className="h-11"
                   disabled={mutation.isLoading}
                 />
               </div>
@@ -427,14 +424,12 @@ export default function PoliceReportPage() {
           <div className="pt-6 border-t">
             <h2 className="text-lg font-semibold text-foreground mb-4">Memo</h2>
             <div className="space-y-2">
-              <Label className="text-foreground font-medium">Memo</Label>
-              <Textarea
+              <FloatingTextarea
+                label="Memo"
                 name="memo"
                 value={formData.memo}
                 onChange={handleChange}
-                placeholder="Enter memo details"
                 rows={4}
-                className="resize-none"
                 disabled={mutation.isLoading}
               />
             </div>

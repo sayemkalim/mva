@@ -33,7 +33,11 @@ import {
 import { Navbar2 } from "@/components/navbar2";
 import { formatPhoneNumber } from "@/lib/utils";
 import Billing from "@/components/billing";
-import { FloatingInput, FloatingTextarea, FloatingWrapper } from "@/components/ui/floating-label";
+import {
+  FloatingInput,
+  FloatingTextarea,
+  FloatingWrapper,
+} from "@/components/ui/floating-label";
 
 const AddMatterCard = ({
   metadata,
@@ -130,9 +134,10 @@ const AddMatterCard = ({
       let initialDates = {};
       if (initialData.non_engagement_date) {
         try {
-          const rawDates = typeof initialData.non_engagement_date === "string"
-            ? JSON.parse(initialData.non_engagement_date)
-            : initialData.non_engagement_date;
+          const rawDates =
+            typeof initialData.non_engagement_date === "string"
+              ? JSON.parse(initialData.non_engagement_date)
+              : initialData.non_engagement_date;
           if (Array.isArray(rawDates)) {
             rawDates.forEach((obj) => {
               Object.assign(initialDates, obj);
@@ -143,13 +148,19 @@ const AddMatterCard = ({
         }
       }
 
-      console.log("INITIAL DATA previous_counsel_check RAW:", initialData.previous_counsel_check);
-      console.log("INITIAL DATA previous_counsel_check CONVERTED:", !!initialData.previous_counsel_check);
+      console.log(
+        "INITIAL DATA previous_counsel_check RAW:",
+        initialData.previous_counsel_check,
+      );
+      console.log(
+        "INITIAL DATA previous_counsel_check CONVERTED:",
+        !!initialData.previous_counsel_check,
+      );
       setFormData({
         ...baseForm,
         ...initialData,
         non_engagement_issued_id: Array.isArray(
-          initialData.non_engagement_issued_id
+          initialData.non_engagement_issued_id,
         )
           ? initialData.non_engagement_issued_id
           : [],
@@ -246,7 +257,7 @@ const AddMatterCard = ({
       toast.success(
         isEditMode
           ? "Matter updated successfully"
-          : "Matter created successfully"
+          : "Matter created successfully",
       );
       queryClient.invalidateQueries(["matters"]);
       if (isEditMode) {
@@ -267,13 +278,14 @@ const AddMatterCard = ({
       } else {
         toast.error(
           errorData?.message ||
-          error?.message ||
-          (isEditMode ? "Failed to update matter" : "Failed to create matter")
+            error?.message ||
+            (isEditMode
+              ? "Failed to update matter"
+              : "Failed to create matter"),
         );
       }
     },
   });
-
 
   const getNonEngagementKey = (name) => {
     if (!name) return "";
@@ -317,8 +329,13 @@ const AddMatterCard = ({
     }
 
     const finalPayload = { ...payload };
-    finalPayload.previous_counsel_check = formData.previous_counsel_check ? 1 : 0;
-    console.log("SUBMITTING PAYLOAD with previous_counsel_check:", finalPayload.previous_counsel_check);
+    finalPayload.previous_counsel_check = formData.previous_counsel_check
+      ? 1
+      : 0;
+    console.log(
+      "SUBMITTING PAYLOAD with previous_counsel_check:",
+      finalPayload.previous_counsel_check,
+    );
     mutation.mutate(payload);
   };
 
@@ -333,7 +350,11 @@ const AddMatterCard = ({
   }) => {
     const selectedOption = options?.find((opt) => opt.id === value);
     return (
-      <FloatingWrapper label={label} hasValue={!!selectedOption} isFocused={!!popoverOpen[popoverKey]}>
+      <FloatingWrapper
+        label={label}
+        hasValue={!!selectedOption}
+        isFocused={!!popoverOpen[popoverKey]}
+      >
         <Popover
           open={popoverOpen[popoverKey]}
           onOpenChange={(open) =>
@@ -365,8 +386,9 @@ const AddMatterCard = ({
                     className="cursor-pointer italic text-muted-foreground"
                   >
                     <Check
-                      className={`mr-2 h-4 w-4 ${!value ? "opacity-100" : "opacity-0"
-                        }`}
+                      className={`mr-2 h-4 w-4 ${
+                        !value ? "opacity-100" : "opacity-0"
+                      }`}
                     />
                     None
                   </CommandItem>
@@ -377,8 +399,9 @@ const AddMatterCard = ({
                       onSelect={() => onSelect(fieldName, opt.id, popoverKey)}
                     >
                       <Check
-                        className={`mr-2 h-4 w-4 ${value === opt.id ? "opacity-100" : "opacity-0"
-                          }`}
+                        className={`mr-2 h-4 w-4 ${
+                          value === opt.id ? "opacity-100" : "opacity-0"
+                        }`}
                       />
                       {opt.name}
                     </CommandItem>
@@ -402,7 +425,11 @@ const AddMatterCard = ({
     fieldName,
   }) => {
     return (
-      <FloatingWrapper label={label} hasValue={selected.length > 0} isFocused={!!popoverOpen[popoverKey]}>
+      <FloatingWrapper
+        label={label}
+        hasValue={selected.length > 0}
+        isFocused={!!popoverOpen[popoverKey]}
+      >
         <Popover
           open={popoverOpen[popoverKey]}
           onOpenChange={(open) =>
@@ -416,23 +443,21 @@ const AddMatterCard = ({
               type="button"
             >
               <div className="flex flex-wrap gap-1 items-center flex-1">
-                {selected.length > 0 ? (
-                  selected.map((id) => {
-                    const option = options?.find((opt) => opt.id === id);
-                    if (!option) return null;
-                    return (
-                      <Badge
-                        key={id}
-                        variant="secondary"
-                        className="rounded-sm px-2 font-normal flex items-center gap-1"
-                      >
-                        {option.name}
-                      </Badge>
-                    );
-                  })
-                ) : (
-                  ""
-                )}
+                {selected.length > 0
+                  ? selected.map((id) => {
+                      const option = options?.find((opt) => opt.id === id);
+                      if (!option) return null;
+                      return (
+                        <Badge
+                          key={id}
+                          variant="secondary"
+                          className="rounded-sm px-2 font-normal flex items-center gap-1"
+                        >
+                          {option.name}
+                        </Badge>
+                      );
+                    })
+                  : ""}
               </div>
               <ChevronsUpDown className="ml-auto h-4 w-4 shrink-0 opacity-50" />
             </Button>
@@ -517,18 +542,64 @@ const AddMatterCard = ({
                 File Details
               </h2>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <FloatingInput label="File Number *" id="file_no" name="file_no" value={formData.file_no} onChange={handleInputChange} maxLength={200} required />
-                <FloatingInput label="Intake Date" type="date" id="intake_date" name="intake_date" value={formData.intake_date} onChange={handleInputChange} />
-                <FloatingInput label="Conflict Search Date" type="date" id="conflict_search_date" name="conflict_search_date" value={formData.conflict_search_date} onChange={handleInputChange} />
+                <FloatingInput
+                  label="File Number"
+                  id="file_no"
+                  name="file_no"
+                  value={formData.file_no}
+                  onChange={handleInputChange}
+                  maxLength={200}
+                  required
+                />
+                <FloatingInput
+                  label="Intake Date"
+                  type="date"
+                  id="intake_date"
+                  name="intake_date"
+                  value={formData.intake_date}
+                  onChange={handleInputChange}
+                />
+                <FloatingInput
+                  label="Conflict Search Date"
+                  type="date"
+                  id="conflict_search_date"
+                  name="conflict_search_date"
+                  value={formData.conflict_search_date}
+                  onChange={handleInputChange}
+                />
 
-                <SearchableDropdown label="File Status" value={formData.file_status_id} onSelect={handleDropdownChange} options={metadata.file_status} placeholder="Select file status" popoverKey="file_status" fieldName="file_status_id" />
-                <MultiSelectDropdown label="Claim Status" selected={formData.claim_status_id} onToggle={toggleMultiSelect} options={metadata.claim_status} placeholder="Select claim status" popoverKey="claim_status" fieldName="claim_status_id" />
-                <MultiSelectDropdown label="Non Engagement Issued" selected={formData.non_engagement_issued_id} onToggle={toggleMultiSelect} options={metadata.non_engagement_issued} placeholder="Select non engagement" popoverKey="non_engagement_issued" fieldName="non_engagement_issued_id" />
+                <SearchableDropdown
+                  label="File Status"
+                  value={formData.file_status_id}
+                  onSelect={handleDropdownChange}
+                  options={metadata.file_status}
+                  placeholder="Select file status"
+                  popoverKey="file_status"
+                  fieldName="file_status_id"
+                />
+                <MultiSelectDropdown
+                  label="Claim Status"
+                  selected={formData.claim_status_id}
+                  onToggle={toggleMultiSelect}
+                  options={metadata.claim_status}
+                  placeholder="Select claim status"
+                  popoverKey="claim_status"
+                  fieldName="claim_status_id"
+                />
+                <MultiSelectDropdown
+                  label="Non Engagement Issued"
+                  selected={formData.non_engagement_issued_id}
+                  onToggle={toggleMultiSelect}
+                  options={metadata.non_engagement_issued}
+                  placeholder="Select non engagement"
+                  popoverKey="non_engagement_issued"
+                  fieldName="non_engagement_issued_id"
+                />
 
                 {formData.non_engagement_issued_id?.length > 0 &&
                   formData.non_engagement_issued_id.map((id) => {
                     const option = metadata.non_engagement_issued?.find(
-                      (o) => o.id === id
+                      (o) => o.id === id,
                     );
                     if (!option) return null;
                     const key = getNonEngagementKey(option.name);
@@ -552,13 +623,69 @@ const AddMatterCard = ({
                     );
                   })}
 
-                <MultiSelectDropdown label="Claim Type" selected={formData.claim_type_id} onToggle={toggleMultiSelect} options={metadata.claim_type} placeholder="Select claim type" popoverKey="claim_type" fieldName="claim_type_id" />
-                <SearchableDropdown label="MIG Status" value={formData.mig_status_id} onSelect={handleDropdownChange} options={metadata.mig_status} placeholder="Select MIG status" popoverKey="mig_status" fieldName="mig_status_id" />
-                <SearchableDropdown label="AB Claim Settlement Approx." value={formData.ab_claim_settlement_approx_id} onSelect={handleDropdownChange} options={metadata.ab_claim_settlement_approx} placeholder="Select AB claim approx." popoverKey="ab_claim_settlement_approx" fieldName="ab_claim_settlement_approx_id" />
-                <SearchableDropdown label="Tort Claim Settlement Approx." value={formData.tort_claim_settlement_approx_id} onSelect={handleDropdownChange} options={metadata.tort_claim_settlement_approx} placeholder="Select Tort claim approx." popoverKey="tort_claim_settlement_approx" fieldName="tort_claim_settlement_approx_id" />
-                <SearchableDropdown label="Property Damage Claim Settlement Approx." value={formData.property_damage_claim_settlement_approx_id} onSelect={handleDropdownChange} options={metadata.property_damage_claim_settlem} placeholder="Select property damage approx." popoverKey="property_damage_claim_settlement_approx" fieldName="property_damage_claim_settlement_approx_id" />
-                <SearchableDropdown label="LTD Claim Settlement Approx." value={formData.ltd_claim_settlement_approx_id} onSelect={handleDropdownChange} options={metadata.ltd_claim_settlement_approx} placeholder="Select LTD claim approx." popoverKey="ltd_claim_settlement_approx" fieldName="ltd_claim_settlement_approx_id" />
-                <SearchableDropdown label="Dog Bite Claim Settlement Approx." value={formData.dog_bite_claim_settlement_approx_id} onSelect={handleDropdownChange} options={metadata.dog_bite_claim_settlement_approx} placeholder="Select Dog Bite claim approx." popoverKey="dog_bite_claim_settlement_approx" fieldName="dog_bite_claim_settlement_approx_id" />
+                <MultiSelectDropdown
+                  label="Claim Type"
+                  selected={formData.claim_type_id}
+                  onToggle={toggleMultiSelect}
+                  options={metadata.claim_type}
+                  placeholder="Select claim type"
+                  popoverKey="claim_type"
+                  fieldName="claim_type_id"
+                />
+                <SearchableDropdown
+                  label="MIG Status"
+                  value={formData.mig_status_id}
+                  onSelect={handleDropdownChange}
+                  options={metadata.mig_status}
+                  placeholder="Select MIG status"
+                  popoverKey="mig_status"
+                  fieldName="mig_status_id"
+                />
+                <SearchableDropdown
+                  label="AB Claim Settlement Approx."
+                  value={formData.ab_claim_settlement_approx_id}
+                  onSelect={handleDropdownChange}
+                  options={metadata.ab_claim_settlement_approx}
+                  placeholder="Select AB claim approx."
+                  popoverKey="ab_claim_settlement_approx"
+                  fieldName="ab_claim_settlement_approx_id"
+                />
+                <SearchableDropdown
+                  label="Tort Claim Settlement Approx."
+                  value={formData.tort_claim_settlement_approx_id}
+                  onSelect={handleDropdownChange}
+                  options={metadata.tort_claim_settlement_approx}
+                  placeholder="Select Tort claim approx."
+                  popoverKey="tort_claim_settlement_approx"
+                  fieldName="tort_claim_settlement_approx_id"
+                />
+                <SearchableDropdown
+                  label="Property Damage Claim Settlement Approx."
+                  value={formData.property_damage_claim_settlement_approx_id}
+                  onSelect={handleDropdownChange}
+                  options={metadata.property_damage_claim_settlem}
+                  placeholder="Select property damage approx."
+                  popoverKey="property_damage_claim_settlement_approx"
+                  fieldName="property_damage_claim_settlement_approx_id"
+                />
+                <SearchableDropdown
+                  label="LTD Claim Settlement Approx."
+                  value={formData.ltd_claim_settlement_approx_id}
+                  onSelect={handleDropdownChange}
+                  options={metadata.ltd_claim_settlement_approx}
+                  placeholder="Select LTD claim approx."
+                  popoverKey="ltd_claim_settlement_approx"
+                  fieldName="ltd_claim_settlement_approx_id"
+                />
+                <SearchableDropdown
+                  label="Dog Bite Claim Settlement Approx."
+                  value={formData.dog_bite_claim_settlement_approx_id}
+                  onSelect={handleDropdownChange}
+                  options={metadata.dog_bite_claim_settlement_approx}
+                  placeholder="Select Dog Bite claim approx."
+                  popoverKey="dog_bite_claim_settlement_approx"
+                  fieldName="dog_bite_claim_settlement_approx_id"
+                />
 
                 {/* At Fault - Label+Checkbox pattern: not changed */}
                 <div>
@@ -589,10 +716,41 @@ const AddMatterCard = ({
                   </div>
                 </div>
 
-                <SearchableDropdown label="SABS Categories" value={formData.category_id} onSelect={handleDropdownChange} options={metadata.category} placeholder="Select category" popoverKey="category" fieldName="category_id" />
-                <FloatingInput label="File Location" id="file_location" name="file_location" value={formData.file_location} onChange={handleInputChange} maxLength={200} />
-                <SearchableDropdown label="First Party Status" value={formData.first_party_status_id} onSelect={handleDropdownChange} options={metadata.first_party_status} placeholder="Select first party status" popoverKey="first_party_status" fieldName="first_party_status_id" />
-                <SearchableDropdown label="Third Party Status" value={formData.third_party_status_id} onSelect={handleDropdownChange} options={metadata.third_party_status} placeholder="Select third party status" popoverKey="third_party_status" fieldName="third_party_status_id" />
+                <SearchableDropdown
+                  label="SABS Categories"
+                  value={formData.category_id}
+                  onSelect={handleDropdownChange}
+                  options={metadata.category}
+                  placeholder="Select category"
+                  popoverKey="category"
+                  fieldName="category_id"
+                />
+                <FloatingInput
+                  label="File Location"
+                  id="file_location"
+                  name="file_location"
+                  value={formData.file_location}
+                  onChange={handleInputChange}
+                  maxLength={200}
+                />
+                <SearchableDropdown
+                  label="First Party Status"
+                  value={formData.first_party_status_id}
+                  onSelect={handleDropdownChange}
+                  options={metadata.first_party_status}
+                  placeholder="Select first party status"
+                  popoverKey="first_party_status"
+                  fieldName="first_party_status_id"
+                />
+                <SearchableDropdown
+                  label="Third Party Status"
+                  value={formData.third_party_status_id}
+                  onSelect={handleDropdownChange}
+                  options={metadata.third_party_status}
+                  placeholder="Select third party status"
+                  popoverKey="third_party_status"
+                  fieldName="third_party_status_id"
+                />
               </div>
             </section>
 
@@ -602,9 +760,31 @@ const AddMatterCard = ({
                 Interview Information
               </h2>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <FloatingInput label="Date of Interview" type="date" id="date_of_interview" name="date_of_interview" value={formData.date_of_interview} onChange={handleInputChange} />
-                <SearchableDropdown label="Interviewed By" value={formData.interviewed_by_id} onSelect={handleDropdownChange} options={metadata.counsel_Interviewer} placeholder="Select interviewer" popoverKey="interviewed_by" fieldName="interviewed_by_id" />
-                <FloatingInput label="Companion File" id="companion_file" name="companion_file" value={formData.companion_file} onChange={handleInputChange} maxLength={255} />
+                <FloatingInput
+                  label="Date of Interview"
+                  type="date"
+                  id="date_of_interview"
+                  name="date_of_interview"
+                  value={formData.date_of_interview}
+                  onChange={handleInputChange}
+                />
+                <SearchableDropdown
+                  label="Interviewed By"
+                  value={formData.interviewed_by_id}
+                  onSelect={handleDropdownChange}
+                  options={metadata.counsel_Interviewer}
+                  placeholder="Select interviewer"
+                  popoverKey="interviewed_by"
+                  fieldName="interviewed_by_id"
+                />
+                <FloatingInput
+                  label="Companion File"
+                  id="companion_file"
+                  name="companion_file"
+                  value={formData.companion_file}
+                  onChange={handleInputChange}
+                  maxLength={255}
+                />
               </div>
             </section>
 
@@ -612,7 +792,8 @@ const AddMatterCard = ({
             <section>
               <div className="flex justify-between items-center mb-6">
                 <h2 className="font-semibold text-xl uppercase text-foreground">
-                  Other relted MVA's                 </h2>
+                  Other relted MVA's{" "}
+                </h2>
                 <Button
                   type="button"
                   size="sm"
@@ -649,14 +830,35 @@ const AddMatterCard = ({
                     </Button>
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <FloatingInput label="MVA Date" type="date" value={item.mva_date} onChange={(e) => handleMVAChange(idx, "mva_date", e.target.value)} />
-                    <FloatingInput label="File Number" value={item.file_number} onChange={(e) => handleMVAChange(idx, "file_number", e.target.value)} maxLength={255} />
-                    <FloatingTextarea label="Note" value={item.note} onChange={(e) => handleMVAChange(idx, "note", e.target.value)} maxLength={500} rows={3} />
+                    <FloatingInput
+                      label="MVA Date"
+                      type="date"
+                      value={item.mva_date}
+                      onChange={(e) =>
+                        handleMVAChange(idx, "mva_date", e.target.value)
+                      }
+                    />
+                    <FloatingInput
+                      label="File Number"
+                      value={item.file_number}
+                      onChange={(e) =>
+                        handleMVAChange(idx, "file_number", e.target.value)
+                      }
+                      maxLength={255}
+                    />
+                    <FloatingTextarea
+                      label="Note"
+                      value={item.note}
+                      onChange={(e) =>
+                        handleMVAChange(idx, "note", e.target.value)
+                      }
+                      maxLength={500}
+                      rows={3}
+                    />
                   </div>
                 </div>
               ))}
             </section>
-
 
             {/* ===== LEGAL FILE INFORMATION SECTION ===== */}
             <section>
@@ -669,8 +871,23 @@ const AddMatterCard = ({
                 File Opening Info
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                <FloatingInput label="File Created" type="date" id="file_created" name="file_created" value={formData.file_created} onChange={handleInputChange} />
-                <SearchableDropdown label="File Opened By" value={formData.file_opened_by_id} onSelect={handleDropdownChange} options={metadata.users} placeholder="Select user" popoverKey="file_opened_by" fieldName="file_opened_by_id" />
+                <FloatingInput
+                  label="File Created"
+                  type="date"
+                  id="file_created"
+                  name="file_created"
+                  value={formData.file_created}
+                  onChange={handleInputChange}
+                />
+                <SearchableDropdown
+                  label="File Opened By"
+                  value={formData.file_opened_by_id}
+                  onSelect={handleDropdownChange}
+                  options={metadata.users}
+                  placeholder="Select user"
+                  popoverKey="file_opened_by"
+                  fieldName="file_opened_by_id"
+                />
               </div>
 
               {/* Assigned to Info */}
@@ -678,15 +895,77 @@ const AddMatterCard = ({
                 Assigned to Info
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                <FloatingInput label="Assigned Date" type="date" id="assigned_date" name="assigned_date" value={formData.assigned_date} onChange={handleInputChange} />
-                <SearchableDropdown label="Assigned To" value={formData.assigned_to_id} onSelect={handleDropdownChange} options={metadata.users} placeholder="Select user" popoverKey="assigned_to" fieldName="assigned_to_id" />
-                <SearchableDropdown label="Assigned to Review" value={formData.assigned_to_review_id} onSelect={handleDropdownChange} options={metadata.users} placeholder="Select user" popoverKey="assigned_to_review" fieldName="assigned_to_review_id" />
-                <FloatingInput label="Assigned to Paralegal" id="assigned_to_paralegal" name="assigned_to_paralegal" value={formData.assigned_to_paralegal} onChange={handleInputChange} maxLength={255} />
-                <SearchableDropdown label="Assigned to Legal Counsel" value={formData.assigned_to_legal_counsel_id} onSelect={handleDropdownChange} options={metadata.counsel_Interviewer} placeholder="Select counsel" popoverKey="assigned_to_legal_counsel" fieldName="assigned_to_legal_counsel_id" />
-                <SearchableDropdown label="Legal Assistant" value={formData.legal_assistant_id} onSelect={handleDropdownChange} options={metadata.users} placeholder="Select user" popoverKey="legal_assistant" fieldName="legal_assistant_id" />
-                <SearchableDropdown label="Previous Legal Representative" value={formData.previous_legal_representative_id} onSelect={handleDropdownChange} options={metadata.users} placeholder="Select user" popoverKey="previous_legal_representative" fieldName="previous_legal_representative_id" />
+                <FloatingInput
+                  label="Assigned Date"
+                  type="date"
+                  id="assigned_date"
+                  name="assigned_date"
+                  value={formData.assigned_date}
+                  onChange={handleInputChange}
+                />
+                <SearchableDropdown
+                  label="Assigned To"
+                  value={formData.assigned_to_id}
+                  onSelect={handleDropdownChange}
+                  options={metadata.users}
+                  placeholder="Select user"
+                  popoverKey="assigned_to"
+                  fieldName="assigned_to_id"
+                />
+                <SearchableDropdown
+                  label="Assigned to Review"
+                  value={formData.assigned_to_review_id}
+                  onSelect={handleDropdownChange}
+                  options={metadata.users}
+                  placeholder="Select user"
+                  popoverKey="assigned_to_review"
+                  fieldName="assigned_to_review_id"
+                />
+                <FloatingInput
+                  label="Assigned to Paralegal"
+                  id="assigned_to_paralegal"
+                  name="assigned_to_paralegal"
+                  value={formData.assigned_to_paralegal}
+                  onChange={handleInputChange}
+                  maxLength={255}
+                />
+                <SearchableDropdown
+                  label="Assigned to Legal Counsel"
+                  value={formData.assigned_to_legal_counsel_id}
+                  onSelect={handleDropdownChange}
+                  options={metadata.counsel_Interviewer}
+                  placeholder="Select counsel"
+                  popoverKey="assigned_to_legal_counsel"
+                  fieldName="assigned_to_legal_counsel_id"
+                />
+                <SearchableDropdown
+                  label="Legal Assistant"
+                  value={formData.legal_assistant_id}
+                  onSelect={handleDropdownChange}
+                  options={metadata.users}
+                  placeholder="Select user"
+                  popoverKey="legal_assistant"
+                  fieldName="legal_assistant_id"
+                />
+                <SearchableDropdown
+                  label="Previous Legal Representative"
+                  value={formData.previous_legal_representative_id}
+                  onSelect={handleDropdownChange}
+                  options={metadata.users}
+                  placeholder="Select user"
+                  popoverKey="previous_legal_representative"
+                  fieldName="previous_legal_representative_id"
+                />
                 <div className="md:col-span-3">
-                  <FloatingTextarea label="History" id="history" name="history" value={formData.history} onChange={handleInputChange} maxLength={1000} rows={4} />
+                  <FloatingTextarea
+                    label="History"
+                    id="history"
+                    name="history"
+                    value={formData.history}
+                    onChange={handleInputChange}
+                    maxLength={1000}
+                    rows={4}
+                  />
                 </div>
               </div>
 
@@ -695,8 +974,23 @@ const AddMatterCard = ({
                 File Closing Info
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                <FloatingInput label="File Closed" type="date" id="file_closed" name="file_closed" value={formData.file_closed} onChange={handleInputChange} />
-                <SearchableDropdown label="File Closed By" value={formData.file_closed_by_id} onSelect={handleDropdownChange} options={metadata.users} placeholder="Select user" popoverKey="file_closed_by" fieldName="file_closed_by_id" />
+                <FloatingInput
+                  label="File Closed"
+                  type="date"
+                  id="file_closed"
+                  name="file_closed"
+                  value={formData.file_closed}
+                  onChange={handleInputChange}
+                />
+                <SearchableDropdown
+                  label="File Closed By"
+                  value={formData.file_closed_by_id}
+                  onSelect={handleDropdownChange}
+                  options={metadata.users}
+                  placeholder="Select user"
+                  popoverKey="file_closed_by"
+                  fieldName="file_closed_by_id"
+                />
               </div>
 
               {/* Folder to Storage */}
@@ -704,8 +998,23 @@ const AddMatterCard = ({
                 Folder to Storage
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                <FloatingInput label="Storage Date" type="date" id="storage_date" name="storage_date" value={formData.storage_date} onChange={handleInputChange} />
-                <SearchableDropdown label="Sent By" value={formData.sent_by_id} onSelect={handleDropdownChange} options={metadata.users} placeholder="Select user" popoverKey="sent_by" fieldName="sent_by_id" />
+                <FloatingInput
+                  label="Storage Date"
+                  type="date"
+                  id="storage_date"
+                  name="storage_date"
+                  value={formData.storage_date}
+                  onChange={handleInputChange}
+                />
+                <SearchableDropdown
+                  label="Sent By"
+                  value={formData.sent_by_id}
+                  onSelect={handleDropdownChange}
+                  options={metadata.users}
+                  placeholder="Select user"
+                  popoverKey="sent_by"
+                  fieldName="sent_by_id"
+                />
               </div>
 
               {/* File Shredded */}
@@ -713,8 +1022,23 @@ const AddMatterCard = ({
                 File Shredded
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                <FloatingInput label="Shredded Date" type="date" id="shredded_date" name="shredded_date" value={formData.shredded_date} onChange={handleInputChange} />
-                <SearchableDropdown label="Shredded By" value={formData.shredded_by_id} onSelect={handleDropdownChange} options={metadata.users} placeholder="Select user" popoverKey="shredded_by" fieldName="shredded_by_id" />
+                <FloatingInput
+                  label="Shredded Date"
+                  type="date"
+                  id="shredded_date"
+                  name="shredded_date"
+                  value={formData.shredded_date}
+                  onChange={handleInputChange}
+                />
+                <SearchableDropdown
+                  label="Shredded By"
+                  value={formData.shredded_by_id}
+                  onSelect={handleDropdownChange}
+                  options={metadata.users}
+                  placeholder="Select user"
+                  popoverKey="shredded_by"
+                  fieldName="shredded_by_id"
+                />
               </div>
             </section>
 
@@ -726,7 +1050,10 @@ const AddMatterCard = ({
                   checked={formData.previous_counsel_check}
                   onCheckedChange={(checked) => {
                     console.log("CHECKBOX CHANGED TO:", checked);
-                    setFormData((p) => ({ ...p, previous_counsel_check: checked }));
+                    setFormData((p) => ({
+                      ...p,
+                      previous_counsel_check: checked,
+                    }));
                   }}
                 />
                 <label
@@ -739,16 +1066,102 @@ const AddMatterCard = ({
 
               {formData.previous_counsel_check && (
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  <FloatingInput label="Paralegal Name" id="paralegal_name" name="paralegal_name" value={formData.paralegal_name} onChange={handleInputChange} maxLength={255} />
-                  <FloatingInput label="Firm Name" id="firm_name" name="firm_name" value={formData.firm_name} onChange={handleInputChange} maxLength={255} />
-                  <FloatingInput label="Counsel Name" id="counsel_name" name="counsel_name" value={formData.counsel_name} onChange={handleInputChange} maxLength={255} />
-                  <FloatingInput label="File Number" id="file_number" name="file_number" value={formData.file_number} onChange={handleInputChange} maxLength={255} />
-                  <FloatingInput label="Work Telephone" id="work_telephone" name="work_telephone" value={formData.work_telephone} onChange={(e) => setFormData(p => ({ ...p, work_telephone: formatPhoneNumber(e.target.value) }))} maxLength={255} />
-                  <FloatingInput label="Telephone" id="telephone" name="telephone" value={formData.telephone} onChange={(e) => setFormData(p => ({ ...p, telephone: formatPhoneNumber(e.target.value) }))} maxLength={255} />
-                  <FloatingInput label="Ext" id="ext" name="ext" value={formData.ext} onChange={handleInputChange} maxLength={255} />
-                  <FloatingInput label="Fax" id="fax" name="fax" value={formData.fax} onChange={(e) => setFormData(p => ({ ...p, fax: formatPhoneNumber(e.target.value) }))} maxLength={255} />
-                  <FloatingInput label="Email" type="email" id="email" name="email" value={formData.email} onChange={handleInputChange} maxLength={255} />
-                  <FloatingInput label="Lawyer Name" id="lawyer_name" name="lawyer_name" value={formData.lawyer_name} onChange={handleInputChange} maxLength={255} />
+                  <FloatingInput
+                    label="Paralegal Name"
+                    id="paralegal_name"
+                    name="paralegal_name"
+                    value={formData.paralegal_name}
+                    onChange={handleInputChange}
+                    maxLength={255}
+                  />
+                  <FloatingInput
+                    label="Firm Name"
+                    id="firm_name"
+                    name="firm_name"
+                    value={formData.firm_name}
+                    onChange={handleInputChange}
+                    maxLength={255}
+                  />
+                  <FloatingInput
+                    label="Counsel Name"
+                    id="counsel_name"
+                    name="counsel_name"
+                    value={formData.counsel_name}
+                    onChange={handleInputChange}
+                    maxLength={255}
+                  />
+                  <FloatingInput
+                    label="File Number"
+                    id="file_number"
+                    name="file_number"
+                    value={formData.file_number}
+                    onChange={handleInputChange}
+                    maxLength={255}
+                  />
+                  <FloatingInput
+                    label="Work Telephone"
+                    id="work_telephone"
+                    name="work_telephone"
+                    value={formData.work_telephone}
+                    onChange={(e) =>
+                      setFormData((p) => ({
+                        ...p,
+                        work_telephone: formatPhoneNumber(e.target.value),
+                      }))
+                    }
+                    maxLength={255}
+                  />
+                  <FloatingInput
+                    label="Telephone"
+                    id="telephone"
+                    name="telephone"
+                    value={formData.telephone}
+                    onChange={(e) =>
+                      setFormData((p) => ({
+                        ...p,
+                        telephone: formatPhoneNumber(e.target.value),
+                      }))
+                    }
+                    maxLength={255}
+                  />
+                  <FloatingInput
+                    label="Ext"
+                    id="ext"
+                    name="ext"
+                    value={formData.ext}
+                    onChange={handleInputChange}
+                    maxLength={255}
+                  />
+                  <FloatingInput
+                    label="Fax"
+                    id="fax"
+                    name="fax"
+                    value={formData.fax}
+                    onChange={(e) =>
+                      setFormData((p) => ({
+                        ...p,
+                        fax: formatPhoneNumber(e.target.value),
+                      }))
+                    }
+                    maxLength={255}
+                  />
+                  <FloatingInput
+                    label="Email"
+                    type="email"
+                    id="email"
+                    name="email"
+                    value={formData.email}
+                    onChange={handleInputChange}
+                    maxLength={255}
+                  />
+                  <FloatingInput
+                    label="Lawyer Name"
+                    id="lawyer_name"
+                    name="lawyer_name"
+                    value={formData.lawyer_name}
+                    onChange={handleInputChange}
+                    maxLength={255}
+                  />
                 </div>
               )}
             </section>
@@ -760,12 +1173,54 @@ const AddMatterCard = ({
                   Address
                 </h2> */}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                  <FloatingInput label="Unit Number" id="unit_number" name="unit_number" value={formData.unit_number} onChange={handleInputChange} maxLength={50} />
-                  <FloatingInput label="Street Number" id="street_number" name="street_number" value={formData.street_number} onChange={handleInputChange} maxLength={100} />
-                  <FloatingInput label="Street Name" id="street_name" name="street_name" value={formData.street_name} onChange={handleInputChange} maxLength={100} />
-                  <FloatingInput label="City" id="city" name="city" value={formData.city} onChange={handleInputChange} maxLength={100} />
-                  <FloatingInput label="Province" id="province" name="province" value={formData.province} onChange={handleInputChange} maxLength={100} />
-                  <FloatingInput label="Postal Code" id="postal_code" name="postal_code" value={formData.postal_code} onChange={handleInputChange} maxLength={50} />
+                  <FloatingInput
+                    label="Unit Number"
+                    id="unit_number"
+                    name="unit_number"
+                    value={formData.unit_number}
+                    onChange={handleInputChange}
+                    maxLength={50}
+                  />
+                  <FloatingInput
+                    label="Street Number"
+                    id="street_number"
+                    name="street_number"
+                    value={formData.street_number}
+                    onChange={handleInputChange}
+                    maxLength={100}
+                  />
+                  <FloatingInput
+                    label="Street Name"
+                    id="street_name"
+                    name="street_name"
+                    value={formData.street_name}
+                    onChange={handleInputChange}
+                    maxLength={100}
+                  />
+                  <FloatingInput
+                    label="City"
+                    id="city"
+                    name="city"
+                    value={formData.city}
+                    onChange={handleInputChange}
+                    maxLength={100}
+                  />
+                  <FloatingInput
+                    label="Province"
+                    id="province"
+                    name="province"
+                    value={formData.province}
+                    onChange={handleInputChange}
+                    maxLength={100}
+                  />
+                  <FloatingInput
+                    label="Postal Code"
+                    id="postal_code"
+                    name="postal_code"
+                    value={formData.postal_code}
+                    onChange={handleInputChange}
+                    maxLength={50}
+                  />
                 </div>
               </section>
             )}

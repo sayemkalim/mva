@@ -2,15 +2,14 @@ import { useState, useEffect } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { apiService } from "@/api/api_service/apiService";
 import { endpoints } from "@/api/endpoints";
 import { formatSlugToTitle } from "../helpers/formatSlugToTitle";
+import { FloatingInput, FloatingTextarea } from "@/components/ui/floating-label";
 
 const MasterEditor = ({ open, onClose, slug, masterData = null }) => {
   const queryClient = useQueryClient();
@@ -103,24 +102,19 @@ const MasterEditor = ({ open, onClose, slug, masterData = null }) => {
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="space-y-2">
-            <Label className="text-foreground font-medium">
-              Name <span className="text-red-500">*</span>
-            </Label>
-            <Input
+            <FloatingInput
+              label="Name"
+              required
               value={formData.name}
               onChange={(e) => handleChange("name", e.target.value)}
-              placeholder="Enter name"
-              className="h-10 bg-card border-input"
             />
           </div>
 
           <div className="space-y-2">
-            <Label className="text-foreground font-medium">Description</Label>
-            <Textarea
+            <FloatingTextarea
+              label="Description"
               value={formData.description}
               onChange={(e) => handleChange("description", e.target.value)}
-              placeholder="Enter description"
-              className="bg-card border-input min-h-[100px]"
             />
           </div>
 

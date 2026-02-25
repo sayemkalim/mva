@@ -1,7 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import {
@@ -29,6 +28,7 @@ import { cn } from "@/lib/utils";
 import { saveDocument } from "../helpers/saveDocument";
 import { uploadAttachment } from "../helpers/uploadAttachment";
 import { fetchFolders } from "../helpers/fetchFolders";
+import { FloatingInput, FloatingTextarea } from "@/components/ui/floating-label";
 
 // Searchable and creatable dropdown component
 const SearchableCreatableSelect = ({ 
@@ -439,15 +439,13 @@ const AddDocumentDialog = ({ open, onClose, slug }) => {
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="title">
-              Title <span className="text-destructive">*</span>
-            </Label>
-            <Input
+            <FloatingInput
               id="title"
               name="title"
+              label="Title"
+              required
               value={formData.title}
               onChange={handleChange}
-              placeholder="Enter document title"
             />
           </div>
           <div className="space-y-2">
@@ -545,34 +543,33 @@ const AddDocumentDialog = ({ open, onClose, slug }) => {
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="doc_received_date">Date Received</Label>
-              <Input
+              <FloatingInput
                 id="doc_received_date"
                 name="doc_received_date"
                 type="date"
+                label="Date Received"
                 value={formData.doc_received_date}
                 onChange={handleChange}
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="doc_deadline_date">Deadline Date</Label>
-              <Input
+              <FloatingInput
                 id="doc_deadline_date"
                 name="doc_deadline_date"
                 type="date"
+                label="Deadline Date"
                 value={formData.doc_deadline_date}
                 onChange={handleChange}
               />
             </div>
           </div>
           <div className="space-y-2">
-            <Label htmlFor="memo">Memo</Label>
-            <Textarea
+            <FloatingTextarea
               id="memo"
               name="memo"
+              label="Memo"
               value={formData.memo}
               onChange={handleChange}
-              placeholder="Add a memo (optional)"
               rows={3}
             />
           </div>
