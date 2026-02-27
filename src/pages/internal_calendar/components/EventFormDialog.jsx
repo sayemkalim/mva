@@ -203,11 +203,15 @@ const AttachmentUploader = React.memo(({ files, onFilesChange, onUpload, onDelet
                       type="button"
                       onClick={(e) => {
                         e.stopPropagation();
-                        const API_URL = `${import.meta.env.VITE_API_BASE_URL}/attachments/${file.id}`;
-                        const link = document.createElement('a');
-                        link.href = API_URL;
-                        link.download = file.name;
-                        link.target = '_blank';
+
+                        const downloadUrl =
+                          file.path ||
+                          `${import.meta.env.VITE_API_BASE_URL}/attachments/${file.id}`;
+
+                        const link = document.createElement("a");
+                        link.href = downloadUrl;
+
+                        link.setAttribute("download", "");
                         document.body.appendChild(link);
                         link.click();
                         document.body.removeChild(link);
@@ -411,7 +415,12 @@ const EventFormDialog = ({ open, onClose, event, slotInfo, onDelete }) => {
         const existingFiles = eventDetails.attachments.map((att) => ({
           tempId: `existing_${att.id}`,
           id: att.id,
-          name: att.original_name || "File",
+          name: att.original_name ? 
+            (att.extension ? `${att.original_name}.${att.extension}` : att.original_name) : 
+            "File",
+          original_name: att.original_name,
+          extension: att.extension,
+          path: att.path,
           size: att.size || 0,
           type: att.mime_type || "",
           uploaded: true,
@@ -478,13 +487,14 @@ const EventFormDialog = ({ open, onClose, event, slotInfo, onDelete }) => {
   const uploadMutation = useMutation({
     mutationFn: uploadAttachment,
     onSuccess: (response, variables) => {
-      const attachmentId = response?.response?.attachment?.id;
-      const fileName =
-        response?.response?.attachment?.original_name || "Uploaded File";
-      const fileExtension = response?.response?.attachment?.extension;
+      const attachment = response?.response?.attachment;
+      const attachmentId = attachment?.id;
+      const originalName = attachment?.original_name || "Uploaded File";
+      const fileExtension = attachment?.extension;
+      const filePath = attachment?.path;
       const fullFileName = fileExtension
-        ? `${fileName}.${fileExtension}`
-        : fileName;
+        ? `${originalName}.${fileExtension}`
+        : originalName;
 
       if (attachmentId) {
         setUploadedFiles((prev) =>
@@ -494,6 +504,9 @@ const EventFormDialog = ({ open, onClose, event, slotInfo, onDelete }) => {
                   ...file,
                   id: attachmentId,
                   name: fullFileName,
+                  original_name: originalName,
+                  extension: fileExtension,
+                  path: filePath,
                   uploaded: true,
                   uploading: false,
                 }
