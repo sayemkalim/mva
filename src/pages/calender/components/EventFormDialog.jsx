@@ -2,7 +2,16 @@ import { useState, useEffect, useRef } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { toast } from "sonner";
-import { Trash2, Plus, Upload, X, FileIcon, Check, Loader2, Eye } from "lucide-react";
+import {
+  Trash2,
+  Plus,
+  Upload,
+  X,
+  FileIcon,
+  Check,
+  Loader2,
+  Eye,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 
 import { Button } from "@/components/ui/button";
@@ -16,7 +25,10 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { FloatingInput, FloatingTextarea } from "@/components/ui/floating-label";
+import {
+  FloatingInput,
+  FloatingTextarea,
+} from "@/components/ui/floating-label";
 import {
   Select,
   SelectContent,
@@ -115,7 +127,9 @@ const AttachmentUploader = ({ files, onFilesChange, onUpload, onDelete }) => {
     if (fileToRemove.uploaded && fileToRemove.id) {
       onDelete(fileToRemove.id, fileToRemove.tempId);
     } else {
-      onFilesChange(files.filter((file) => file.tempId !== fileToRemove.tempId));
+      onFilesChange(
+        files.filter((file) => file.tempId !== fileToRemove.tempId),
+      );
     }
     if (previewUrls[fileToRemove.tempId]) {
       URL.revokeObjectURL(previewUrls[fileToRemove.tempId]);
@@ -135,7 +149,7 @@ const AttachmentUploader = ({ files, onFilesChange, onUpload, onDelete }) => {
   };
 
   const isAnyFileUploading = files.some(
-    (file) => file.uploading && !file.uploaded
+    (file) => file.uploading && !file.uploaded,
   );
 
   return (
@@ -162,7 +176,7 @@ const AttachmentUploader = ({ files, onFilesChange, onUpload, onDelete }) => {
         className={cn(
           "relative border-2 border-dashed rounded-lg p-4 transition-all",
           isDragging && "border-primary bg-primary/10 scale-[1.02]",
-          "border-input"
+          "border-input",
         )}
       >
         {files.length === 0 ? (
@@ -202,11 +216,15 @@ const AttachmentUploader = ({ files, onFilesChange, onUpload, onDelete }) => {
                       type="button"
                       onClick={(e) => {
                         e.stopPropagation();
-                        const API_URL = `${import.meta.env.VITE_API_BASE_URL}/attachments/${file.id}`;
-                        const link = document.createElement('a');
-                        link.href = API_URL;
-                        link.download = file.name;
-                        link.target = '_blank';
+
+                        const downloadUrl =
+                          file.path ||
+                          `${import.meta.env.VITE_API_BASE_URL}/attachments/${file.id}`;
+
+                        const link = document.createElement("a");
+                        link.href = downloadUrl;
+
+                        link.setAttribute("download", "");
                         document.body.appendChild(link);
                         link.click();
                         document.body.removeChild(link);
@@ -344,7 +362,7 @@ const EventFormDialog = ({ open, onClose, event, slotInfo, onDelete }) => {
   const [uploadedFiles, setUploadedFiles] = useState([]);
   const [attachmentIds, setAttachmentIds] = useState([]);
   const [selectedContactName, setSelectedContactName] = useState("");
-  
+
   // Reminder dialog state
   const [reminderDialogOpen, setReminderDialogOpen] = useState(false);
   const [newReminder, setNewReminder] = useState({
@@ -376,11 +394,17 @@ const EventFormDialog = ({ open, onClose, event, slotInfo, onDelete }) => {
         end_date: format(endDate, "yyyy-MM-dd"),
         end_time: format(endDate, "HH:mm"),
         all_day: eventDetails.all_day === 1 || eventDetails.all_day === true,
-        category_id: eventDetails.category_id ? String(eventDetails.category_id) : "",
+        category_id: eventDetails.category_id
+          ? String(eventDetails.category_id)
+          : "",
         status_id: eventDetails.status_id ? String(eventDetails.status_id) : "",
-        priority_id: eventDetails.priority_id ? String(eventDetails.priority_id) : "",
+        priority_id: eventDetails.priority_id
+          ? String(eventDetails.priority_id)
+          : "",
         repeat_id: eventDetails.repeat_id ? String(eventDetails.repeat_id) : "",
-        initial_id: eventDetails.initial_id ? String(eventDetails.initial_id) : "",
+        initial_id: eventDetails.initial_id
+          ? String(eventDetails.initial_id)
+          : "",
         slug: eventDetails.slug || "",
       });
       // Set selected contact name if available
@@ -391,7 +415,7 @@ const EventFormDialog = ({ open, onClose, event, slotInfo, onDelete }) => {
           timing_id: String(r.timing_id),
           value: r.value,
           relative_id: String(r.relative_id),
-        }))
+        })),
       );
       setParticipants(
         (eventDetails.participants || []).map((p) => ({
@@ -399,14 +423,21 @@ const EventFormDialog = ({ open, onClose, event, slotInfo, onDelete }) => {
           role_id: String(p.role_id),
           status_id: String(p.status_id),
           comment: p.comment || "",
-        }))
+        })),
       );
       // Load existing attachments
       if (Array.isArray(eventDetails.attachments)) {
         const existingFiles = eventDetails.attachments.map((att) => ({
           tempId: `existing_${att.id}`,
           id: att.id,
-          name: att.original_name || "File",
+          name: att.original_name
+            ? att.extension
+              ? `${att.original_name}.${att.extension}`
+              : att.original_name
+            : "File",
+          original_name: att.original_name,
+          extension: att.extension,
+          path: att.path,
           size: att.size || 0,
           type: att.mime_type || "",
           uploaded: true,
@@ -443,7 +474,15 @@ const EventFormDialog = ({ open, onClose, event, slotInfo, onDelete }) => {
       setUploadedFiles([]);
       setAttachmentIds([]);
     }
-  }, [eventDetails, slotInfo, isEditing, categories, statuses, priorities, repeats]);
+  }, [
+    eventDetails,
+    slotInfo,
+    isEditing,
+    categories,
+    statuses,
+    priorities,
+    repeats,
+  ]);
 
   const { mutate: createEventMutation, isPending: isCreating } = useMutation({
     mutationFn: createEvent,
@@ -473,13 +512,14 @@ const EventFormDialog = ({ open, onClose, event, slotInfo, onDelete }) => {
   const uploadMutation = useMutation({
     mutationFn: uploadAttachment,
     onSuccess: (response, variables) => {
-      const attachmentId = response?.response?.attachment?.id;
-      const fileName =
-        response?.response?.attachment?.original_name || "Uploaded File";
-      const fileExtension = response?.response?.attachment?.extension;
+      const attachment = response?.response?.attachment;
+      const attachmentId = attachment?.id;
+      const originalName = attachment?.original_name || "Uploaded File";
+      const fileExtension = attachment?.extension;
+      const filePath = attachment?.path;
       const fullFileName = fileExtension
-        ? `${fileName}.${fileExtension}`
-        : fileName;
+        ? `${originalName}.${fileExtension}`
+        : originalName;
 
       if (attachmentId) {
         setUploadedFiles((prev) =>
@@ -489,11 +529,14 @@ const EventFormDialog = ({ open, onClose, event, slotInfo, onDelete }) => {
                   ...file,
                   id: attachmentId,
                   name: fullFileName,
+                  original_name: originalName,
+                  extension: fileExtension,
+                  path: filePath,
                   uploaded: true,
                   uploading: false,
                 }
-              : file
-          )
+              : file,
+          ),
         );
 
         setAttachmentIds((prev) => [...prev, attachmentId]);
@@ -503,8 +546,8 @@ const EventFormDialog = ({ open, onClose, event, slotInfo, onDelete }) => {
           prev.map((file) =>
             file.tempId === variables.tempId
               ? { ...file, uploading: false, uploadFailed: true }
-              : file
-          )
+              : file,
+          ),
         );
       }
     },
@@ -513,8 +556,8 @@ const EventFormDialog = ({ open, onClose, event, slotInfo, onDelete }) => {
         prev.map((file) =>
           file.tempId === variables.tempId
             ? { ...file, uploading: false, uploadFailed: true }
-            : file
-        )
+            : file,
+        ),
       );
       toast.error("Failed to upload file");
     },
@@ -525,13 +568,13 @@ const EventFormDialog = ({ open, onClose, event, slotInfo, onDelete }) => {
     onMutate: async (attachmentId) => {
       setUploadedFiles((prev) =>
         prev.map((file) =>
-          file.id === attachmentId ? { ...file, deleting: true } : file
-        )
+          file.id === attachmentId ? { ...file, deleting: true } : file,
+        ),
       );
     },
     onSuccess: (response, attachmentId) => {
       setUploadedFiles((prev) =>
-        prev.filter((file) => file.id !== attachmentId)
+        prev.filter((file) => file.id !== attachmentId),
       );
       setAttachmentIds((prev) => prev.filter((id) => id !== attachmentId));
       toast.success("Attachment deleted successfully");
@@ -539,8 +582,8 @@ const EventFormDialog = ({ open, onClose, event, slotInfo, onDelete }) => {
     onError: (error, attachmentId) => {
       setUploadedFiles((prev) =>
         prev.map((file) =>
-          file.id === attachmentId ? { ...file, deleting: false } : file
-        )
+          file.id === attachmentId ? { ...file, deleting: false } : file,
+        ),
       );
       toast.error("Failed to delete attachment");
     },
@@ -561,9 +604,7 @@ const EventFormDialog = ({ open, onClose, event, slotInfo, onDelete }) => {
     if (attachmentId) {
       deleteAttachmentMutation.mutate(attachmentId);
     } else {
-      setUploadedFiles((prev) =>
-        prev.filter((file) => file.tempId !== tempId)
-      );
+      setUploadedFiles((prev) => prev.filter((file) => file.tempId !== tempId));
     }
   };
 
@@ -583,9 +624,11 @@ const EventFormDialog = ({ open, onClose, event, slotInfo, onDelete }) => {
   const openReminderDialog = () => {
     setNewReminder({
       type_id: reminderTypes.length > 0 ? String(reminderTypes[0].id) : "",
-      timing_id: reminderTimings.length > 0 ? String(reminderTimings[0].id) : "",
+      timing_id:
+        reminderTimings.length > 0 ? String(reminderTimings[0].id) : "",
       value: 15,
-      relative_id: reminderRelatives.length > 0 ? String(reminderRelatives[0].id) : "",
+      relative_id:
+        reminderRelatives.length > 0 ? String(reminderRelatives[0].id) : "",
     });
     setReminderDialogOpen(true);
   };
@@ -595,7 +638,11 @@ const EventFormDialog = ({ open, onClose, event, slotInfo, onDelete }) => {
   };
 
   const confirmAddReminder = () => {
-    if (!newReminder.type_id || !newReminder.timing_id || !newReminder.relative_id) {
+    if (
+      !newReminder.type_id ||
+      !newReminder.timing_id ||
+      !newReminder.relative_id
+    ) {
       toast.error("Please fill in all reminder fields.");
       return;
     }
@@ -606,8 +653,8 @@ const EventFormDialog = ({ open, onClose, event, slotInfo, onDelete }) => {
   const updateReminder = (index, field, value) => {
     setReminders((prev) =>
       prev.map((reminder, i) =>
-        i === index ? { ...reminder, [field]: value } : reminder
-      )
+        i === index ? { ...reminder, [field]: value } : reminder,
+      ),
     );
   };
 
@@ -617,9 +664,12 @@ const EventFormDialog = ({ open, onClose, event, slotInfo, onDelete }) => {
 
   const openParticipantDialog = () => {
     setNewParticipant({
-      user_id: participantEmails.length > 0 ? String(participantEmails[0].id) : "",
-      role_id: participantRoles.length > 0 ? String(participantRoles[0].id) : "",
-      status_id: participantStatuses.length > 0 ? String(participantStatuses[0].id) : "",
+      user_id:
+        participantEmails.length > 0 ? String(participantEmails[0].id) : "",
+      role_id:
+        participantRoles.length > 0 ? String(participantRoles[0].id) : "",
+      status_id:
+        participantStatuses.length > 0 ? String(participantStatuses[0].id) : "",
       comment: "",
     });
     setParticipantDialogOpen(true);
@@ -641,8 +691,8 @@ const EventFormDialog = ({ open, onClose, event, slotInfo, onDelete }) => {
   const updateParticipant = (index, field, value) => {
     setParticipants((prev) =>
       prev.map((participant, i) =>
-        i === index ? { ...participant, [field]: value } : participant
-      )
+        i === index ? { ...participant, [field]: value } : participant,
+      ),
     );
   };
 
@@ -717,7 +767,10 @@ const EventFormDialog = ({ open, onClose, event, slotInfo, onDelete }) => {
           </div>
         ) : (
           <div className="h-[calc(90vh-140px)] overflow-x-hidden">
-            <form onSubmit={handleSubmit} className="space-y-6 px-6 pb-6 overflow-y-auto">
+            <form
+              onSubmit={handleSubmit}
+              className="space-y-6 px-6 pb-6 overflow-y-auto"
+            >
               <div className="space-y-4">
                 <h3 className="font-semibold text-sm text-foreground border-b pb-2">
                   Basic Information
@@ -743,7 +796,9 @@ const EventFormDialog = ({ open, onClose, event, slotInfo, onDelete }) => {
                   <Checkbox
                     id="all_day"
                     checked={formData.all_day}
-                    onCheckedChange={(checked) => handleChange("all_day", checked)}
+                    onCheckedChange={(checked) =>
+                      handleChange("all_day", checked)
+                    }
                   />
                   <Label htmlFor="all_day" className="cursor-pointer">
                     All day event
@@ -765,7 +820,9 @@ const EventFormDialog = ({ open, onClose, event, slotInfo, onDelete }) => {
                       label="Start Time"
                       type="time"
                       value={formData.start_time}
-                      onChange={(e) => handleChange("start_time", e.target.value)}
+                      onChange={(e) =>
+                        handleChange("start_time", e.target.value)
+                      }
                     />
                   )}
                 </div>
@@ -801,7 +858,9 @@ const EventFormDialog = ({ open, onClose, event, slotInfo, onDelete }) => {
                     <Label>Category</Label>
                     <Select
                       value={formData.category_id}
-                      onValueChange={(value) => handleChange("category_id", value)}
+                      onValueChange={(value) =>
+                        handleChange("category_id", value)
+                      }
                     >
                       <SelectTrigger className="w-full">
                         <SelectValue placeholder="Select category" />
@@ -820,7 +879,9 @@ const EventFormDialog = ({ open, onClose, event, slotInfo, onDelete }) => {
                     <Label>Status</Label>
                     <Select
                       value={formData.status_id}
-                      onValueChange={(value) => handleChange("status_id", value)}
+                      onValueChange={(value) =>
+                        handleChange("status_id", value)
+                      }
                     >
                       <SelectTrigger className="w-full">
                         <SelectValue placeholder="Select status" />
@@ -839,14 +900,19 @@ const EventFormDialog = ({ open, onClose, event, slotInfo, onDelete }) => {
                     <Label>Priority</Label>
                     <Select
                       value={formData.priority_id}
-                      onValueChange={(value) => handleChange("priority_id", value)}
+                      onValueChange={(value) =>
+                        handleChange("priority_id", value)
+                      }
                     >
                       <SelectTrigger className="w-full">
                         <SelectValue placeholder="Select priority" />
                       </SelectTrigger>
                       <SelectContent>
                         {priorities.map((priority) => (
-                          <SelectItem key={priority.id} value={String(priority.id)}>
+                          <SelectItem
+                            key={priority.id}
+                            value={String(priority.id)}
+                          >
                             {priority.name}
                           </SelectItem>
                         ))}
@@ -858,7 +924,9 @@ const EventFormDialog = ({ open, onClose, event, slotInfo, onDelete }) => {
                     <Label>Repeat</Label>
                     <Select
                       value={formData.repeat_id}
-                      onValueChange={(value) => handleChange("repeat_id", value)}
+                      onValueChange={(value) =>
+                        handleChange("repeat_id", value)
+                      }
                     >
                       <SelectTrigger className="w-full">
                         <SelectValue placeholder="Select repeat" />
@@ -887,7 +955,9 @@ const EventFormDialog = ({ open, onClose, event, slotInfo, onDelete }) => {
 
               <div className="space-y-4">
                 <div className="flex items-center justify-between border-b pb-2">
-                  <h3 className="font-semibold text-sm text-foreground">Reminders</h3>
+                  <h3 className="font-semibold text-sm text-foreground">
+                    Reminders
+                  </h3>
                   <Button
                     type="button"
                     variant="outline"
@@ -952,7 +1022,10 @@ const EventFormDialog = ({ open, onClose, event, slotInfo, onDelete }) => {
                           </SelectTrigger>
                           <SelectContent>
                             {reminderTimings.map((timing) => (
-                              <SelectItem key={timing.id} value={String(timing.id)}>
+                              <SelectItem
+                                key={timing.id}
+                                value={String(timing.id)}
+                              >
                                 {timing.name}
                               </SelectItem>
                             ))}
@@ -1082,7 +1155,10 @@ const EventFormDialog = ({ open, onClose, event, slotInfo, onDelete }) => {
                           </SelectTrigger>
                           <SelectContent>
                             {participantStatuses.map((status) => (
-                              <SelectItem key={status.id} value={String(status.id)}>
+                              <SelectItem
+                                key={status.id}
+                                value={String(status.id)}
+                              >
                                 {status.name}
                               </SelectItem>
                             ))}
@@ -1097,7 +1173,11 @@ const EventFormDialog = ({ open, onClose, event, slotInfo, onDelete }) => {
                             className="h-9 w-full"
                             value={participant.comment}
                             onChange={(e) =>
-                              updateParticipant(index, "comment", e.target.value)
+                              updateParticipant(
+                                index,
+                                "comment",
+                                e.target.value,
+                              )
                             }
                             placeholder="Comment"
                           />
@@ -1156,8 +1236,8 @@ const EventFormDialog = ({ open, onClose, event, slotInfo, onDelete }) => {
                     {isLoading
                       ? "Saving..."
                       : isEditing
-                      ? "Update Event"
-                      : "Create Event"}
+                        ? "Update Event"
+                        : "Create Event"}
                   </Button>
                 </div>
               </DialogFooter>
@@ -1178,7 +1258,9 @@ const EventFormDialog = ({ open, onClose, event, slotInfo, onDelete }) => {
                 <Label>Type *</Label>
                 <Select
                   value={newReminder.type_id}
-                  onValueChange={(value) => handleNewReminderChange("type_id", value)}
+                  onValueChange={(value) =>
+                    handleNewReminderChange("type_id", value)
+                  }
                 >
                   <SelectTrigger className="w-full">
                     <SelectValue placeholder="Select type" />
@@ -1198,7 +1280,9 @@ const EventFormDialog = ({ open, onClose, event, slotInfo, onDelete }) => {
                   label="Value"
                   type="number"
                   value={newReminder.value}
-                  onChange={(e) => handleNewReminderChange("value", e.target.value)}
+                  onChange={(e) =>
+                    handleNewReminderChange("value", e.target.value)
+                  }
                   required
                 />
               </div>
@@ -1209,7 +1293,9 @@ const EventFormDialog = ({ open, onClose, event, slotInfo, onDelete }) => {
                 <Label>Timing *</Label>
                 <Select
                   value={newReminder.timing_id}
-                  onValueChange={(value) => handleNewReminderChange("timing_id", value)}
+                  onValueChange={(value) =>
+                    handleNewReminderChange("timing_id", value)
+                  }
                 >
                   <SelectTrigger className="w-full">
                     <SelectValue placeholder="Select timing" />
@@ -1228,7 +1314,9 @@ const EventFormDialog = ({ open, onClose, event, slotInfo, onDelete }) => {
                 <Label>Relative To *</Label>
                 <Select
                   value={newReminder.relative_id}
-                  onValueChange={(value) => handleNewReminderChange("relative_id", value)}
+                  onValueChange={(value) =>
+                    handleNewReminderChange("relative_id", value)
+                  }
                 >
                   <SelectTrigger className="w-full">
                     <SelectValue placeholder="Select relative" />
@@ -1260,7 +1348,10 @@ const EventFormDialog = ({ open, onClose, event, slotInfo, onDelete }) => {
       </Dialog>
 
       {/* Add Participant Dialog */}
-      <Dialog open={participantDialogOpen} onOpenChange={setParticipantDialogOpen}>
+      <Dialog
+        open={participantDialogOpen}
+        onOpenChange={setParticipantDialogOpen}
+      >
         <DialogContent className="sm:max-w-[500px]">
           <DialogHeader>
             <DialogTitle>Add Participant</DialogTitle>
@@ -1271,7 +1362,9 @@ const EventFormDialog = ({ open, onClose, event, slotInfo, onDelete }) => {
                 <Label>Email *</Label>
                 <Select
                   value={newParticipant.user_id}
-                  onValueChange={(value) => handleNewParticipantChange("user_id", value)}
+                  onValueChange={(value) =>
+                    handleNewParticipantChange("user_id", value)
+                  }
                 >
                   <SelectTrigger className="w-full">
                     <SelectValue placeholder="Select user email" />
@@ -1290,7 +1383,9 @@ const EventFormDialog = ({ open, onClose, event, slotInfo, onDelete }) => {
                 <Label>Role *</Label>
                 <Select
                   value={newParticipant.role_id}
-                  onValueChange={(value) => handleNewParticipantChange("role_id", value)}
+                  onValueChange={(value) =>
+                    handleNewParticipantChange("role_id", value)
+                  }
                 >
                   <SelectTrigger className="w-full">
                     <SelectValue placeholder="Select role" />
@@ -1311,7 +1406,9 @@ const EventFormDialog = ({ open, onClose, event, slotInfo, onDelete }) => {
                 <Label>Status *</Label>
                 <Select
                   value={newParticipant.status_id}
-                  onValueChange={(value) => handleNewParticipantChange("status_id", value)}
+                  onValueChange={(value) =>
+                    handleNewParticipantChange("status_id", value)
+                  }
                 >
                   <SelectTrigger className="w-full">
                     <SelectValue placeholder="Select status" />
@@ -1330,7 +1427,9 @@ const EventFormDialog = ({ open, onClose, event, slotInfo, onDelete }) => {
                 <FloatingInput
                   label="Comment"
                   value={newParticipant.comment}
-                  onChange={(e) => handleNewParticipantChange("comment", e.target.value)}
+                  onChange={(e) =>
+                    handleNewParticipantChange("comment", e.target.value)
+                  }
                 />
               </div>
             </div>
