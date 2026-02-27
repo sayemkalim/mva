@@ -80,7 +80,6 @@ export function Navbar2() {
       }
       return [];
     },
-    refetchInterval: 30000,
     refetchOnWindowFocus: true,
   });
   const { data: unreadCountData, refetch: refetchUnreadCount } = useQuery({
@@ -94,9 +93,16 @@ export function Navbar2() {
       }
       return 0;
     },
-    refetchInterval: 30000,
     refetchOnWindowFocus: true,
   });
+
+  // Refetch API data when a new WebSocket notification arrives
+  useEffect(() => {
+    if (wsNotifications.length > 0) {
+      refetchNotifications();
+      refetchUnreadCount();
+    }
+  }, [wsNotifications.length]);
 
   // Mutation for marking as read
   const markAsReadMutation = useMutation({
@@ -467,7 +473,7 @@ export function Navbar2() {
                     className={`p-3 rounded-lg border transition-colors ${n.is_read
                         ? "bg-muted border-gray-200"
                         : "bg-blue-50 border-blue-200"
-                      } hover:bg-gray-100`}
+                    } hover:bg-gray-100`}
                   >
                     <div className="flex items-start gap-3">
                       {/* Checkbox for unread notifications */}
@@ -520,7 +526,7 @@ export function Navbar2() {
                               className="bg-blue-500 hover:bg-blue-600 text-white text-xs px-4 py-1 h-7"
                             >
                               {loadingAction[n.id || n.notificationId] ===
-                                "accept"
+                              "accept"
                                 ? "..."
                                 : "Accept"}
                             </Button>
@@ -534,7 +540,7 @@ export function Navbar2() {
                               className="bg-red-500 hover:bg-red-600 text-white text-xs px-4 py-1 h-7"
                             >
                               {loadingAction[n.id || n.notificationId] ===
-                                "reject"
+                              "reject"
                                 ? "..."
                                 : "Reject"}
                             </Button>

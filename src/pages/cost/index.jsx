@@ -32,6 +32,8 @@ import {
   MoreHorizontal,
   Lock,
   Unlock,
+  ChevronsUpDown,
+  Check,
 } from "lucide-react";
 import {
   Dialog,
@@ -40,24 +42,112 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import {
   FloatingInput,
   FloatingTextarea,
   FloatingWrapper,
 } from "@/components/ui/floating-label";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+  Command,
+  CommandInput,
+  CommandEmpty,
+  CommandGroup,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Navbar2 } from "@/components/navbar2";
 import { toast } from "sonner";
+
+function ShadcnSelect({
+  value,
+  onValueChange,
+  options: rawOptions = [],
+  placeholder = "Select",
+  label = "Select",
+  popoverKey,
+  popoverOpen,
+  setPopoverOpen,
+}) {
+  const options = Array.isArray(rawOptions) ? rawOptions : [];
+  const selected = options.find((o) => String(o.id) === String(value)) || null;
+  const isOpen = !!(popoverOpen && popoverOpen[popoverKey]);
+
+  const handleSelect = (id) => {
+    if (onValueChange) onValueChange(id);
+    if (setPopoverOpen && popoverKey) {
+      setPopoverOpen((prev = {}) => ({ ...prev, [popoverKey]: false }));
+    }
+  };
+
+  return (
+    <Popover
+      open={isOpen}
+      onOpenChange={(open) =>
+        setPopoverOpen &&
+        setPopoverOpen((p = {}) => ({ ...p, [popoverKey]: open }))
+      }
+    >
+      <PopoverTrigger asChild>
+        <Button
+          variant="outline"
+          role="combobox"
+          size="form"
+          className="w-full justify-between font-normal bg-muted"
+          type="button"
+        >
+          <span className={selected ? "" : "opacity-0"}>
+            {selected ? selected.name : placeholder}
+          </span>
+          <ChevronsUpDown className="ml-auto h-4 w-4 shrink-0 opacity-50" />
+        </Button>
+      </PopoverTrigger>
+
+      <PopoverContent
+        className="w-[var(--radix-popover-trigger-width)] p-0"
+        align="start"
+      >
+        <Command>
+          <CommandInput placeholder={label.toLowerCase()} />
+          <CommandEmpty>No results found.</CommandEmpty>
+          <CommandList>
+            <CommandGroup>
+              <CommandItem
+                value=""
+                onSelect={() => handleSelect("")}
+                className="italic text-muted-foreground"
+              >
+                <Check
+                  className={`mr-2 h-4 w-4 ${
+                    !value ? "opacity-100" : "opacity-0"
+                  }`}
+                />
+                None
+              </CommandItem>
+              {options.map((opt) => (
+                <CommandItem
+                  key={opt.id}
+                  value={opt.name}
+                  onSelect={() => handleSelect(opt.id)}
+                >
+                  <Check
+                    className={`mr-2 h-4 w-4 ${
+                      String(value) === String(opt.id)
+                        ? "opacity-100"
+                        : "opacity-0"
+                    }`}
+                  />
+                  {opt.name}
+                </CommandItem>
+              ))}
+            </CommandGroup>
+          </CommandList>
+        </Command>
+      </PopoverContent>
+    </Popover>
+  );
+}
 
 const CostList = () => {
   const { slug } = useParams();
@@ -68,6 +158,7 @@ const CostList = () => {
   const [deleteConfirmId, setDeleteConfirmId] = useState(null);
   const [editingCost, setEditingCost] = useState(null);
   const [editDialogOpen, setEditDialogOpen] = useState(null);
+  const [popoverOpen, setPopoverOpen] = useState({});
 
   // Soft Cost Form State
   const [softCostForm, setSoftCostForm] = useState({
@@ -491,8 +582,8 @@ const CostList = () => {
   // Set timekeeper value from meta when available
   useEffect(() => {
     if (timeKeeperValue) {
-      setSoftCostForm(prev => ({ ...prev, timekeeper: timeKeeperValue }));
-      setTimeCardForm(prev => ({ ...prev, timekeeper: timeKeeperValue }));
+      setSoftCostForm((prev) => ({ ...prev, timekeeper: timeKeeperValue }));
+      setTimeCardForm((prev) => ({ ...prev, timekeeper: timeKeeperValue }));
     }
   }, [timeKeeperValue]);
 
@@ -810,26 +901,21 @@ const CostList = () => {
                     hasValue={!!timeCardForm.time_spent_id}
                     isFocused={false}
                   >
-                    <Select
+                    <ShadcnSelect
+                      popoverKey="timecard_time_spent"
+                      popoverOpen={popoverOpen}
+                      setPopoverOpen={setPopoverOpen}
                       value={timeCardForm.time_spent_id}
-                      onValueChange={(value) =>
+                      onValueChange={(val) =>
                         setTimeCardForm({
                           ...timeCardForm,
-                          time_spent_id: value,
+                          time_spent_id: val,
                         })
                       }
-                    >
-                      <SelectTrigger className="w-full h-[52px] bg-transparent border border-input">
-                        <SelectValue placeholder="" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {timeSpentOptions.map((item) => (
-                          <SelectItem key={item.id} value={String(item.id)}>
-                            {item.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                      options={timeSpentOptions}
+                      placeholder="Select"
+                      label="Time Spent"
+                    />
                   </FloatingWrapper>
                 </div>
                 <div className="col-span-3">
@@ -855,33 +941,28 @@ const CostList = () => {
                     hasValue={!!timeCardForm.rate_level_id}
                     isFocused={false}
                   >
-                    <Select
+                    <ShadcnSelect
+                      popoverKey="timecard_rate_level"
+                      popoverOpen={popoverOpen}
+                      setPopoverOpen={setPopoverOpen}
                       value={timeCardForm.rate_level_id}
-                      onValueChange={(value) => {
+                      onValueChange={(val) => {
                         const selectedRate = rateLevelOptions.find(
-                          (item) => String(item.id) === value,
+                          (item) => String(item.id) === String(val),
                         );
                         setTimeCardForm({
                           ...timeCardForm,
-                          rate_level_id: value,
+                          rate_level_id: val,
                           rate:
                             selectedRate?.rate ||
                             selectedRate?.value ||
                             timeCardForm.rate,
                         });
                       }}
-                    >
-                      <SelectTrigger className="w-full h-[52px] bg-transparent border border-input">
-                        <SelectValue placeholder="" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {rateLevelOptions.map((item) => (
-                          <SelectItem key={item.id} value={String(item.id)}>
-                            {item.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                      options={rateLevelOptions}
+                      placeholder="Select"
+                      label="Rate Level"
+                    />
                   </FloatingWrapper>
                 </div>
                 <div className="col-span-2">
@@ -903,26 +984,21 @@ const CostList = () => {
                     hasValue={!!timeCardForm.rate_type_id}
                     isFocused={false}
                   >
-                    <Select
+                    <ShadcnSelect
+                      popoverKey="timecard_rate_type"
+                      popoverOpen={popoverOpen}
+                      setPopoverOpen={setPopoverOpen}
                       value={timeCardForm.rate_type_id}
-                      onValueChange={(value) =>
+                      onValueChange={(val) =>
                         setTimeCardForm({
                           ...timeCardForm,
-                          rate_type_id: value,
+                          rate_type_id: val,
                         })
                       }
-                    >
-                      <SelectTrigger className="w-full h-[52px] bg-transparent border border-input">
-                        <SelectValue placeholder="" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {rateTypeOptions.map((item) => (
-                          <SelectItem key={item.id} value={String(item.id)}>
-                            {item.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                      options={rateTypeOptions}
+                      placeholder="Select"
+                      label="Rate Type"
+                    />
                   </FloatingWrapper>
                 </div>
               </div>
@@ -970,26 +1046,21 @@ const CostList = () => {
                     hasValue={!!timeCardForm.billing_status_id}
                     isFocused={false}
                   >
-                    <Select
+                    <ShadcnSelect
+                      popoverKey="timecard_billing_status"
+                      popoverOpen={popoverOpen}
+                      setPopoverOpen={setPopoverOpen}
                       value={timeCardForm.billing_status_id}
-                      onValueChange={(value) =>
+                      onValueChange={(val) =>
                         setTimeCardForm({
                           ...timeCardForm,
-                          billing_status_id: value,
+                          billing_status_id: val,
                         })
                       }
-                    >
-                      <SelectTrigger className="w-full h-[52px] bg-transparent border border-input">
-                        <SelectValue placeholder="" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {billingStatusOptions.map((item) => (
-                          <SelectItem key={item.id} value={String(item.id)}>
-                            {item.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                      options={billingStatusOptions}
+                      placeholder="Select"
+                      label="Billing Status"
+                    />
                   </FloatingWrapper>
                   <div className="flex items-center space-x-2 pt-8">
                     <Checkbox
@@ -1009,23 +1080,18 @@ const CostList = () => {
                   hasValue={!!timeCardForm.flag_id}
                   isFocused={false}
                 >
-                  <Select
+                  <ShadcnSelect
+                    popoverKey="timecard_flag"
+                    popoverOpen={popoverOpen}
+                    setPopoverOpen={setPopoverOpen}
                     value={timeCardForm.flag_id}
-                    onValueChange={(value) =>
-                      setTimeCardForm({ ...timeCardForm, flag_id: value })
+                    onValueChange={(val) =>
+                      setTimeCardForm({ ...timeCardForm, flag_id: val })
                     }
-                  >
-                    <SelectTrigger className="w-full h-[52px] bg-transparent border border-input">
-                      <SelectValue placeholder="" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {flagOptions.map((item) => (
-                        <SelectItem key={item.id} value={String(item.id)}>
-                          {item.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                    options={flagOptions}
+                    placeholder="Select"
+                    label="Flag"
+                  />
                 </FloatingWrapper>
               </TabsContent>
               <TabsContent value="note" className="pt-4">
@@ -1165,11 +1231,9 @@ const CostList = () => {
           <div className="space-y-6 py-4">
             <div className="grid grid-cols-4 gap-4">
               <div className="space-y-2">
-                <Label>
-                  Timekeeper <span className="text-red-500">*</span>
-                </Label>
                 <FloatingInput
                   label="Timekeeper"
+                  required
                   placeholder=""
                   value={softCostForm.timekeeper}
                   readOnly
@@ -1178,11 +1242,9 @@ const CostList = () => {
                 />
               </div>
               <div className="space-y-2">
-                <Label>
-                  Date <span className="text-red-500">*</span>
-                </Label>
                 <FloatingInput
                   label="Date"
+                  required
                   type="date"
                   value={softCostForm.date}
                   onChange={(e) =>
@@ -1191,17 +1253,14 @@ const CostList = () => {
                 />
               </div>
               <div className="space-y-2">
-                <Label>
-                  Type <span className="text-red-500">*</span>
-                </Label>
                 <FloatingInput
                   label="Type"
+                  required
                   value={softCostForm.type}
                   disabled
                 />
               </div>
               <div className="space-y-2">
-                <Label>Expense</Label>
                 <FloatingInput
                   label="Expense"
                   placeholder=""
@@ -1214,16 +1273,6 @@ const CostList = () => {
                   }
                 />
               </div>
-            </div>
-
-            <div className="space-y-2">
-              <Label>Description</Label>
-              <Textarea 
-                className="min-h-[100px]" 
-                placeholder="" 
-                value={softCostForm.description}
-                onChange={(e) => setSoftCostForm({...softCostForm, description: e.target.value})}
-              />
             </div>
 
             <FloatingTextarea
@@ -1240,11 +1289,9 @@ const CostList = () => {
 
             <div className="grid grid-cols-3 gap-4">
               <div className="space-y-2">
-                <Label>
-                  Quantity <span className="text-red-500">*</span>
-                </Label>
                 <FloatingInput
                   label="Quantity"
+                  required
                   type="number"
                   min="1"
                   placeholder=""
@@ -1258,11 +1305,9 @@ const CostList = () => {
                 />
               </div>
               <div className="space-y-2">
-                <Label>
-                  Rate <span className="text-red-500">*</span>
-                </Label>
                 <FloatingInput
                   label="Rate"
+                  required
                   type="number"
                   min="0"
                   placeholder=""
@@ -1273,11 +1318,9 @@ const CostList = () => {
                 />
               </div>
               <div className="space-y-2">
-                <Label>
-                  Value <span className="text-red-500">*</span>
-                </Label>
                 <FloatingInput
                   label="Value"
+                  required
                   type="number"
                   min="0"
                   placeholder=""
@@ -1299,29 +1342,30 @@ const CostList = () => {
               hasValue={softCostForm.taxable !== null}
               isFocused={false}
             >
-              <Select
+              <ShadcnSelect
+                popoverKey="softcost_tax"
+                popoverOpen={popoverOpen}
+                setPopoverOpen={setPopoverOpen}
                 value={
                   softCostForm.taxable === true
                     ? "taxable"
                     : softCostForm.taxable === false
                       ? "non-taxable"
-                      : undefined
+                      : ""
                 }
-                onValueChange={(value) =>
+                onValueChange={(val) =>
                   setSoftCostForm({
                     ...softCostForm,
-                    taxable: value === "taxable",
+                    taxable: val === "taxable",
                   })
                 }
-              >
-                <SelectTrigger className="w-full h-[52px] bg-transparent border border-input">
-                  <SelectValue placeholder="" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="taxable">Taxable</SelectItem>
-                  <SelectItem value="non-taxable">Non-Taxable</SelectItem>
-                </SelectContent>
-              </Select>
+                options={[
+                  { id: "taxable", name: "Taxable" },
+                  { id: "non-taxable", name: "Non-Taxable" },
+                ]}
+                placeholder="Select"
+                label="Tax"
+              />
             </FloatingWrapper>
           </div>
           <div className="flex justify-end gap-2 pt-4 border-t">
@@ -1371,23 +1415,18 @@ const CostList = () => {
                 hasValue={!!hardCostForm.bank_type_id}
                 isFocused={false}
               >
-                <Select
+                <ShadcnSelect
+                  popoverKey="hardcost_bank_type"
+                  popoverOpen={popoverOpen}
+                  setPopoverOpen={setPopoverOpen}
                   value={hardCostForm.bank_type_id}
-                  onValueChange={(value) =>
-                    setHardCostForm({ ...hardCostForm, bank_type_id: value })
+                  onValueChange={(val) =>
+                    setHardCostForm({ ...hardCostForm, bank_type_id: val })
                   }
-                >
-                  <SelectTrigger className="w-full h-[52px] bg-transparent border border-input">
-                    <SelectValue placeholder="" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {bankTypes.map((item) => (
-                      <SelectItem key={item.id} value={String(item.id)}>
-                        {item.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                  options={bankTypes}
+                  placeholder="Select"
+                  label="Bank Type"
+                />
               </FloatingWrapper>
 
               <FloatingInput
@@ -1406,23 +1445,18 @@ const CostList = () => {
                 hasValue={!!hardCostForm.method_id}
                 isFocused={false}
               >
-                <Select
+                <ShadcnSelect
+                  popoverKey="hardcost_method"
+                  popoverOpen={popoverOpen}
+                  setPopoverOpen={setPopoverOpen}
                   value={hardCostForm.method_id}
-                  onValueChange={(value) =>
-                    setHardCostForm({ ...hardCostForm, method_id: value })
+                  onValueChange={(val) =>
+                    setHardCostForm({ ...hardCostForm, method_id: val })
                   }
-                >
-                  <SelectTrigger className="w-full h-[52px] bg-transparent border border-input">
-                    <SelectValue placeholder="" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {accountingMethods.map((item) => (
-                      <SelectItem key={item.id} value={String(item.id)}>
-                        {item.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                  options={accountingMethods}
+                  placeholder="Select"
+                  label="Method"
+                />
               </FloatingWrapper>
             </div>
 
@@ -1743,11 +1777,9 @@ const CostList = () => {
             <div className="space-y-6 py-4">
               <div className="grid grid-cols-4 gap-4">
                 <div className="space-y-2">
-                  <Label>
-                    Timekeeper <span className="text-red-500">*</span>
-                  </Label>
                   <FloatingInput
                     label="Timekeeper"
+                    required
                     placeholder=""
                     value={editingCost.timekeeker || ""}
                     onChange={(e) =>
@@ -1759,11 +1791,9 @@ const CostList = () => {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label>
-                    Date <span className="text-red-500">*</span>
-                  </Label>
                   <FloatingInput
                     label="Date"
+                    required
                     type="date"
                     value={editingCost.date || ""}
                     onChange={(e) =>
@@ -1772,17 +1802,14 @@ const CostList = () => {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label>
-                    Type <span className="text-red-500">*</span>
-                  </Label>
                   <FloatingInput
                     label="Type"
+                    required
                     value={editingCost.type || "Expense"}
                     disabled
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label>Expense</Label>
                   <FloatingInput
                     label="Expense"
                     placeholder=""
@@ -1797,28 +1824,24 @@ const CostList = () => {
                 </div>
               </div>
 
-              <div className="space-y-2">
-                <Label>Description</Label>
-                <Textarea
-                  className="min-h-[100px]"
-                  placeholder=""
-                  value={editingCost.description || ""}
-                  onChange={(e) =>
-                    setEditingCost({
-                      ...editingCost,
-                      description: e.target.value,
-                    })
-                  }
-                />
-              </div>
+              <FloatingTextarea
+                label="Description"
+                className="min-h-[100px]"
+                placeholder=""
+                value={editingCost.description || ""}
+                onChange={(e) =>
+                  setEditingCost({
+                    ...editingCost,
+                    description: e.target.value,
+                  })
+                }
+              />
 
               <div className="grid grid-cols-3 gap-4">
                 <div className="space-y-2">
-                  <Label>
-                    Quantity <span className="text-red-500">*</span>
-                  </Label>
                   <FloatingInput
                     label="Quantity"
+                    required
                     type="number"
                     min="1"
                     placeholder=""
@@ -1832,11 +1855,9 @@ const CostList = () => {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label>
-                    Rate <span className="text-red-500">*</span>
-                  </Label>
                   <FloatingInput
                     label="Rate"
+                    required
                     type="number"
                     placeholder=""
                     min="0"
@@ -1847,11 +1868,9 @@ const CostList = () => {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label>
-                    Value <span className="text-red-500">*</span>
-                  </Label>
                   <FloatingInput
                     label="Value"
+                    required
                     type="number"
                     placeholder=""
                     min="0"
@@ -1873,13 +1892,22 @@ const CostList = () => {
                 </div>
               </div>
 
-              <div className="space-y-2">
-                <Label>Tax</Label>
-                <Select
+              <FloatingWrapper
+                label="Tax"
+                hasValue={
+                  editingCost.taxable !== null &&
+                  editingCost.taxable !== undefined
+                }
+                isFocused={false}
+              >
+                <ShadcnSelect
+                  popoverKey="edit_softcost_tax"
+                  popoverOpen={popoverOpen}
+                  setPopoverOpen={setPopoverOpen}
                   value={
                     editingCost.taxable === null ||
                     editingCost.taxable === undefined
-                      ? undefined
+                      ? ""
                       : editingCost.taxable === true ||
                           editingCost.taxable === 1 ||
                           editingCost.taxable === "true" ||
@@ -1887,22 +1915,20 @@ const CostList = () => {
                         ? "taxable"
                         : "non-taxable"
                   }
-                  onValueChange={(value) =>
+                  onValueChange={(val) =>
                     setEditingCost({
                       ...editingCost,
-                      taxable: value === "taxable",
+                      taxable: val === "taxable",
                     })
                   }
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select tax type" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="taxable">Taxable</SelectItem>
-                    <SelectItem value="non-taxable">Non-Taxable</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
+                  options={[
+                    { id: "taxable", name: "Taxable" },
+                    { id: "non-taxable", name: "Non-Taxable" },
+                  ]}
+                  placeholder="Select tax type"
+                  label="Tax"
+                />
+              </FloatingWrapper>
             </div>
           )}
           <div className="flex justify-end gap-2 pt-4 border-t">
@@ -1953,11 +1979,9 @@ const CostList = () => {
             <div className="space-y-6 py-4">
               <div className="grid grid-cols-3 gap-4">
                 <div className="space-y-2">
-                  <Label>
-                    Timekeeper <span className="text-red-500">*</span>
-                  </Label>
                   <FloatingInput
                     label="Timekeeper"
+                    required
                     placeholder=""
                     value={editingCost.timekeeker || ""}
                     onChange={(e) =>
@@ -1969,11 +1993,9 @@ const CostList = () => {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label>
-                    Date <span className="text-red-500">*</span>
-                  </Label>
                   <FloatingInput
                     label="Date"
+                    required
                     type="date"
                     value={editingCost.date || ""}
                     onChange={(e) =>
@@ -1982,11 +2004,9 @@ const CostList = () => {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label>
-                    Type <span className="text-red-500">*</span>
-                  </Label>
                   <FloatingInput
                     label="Type"
+                    required
                     value={editingCost.type || "Lawyer Work"}
                     disabled
                   />
@@ -1994,7 +2014,6 @@ const CostList = () => {
               </div>
 
               <div className="space-y-2">
-                <Label>Task</Label>
                 <FloatingInput
                   label="Task"
                   placeholder=""
@@ -2005,102 +2024,95 @@ const CostList = () => {
                 />
               </div>
 
-              <div className="space-y-2">
-                <Label>Description</Label>
-                <Textarea
-                  className="min-h-[100px]"
-                  placeholder=""
-                  value={editingCost.description || ""}
-                  onChange={(e) =>
-                    setEditingCost({
-                      ...editingCost,
-                      description: e.target.value,
-                    })
-                  }
-                />
-              </div>
+              <FloatingTextarea
+                label="Description"
+                className="min-h-[100px]"
+                placeholder=""
+                value={editingCost.description || ""}
+                onChange={(e) =>
+                  setEditingCost({
+                    ...editingCost,
+                    description: e.target.value,
+                  })
+                }
+              />
 
               <div>
                 <h3 className="text-lg font-medium mb-4">Time & Amount</h3>
                 <div className="grid grid-cols-6 gap-4 mb-4">
                   <div className="space-y-2 col-span-3">
-                    <Label>
-                      Time Spent <span className="text-red-500">*</span>
-                    </Label>
-                    <Select
-                      value={String(editingCost.time_spent_id || "")}
-                      onValueChange={(value) =>
-                        setEditingCost({ ...editingCost, time_spent_id: value })
-                      }
+                    <FloatingWrapper
+                      label="Time Spent"
+                      required
+                      hasValue={!!editingCost.time_spent_id}
+                      isFocused={false}
                     >
-                      <SelectTrigger className="w-full">
-                        <SelectValue placeholder="Select" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {timeSpentOptions.map((item) => (
-                          <SelectItem key={item.id} value={String(item.id)}>
-                            {item.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                      <ShadcnSelect
+                        popoverKey="edit_time_spent"
+                        popoverOpen={popoverOpen}
+                        setPopoverOpen={setPopoverOpen}
+                        value={String(editingCost.time_spent_id || "")}
+                        onValueChange={(val) =>
+                          setEditingCost({ ...editingCost, time_spent_id: val })
+                        }
+                        options={timeSpentOptions}
+                        placeholder="Select"
+                        label="Time Spent"
+                      />
+                    </FloatingWrapper>
                   </div>
-                <div className="space-y-2 col-span-3">
-                  <Label>Time Billed</Label>
-                  <FloatingInput
-                    label="Time Billed"
-                    placeholder="00:00"
-                    className="w-full"
-                    value={editingCost.time_billed || ""}
-                    onChange={(e) =>
-                      setEditingCost({
-                        ...editingCost,
-                        time_billed: e.target.value,
-                      })
-                    }
-                  />
-                </div>
+                  <div className="space-y-2 col-span-3">
+                    <FloatingInput
+                      label="Time Billed"
+                      placeholder="00:00"
+                      className="w-full"
+                      value={editingCost.time_billed || ""}
+                      onChange={(e) =>
+                        setEditingCost({
+                          ...editingCost,
+                          time_billed: e.target.value,
+                        })
+                      }
+                    />
+                  </div>
                 </div>
 
                 <div className="grid grid-cols-6 gap-4">
                   <div className="space-y-2 col-span-2">
-                    <Label>
-                      Rate Level <span className="text-red-500">*</span>
-                    </Label>
-                    <Select
-                      value={String(editingCost.rate_level_id || "")}
-                      onValueChange={(value) => {
-                        const selectedRate = rateLevelOptions.find(
-                          (item) => String(item.id) === value,
-                        );
-                        setEditingCost({
-                          ...editingCost,
-                          rate_level_id: value,
-                          rate:
-                            selectedRate?.rate ||
-                            selectedRate?.value ||
-                            editingCost.rate,
-                        });
-                      }}
+                    <FloatingWrapper
+                      label="Rate Level"
+                      required
+                      hasValue={!!editingCost.rate_level_id}
+                      isFocused={false}
                     >
-                      <SelectTrigger className="w-full">
-                        <SelectValue placeholder="Select" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {rateLevelOptions.map((item) => (
-                          <SelectItem key={item.id} value={String(item.id)}>
-                            {item.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                      <ShadcnSelect
+                        popoverKey="edit_rate_level"
+                        popoverOpen={popoverOpen}
+                        setPopoverOpen={setPopoverOpen}
+                        value={String(editingCost.rate_level_id || "")}
+                        onValueChange={(val) => {
+                          const selectedRate = rateLevelOptions.find(
+                            (item) => String(item.id) === String(val),
+                          );
+                          setEditingCost({
+                            ...editingCost,
+                            rate_level_id: val,
+                            rate:
+                              selectedRate?.rate ||
+                              selectedRate?.value ||
+                              editingCost.rate,
+                          });
+                        }}
+                        options={rateLevelOptions}
+                        placeholder="Select"
+                        label="Rate Level"
+                      />
+                    </FloatingWrapper>
                   </div>
                   <div className="space-y-2 col-span-2">
-                    <Label>
-                      Rate/Price <span className="text-red-500">*</span>
-                    </Label>
                     <FloatingInput
                       label="Rate/Price"
+                      required
                       type="number"
                       className="w-full"
                       min="0"
@@ -2111,26 +2123,25 @@ const CostList = () => {
                     />
                   </div>
                   <div className="space-y-2 col-span-2">
-                    <Label>
-                      Rate Type <span className="text-red-500">*</span>
-                    </Label>
-                    <Select
-                      value={String(editingCost.rate_type_id || "")}
-                      onValueChange={(value) =>
-                        setEditingCost({ ...editingCost, rate_type_id: value })
-                      }
+                    <FloatingWrapper
+                      label="Rate Type"
+                      required
+                      hasValue={!!editingCost.rate_type_id}
+                      isFocused={false}
                     >
-                      <SelectTrigger className="w-full">
-                        <SelectValue placeholder="Select" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {rateTypeOptions.map((item) => (
-                          <SelectItem key={item.id} value={String(item.id)}>
-                            {item.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                      <ShadcnSelect
+                        popoverKey="edit_rate_type"
+                        popoverOpen={popoverOpen}
+                        setPopoverOpen={setPopoverOpen}
+                        value={String(editingCost.rate_type_id || "")}
+                        onValueChange={(val) =>
+                          setEditingCost({ ...editingCost, rate_type_id: val })
+                        }
+                        options={rateTypeOptions}
+                        placeholder="Select"
+                        label="Rate Type"
+                      />
+                    </FloatingWrapper>
                   </div>
                 </div>
 
@@ -2175,27 +2186,27 @@ const CostList = () => {
                 <TabsContent value="billing" className="space-y-4 pt-4">
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <Label>Billing Status</Label>
-                      <Select
-                        value={String(editingCost.billing_status_id || "")}
-                        onValueChange={(value) =>
-                          setEditingCost({
-                            ...editingCost,
-                            billing_status_id: value,
-                          })
-                        }
+                      <FloatingWrapper
+                        label="Billing Status"
+                        hasValue={!!editingCost.billing_status_id}
+                        isFocused={false}
                       >
-                        <SelectTrigger className="w-full">
-                          <SelectValue placeholder="Select" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {billingStatusOptions.map((item) => (
-                            <SelectItem key={item.id} value={String(item.id)}>
-                              {item.name}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                        <ShadcnSelect
+                          popoverKey="edit_billing_status"
+                          popoverOpen={popoverOpen}
+                          setPopoverOpen={setPopoverOpen}
+                          value={String(editingCost.billing_status_id || "")}
+                          onValueChange={(val) =>
+                            setEditingCost({
+                              ...editingCost,
+                              billing_status_id: val,
+                            })
+                          }
+                          options={billingStatusOptions}
+                          placeholder="Select"
+                          label="Billing Status"
+                        />
+                      </FloatingWrapper>
                     </div>
                     <div className="flex items-center space-x-2 pt-8">
                       <Checkbox
@@ -2211,28 +2222,29 @@ const CostList = () => {
                     </div>
                   </div>
                   <div className="space-y-2">
-                    <Label>Flag</Label>
-                    <Select
-                      value={String(editingCost.flag_id || "")}
-                      onValueChange={(value) =>
-                        setEditingCost({ ...editingCost, flag_id: value })
-                      }
+                    <FloatingWrapper
+                      label="Flag"
+                      hasValue={!!editingCost.flag_id}
+                      isFocused={false}
                     >
-                      <SelectTrigger className="w-full">
-                        <SelectValue placeholder="Select" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {flagOptions.map((item) => (
-                          <SelectItem key={item.id} value={String(item.id)}>
-                            {item.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                      <ShadcnSelect
+                        popoverKey="edit_flag"
+                        popoverOpen={popoverOpen}
+                        setPopoverOpen={setPopoverOpen}
+                        value={String(editingCost.flag_id || "")}
+                        onValueChange={(val) =>
+                          setEditingCost({ ...editingCost, flag_id: val })
+                        }
+                        options={flagOptions}
+                        placeholder="Select"
+                        label="Flag"
+                      />
+                    </FloatingWrapper>
                   </div>
                 </TabsContent>
                 <TabsContent value="note" className="pt-4">
-                  <Textarea
+                  <FloatingTextarea
+                    label="Note"
                     className="min-h-[100px]"
                     placeholder="Add notes..."
                     value={editingCost.note || ""}
@@ -2389,11 +2401,9 @@ const CostList = () => {
             <div className="space-y-6 py-4">
               <div className="grid grid-cols-4 gap-4">
                 <div className="space-y-2">
-                  <Label>
-                    Date <span className="text-red-500">*</span>
-                  </Label>
                   <FloatingInput
                     label="Date"
+                    required
                     type="date"
                     value={editingCost.date || ""}
                     onChange={(e) =>
@@ -2402,58 +2412,54 @@ const CostList = () => {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label>
-                    Bank Type <span className="text-red-500">*</span>
-                  </Label>
-                  <Select
-                    value={String(editingCost.bank_type_id || "")}
-                    onValueChange={(value) =>
-                      setEditingCost({ ...editingCost, bank_type_id: value })
-                    }
+                  <FloatingWrapper
+                    label="Bank Type"
+                    required
+                    hasValue={!!editingCost.bank_type_id}
+                    isFocused={false}
                   >
-                    <SelectTrigger className="w-full">
-                      <SelectValue placeholder="Select" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {bankTypes.map((item) => (
-                        <SelectItem key={item.id} value={String(item.id)}>
-                          {item.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                    <ShadcnSelect
+                      popoverKey="edit_hardcost_bank_type"
+                      popoverOpen={popoverOpen}
+                      setPopoverOpen={setPopoverOpen}
+                      value={String(editingCost.bank_type_id || "")}
+                      onValueChange={(val) =>
+                        setEditingCost({ ...editingCost, bank_type_id: val })
+                      }
+                      options={bankTypes}
+                      placeholder="Select"
+                      label="Bank Type"
+                    />
+                  </FloatingWrapper>
                 </div>
                 <div className="space-y-2">
-                  <Label>
-                    Type <span className="text-red-500">*</span>
-                  </Label>
                   <FloatingInput
                     label="Type"
+                    required
                     disabled
                     value={editingCost.type || "Payment"}
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label>
-                    Method <span className="text-red-500">*</span>
-                  </Label>
-                  <Select
-                    value={String(editingCost.method_id || "")}
-                    onValueChange={(value) =>
-                      setEditingCost({ ...editingCost, method_id: value })
-                    }
+                  <FloatingWrapper
+                    label="Method"
+                    required
+                    hasValue={!!editingCost.method_id}
+                    isFocused={false}
                   >
-                    <SelectTrigger className="w-full">
-                      <SelectValue placeholder="Select" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {accountingMethods.map((item) => (
-                        <SelectItem key={item.id} value={String(item.id)}>
-                          {item.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                    <ShadcnSelect
+                      popoverKey="edit_hardcost_method"
+                      popoverOpen={popoverOpen}
+                      setPopoverOpen={setPopoverOpen}
+                      value={String(editingCost.method_id || "")}
+                      onValueChange={(val) =>
+                        setEditingCost({ ...editingCost, method_id: val })
+                      }
+                      options={accountingMethods}
+                      placeholder="Select"
+                      label="Method"
+                    />
+                  </FloatingWrapper>
                 </div>
               </div>
 
@@ -2487,7 +2493,6 @@ const CostList = () => {
                 <h3 className="text-md font-medium">Address 1</h3>
                 <div className="grid grid-cols-4 gap-4">
                   <div className="space-y-2">
-                    <Label>Unit Number</Label>
                     <FloatingInput
                       label="Unit Number"
                       placeholder=""
@@ -2504,7 +2509,6 @@ const CostList = () => {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label>Street Number</Label>
                     <FloatingInput
                       label="Street Number"
                       placeholder=""
@@ -2521,7 +2525,6 @@ const CostList = () => {
                     />
                   </div>
                   <div className="space-y-2 col-span-2">
-                    <Label>Street Name</Label>
                     <FloatingInput
                       label="Street Name"
                       placeholder=""
@@ -2540,7 +2543,6 @@ const CostList = () => {
                 </div>
                 <div className="grid grid-cols-4 gap-4">
                   <div className="space-y-2">
-                    <Label>City</Label>
                     <FloatingInput
                       label="City"
                       placeholder=""
@@ -2557,7 +2559,6 @@ const CostList = () => {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label>Province</Label>
                     <FloatingInput
                       label="Province"
                       placeholder=""
@@ -2574,7 +2575,6 @@ const CostList = () => {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label>Postal Code</Label>
                     <FloatingInput
                       label="Postal Code"
                       placeholder=""
@@ -2591,7 +2591,6 @@ const CostList = () => {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label>Country</Label>
                     <FloatingInput
                       label="Country"
                       placeholder=""
@@ -2615,7 +2614,6 @@ const CostList = () => {
                 <h3 className="text-md font-medium">Address 2</h3>
                 <div className="grid grid-cols-4 gap-4">
                   <div className="space-y-2">
-                    <Label>Unit Number</Label>
                     <FloatingInput
                       label="Unit Number"
                       placeholder=""
@@ -2632,7 +2630,6 @@ const CostList = () => {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label>Street Number</Label>
                     <FloatingInput
                       label="Street Number"
                       placeholder=""
@@ -2649,7 +2646,6 @@ const CostList = () => {
                     />
                   </div>
                   <div className="space-y-2 col-span-2">
-                    <Label>Street Name</Label>
                     <FloatingInput
                       label="Street Name"
                       placeholder=""
@@ -2668,7 +2664,6 @@ const CostList = () => {
                 </div>
                 <div className="grid grid-cols-4 gap-4">
                   <div className="space-y-2">
-                    <Label>City</Label>
                     <FloatingInput
                       label="City"
                       placeholder=""
@@ -2685,7 +2680,6 @@ const CostList = () => {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label>Province</Label>
                     <FloatingInput
                       label="Province"
                       placeholder=""
@@ -2702,7 +2696,6 @@ const CostList = () => {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label>Postal Code</Label>
                     <FloatingInput
                       label="Postal Code"
                       placeholder=""
@@ -2719,7 +2712,6 @@ const CostList = () => {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label>Country</Label>
                     <FloatingInput
                       label="Country"
                       placeholder=""
@@ -2740,8 +2732,8 @@ const CostList = () => {
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label>Memo 1</Label>
-                  <Textarea
+                  <FloatingTextarea
+                    label="Memo 1"
                     className="min-h-[80px]"
                     placeholder=""
                     value={editingCost.memo_1 || ""}
@@ -2751,8 +2743,8 @@ const CostList = () => {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label>Memo 2</Label>
-                  <Textarea
+                  <FloatingTextarea
+                    label="Memo 2"
                     className="min-h-[80px]"
                     placeholder=""
                     value={editingCost.memo_2 || ""}
