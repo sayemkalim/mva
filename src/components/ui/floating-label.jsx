@@ -19,7 +19,7 @@ const FloatingInput = React.forwardRef(
           placeholder=" "
           aria-label={typeof label === "string" ? label : undefined}
           className={cn(
-            "fl-input h-[48px] w-full rounded-md border border-input bg-transparent px-3.5 text-sm shadow-xs outline-none transition-[color,box-shadow]",
+            "fl-input h-[52px] w-full rounded-md border border-input bg-transparent px-3.5 text-sm shadow-xs outline-none transition-[color,box-shadow]",
             "dark:bg-input/30 dark:border-gray-600 placeholder:text-transparent",
             "focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px]",
             "aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive",

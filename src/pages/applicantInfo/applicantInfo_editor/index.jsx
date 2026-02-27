@@ -4,7 +4,11 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { FloatingInput, FloatingTextarea, FloatingWrapper } from "@/components/ui/floating-label";
+import {
+  FloatingInput,
+  FloatingTextarea,
+  FloatingWrapper,
+} from "@/components/ui/floating-label";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import {
@@ -79,10 +83,13 @@ function ShadcnSelect({
         <Button
           variant="outline"
           role="combobox"
+          size="form"
           className="w-full justify-between font-normal bg-muted"
           type="button"
         >
-          {selected ? selected.name : placeholder}
+          <span className={selected ? "" : "opacity-0"}>
+            {selected ? selected.name : placeholder}
+          </span>
           <ChevronsUpDown className="ml-auto h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
@@ -102,8 +109,9 @@ function ShadcnSelect({
                 className="italic text-muted-foreground"
               >
                 <Check
-                  className={`mr-2 h-4 w-4 ${!value ? "opacity-100" : "opacity-0"
-                    }`}
+                  className={`mr-2 h-4 w-4 ${
+                    !value ? "opacity-100" : "opacity-0"
+                  }`}
                 />
                 None
               </CommandItem>
@@ -114,10 +122,11 @@ function ShadcnSelect({
                   onSelect={() => handleSelect(opt.id)}
                 >
                   <Check
-                    className={`mr-2 h-4 w-4 ${String(value) === String(opt.id)
-                      ? "opacity-100"
-                      : "opacity-0"
-                      }`}
+                    className={`mr-2 h-4 w-4 ${
+                      String(value) === String(opt.id)
+                        ? "opacity-100"
+                        : "opacity-0"
+                    }`}
                   />
                   {opt.name}
                 </CommandItem>
@@ -155,19 +164,21 @@ export default function ApplicantInformation() {
     staleTime: 5 * 60 * 1000,
   });
 
-  const socialPlatforms = socialMediaSync?.global_social_media_platforms || socialMediaSync?.response?.global_social_media_platforms;
+  const socialPlatforms =
+    socialMediaSync?.global_social_media_platforms ||
+    socialMediaSync?.response?.global_social_media_platforms;
 
   const socialMediaOptions = Array.isArray(socialPlatforms)
-    ? socialPlatforms.map(p => ({ id: p.name, name: p.name }))
+    ? socialPlatforms.map((p) => ({ id: p.name, name: p.name }))
     : [
-      { id: "Facebook", name: "Facebook" },
-      { id: "Instagram", name: "Instagram" },
-      { id: "TikTok", name: "TikTok" },
-      { id: "X (Twitter)", name: "X (Twitter)" },
-      { id: "Snapchat", name: "Snapchat" },
-      { id: "LinkedIn", name: "LinkedIn" },
-      { id: "Other", name: "Other social media platforms" },
-    ];
+        { id: "Facebook", name: "Facebook" },
+        { id: "Instagram", name: "Instagram" },
+        { id: "TikTok", name: "TikTok" },
+        { id: "X (Twitter)", name: "X (Twitter)" },
+        { id: "Snapchat", name: "Snapchat" },
+        { id: "LinkedIn", name: "LinkedIn" },
+        { id: "Other", name: "Other social media platforms" },
+      ];
 
   const { data: applicantData, isLoading: isLoadingApplicant } = useQuery({
     queryKey: ["applicantInfo", slug],
@@ -231,8 +242,8 @@ export default function ApplicantInformation() {
         } else {
           toast.error(
             data?.message ||
-            data?.response?.message ||
-            "Submission failed. Please try again."
+              data?.response?.message ||
+              "Submission failed. Please try again.",
           );
           console.error("Create mutation returned:", data);
         }
@@ -263,7 +274,9 @@ export default function ApplicantInformation() {
     file: null,
     fileName: "",
     filePreview: null,
-    social_media_platform: [{ platform_name: "", platform_value: "", platform_status: "Active" }],
+    social_media_platform: [
+      { platform_name: "", platform_value: "", platform_status: "Active" },
+    ],
     reaches: [{ day_id: "", time: "" }],
     client_availability_away_id: "",
     client_availability_from: "",
@@ -317,7 +330,7 @@ export default function ApplicantInformation() {
   const handleSameAddressChange = (checked) => {
     if (checked) {
       setMailingAddressBackup({ ...formData.mailing_address });
-      setFormData(prev => ({
+      setFormData((prev) => ({
         ...prev,
         mailing_address: {
           ...prev.current_address,
@@ -325,7 +338,7 @@ export default function ApplicantInformation() {
         },
       }));
     } else {
-      setFormData(prev => ({
+      setFormData((prev) => ({
         ...prev,
         mailing_address: {
           ...(mailingAddressBackup || {
@@ -347,7 +360,6 @@ export default function ApplicantInformation() {
     setFormData((prev) => ({ ...prev, child_check: checked }));
   };
 
-
   useEffect(() => {
     if (!slug) {
       toast.error("Invalid URL - Slug not found!");
@@ -358,7 +370,7 @@ export default function ApplicantInformation() {
   useEffect(() => {
     console.log(
       "DEBUG reaches before submit:",
-      JSON.stringify(formData.reaches, null, 2)
+      JSON.stringify(formData.reaches, null, 2),
     );
   }, [formData.reaches]);
 
@@ -388,19 +400,25 @@ export default function ApplicantInformation() {
 
         social_media_platform:
           applicantData.social_media_platform &&
-            applicantData.social_media_platform.length > 0
+          applicantData.social_media_platform.length > 0
             ? applicantData.social_media_platform.map((p) => ({
-              platform_name: p.platform_name ?? "",
-              platform_value: p.platform_value ?? "",
-              platform_status: p.platform_status ?? "Active",
-            }))
-            : [{ platform_name: "", platform_value: "", platform_status: "Active" }],
+                platform_name: p.platform_name ?? "",
+                platform_value: p.platform_value ?? "",
+                platform_status: p.platform_status ?? "Active",
+              }))
+            : [
+                {
+                  platform_name: "",
+                  platform_value: "",
+                  platform_status: "Active",
+                },
+              ],
         reaches:
           applicantData.reach && applicantData.reach.length > 0
             ? applicantData.reach.map((r) => ({
-              day_id: r.day_id ?? "",
-              time: r.time ? r.time.slice(0, 5) : "",
-            }))
+                day_id: r.day_id ?? "",
+                time: r.time ? r.time.slice(0, 5) : "",
+              }))
             : [{ day_id: "", time: "" }],
         client_availability_away_id:
           applicantData.client_availability_away_id ?? "",
@@ -458,20 +476,26 @@ export default function ApplicantInformation() {
         children:
           applicantData.children && applicantData.children.length > 0
             ? applicantData.children.map((c) => ({
-              first_name: c.first_name ?? "",
-              middle_number: c.middle_number ?? "",
-              last_name: c.last_name ?? "",
-              dob: c.dob ? c.dob.split("T")[0] : "",
-            }))
+                first_name: c.first_name ?? "",
+                middle_number: c.middle_number ?? "",
+                last_name: c.last_name ?? "",
+                dob: c.dob ? c.dob.split("T")[0] : "",
+              }))
             : [{ first_name: "", middle_number: "", last_name: "", dob: "" }],
         meeting_clients:
           applicantData.meeting_client &&
-            applicantData.meeting_client.length > 0
+          applicantData.meeting_client.length > 0
             ? applicantData.meeting_client.map((m) => ({
-              date: m.date ? m.date.split("T")[0] : "",
-            }))
+                date: m.date ? m.date.split("T")[0] : "",
+              }))
             : [{ date: "" }],
-        child_check: applicantData.child_check === "true" || applicantData.child_check === true || applicantData.child_check === 1 || applicantData.child_check === "1" ? true : false,
+        child_check:
+          applicantData.child_check === "true" ||
+          applicantData.child_check === true ||
+          applicantData.child_check === 1 ||
+          applicantData.child_check === "1"
+            ? true
+            : false,
       });
     }
   }, [applicantData]);
@@ -484,7 +508,10 @@ export default function ApplicantInformation() {
   const handleAddressChange = (addressType, field, value) => {
     setFormData((prev) => {
       const updatedAddress = { ...prev[addressType], [field]: value };
-      if (addressType === "current_address" && prev.mailing_address?.sameascurrent) {
+      if (
+        addressType === "current_address" &&
+        prev.mailing_address?.sameascurrent
+      ) {
         return {
           ...prev,
           current_address: updatedAddress,
@@ -623,7 +650,9 @@ export default function ApplicantInformation() {
         current_address: formData.current_address,
       }),
       ...(isAddressFilled(formData.mailing_address) && {
-        mailing_address: (({ sameascurrent, ...rest }) => rest)(formData.mailing_address),
+        mailing_address: (({ sameascurrent, ...rest }) => rest)(
+          formData.mailing_address,
+        ),
       }),
 
       same_as_address: formData.mailing_address?.sameascurrent ?? false,
@@ -739,101 +768,106 @@ export default function ApplicantInformation() {
                 {/* Row 1 */}
                 <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
                   <div className="space-y-2">
-                    
-                    <FloatingWrapper label="Gender" hasValue={!!(formData.gender_id)}>
-  <ShadcnSelect
-                      popoverKey="gender"
-                      popoverOpen={popoverOpen}
-                      setPopoverOpen={setPopoverOpen}
-                      value={formData.gender_id}
-                      onValueChange={(val) => handleSelectChange("gender_id", val)}
-                      options={metadata?.contact_gender || []}
-                      placeholder="Select gender"
+                    <FloatingWrapper
                       label="Gender"
-                    />
-</FloatingWrapper>
+                      hasValue={!!formData.gender_id}
+                    >
+                      <ShadcnSelect
+                        popoverKey="gender"
+                        popoverOpen={popoverOpen}
+                        setPopoverOpen={setPopoverOpen}
+                        value={formData.gender_id}
+                        onValueChange={(val) =>
+                          handleSelectChange("gender_id", val)
+                        }
+                        options={metadata?.contact_gender || []}
+                        placeholder="Select gender"
+                        label="Gender"
+                      />
+                    </FloatingWrapper>
                   </div>
 
                   <div className="space-y-2">
-                    
-                    <FloatingInput label="Last Name" required
+                    <FloatingInput
+                      label="Last Name"
+                      required
                       id="last_name"
                       name="last_name"
                       value={formData.last_name}
                       onChange={handleChange}
                       placeholder="Doe"
-                      className="w-full h-9 bg-muted border-input"
+                      className="w-full bg-muted border-input"
                     />
                   </div>
 
                   <div className="space-y-2">
-                    
-                    <FloatingInput label="First Name" required
+                    <FloatingInput
+                      label="First Name"
+                      required
                       id="first_name"
                       name="first_name"
                       value={formData.first_name}
                       onChange={handleChange}
                       placeholder="John"
-                      className="w-full h-9 bg-muted border-input"
+                      className="w-full bg-muted border-input"
                     />
                   </div>
                   <div className="space-y-2">
-                    
-                    <FloatingInput label="Middle Name"
+                    <FloatingInput
+                      label="Middle Name"
                       id="middle_name"
                       name="middle_name"
                       value={formData.middle_name}
                       onChange={handleChange}
                       placeholder="Michael"
-                      className="w-full h-9 bg-muted border-input"
+                      className="w-full bg-muted border-input"
                     />
                   </div>
-
-
                 </div>
 
                 {/* Row 2 */}
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-
                   <div className="space-y-2">
-                    
-                    <FloatingInput label="Email"
+                    <FloatingInput
+                      label="Email"
                       id="email"
                       name="email"
                       type="email"
                       value={formData.email}
                       onChange={handleChange}
                       placeholder="john.doe@example.com"
-                      className="w-full h-9 bg-muted border-input"
+                      className="w-full bg-muted border-input"
                     />
                   </div>
                   <div className="space-y-2">
-                    
-                    <FloatingWrapper label="Marital Status" hasValue={!!(formData.marital_status_id)}>
-  <ShadcnSelect
-                      popoverKey="marital_status"
-                      popoverOpen={popoverOpen}
-                      setPopoverOpen={setPopoverOpen}
-                      value={formData.marital_status_id}
-                      onValueChange={(val) =>
-                        handleSelectChange("marital_status_id", val)
-                      }
-                      options={metadata?.marital_status || []}
-                      placeholder="Select status"
+                    <FloatingWrapper
                       label="Marital Status"
-                    />
-</FloatingWrapper>
+                      hasValue={!!formData.marital_status_id}
+                    >
+                      <ShadcnSelect
+                        popoverKey="marital_status"
+                        popoverOpen={popoverOpen}
+                        setPopoverOpen={setPopoverOpen}
+                        value={formData.marital_status_id}
+                        onValueChange={(val) =>
+                          handleSelectChange("marital_status_id", val)
+                        }
+                        options={metadata?.marital_status || []}
+                        // placeholder="Select status"
+                        label="Marital Status"
+                      />
+                    </FloatingWrapper>
                   </div>
 
                   <div className="space-y-2">
-                    
-                    <FloatingInput label="Date of Birth"
+                    <FloatingInput
+                      label="Date of Birth"
                       id="dob"
                       name="dob"
                       type="date"
                       value={formData.dob}
                       onChange={handleChange}
-                      className="w-full h-9 bg-muted border-input"
+                      className="w-full bg-muted border-input"
                     />
                   </div>
                 </div>
@@ -841,50 +875,54 @@ export default function ApplicantInformation() {
                 {/* Row 3 */}
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                   <div className="space-y-2">
-                    
-                    <FloatingWrapper label="Canadian Resident" hasValue={!!(formData.canadian_resident_id)}>
-  <ShadcnSelect
-                      popoverKey="canadian_resident"
-                      popoverOpen={popoverOpen}
-                      setPopoverOpen={setPopoverOpen}
-                      value={formData.canadian_resident_id}
-                      onValueChange={(val) =>
-                        handleSelectChange("canadian_resident_id", val)
-                      }
-                      options={metadata?.yes_no_option || []}
-                      placeholder="Select option"
+                    <FloatingWrapper
                       label="Canadian Resident"
-                    />
-</FloatingWrapper>
+                      hasValue={!!formData.canadian_resident_id}
+                    >
+                      <ShadcnSelect
+                        popoverKey="canadian_resident"
+                        popoverOpen={popoverOpen}
+                        setPopoverOpen={setPopoverOpen}
+                        value={formData.canadian_resident_id}
+                        onValueChange={(val) =>
+                          handleSelectChange("canadian_resident_id", val)
+                        }
+                        options={metadata?.yes_no_option || []}
+                        placeholder="Select option"
+                        label="Canadian Resident"
+                      />
+                    </FloatingWrapper>
                   </div>
 
                   <div className="space-y-2">
-                    
-                    <FloatingWrapper label="Resident Status" hasValue={!!(formData.resident_status_id)}>
-  <ShadcnSelect
-                      popoverKey="resident_status"
-                      popoverOpen={popoverOpen}
-                      setPopoverOpen={setPopoverOpen}
-                      value={formData.resident_status_id}
-                      onValueChange={(val) =>
-                        handleSelectChange("resident_status_id", val)
-                      }
-                      options={metadata?.resident_status || []}
-                      placeholder="Select status"
+                    <FloatingWrapper
                       label="Resident Status"
-                    />
-</FloatingWrapper>
+                      hasValue={!!formData.resident_status_id}
+                    >
+                      <ShadcnSelect
+                        popoverKey="resident_status"
+                        popoverOpen={popoverOpen}
+                        setPopoverOpen={setPopoverOpen}
+                        value={formData.resident_status_id}
+                        onValueChange={(val) =>
+                          handleSelectChange("resident_status_id", val)
+                        }
+                        options={metadata?.resident_status || []}
+                        placeholder="Select status"
+                        label="Resident Status"
+                      />
+                    </FloatingWrapper>
                   </div>
 
                   <div className="space-y-2">
-                    
-                    <FloatingInput label="Language Spoken"
+                    <FloatingInput
+                      label="Language Spoken"
                       id="language_spoken"
                       name="language_spoken"
                       value={formData.language_spoken}
                       onChange={handleChange}
                       placeholder="English"
-                      className="w-full h-9 bg-muted border-input"
+                      className="w-full bg-muted border-input"
                     />
                   </div>
                 </div>
@@ -892,56 +930,68 @@ export default function ApplicantInformation() {
                 {/* Row 4 */}
                 <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
                   <div className="space-y-2">
-                    
-                    <FloatingWrapper label="Contact Method" hasValue={!!(formData.contact_method_id)}>
-  <ShadcnSelect
-                      popoverKey="contact_method"
-                      popoverOpen={popoverOpen}
-                      setPopoverOpen={setPopoverOpen}
-                      value={formData.contact_method_id}
-                      onValueChange={(val) =>
-                        handleSelectChange("contact_method_id", val)
-                      }
-                      options={metadata?.contact_method || []}
-                      placeholder="Select method"
+                    <FloatingWrapper
                       label="Contact Method"
-                    />
-</FloatingWrapper>
+                      hasValue={!!formData.contact_method_id}
+                    >
+                      <ShadcnSelect
+                        popoverKey="contact_method"
+                        popoverOpen={popoverOpen}
+                        setPopoverOpen={setPopoverOpen}
+                        value={formData.contact_method_id}
+                        onValueChange={(val) =>
+                          handleSelectChange("contact_method_id", val)
+                        }
+                        options={metadata?.contact_method || []}
+                        placeholder="Select method"
+                        label="Contact Method"
+                      />
+                    </FloatingWrapper>
                   </div>
 
                   <div className="space-y-2">
-                    
-                    <FloatingInput label="Telephone"
+                    <FloatingInput
+                      label="Telephone"
                       id="telephone"
                       name="telephone"
                       value={formData.telephone}
-                      onChange={(e) => setFormData(prev => ({ ...prev, telephone: formatPhoneNumber(e.target.value) }))}
+                      onChange={(e) =>
+                        setFormData((prev) => ({
+                          ...prev,
+                          telephone: formatPhoneNumber(e.target.value),
+                        }))
+                      }
                       placeholder="(888) 888-8888"
-                      className="w-full h-9 bg-muted border-input"
+                      className="w-full bg-muted border-input"
                     />
                   </div>
 
                   <div className="space-y-2">
-                    
-                    <FloatingInput label="Ext"
+                    <FloatingInput
+                      label="Ext"
                       id="ext"
                       name="ext"
                       value={formData.ext}
                       onChange={handleChange}
                       placeholder="2"
-                      className="w-full h-9 bg-muted border-input"
+                      className="w-full bg-muted border-input"
                     />
                   </div>
 
                   <div className="space-y-2">
-                    
-                    <FloatingInput label="Fax"
+                    <FloatingInput
+                      label="Fax"
                       id="fax"
                       name="fax"
                       value={formData.fax}
-                      onChange={(e) => setFormData(prev => ({ ...prev, fax: formatPhoneNumber(e.target.value) }))}
+                      onChange={(e) =>
+                        setFormData((prev) => ({
+                          ...prev,
+                          fax: formatPhoneNumber(e.target.value),
+                        }))
+                      }
                       placeholder="(888) 888-8888"
-                      className="w-full h-9 bg-muted border-input"
+                      className="w-full bg-muted border-input"
                     />
                   </div>
                 </div>
@@ -952,13 +1002,15 @@ export default function ApplicantInformation() {
 
                 <div className="space-y-2">
                   <Label className="text-foreground font-medium">
-                    Applicant Photo <span className="text-red-500">(Max 1MB)</span>
+                    Applicant Photo{" "}
+                    <span className="text-red-500">(Max 1MB)</span>
                   </Label>
                   <div
-                    className={`relative border-2 border-dashed rounded-lg transition-all overflow-hidden ${formData.filePreview
-                      ? "border-green-500 bg-green-50/50 h-[300px]"
-                      : "border-input bg-muted hover:border-gray-400 hover:bg-gray-100 h-[300px]"
-                      }`}
+                    className={`relative border-2 border-dashed rounded-lg transition-all overflow-hidden ${
+                      formData.filePreview
+                        ? "border-green-500 bg-green-50/50 h-[300px]"
+                        : "border-input bg-muted hover:border-gray-400 hover:bg-gray-100 h-[300px]"
+                    }`}
                   >
                     <input
                       id="applicant_photo"
@@ -982,7 +1034,8 @@ export default function ApplicantInformation() {
                               e.stopPropagation();
                               const link = document.createElement("a");
                               link.href = formData.filePreview;
-                              link.download = formData.fileName || "applicant-photo.png";
+                              link.download =
+                                formData.fileName || "applicant-photo.png";
                               link.target = "_blank";
                               document.body.appendChild(link);
                               link.click();
@@ -1080,7 +1133,6 @@ export default function ApplicantInformation() {
               </div>
             </div>
 
-
             <div className="space-y-6 pt-6 border-t">
               <div className="flex items-center justify-between">
                 <h2 className="text-xl font-semibold text-foreground">
@@ -1103,71 +1155,78 @@ export default function ApplicantInformation() {
               </div>
 
               {formData.social_media_platform.map((platform, index) => (
-                <div key={index} className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+                <div
+                  key={index}
+                  className="grid grid-cols-1 lg:grid-cols-4 gap-6"
+                >
                   <div className="space-y-2">
-                    
-                    <FloatingWrapper label="Platform" hasValue={!!(platform.platform_name)}>
-  <ShadcnSelect
-                      popoverKey={`social-${index}-site`}
-                      popoverOpen={popoverOpen}
-                      setPopoverOpen={setPopoverOpen}
-                      value={platform.platform_name}
-                      onValueChange={(val) =>
-                        handleArrayChange(
-                          "social_media_platform",
-                          index,
-                          "platform_name",
-                          val
-                        )
-                      }
-                      options={socialMediaOptions}
-                      placeholder="Select site"
-                      label="Social Media Site"
-                    />
-</FloatingWrapper>
+                    <FloatingWrapper
+                      label="Platform"
+                      hasValue={!!platform.platform_name}
+                    >
+                      <ShadcnSelect
+                        popoverKey={`social-${index}-site`}
+                        popoverOpen={popoverOpen}
+                        setPopoverOpen={setPopoverOpen}
+                        value={platform.platform_name}
+                        onValueChange={(val) =>
+                          handleArrayChange(
+                            "social_media_platform",
+                            index,
+                            "platform_name",
+                            val,
+                          )
+                        }
+                        options={socialMediaOptions}
+                        placeholder="Select site"
+                        label="Social Media Site"
+                      />
+                    </FloatingWrapper>
                   </div>
 
                   <div className="space-y-2">
-                    
-                    <FloatingInput label="Link"
+                    <FloatingInput
+                      label="Link"
                       value={platform.platform_value}
                       onChange={(e) =>
                         handleArrayChange(
                           "social_media_platform",
                           index,
                           "platform_value",
-                          e.target.value
+                          e.target.value,
                         )
                       }
                       placeholder="https://..."
-                      className="w-full h-9 bg-muted border-input"
+                      className="w-full bg-muted border-input"
                     />
                   </div>
 
                   <div className="space-y-2">
-                    
-                    <FloatingWrapper label="Status" hasValue={!!(platform.platform_status)}>
-  <ShadcnSelect
-                      popoverKey={`social-${index}-status`}
-                      popoverOpen={popoverOpen}
-                      setPopoverOpen={setPopoverOpen}
-                      value={platform.platform_status}
-                      onValueChange={(val) =>
-                        handleArrayChange(
-                          "social_media_platform",
-                          index,
-                          "platform_status",
-                          val
-                        )
-                      }
-                      options={[
-                        { id: "Active", name: "Active" },
-                        { id: "Inactive", name: "Inactive" },
-                      ]}
-                      placeholder="Select status"
+                    <FloatingWrapper
                       label="Status"
-                    />
-</FloatingWrapper>
+                      hasValue={!!platform.platform_status}
+                    >
+                      <ShadcnSelect
+                        popoverKey={`social-${index}-status`}
+                        popoverOpen={popoverOpen}
+                        setPopoverOpen={setPopoverOpen}
+                        value={platform.platform_status}
+                        onValueChange={(val) =>
+                          handleArrayChange(
+                            "social_media_platform",
+                            index,
+                            "platform_status",
+                            val,
+                          )
+                        }
+                        options={[
+                          { id: "Active", name: "Active" },
+                          { id: "Inactive", name: "Inactive" },
+                        ]}
+                        placeholder="Select status"
+                        label="Status"
+                      />
+                    </FloatingWrapper>
                   </div>
 
                   <div className="flex items-end">
@@ -1207,28 +1266,30 @@ export default function ApplicantInformation() {
               </div>
 
               {formData.reaches.map((reach, index) => (
-                <div key={index} className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div
+                  key={index}
+                  className="grid grid-cols-1 lg:grid-cols-3 gap-6"
+                >
                   <div className="space-y-2">
-                    
-                    <FloatingWrapper label="Day" hasValue={!!(reach.day_id)}>
-  <ShadcnSelect
-                      popoverKey={`reaches-${index}-day`}
-                      popoverOpen={popoverOpen}
-                      setPopoverOpen={setPopoverOpen}
-                      value={reach.day_id}
-                      onValueChange={(val) =>
-                        handleArrayChange("reaches", index, "day_id", val)
-                      }
-                      options={metadata?.day || []}
-                      placeholder="Select day"
-                      label="Day"
-                    />
-</FloatingWrapper>
+                    <FloatingWrapper label="Day" hasValue={!!reach.day_id}>
+                      <ShadcnSelect
+                        popoverKey={`reaches-${index}-day`}
+                        popoverOpen={popoverOpen}
+                        setPopoverOpen={setPopoverOpen}
+                        value={reach.day_id}
+                        onValueChange={(val) =>
+                          handleArrayChange("reaches", index, "day_id", val)
+                        }
+                        options={metadata?.day || []}
+                        placeholder="Select day"
+                        label="Day"
+                      />
+                    </FloatingWrapper>
                   </div>
 
                   <div className="space-y-2">
-                    
-                    <FloatingInput label="Time"
+                    <FloatingInput
+                      label="Time"
                       type="time"
                       value={reach.time}
                       onChange={(e) =>
@@ -1236,10 +1297,10 @@ export default function ApplicantInformation() {
                           "reaches",
                           index,
                           "time",
-                          e.target.value
+                          e.target.value,
                         )
                       }
-                      className="w-full h-9 bg-muted border-input"
+                      className="w-full bg-muted border-input"
                     />
                   </div>
 
@@ -1266,44 +1327,46 @@ export default function ApplicantInformation() {
               </h2>
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <div className="space-y-2">
-                  
-                  <FloatingWrapper label="Away Status" hasValue={!!(formData.client_availability_away_id)}>
-  <ShadcnSelect
-                    popoverKey="client_availability_away"
-                    popoverOpen={popoverOpen}
-                    setPopoverOpen={setPopoverOpen}
-                    value={formData.client_availability_away_id}
-                    onValueChange={(val) =>
-                      handleSelectChange("client_availability_away_id", val)
-                    }
-                    options={metadata?.yes_no_option || []}
-                    placeholder="Select status"
+                  <FloatingWrapper
                     label="Away Status"
-                  />
-</FloatingWrapper>
+                    hasValue={!!formData.client_availability_away_id}
+                  >
+                    <ShadcnSelect
+                      popoverKey="client_availability_away"
+                      popoverOpen={popoverOpen}
+                      setPopoverOpen={setPopoverOpen}
+                      value={formData.client_availability_away_id}
+                      onValueChange={(val) =>
+                        handleSelectChange("client_availability_away_id", val)
+                      }
+                      options={metadata?.yes_no_option || []}
+                      placeholder="Select status"
+                      label="Away Status"
+                    />
+                  </FloatingWrapper>
                 </div>
 
                 <div className="space-y-2">
-                  
-                  <FloatingInput label="From Date"
+                  <FloatingInput
+                    label="From Date"
                     id="client_availability_from"
                     name="client_availability_from"
                     type="date"
                     value={formData.client_availability_from}
                     onChange={handleChange}
-                    className="w-full h-9 bg-muted border-input"
+                    className="w-full bg-muted border-input"
                   />
                 </div>
 
                 <div className="space-y-2">
-                  
-                  <FloatingInput label="To Date"
+                  <FloatingInput
+                    label="To Date"
                     id="client_availability_to"
                     name="client_availability_to"
                     type="date"
                     value={formData.client_availability_to}
                     onChange={handleChange}
-                    className="w-full h-9 bg-muted border-input"
+                    className="w-full bg-muted border-input"
                   />
                 </div>
               </div>
@@ -1316,114 +1379,114 @@ export default function ApplicantInformation() {
               </h2>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 <div className="space-y-2">
-                  
-                  <FloatingInput label="Unit Number"
+                  <FloatingInput
+                    label="Unit Number"
                     value={formData.current_address.unit_number}
                     onChange={(e) =>
                       handleAddressChange(
                         "current_address",
                         "unit_number",
-                        e.target.value
+                        e.target.value,
                       )
                     }
                     placeholder="5B"
-                    className="w-full h-9 bg-muted border-input"
+                    className="w-full bg-muted border-input"
                   />
                 </div>
 
                 <div className="space-y-2">
-                  
-                  <FloatingInput label="Street Number"
+                  <FloatingInput
+                    label="Street Number"
                     value={formData.current_address.street_number}
                     onChange={(e) =>
                       handleAddressChange(
                         "current_address",
                         "street_number",
-                        e.target.value
+                        e.target.value,
                       )
                     }
                     placeholder="221"
-                    className="w-full h-9 bg-muted border-input"
+                    className="w-full bg-muted border-input"
                   />
                 </div>
 
                 <div className="space-y-2">
-                  
-                  <FloatingInput label="Street Name"
+                  <FloatingInput
+                    label="Street Name"
                     value={formData.current_address.street_name}
                     onChange={(e) =>
                       handleAddressChange(
                         "current_address",
                         "street_name",
-                        e.target.value
+                        e.target.value,
                       )
                     }
                     placeholder="King Street West"
-                    className="w-full h-9 bg-muted border-input"
+                    className="w-full bg-muted border-input"
                   />
                 </div>
 
                 <div className="space-y-2">
-                  
-                  <FloatingInput label="City"
+                  <FloatingInput
+                    label="City"
                     value={formData.current_address.city}
                     onChange={(e) =>
                       handleAddressChange(
                         "current_address",
                         "city",
-                        e.target.value
+                        e.target.value,
                       )
                     }
                     placeholder="Toronto"
-                    className="w-full h-9 bg-muted border-input"
+                    className="w-full bg-muted border-input"
                   />
                 </div>
 
                 <div className="space-y-2">
-                  
-                  <FloatingInput label="Province"
+                  <FloatingInput
+                    label="Province"
                     value={formData.current_address.province}
                     onChange={(e) =>
                       handleAddressChange(
                         "current_address",
                         "province",
-                        e.target.value
+                        e.target.value,
                       )
                     }
                     placeholder="Ontario"
-                    className="w-full h-9 bg-muted border-input"
+                    className="w-full bg-muted border-input"
                   />
                 </div>
 
                 <div className="space-y-2">
-                  
-                  <FloatingInput label="Postal Code"
+                  <FloatingInput
+                    label="Postal Code"
                     value={formData.current_address.postal_code}
                     onChange={(e) =>
                       handleAddressChange(
                         "current_address",
                         "postal_code",
-                        e.target.value
+                        e.target.value,
                       )
                     }
                     placeholder="M5H 1K5"
-                    className="w-full h-9 bg-muted border-input"
+                    className="w-full bg-muted border-input"
                   />
                 </div>
 
                 <div className="space-y-2">
-                  
-                  <FloatingInput label="Country"
+                  <FloatingInput
+                    label="Country"
                     value={formData.current_address.country}
                     onChange={(e) =>
                       handleAddressChange(
                         "current_address",
                         "country",
-                        e.target.value
+                        e.target.value,
                       )
                     }
                     placeholder="Canada"
-                    className="w-full h-9 bg-muted border-input"
+                    className="w-full bg-muted border-input"
                   />
                 </div>
               </div>
@@ -1451,121 +1514,135 @@ export default function ApplicantInformation() {
               {!formData.mailing_address?.sameascurrent && (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                   <div className="space-y-2">
-                    
-                    <FloatingInput label="Unit Number"
+                    <FloatingInput
+                      label="Unit Number"
                       value={formData.mailing_address.unit_number}
                       onChange={(e) =>
                         handleAddressChange(
                           "mailing_address",
                           "unit_number",
-                          e.target.value
+                          e.target.value,
                         )
                       }
                       placeholder="5B"
-                      className="w-full h-9 bg-muted border-input"
-                      disabled={formData.mailing_address?.sameascurrent ?? false}
+                      className="w-full bg-muted border-input"
+                      disabled={
+                        formData.mailing_address?.sameascurrent ?? false
+                      }
                     />
                   </div>
 
                   <div className="space-y-2">
-                    
-                    <FloatingInput label="Street Number"
+                    <FloatingInput
+                      label="Street Number"
                       value={formData.mailing_address.street_number}
                       onChange={(e) =>
                         handleAddressChange(
                           "mailing_address",
                           "street_number",
-                          e.target.value
+                          e.target.value,
                         )
                       }
                       placeholder="221"
-                      className="w-full h-9 bg-muted border-input"
-                      disabled={formData.mailing_address?.sameascurrent ?? false}
+                      className="w-full bg-muted border-input"
+                      disabled={
+                        formData.mailing_address?.sameascurrent ?? false
+                      }
                     />
                   </div>
 
                   <div className="space-y-2">
-                    
-                    <FloatingInput label="Street Name"
+                    <FloatingInput
+                      label="Street Name"
                       value={formData.mailing_address.street_name}
                       onChange={(e) =>
                         handleAddressChange(
                           "mailing_address",
                           "street_name",
-                          e.target.value
+                          e.target.value,
                         )
                       }
                       placeholder="King Street West"
-                      className="w-full h-9 bg-muted border-input"
-                      disabled={formData.mailing_address?.sameascurrent ?? false}
+                      className="w-full bg-muted border-input"
+                      disabled={
+                        formData.mailing_address?.sameascurrent ?? false
+                      }
                     />
                   </div>
 
                   <div className="space-y-2">
-                    
-                    <FloatingInput label="City"
+                    <FloatingInput
+                      label="City"
                       value={formData.mailing_address.city}
                       onChange={(e) =>
                         handleAddressChange(
                           "mailing_address",
                           "city",
-                          e.target.value
+                          e.target.value,
                         )
                       }
                       placeholder="Toronto"
-                      className="w-full h-9 bg-muted border-input"
-                      disabled={formData.mailing_address?.sameascurrent ?? false}
+                      className="w-full bg-muted border-input"
+                      disabled={
+                        formData.mailing_address?.sameascurrent ?? false
+                      }
                     />
                   </div>
 
                   <div className="space-y-2">
-                    
-                    <FloatingInput label="Province"
+                    <FloatingInput
+                      label="Province"
                       value={formData.mailing_address.province}
                       onChange={(e) =>
                         handleAddressChange(
                           "mailing_address",
                           "province",
-                          e.target.value
+                          e.target.value,
                         )
                       }
                       placeholder="Ontario"
-                      className="w-full h-9 bg-muted border-input"
-                      disabled={formData.mailing_address?.sameascurrent ?? false}
+                      className="w-full bg-muted border-input"
+                      disabled={
+                        formData.mailing_address?.sameascurrent ?? false
+                      }
                     />
                   </div>
 
                   <div className="space-y-2">
-                    
-                    <FloatingInput label="Postal Code"
+                    <FloatingInput
+                      label="Postal Code"
                       value={formData.mailing_address.postal_code}
                       onChange={(e) =>
                         handleAddressChange(
                           "mailing_address",
                           "postal_code",
-                          e.target.value
+                          e.target.value,
                         )
                       }
                       placeholder="M5H 1K5"
-                      className="w-full h-9 bg-muted border-input"
-                      disabled={formData.mailing_address?.sameascurrent ?? false}
+                      className="w-full bg-muted border-input"
+                      disabled={
+                        formData.mailing_address?.sameascurrent ?? false
+                      }
                     />
                   </div>
 
                   <div className="space-y-2">
-                    
-                    <FloatingInput label="Country"
+                    <FloatingInput
+                      label="Country"
                       value={formData.mailing_address.country}
                       onChange={(e) =>
                         handleAddressChange(
                           "mailing_address",
                           "country",
-                          e.target.value
+                          e.target.value,
                         )
                       }
                       placeholder="Canada"
-                      className="w-full h-9 bg-muted border-input"
-                      disabled={formData.mailing_address?.sameascurrent ?? false}
+                      className="w-full bg-muted border-input"
+                      disabled={
+                        formData.mailing_address?.sameascurrent ?? false
+                      }
                     />
                   </div>
                 </div>
@@ -1579,132 +1656,146 @@ export default function ApplicantInformation() {
               </h2>
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <div className="space-y-2">
-                  
-                  <FloatingInput label="First Name"
+                  <FloatingInput
+                    label="First Name"
                     id="family_member_first_name"
                     name="family_member_first_name"
                     value={formData.family_member_first_name}
                     onChange={handleChange}
                     placeholder="Jane"
-                    className="w-full h-9 bg-muted border-input"
+                    className="w-full bg-muted border-input"
                   />
                 </div>
 
                 <div className="space-y-2">
-                  
-                  <FloatingInput label="Middle Name"
+                  <FloatingInput
+                    label="Middle Name"
                     id="family_member_middle_name"
                     name="family_member_middle_name"
                     value={formData.family_member_middle_name}
                     onChange={handleChange}
                     placeholder="K"
-                    className="w-full h-9 bg-muted border-input"
+                    className="w-full bg-muted border-input"
                   />
                 </div>
 
                 <div className="space-y-2">
-                  
-                  <FloatingInput label="Last Name"
+                  <FloatingInput
+                    label="Last Name"
                     id="family_member_last_name"
                     name="family_member_last_name"
                     value={formData.family_member_last_name}
                     onChange={handleChange}
                     placeholder="Doe"
-                    className="w-full h-9 bg-muted border-input"
+                    className="w-full bg-muted border-input"
                   />
                 </div>
 
                 <div className="space-y-2">
-                  
-                  <FloatingInput label="Date of Birth"
+                  <FloatingInput
+                    label="Date of Birth"
                     id="family_member_dob"
                     name="family_member_dob"
                     type="date"
                     value={formData.family_member_dob}
                     onChange={handleChange}
-                    className="w-full h-9 bg-muted border-input"
+                    className="w-full bg-muted border-input"
                   />
                 </div>
 
                 <div className="space-y-2">
-                  
-                  <FloatingWrapper label="Spouse Status" hasValue={!!(formData.family_member_spouse_status_id)}>
-  <ShadcnSelect
-                    popoverKey="family_member_spouse_status"
-                    popoverOpen={popoverOpen}
-                    setPopoverOpen={setPopoverOpen}
-                    value={formData.family_member_spouse_status_id}
-                    onValueChange={(val) =>
-                      handleSelectChange("family_member_spouse_status_id", val)
-                    }
-                    options={metadata?.marital_status || []}
-                    placeholder="Select status"
+                  <FloatingWrapper
                     label="Spouse Status"
-                  />
-</FloatingWrapper>
+                    hasValue={!!formData.family_member_spouse_status_id}
+                  >
+                    <ShadcnSelect
+                      popoverKey="family_member_spouse_status"
+                      popoverOpen={popoverOpen}
+                      setPopoverOpen={setPopoverOpen}
+                      value={formData.family_member_spouse_status_id}
+                      onValueChange={(val) =>
+                        handleSelectChange(
+                          "family_member_spouse_status_id",
+                          val,
+                        )
+                      }
+                      options={metadata?.marital_status || []}
+                      // placeholder="Select status"
+                      label="Spouse Status"
+                    />
+                  </FloatingWrapper>
                 </div>
 
                 <div className="space-y-2">
-                  
-                  <FloatingWrapper label="Employment Status" hasValue={!!(formData.family_member_employment_status_id)}>
-  <ShadcnSelect
-                    popoverKey="family_member_employment_status"
-                    popoverOpen={popoverOpen}
-                    setPopoverOpen={setPopoverOpen}
-                    value={formData.family_member_employment_status_id}
-                    onValueChange={(val) =>
-                      handleSelectChange(
-                        "family_member_employment_status_id",
-                        val
-                      )
-                    }
-                    options={metadata?.contact_employed || []}
-                    placeholder="Select status"
+                  <FloatingWrapper
                     label="Employment Status"
-                  />
-</FloatingWrapper>
+                    hasValue={!!formData.family_member_employment_status_id}
+                  >
+                    <ShadcnSelect
+                      popoverKey="family_member_employment_status"
+                      popoverOpen={popoverOpen}
+                      setPopoverOpen={setPopoverOpen}
+                      value={formData.family_member_employment_status_id}
+                      onValueChange={(val) =>
+                        handleSelectChange(
+                          "family_member_employment_status_id",
+                          val,
+                        )
+                      }
+                      options={metadata?.contact_employed || []}
+                      placeholder="Select status"
+                      label="Employment Status"
+                    />
+                  </FloatingWrapper>
                 </div>
 
                 <div className="space-y-2">
-                  
-                  <FloatingInput label="Annual Income"
+                  <FloatingInput
+                    label="Annual Income"
                     id="family_member_annual_income"
                     name="family_member_annual_income"
                     value={formData.family_member_annual_income}
                     onChange={handleChange}
                     placeholder="85000"
-                    className="w-full h-9 bg-muted border-input"
+                    className="w-full bg-muted border-input"
                   />
                 </div>
 
                 <div className="space-y-2">
-                  
-                  <FloatingInput label="Telephone"
+                  <FloatingInput
+                    label="Telephone"
                     id="family_member_telephone"
                     name="family_member_telephone"
                     value={formData.family_member_telephone}
-                    onChange={(e) => setFormData(prev => ({ ...prev, family_member_telephone: formatPhoneNumber(e.target.value) }))}
+                    onChange={(e) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        family_member_telephone: formatPhoneNumber(
+                          e.target.value,
+                        ),
+                      }))
+                    }
                     placeholder="(888) 888-8888"
-                    className="w-full h-9 bg-muted border-input"
+                    className="w-full bg-muted border-input"
                   />
                 </div>
 
                 <div className="space-y-2">
-                  
-                  <FloatingInput label="Email"
+                  <FloatingInput
+                    label="Email"
                     id="family_member_email"
                     name="family_member_email"
                     type="email"
                     value={formData.family_member_email}
                     onChange={handleChange}
                     placeholder="jane.doe@example.com"
-                    className="w-full h-9 bg-muted border-input"
+                    className="w-full bg-muted border-input"
                   />
                 </div>
 
                 <div className="space-y-2 lg:col-span-3">
-                  
-                  <FloatingTextarea label="Note"
+                  <FloatingTextarea
+                    label="Note"
                     id="family_member_note"
                     name="family_member_note"
                     value={formData.family_member_note}
@@ -1720,118 +1811,117 @@ export default function ApplicantInformation() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               <div className="space-y-2">
-                
-                <FloatingInput label="Unit Number"
+                <FloatingInput
+                  label="Unit Number"
                   value={formData.family_member_address.unit_number}
                   onChange={(e) =>
                     handleAddressChange(
                       "family_member_address",
                       "unit_number",
-                      e.target.value
+                      e.target.value,
                     )
                   }
                   placeholder="5B"
-                  className="w-full h-9 bg-muted border-input"
+                  className="w-full bg-muted border-input"
                 />
               </div>
 
               <div className="space-y-2">
-                
-                <FloatingInput label="Street Number"
+                <FloatingInput
+                  label="Street Number"
                   value={formData.family_member_address.street_number}
                   onChange={(e) =>
                     handleAddressChange(
                       "family_member_address",
                       "street_number",
-                      e.target.value
+                      e.target.value,
                     )
                   }
                   placeholder="221"
-                  className="w-full h-9 bg-muted border-input"
+                  className="w-full bg-muted border-input"
                 />
               </div>
 
               <div className="space-y-2">
-                
-                <FloatingInput label="Street Name"
+                <FloatingInput
+                  label="Street Name"
                   value={formData.family_member_address.street_name}
                   onChange={(e) =>
                     handleAddressChange(
                       "family_member_address",
                       "street_name",
-                      e.target.value
+                      e.target.value,
                     )
                   }
                   placeholder="King Street West"
-                  className="w-full h-9 bg-muted border-input"
+                  className="w-full bg-muted border-input"
                 />
               </div>
 
               <div className="space-y-2">
-                
-                <FloatingInput label="City"
+                <FloatingInput
+                  label="City"
                   value={formData.family_member_address.city}
                   onChange={(e) =>
                     handleAddressChange(
                       "family_member_address",
                       "city",
-                      e.target.value
+                      e.target.value,
                     )
                   }
                   placeholder="Toronto"
-                  className="w-full h-9 bg-muted border-input"
+                  className="w-full bg-muted border-input"
                 />
               </div>
 
               <div className="space-y-2">
-                
-                <FloatingInput label="Province"
+                <FloatingInput
+                  label="Province"
                   value={formData.family_member_address.province}
                   onChange={(e) =>
                     handleAddressChange(
                       "family_member_address",
                       "province",
-                      e.target.value
+                      e.target.value,
                     )
                   }
                   placeholder="Ontario"
-                  className="w-full h-9 bg-muted border-input"
+                  className="w-full bg-muted border-input"
                 />
               </div>
 
               <div className="space-y-2">
-                
-                <FloatingInput label="Postal Code"
+                <FloatingInput
+                  label="Postal Code"
                   value={formData.family_member_address.postal_code}
                   onChange={(e) =>
                     handleAddressChange(
                       "family_member_address",
                       "postal_code",
-                      e.target.value
+                      e.target.value,
                     )
                   }
                   placeholder="M5H 1K5"
-                  className="w-full h-9 bg-muted border-input"
+                  className="w-full bg-muted border-input"
                 />
               </div>
 
               <div className="space-y-2">
-                
-                <FloatingInput label="Country"
+                <FloatingInput
+                  label="Country"
                   value={formData.family_member_address.country}
                   onChange={(e) =>
                     handleAddressChange(
                       "family_member_address",
                       "country",
-                      e.target.value
+                      e.target.value,
                     )
                   }
                   placeholder="Canada"
-                  className="w-full h-9 bg-muted border-input"
+                  className="w-full bg-muted border-input"
                 />
               </div>
             </div>
-
 
             {/* Children */}
             <div className="space-y-6 pt-6 border-t">
@@ -1846,7 +1936,6 @@ export default function ApplicantInformation() {
                       checked={formData.child_check}
                       onCheckedChange={handleChildCheckChange}
                     />
-
                   </div>
                 </div>
                 {formData.child_check && (
@@ -1868,98 +1957,99 @@ export default function ApplicantInformation() {
                 )}
               </div>
 
-              {formData.child_check && formData.children.map((child, index) => (
-                <div
-                  key={index}
-                  className="space-y-6 p-6 border rounded-lg bg-muted"
-                >
-                  <div className="flex justify-between items-center">
-                    <h3 className="font-medium text-foreground">
-                      Child {index + 1}
-                    </h3>
-                    <Button
-                      type="button"
-                      variant="destructive"
-                      size="sm"
-                      onClick={() => removeArrayItem("children", index)}
-                      disabled={formData.children.length === 1}
-                    >
-                      <X className="w-4 h-4 mr-2" />
-                      Remove
-                    </Button>
+              {formData.child_check &&
+                formData.children.map((child, index) => (
+                  <div
+                    key={index}
+                    className="space-y-6 p-6 border rounded-lg bg-muted"
+                  >
+                    <div className="flex justify-between items-center">
+                      <h3 className="font-medium text-foreground">
+                        Child {index + 1}
+                      </h3>
+                      <Button
+                        type="button"
+                        variant="destructive"
+                        size="sm"
+                        onClick={() => removeArrayItem("children", index)}
+                        disabled={formData.children.length === 1}
+                      >
+                        <X className="w-4 h-4 mr-2" />
+                        Remove
+                      </Button>
+                    </div>
+
+                    <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+                      <div className="space-y-2">
+                        <FloatingInput
+                          label="First Name"
+                          value={child.first_name}
+                          onChange={(e) =>
+                            handleArrayChange(
+                              "children",
+                              index,
+                              "first_name",
+                              e.target.value,
+                            )
+                          }
+                          placeholder="Anna"
+                          className="w-full bg-card border-input"
+                        />
+                      </div>
+
+                      <div className="space-y-2">
+                        <FloatingInput
+                          label="Middle Name"
+                          value={child.middle_number}
+                          onChange={(e) =>
+                            handleArrayChange(
+                              "children",
+                              index,
+                              "middle_number",
+                              e.target.value,
+                            )
+                          }
+                          placeholder="M"
+                          className="w-full bg-card border-input"
+                        />
+                      </div>
+
+                      <div className="space-y-2">
+                        <FloatingInput
+                          label="Last Name"
+                          value={child.last_name}
+                          onChange={(e) =>
+                            handleArrayChange(
+                              "children",
+                              index,
+                              "last_name",
+                              e.target.value,
+                            )
+                          }
+                          placeholder="Doe"
+                          className="w-full bg-card border-input"
+                        />
+                      </div>
+
+                      <div className="space-y-2">
+                        <FloatingInput
+                          label="Date of Birth"
+                          type="date"
+                          value={child.dob}
+                          onChange={(e) =>
+                            handleArrayChange(
+                              "children",
+                              index,
+                              "dob",
+                              e.target.value,
+                            )
+                          }
+                          className="w-full bg-card border-input"
+                        />
+                      </div>
+                    </div>
                   </div>
-
-                  <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-                    <div className="space-y-2">
-                      
-                      <FloatingInput label="First Name"
-                        value={child.first_name}
-                        onChange={(e) =>
-                          handleArrayChange(
-                            "children",
-                            index,
-                            "first_name",
-                            e.target.value
-                          )
-                        }
-                        placeholder="Anna"
-                        className="w-full h-9 bg-card border-input"
-                      />
-                    </div>
-
-                    <div className="space-y-2">
-                      
-                      <FloatingInput label="Middle Name"
-                        value={child.middle_number}
-                        onChange={(e) =>
-                          handleArrayChange(
-                            "children",
-                            index,
-                            "middle_number",
-                            e.target.value
-                          )
-                        }
-                        placeholder="M"
-                        className="w-full h-9 bg-card border-input"
-                      />
-                    </div>
-
-                    <div className="space-y-2">
-                      
-                      <FloatingInput label="Last Name"
-                        value={child.last_name}
-                        onChange={(e) =>
-                          handleArrayChange(
-                            "children",
-                            index,
-                            "last_name",
-                            e.target.value
-                          )
-                        }
-                        placeholder="Doe"
-                        className="w-full h-9 bg-card border-input"
-                      />
-                    </div>
-
-                    <div className="space-y-2">
-                      
-                      <FloatingInput label="Date of Birth"
-                        type="date"
-                        value={child.dob}
-                        onChange={(e) =>
-                          handleArrayChange(
-                            "children",
-                            index,
-                            "dob",
-                            e.target.value
-                          )
-                        }
-                        className="w-full h-9 bg-card border-input"
-                      />
-                    </div>
-                  </div>
-                </div>
-              ))}
+                ))}
             </div>
 
             {/* Meeting Clients */}
@@ -1979,10 +2069,13 @@ export default function ApplicantInformation() {
               </div>
 
               {formData.meeting_clients.map((meeting, index) => (
-                <div key={index} className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div
+                  key={index}
+                  className="grid grid-cols-1 lg:grid-cols-3 gap-6"
+                >
                   <div className="space-y-2">
-                    
-                    <FloatingInput label="Meeting Date"
+                    <FloatingInput
+                      label="Meeting Date"
                       type="date"
                       value={meeting.date}
                       onChange={(e) =>
@@ -1990,10 +2083,10 @@ export default function ApplicantInformation() {
                           "meeting_clients",
                           index,
                           "date",
-                          e.target.value
+                          e.target.value,
                         )
                       }
-                      className="w-full h-9 bg-muted border-input"
+                      className="w-full bg-muted border-input"
                     />
                   </div>
 
@@ -2026,9 +2119,7 @@ export default function ApplicantInformation() {
               </Button>
               <Button
                 type="submit"
-                disabled={
-                  createMutation.isPending || uploadMutation.isPending
-                }
+                disabled={createMutation.isPending || uploadMutation.isPending}
                 size="lg"
               >
                 {createMutation.isPending || uploadMutation.isPending ? (
@@ -2061,7 +2152,7 @@ export default function ApplicantInformation() {
             </div>
           </DialogContent>
         </Dialog>
-      </div >
-    </div >
+      </div>
+    </div>
   );
 }
