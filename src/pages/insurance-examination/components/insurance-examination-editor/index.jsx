@@ -29,7 +29,11 @@ import { cn } from "@/lib/utils";
 
 import { Navbar2 } from "@/components/navbar2";
 import Billing from "@/components/billing";
-import { FloatingInput, FloatingTextarea, FloatingWrapper } from "@/components/ui/floating-label";
+import {
+  FloatingInput,
+  FloatingTextarea,
+  FloatingWrapper,
+} from "@/components/ui/floating-label";
 
 import { getABMeta } from "../../helpers/fetchABMeta";
 import {
@@ -68,7 +72,7 @@ export default function InsuranceExaminationPage() {
       } else {
         if (!slug) {
           return Promise.reject(
-            new Error("Slug is required for creating Insurance Examination")
+            new Error("Slug is required for creating Insurance Examination"),
           );
         }
         return createInsuranceExamination({ slug, ...data });
@@ -78,15 +82,15 @@ export default function InsuranceExaminationPage() {
       toast.success(
         id
           ? "Insurance Examination updated successfully!"
-          : "Insurance Examination saved successfully!"
+          : "Insurance Examination saved successfully!",
       );
     },
     onError: (err) => {
       toast.error(
         err.message ||
-        (id
-          ? "Failed to update Insurance Examination"
-          : "Failed to save Insurance Examination")
+          (id
+            ? "Failed to update Insurance Examination"
+            : "Failed to save Insurance Examination"),
       );
     },
   });
@@ -288,7 +292,9 @@ export default function InsuranceExaminationPage() {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen">
         <p className="text-red-500 text-lg">Failed to load metadata</p>
-        <p className="text-sm text-muted-foreground mt-2">{metaError?.message}</p>
+        <p className="text-sm text-muted-foreground mt-2">
+          {metaError?.message}
+        </p>
       </div>
     );
   }
@@ -361,13 +367,13 @@ export default function InsuranceExaminationPage() {
                         {getSelectedLabel(
                           formData.assessment_status_id,
                           metaData?.examination_assessment_status,
-                          "Select assessment status"
+                          "Select assessment status",
                         ) === "Select assessment status"
                           ? ""
                           : getSelectedLabel(
                               formData.assessment_status_id,
                               metaData?.examination_assessment_status,
-                              "Select assessment status"
+                              "Select assessment status",
                             )}
                         <ChevronsUpDown className="ml-auto h-4 w-4 shrink-0 opacity-50" />
                       </Button>
@@ -386,7 +392,7 @@ export default function InsuranceExaminationPage() {
                                   onSelect={() => {
                                     handleComboboxChange(
                                       "assessment_status_id",
-                                      status.id.toString()
+                                      status.id.toString(),
                                     );
                                     setOpenAssessmentStatus(false);
                                   }}
@@ -397,12 +403,12 @@ export default function InsuranceExaminationPage() {
                                       formData.assessment_status_id ===
                                         status.id.toString()
                                         ? "opacity-100"
-                                        : "opacity-0"
+                                        : "opacity-0",
                                     )}
                                   />
                                   {status.name}
                                 </CommandItem>
-                              )
+                              ),
                             )}
                           </CommandGroup>
                         </CommandList>
@@ -447,13 +453,13 @@ export default function InsuranceExaminationPage() {
                         {getSelectedLabel(
                           formData.type_of_assessment_id,
                           metaData?.examination_type_of_assessment,
-                          "Select type of assessment"
+                          "Select type of assessment",
                         ) === "Select type of assessment"
                           ? ""
                           : getSelectedLabel(
                               formData.type_of_assessment_id,
                               metaData?.examination_type_of_assessment,
-                              "Select type of assessment"
+                              "Select type of assessment",
                             )}
                         <ChevronsUpDown className="ml-auto h-4 w-4 shrink-0 opacity-50" />
                       </Button>
@@ -472,7 +478,7 @@ export default function InsuranceExaminationPage() {
                                   onSelect={() => {
                                     handleComboboxChange(
                                       "type_of_assessment_id",
-                                      type.id.toString()
+                                      type.id.toString(),
                                     );
                                     setOpenTypeOfAssessment(false);
                                   }}
@@ -483,12 +489,12 @@ export default function InsuranceExaminationPage() {
                                       formData.type_of_assessment_id ===
                                         type.id.toString()
                                         ? "opacity-100"
-                                        : "opacity-0"
+                                        : "opacity-0",
                                     )}
                                   />
                                   {type.name}
                                 </CommandItem>
-                              )
+                              ),
                             )}
                           </CommandGroup>
                         </CommandList>
@@ -513,23 +519,14 @@ export default function InsuranceExaminationPage() {
 
               {/* Time */}
               <div className="space-y-2">
-                <FloatingWrapper
+                <FloatingInput
+                  type="time"
+                  name="time"
                   label="Time"
-                  hasValue={!!formData.time}
-                  isFocused={false}
-                >
-                  <div className="relative">
-                    <Clock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-500" />
-                    <FloatingInput
-                      type="time"
-                      name="time"
-                      value={formData.time}
-                      onChange={handleChange}
-                      className="pl-10"
-                      disabled={mutation.isLoading}
-                    />
-                  </div>
-                </FloatingWrapper>
+                  value={formData.time}
+                  onChange={handleChange}
+                  disabled={mutation.isLoading}
+                />
               </div>
 
               {/* Location */}
@@ -584,13 +581,13 @@ export default function InsuranceExaminationPage() {
                         {getSelectedLabel(
                           formData.informed_to_client_id,
                           metaData?.yes_no_option,
-                          "Select option"
+                          "Select option",
                         ) === "Select option"
                           ? ""
                           : getSelectedLabel(
                               formData.informed_to_client_id,
                               metaData?.yes_no_option,
-                              "Select option"
+                              "Select option",
                             )}
                         <ChevronsUpDown className="ml-auto h-4 w-4 shrink-0 opacity-50" />
                       </Button>
@@ -607,7 +604,7 @@ export default function InsuranceExaminationPage() {
                                 onSelect={() => {
                                   handleComboboxChange(
                                     "informed_to_client_id",
-                                    option.id.toString()
+                                    option.id.toString(),
                                   );
                                   setOpenInformedToClient(false);
                                 }}
@@ -618,7 +615,7 @@ export default function InsuranceExaminationPage() {
                                     formData.informed_to_client_id ===
                                       option.id.toString()
                                       ? "opacity-100"
-                                      : "opacity-0"
+                                      : "opacity-0",
                                   )}
                                 />
                                 {option.name}
@@ -654,13 +651,13 @@ export default function InsuranceExaminationPage() {
                         {getSelectedLabel(
                           formData.mode_of_communication_id,
                           metaData?.insurance_mode_of_communication,
-                          "Select mode"
+                          "Select mode",
                         ) === "Select mode"
                           ? ""
                           : getSelectedLabel(
                               formData.mode_of_communication_id,
                               metaData?.insurance_mode_of_communication,
-                              "Select mode"
+                              "Select mode",
                             )}
                         <ChevronsUpDown className="ml-auto h-4 w-4 shrink-0 opacity-50" />
                       </Button>
@@ -679,7 +676,7 @@ export default function InsuranceExaminationPage() {
                                   onSelect={() => {
                                     handleComboboxChange(
                                       "mode_of_communication_id",
-                                      mode.id.toString()
+                                      mode.id.toString(),
                                     );
                                     setOpenModeCommunication(false);
                                   }}
@@ -690,12 +687,12 @@ export default function InsuranceExaminationPage() {
                                       formData.mode_of_communication_id ===
                                         mode.id.toString()
                                         ? "opacity-100"
-                                        : "opacity-0"
+                                        : "opacity-0",
                                     )}
                                   />
                                   {mode.name}
                                 </CommandItem>
-                              )
+                              ),
                             )}
                           </CommandGroup>
                         </CommandList>
@@ -739,13 +736,13 @@ export default function InsuranceExaminationPage() {
                         {getSelectedLabel(
                           formData.required_transportation_id,
                           metaData?.yes_no_option,
-                          "Select option"
+                          "Select option",
                         ) === "Select option"
                           ? ""
                           : getSelectedLabel(
                               formData.required_transportation_id,
                               metaData?.yes_no_option,
-                              "Select option"
+                              "Select option",
                             )}
                         <ChevronsUpDown className="ml-auto h-4 w-4 shrink-0 opacity-50" />
                       </Button>
@@ -762,7 +759,7 @@ export default function InsuranceExaminationPage() {
                                 onSelect={() => {
                                   handleComboboxChange(
                                     "required_transportation_id",
-                                    option.id.toString()
+                                    option.id.toString(),
                                   );
                                   setOpenRequiredTransportation(false);
                                 }}
@@ -773,7 +770,7 @@ export default function InsuranceExaminationPage() {
                                     formData.required_transportation_id ===
                                       option.id.toString()
                                       ? "opacity-100"
-                                      : "opacity-0"
+                                      : "opacity-0",
                                   )}
                                 />
                                 {option.name}
@@ -809,13 +806,13 @@ export default function InsuranceExaminationPage() {
                         {getSelectedLabel(
                           formData.required_interpreter_id,
                           metaData?.yes_no_option,
-                          "Select option"
+                          "Select option",
                         ) === "Select option"
                           ? ""
                           : getSelectedLabel(
                               formData.required_interpreter_id,
                               metaData?.yes_no_option,
-                              "Select option"
+                              "Select option",
                             )}
                         <ChevronsUpDown className="ml-auto h-4 w-4 shrink-0 opacity-50" />
                       </Button>
@@ -832,7 +829,7 @@ export default function InsuranceExaminationPage() {
                                 onSelect={() => {
                                   handleComboboxChange(
                                     "required_interpreter_id",
-                                    option.id.toString()
+                                    option.id.toString(),
                                   );
                                   setOpenRequiredInterpreter(false);
                                 }}
@@ -843,7 +840,7 @@ export default function InsuranceExaminationPage() {
                                     formData.required_interpreter_id ===
                                       option.id.toString()
                                       ? "opacity-100"
-                                      : "opacity-0"
+                                      : "opacity-0",
                                   )}
                                 />
                                 {option.name}
@@ -899,13 +896,13 @@ export default function InsuranceExaminationPage() {
                         {getSelectedLabel(
                           formData.mode_of_communication_2nd_id,
                           metaData?.insurance_mode_of_communication,
-                          "Select mode"
+                          "Select mode",
                         ) === "Select mode"
                           ? ""
                           : getSelectedLabel(
                               formData.mode_of_communication_2nd_id,
                               metaData?.insurance_mode_of_communication,
-                              "Select mode"
+                              "Select mode",
                             )}
                         <ChevronsUpDown className="ml-auto h-4 w-4 shrink-0 opacity-50" />
                       </Button>
@@ -924,7 +921,7 @@ export default function InsuranceExaminationPage() {
                                   onSelect={() => {
                                     handleComboboxChange(
                                       "mode_of_communication_2nd_id",
-                                      mode.id.toString()
+                                      mode.id.toString(),
                                     );
                                     setOpenModeCommunication2nd(false);
                                   }}
@@ -935,12 +932,12 @@ export default function InsuranceExaminationPage() {
                                       formData.mode_of_communication_2nd_id ===
                                         mode.id.toString()
                                         ? "opacity-100"
-                                        : "opacity-0"
+                                        : "opacity-0",
                                     )}
                                   />
                                   {mode.name}
                                 </CommandItem>
-                              )
+                              ),
                             )}
                           </CommandGroup>
                         </CommandList>
@@ -972,13 +969,13 @@ export default function InsuranceExaminationPage() {
                         {getSelectedLabel(
                           formData.reminder_to_client_id,
                           metaData?.examination_reminder_to_client,
-                          "Select reminder"
+                          "Select reminder",
                         ) === "Select reminder"
                           ? ""
                           : getSelectedLabel(
                               formData.reminder_to_client_id,
                               metaData?.examination_reminder_to_client,
-                              "Select reminder"
+                              "Select reminder",
                             )}
                         <ChevronsUpDown className="ml-auto h-4 w-4 shrink-0 opacity-50" />
                       </Button>
@@ -997,7 +994,7 @@ export default function InsuranceExaminationPage() {
                                   onSelect={() => {
                                     handleComboboxChange(
                                       "reminder_to_client_id",
-                                      reminder.id.toString()
+                                      reminder.id.toString(),
                                     );
                                     setOpenReminderToClient(false);
                                   }}
@@ -1008,12 +1005,12 @@ export default function InsuranceExaminationPage() {
                                       formData.reminder_to_client_id ===
                                         reminder.id.toString()
                                         ? "opacity-100"
-                                        : "opacity-0"
+                                        : "opacity-0",
                                     )}
                                   />
                                   {reminder.name}
                                 </CommandItem>
-                              )
+                              ),
                             )}
                           </CommandGroup>
                         </CommandList>
@@ -1045,13 +1042,13 @@ export default function InsuranceExaminationPage() {
                         {getSelectedLabel(
                           formData.informed_transporation_id,
                           metaData?.yes_no_option,
-                          "Select option"
+                          "Select option",
                         ) === "Select option"
                           ? ""
                           : getSelectedLabel(
                               formData.informed_transporation_id,
                               metaData?.yes_no_option,
-                              "Select option"
+                              "Select option",
                             )}
                         <ChevronsUpDown className="ml-auto h-4 w-4 shrink-0 opacity-50" />
                       </Button>
@@ -1068,7 +1065,7 @@ export default function InsuranceExaminationPage() {
                                 onSelect={() => {
                                   handleComboboxChange(
                                     "informed_transporation_id",
-                                    option.id.toString()
+                                    option.id.toString(),
                                   );
                                   setOpenInformedTransportation(false);
                                 }}
@@ -1079,7 +1076,7 @@ export default function InsuranceExaminationPage() {
                                     formData.informed_transporation_id ===
                                       option.id.toString()
                                       ? "opacity-100"
-                                      : "opacity-0"
+                                      : "opacity-0",
                                   )}
                                 />
                                 {option.name}
@@ -1115,13 +1112,13 @@ export default function InsuranceExaminationPage() {
                         {getSelectedLabel(
                           formData.informed_interpreter_id,
                           metaData?.yes_no_option,
-                          "Select option"
+                          "Select option",
                         ) === "Select option"
                           ? ""
                           : getSelectedLabel(
                               formData.informed_interpreter_id,
                               metaData?.yes_no_option,
-                              "Select option"
+                              "Select option",
                             )}
                         <ChevronsUpDown className="ml-auto h-4 w-4 shrink-0 opacity-50" />
                       </Button>
@@ -1138,7 +1135,7 @@ export default function InsuranceExaminationPage() {
                                 onSelect={() => {
                                   handleComboboxChange(
                                     "informed_interpreter_id",
-                                    option.id.toString()
+                                    option.id.toString(),
                                   );
                                   setOpenInformedInterpreter(false);
                                 }}
@@ -1149,7 +1146,7 @@ export default function InsuranceExaminationPage() {
                                     formData.informed_interpreter_id ===
                                       option.id.toString()
                                       ? "opacity-100"
-                                      : "opacity-0"
+                                      : "opacity-0",
                                   )}
                                 />
                                 {option.name}
@@ -1217,13 +1214,13 @@ export default function InsuranceExaminationPage() {
                         {getSelectedLabel(
                           formData.mode_of_communication_3rd_id,
                           metaData?.insurance_mode_of_communication,
-                          "Select mode"
+                          "Select mode",
                         ) === "Select mode"
                           ? ""
                           : getSelectedLabel(
                               formData.mode_of_communication_3rd_id,
                               metaData?.insurance_mode_of_communication,
-                              "Select mode"
+                              "Select mode",
                             )}
                         <ChevronsUpDown className="ml-auto h-4 w-4 shrink-0 opacity-50" />
                       </Button>
@@ -1242,7 +1239,7 @@ export default function InsuranceExaminationPage() {
                                   onSelect={() => {
                                     handleComboboxChange(
                                       "mode_of_communication_3rd_id",
-                                      mode.id.toString()
+                                      mode.id.toString(),
                                     );
                                     setOpenModeCommunication3rd(false);
                                   }}
@@ -1253,12 +1250,12 @@ export default function InsuranceExaminationPage() {
                                       formData.mode_of_communication_3rd_id ===
                                         mode.id.toString()
                                         ? "opacity-100"
-                                        : "opacity-0"
+                                        : "opacity-0",
                                     )}
                                   />
                                   {mode.name}
                                 </CommandItem>
-                              )
+                              ),
                             )}
                           </CommandGroup>
                         </CommandList>
@@ -1307,13 +1304,13 @@ export default function InsuranceExaminationPage() {
                         {getSelectedLabel(
                           formData.ie_status_id,
                           metaData?.examination_ie_status,
-                          "Select IE status"
+                          "Select IE status",
                         ) === "Select IE status"
                           ? ""
                           : getSelectedLabel(
                               formData.ie_status_id,
                               metaData?.examination_ie_status,
-                              "Select IE status"
+                              "Select IE status",
                             )}
                         <ChevronsUpDown className="ml-auto h-4 w-4 shrink-0 opacity-50" />
                       </Button>
@@ -1331,7 +1328,7 @@ export default function InsuranceExaminationPage() {
                                 onSelect={() => {
                                   handleComboboxChange(
                                     "ie_status_id",
-                                    status.id.toString()
+                                    status.id.toString(),
                                   );
                                   setOpenIEStatus(false);
                                 }}
@@ -1342,7 +1339,7 @@ export default function InsuranceExaminationPage() {
                                     formData.ie_status_id ===
                                       status.id.toString()
                                       ? "opacity-100"
-                                      : "opacity-0"
+                                      : "opacity-0",
                                   )}
                                 />
                                 {status.name}
@@ -1408,13 +1405,13 @@ export default function InsuranceExaminationPage() {
                         {getSelectedLabel(
                           formData.mode_of_communication_4th_id,
                           metaData?.insurance_mode_of_communication,
-                          "Select mode"
+                          "Select mode",
                         ) === "Select mode"
                           ? ""
                           : getSelectedLabel(
                               formData.mode_of_communication_4th_id,
                               metaData?.insurance_mode_of_communication,
-                              "Select mode"
+                              "Select mode",
                             )}
                         <ChevronsUpDown className="ml-auto h-4 w-4 shrink-0 opacity-50" />
                       </Button>
@@ -1433,7 +1430,7 @@ export default function InsuranceExaminationPage() {
                                   onSelect={() => {
                                     handleComboboxChange(
                                       "mode_of_communication_4th_id",
-                                      mode.id.toString()
+                                      mode.id.toString(),
                                     );
                                     setOpenModeCommunication4th(false);
                                   }}
@@ -1444,12 +1441,12 @@ export default function InsuranceExaminationPage() {
                                       formData.mode_of_communication_4th_id ===
                                         mode.id.toString()
                                         ? "opacity-100"
-                                        : "opacity-0"
+                                        : "opacity-0",
                                     )}
                                   />
                                   {mode.name}
                                 </CommandItem>
-                              )
+                              ),
                             )}
                           </CommandGroup>
                         </CommandList>
