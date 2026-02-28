@@ -122,8 +122,8 @@ export default function CorrespondencePage() {
     onError: (err) => {
       toast.error(
         err.message ||
-        (id
-          ? "Failed to update Correspondence"
+          (id
+            ? "Failed to update Correspondence"
           : "Failed to save Correspondence")
       );
     },
@@ -601,26 +601,15 @@ export default function CorrespondencePage() {
                 </FloatingWrapper>
               </div>
 
-              {/* Minutes Input with Time Icon - FIXED */}
+              {/* Minutes Input */}
               <div className="space-y-2">
-                <FloatingWrapper
+                <FloatingInput
+                  type="time"
                   label="Time (Hours:Minutes)"
-                  hasValue={!!timeInput}
-                  isFocused={false}
-                >
-                  <div className="relative">
-                    <Clock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-500" />
-                    <FloatingInput
-                      type="time"
-                      value={timeInput}
-                      onChange={handleTimeChange}
-                      className="pl-10"
-                      required={false}
-                      aria-label="Time (Hours:Minutes)"
-                      name="time_input"
-                    />
-                  </div>
-                </FloatingWrapper>
+                  value={timeInput}
+                  onChange={handleTimeChange}
+                  name="time_input"
+                />
                 {formData.minute && (
                   <p className="text-xs text-gray-500">
                     Total minutes: {formData.minute}
@@ -628,29 +617,18 @@ export default function CorrespondencePage() {
                 )}
               </div>
 
-              {/* Rate Input with $ prefix */}
+              {/* Rate Input */}
               <div className="space-y-2">
-                <FloatingWrapper
+                <FloatingInput
+                  name="rate"
                   label="Rate"
-                  hasValue={!!formData.rate}
-                  isFocused={false}
-                >
-                  <div className="relative">
-                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 font-medium">
-                      $
-                    </span>
-                    <FloatingInput
-                      name="rate"
-                      type="number"
-                      step="0.01"
-                      value={formData.rate}
-                      onChange={handleChange}
-                      className="pl-7"
-                      disabled={mutation.isLoading}
-                      readOnly
-                    />
-                  </div>
-                </FloatingWrapper>
+                  type="number"
+                  step="0.01"
+                  value={formData.rate}
+                  onChange={handleChange}
+                  // disabled={mutation.isLoading}
+                  // readOnly
+                />
               </div>
             </div>
           </div>
@@ -680,13 +658,15 @@ export default function CorrespondencePage() {
                 Upload File <span className="text-red-500">(Max 10MB)</span>
               </Label>
               <div
-                className={`relative border-2 border-dashed rounded-lg transition-all overflow-hidden ${filePreview
-                  ? "border-green-500 bg-green-50/50"
-                  : "border-input bg-muted hover:border-gray-400 hover:bg-gray-100"
-                  } ${uploadMutation.isLoading
+                className={`relative border-2 border-dashed rounded-lg transition-all overflow-hidden ${
+                  filePreview
+                    ? "border-green-500 bg-green-50/50"
+                    : "border-input bg-muted hover:border-gray-400 hover:bg-gray-100"
+                } ${
+                  uploadMutation.isLoading
                     ? "pointer-events-none opacity-70"
                     : ""
-                  }`}
+                }`}
                 style={{ minHeight: "250px" }}
               >
                 <input
