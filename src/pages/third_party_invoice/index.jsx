@@ -34,6 +34,7 @@ import {
   Lock,
   Unlock,
   Eye,
+  ChevronsUpDown,
 } from "lucide-react";
 import {
   Dialog,
@@ -54,6 +55,14 @@ import {
   FloatingTextarea,
   FloatingWrapper,
 } from "@/components/ui/floating-label";
+import {
+  Command,
+  CommandInput,
+  CommandEmpty,
+  CommandGroup,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
 import { Navbar2 } from "@/components/navbar2";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -62,8 +71,96 @@ import { deleteAttachment } from "@/pages/task/helpers/deleteTask";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { fetchMeta } from "../bank_transcation/helper/fetchMeta";
-import { Select } from "@radix-ui/react-select";
-import { SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+
+function ShadcnSelect({
+  value,
+  onValueChange,
+  options: rawOptions = [],
+  placeholder = "Select",
+  label = "Select",
+  popoverKey,
+  popoverOpen,
+  setPopoverOpen,
+}) {
+  const options = Array.isArray(rawOptions) ? rawOptions : [];
+  const selected = options.find((o) => String(o.id) === String(value)) || null;
+  const isOpen = !!(popoverOpen && popoverOpen[popoverKey]);
+
+  const handleSelect = (id) => {
+    if (onValueChange) onValueChange(id);
+    if (setPopoverOpen && popoverKey) {
+      setPopoverOpen((prev = {}) => ({ ...prev, [popoverKey]: false }));
+    }
+  };
+
+  return (
+    <Popover
+      open={isOpen}
+      onOpenChange={(open) =>
+        setPopoverOpen &&
+        setPopoverOpen((p = {}) => ({ ...p, [popoverKey]: open }))
+      }
+    >
+      <PopoverTrigger asChild>
+        <Button
+          variant="outline"
+          role="combobox"
+          size="form"
+          className="w-full justify-between font-normal"
+          type="button"
+        >
+          <span className={selected ? "" : "opacity-0"}>
+            {selected ? selected.name : placeholder}
+          </span>
+          <ChevronsUpDown className="ml-auto h-4 w-4 shrink-0 opacity-50" />
+        </Button>
+      </PopoverTrigger>
+
+      <PopoverContent
+        className="w-[var(--radix-popover-trigger-width)] p-0"
+        align="start"
+      >
+        <Command>
+          <CommandInput placeholder={label.toLowerCase()} />
+          <CommandEmpty>No results found.</CommandEmpty>
+          <CommandList>
+            <CommandGroup>
+              <CommandItem
+                value=""
+                onSelect={() => handleSelect("")}
+                className="italic text-muted-foreground"
+              >
+                <Check
+                  className={`mr-2 h-4 w-4 ${
+                    !value ? "opacity-100" : "opacity-0"
+                  }`}
+                />
+                None
+              </CommandItem>
+              {options.map((opt) => (
+                <CommandItem
+                  key={opt.id}
+                  value={opt.name}
+                  onSelect={() => handleSelect(opt.id)}
+                >
+                  <Check
+                    className={`mr-2 h-4 w-4 ${
+                      String(value) === String(opt.id)
+                        ? "opacity-100"
+                        : "opacity-0"
+                    }`}
+                  />
+                  {opt.name}
+                </CommandItem>
+              ))}
+            </CommandGroup>
+          </CommandList>
+        </Command>
+      </PopoverContent>
+    </Popover>
+  );
+}
 
 const AttachmentUploader = ({ files, onFilesChange, onUpload, onDelete }) => {
   const [isDragging, setIsDragging] = useState(false);
@@ -356,6 +453,26 @@ const ThirdPartyInvoice = () => {
     to_be_printed: false,
   });
   const [appliedAmounts, setAppliedAmounts] = useState({});
+  const [popoverOpen, setPopoverOpen] = useState({});
+
+  // Validation functions
+  const validateAmount = (value, fieldName = "Amount") => {
+    const numericValue = parseFloat(value) || 0;
+    if (numericValue < 0) {
+      toast.error(`${fieldName} cannot be negative. Setting to 0.`);
+      return "0";
+    }
+    return value;
+  };
+
+  const validateOriginalAmount = (value) => {
+    const numericValue = parseFloat(value) || 0;
+    if (numericValue < 0) {
+      toast.error("Original amount cannot be negative. Setting to 0.");
+      return "0";
+    }
+    return value;
+  };
 
   const [form, setForm] = useState({
     bill_date: "",
@@ -1109,7 +1226,10 @@ const ThirdPartyInvoice = () => {
                   min="0"
                   placeholder="Enter amount"
                   value={form.amount}
-                  onChange={(e) => setForm({ ...form, amount: e.target.value })}
+                  onChange={(e) => {
+                    const validatedValue = validateAmount(e.target.value);
+                    setForm({ ...form, amount: validatedValue });
+                  }}
                 />
               </div>
               <div className="space-y-2">
@@ -1119,9 +1239,10 @@ const ThirdPartyInvoice = () => {
                   min="0"
                   placeholder="Enter original amount"
                   value={form.original_amount}
-                  onChange={(e) =>
-                    setForm({ ...form, original_amount: e.target.value })
-                  }
+                  onChange={(e) => {
+                    const validatedValue = validateOriginalAmount(e.target.value);
+                    setForm({ ...form, original_amount: validatedValue });
+                  }}
                 />
               </div>
             </div>
@@ -1177,23 +1298,18 @@ const ThirdPartyInvoice = () => {
                 hasValue={!!form.type_id}
                 isFocused={false}
               >
-                <Select
+                <ShadcnSelect
+                  popoverKey="add_type_id"
+                  popoverOpen={popoverOpen}
+                  setPopoverOpen={setPopoverOpen}
                   value={String(form.type_id || "")}
                   onValueChange={(value) =>
                     setForm({ ...form, type_id: value })
                   }
-                >
-                  <SelectTrigger className="w-full h-[52px] bg-transparent border border-input">
-                    <SelectValue placeholder="" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {methodType.map((item) => (
-                      <SelectItem key={item.id} value={String(item.id)}>
-                        {item.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                  options={methodType}
+                  placeholder="Select"
+                  label="Type ID"
+                />
               </FloatingWrapper>
             </div>
 
@@ -1334,7 +1450,10 @@ const ThirdPartyInvoice = () => {
                     min="0"
                     placeholder="Enter amount"
                     value={editingInvoice.amount}
-                    onChange={(e) => setEditingInvoice({ ...editingInvoice, amount: e.target.value })}
+                    onChange={(e) => {
+                      const validatedValue = validateAmount(e.target.value);
+                      setEditingInvoice({ ...editingInvoice, amount: validatedValue });
+                    }}
                   />
                 </div>
                 <div className="space-y-2">
@@ -1344,7 +1463,10 @@ const ThirdPartyInvoice = () => {
                     min="0"
                     placeholder="Enter original amount"
                     value={editingInvoice.original_amount}
-                    onChange={(e) => setEditingInvoice({ ...editingInvoice, original_amount: e.target.value })}
+                    onChange={(e) => {
+                      const validatedValue = validateOriginalAmount(e.target.value);
+                      setEditingInvoice({ ...editingInvoice, original_amount: validatedValue });
+                    }}
                   />
                 </div>
               </div>
@@ -1400,23 +1522,18 @@ const ThirdPartyInvoice = () => {
                 hasValue={!!editingInvoice.type_id}
                 isFocused={false}
               >
-                <Select
+                <ShadcnSelect
+                  popoverKey="edit_type_id"
+                  popoverOpen={popoverOpen}
+                  setPopoverOpen={setPopoverOpen}
                   value={String(editingInvoice.type_id || "")}
                   onValueChange={(value) =>
                     setEditingInvoice({ ...editingInvoice, type_id: value })
                   }
-                >
-                  <SelectTrigger className="w-full h-[52px] bg-transparent border border-input">
-                    <SelectValue placeholder="" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {methodType.map((item) => (
-                      <SelectItem key={item.id} value={String(item.id)}>
-                        {item.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                  options={methodType}
+                  placeholder="Select"
+                  label="Type ID"
+                />
               </FloatingWrapper>
               </div>
 
@@ -1587,21 +1704,22 @@ const ThirdPartyInvoice = () => {
                 </div>
                 <div className="grid grid-cols-[100px_1fr] items-center gap-2">
                   <Label>Method</Label>
-                  <Select
-                    value={payForm.pay_method}
-                    onValueChange={(value) => setPayForm({ ...payForm, pay_method: value })}
+                  <FloatingWrapper
+                    label="Method"
+                    hasValue={!!payForm.pay_method}
+                    isFocused={false}
                   >
-                    <SelectTrigger className="w-full">
-                      <SelectValue placeholder="Select method" />
-                    </SelectTrigger>
-                    <SelectContent>
-                    {categoryType.map((item) => (
-                        <SelectItem key={item.id} value={String(item.id)}>
-                          {item.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                    <ShadcnSelect
+                      popoverKey="pay_method"
+                      popoverOpen={popoverOpen}
+                      setPopoverOpen={setPopoverOpen}
+                      value={payForm.pay_method}
+                      onValueChange={(value) => setPayForm({ ...payForm, pay_method: value })}
+                      options={categoryType}
+                      placeholder="Select method"
+                      label="Method"
+                    />
+                  </FloatingWrapper>
                 </div>
                 <div className="grid grid-cols-[100px_1fr] items-center gap-2">
                   <Label>Pay To</Label>

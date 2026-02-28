@@ -4,7 +4,7 @@ import { endpoints } from "@/api/endpoints";
 export const createClientSettlement = async ({ slug, data }) => {
   try {
     const apiResponse = await apiService({
-      endpoint: `${endpoints.createClientSettlement}/save/${slug}`,
+      endpoint: `${endpoints.CreateClientSettlement}/save/${slug}`,
       method: "POST",
       data: data,
       headers: {

@@ -116,6 +116,38 @@ export default function ClientSettlementPage() {
     },
   });
 
+  // Validation functions
+  const validatePercentage = (value) => {
+    const numericValue = parseFloat(value) || 0;
+    if (numericValue < 0) {
+      toast.error("Percentage cannot be negative. Setting to 0.");
+      return "0";
+    }
+    if (numericValue === 0 && value !== "" && value !== "0") {
+      toast.error("Percentage cannot be 0. Please enter a valid percentage.");
+      return "";
+    }
+    return value;
+  };
+
+  const validatePrice = (value) => {
+    const numericValue = parseFloat(value) || 0;
+    if (numericValue < 0) {
+      toast.error("Price cannot be negative. Setting to 0.");
+      return "0";
+    }
+    return value;
+  };
+
+  const validateSettlementAmount = (value) => {
+    const numericValue = parseFloat(value) || 0;
+    if (numericValue < 0) {
+      toast.error("Settlement amount cannot be negative. Setting to 0.");
+      return "0";
+    }
+    return value;
+  };
+
   const [formData, setFormData] = useState({
     billing_method_id: "",
     settlement_amount: "",
@@ -257,7 +289,7 @@ export default function ClientSettlementPage() {
         </div>
       </nav>
 
-      <main className="container mx-auto px-6 py-8 max-w-7xl">
+      <main className="container mx-auto px-6 py-8 ">
         <h1 className="text-2xl font-bold text-foreground mb-6">
           Client Settlement
         </h1>
@@ -282,20 +314,24 @@ export default function ClientSettlementPage() {
                   label="Settlement Amount"
                   type="number"
                   step="0.01"
+                  min="0"
                   value={formData.settlement_amount}
-                  onChange={(e) =>
-                    handleFieldChange("settlement_amount", e.target.value)
-                  }
+                  onChange={(e) => {
+                    const validatedValue = validateSettlementAmount(e.target.value);
+                    handleFieldChange("settlement_amount", validatedValue);
+                  }}
                 />
 
                 <FloatingInput
                   label="Percentage (%)"
                   type="number"
                   step="0.01"
+                  min="0"
                   value={formData.percentage}
-                  onChange={(e) =>
-                    handleFieldChange("percentage", e.target.value)
-                  }
+                  onChange={(e) => {
+                    const validatedValue = validatePercentage(e.target.value);
+                    handleFieldChange("percentage", validatedValue);
+                  }}
                 />
               </div>
             )}
@@ -307,8 +343,12 @@ export default function ClientSettlementPage() {
                   label="Price"
                   type="number"
                   step="0.01"
+                  min="0"
                   value={formData.price}
-                  onChange={(e) => handleFieldChange("price", e.target.value)}
+                  onChange={(e) => {
+                    const validatedValue = validatePrice(e.target.value);
+                    handleFieldChange("price", validatedValue);
+                  }}
                   disabled={isContingency}
                   readOnly={isContingency}
                 />
