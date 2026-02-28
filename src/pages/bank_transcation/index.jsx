@@ -22,7 +22,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Plus, ChevronDown, X, Trash2, Pencil, ChevronRight, MoreHorizontal, Lock, Unlock  } from "lucide-react";
+import { Plus, ChevronDown, X, Trash2, Pencil, ChevronRight, MoreHorizontal, Lock, Unlock, ChevronsUpDown, Check  } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -36,6 +36,14 @@ import {
   FloatingWrapper,
 } from "@/components/ui/floating-label";
 import {
+  Command,
+  CommandInput,
+  CommandEmpty,
+  CommandGroup,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
+import {
   Select,
   SelectContent,
   SelectItem,
@@ -46,6 +54,105 @@ import { Navbar2 } from "@/components/navbar2";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 
+// Validation function
+const validateAmount = (value) => {
+  const numValue = parseFloat(value);
+  if (numValue < 0 && value !== "") {
+    toast.error("Amount cannot be negative. Setting to 0.");
+    return "0";
+  }
+  return value;
+};
+
+function ShadcnSelect({
+  value,
+  onValueChange,
+  options: rawOptions = [],
+  placeholder = "Select",
+  label = "Select",
+  popoverKey,
+  popoverOpen,
+  setPopoverOpen,
+}) {
+  const options = Array.isArray(rawOptions) ? rawOptions : [];
+  const selected = options.find((o) => String(o.id) === String(value)) || null;
+  const isOpen = !!(popoverOpen && popoverOpen[popoverKey]);
+
+  const handleSelect = (id) => {
+    if (onValueChange) onValueChange(id);
+    if (setPopoverOpen && popoverKey) {
+      setPopoverOpen((prev = {}) => ({ ...prev, [popoverKey]: false }));
+    }
+  };
+
+  return (
+    <Popover
+      open={isOpen}
+      onOpenChange={(open) =>
+        setPopoverOpen &&
+        setPopoverOpen((p = {}) => ({ ...p, [popoverKey]: open }))
+      }
+    >
+      <PopoverTrigger asChild>
+        <Button
+          variant="outline"
+          role="combobox"
+          size="form"
+          className="w-full justify-between font-normal"
+          type="button"
+        >
+          <span className={selected ? "" : "opacity-0"}>
+            {selected ? selected.name : placeholder}
+          </span>
+          <ChevronsUpDown className="ml-auto h-4 w-4 shrink-0 opacity-50" />
+        </Button>
+      </PopoverTrigger>
+
+      <PopoverContent
+        className="w-[var(--radix-popover-trigger-width)] p-0"
+        align="start"
+      >
+        <Command>
+          <CommandInput placeholder={label.toLowerCase()} />
+          <CommandEmpty>No results found.</CommandEmpty>
+          <CommandList>
+            <CommandGroup>
+              <CommandItem
+                value=""
+                onSelect={() => handleSelect("")}
+                className="italic text-muted-foreground"
+              >
+                <Check
+                  className={`mr-2 h-4 w-4 ${
+                    !value ? "opacity-100" : "opacity-0"
+                  }`}
+                />
+                None
+              </CommandItem>
+              {options.map((opt) => (
+                <CommandItem
+                  key={opt.id}
+                  value={opt.name}
+                  onSelect={() => handleSelect(opt.id)}
+                >
+                  <Check
+                    className={`mr-2 h-4 w-4 ${
+                      String(value) === String(opt.id)
+                        ? "opacity-100"
+                        : "opacity-0"
+                    }`}
+                  />
+                  {opt.name}
+                </CommandItem>
+              ))}
+            </CommandGroup>
+          </CommandList>
+        </Command>
+      </PopoverContent>
+    </Popover>
+  );
+}
+
 const BankTransaction = () => {
   const { slug } = useParams();
   const navigate = useNavigate();
@@ -55,6 +162,7 @@ const BankTransaction = () => {
   const [deleteConfirmId, setDeleteConfirmId] = useState(null);
   const [editingDeposit, setEditingDeposit] = useState(null);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [popoverOpen, setPopoverOpen] = useState({});
 
   const [form, setForm] = useState({
     banktype_id: "",
@@ -434,24 +542,18 @@ const formatDate = (dateString) => {
                 hasValue={!!form.banktype_id}
                 isFocused={false}
               >
-                <Select
+                <ShadcnSelect
+                  popoverKey="add_bank_type"
+                  popoverOpen={popoverOpen}
+                  setPopoverOpen={setPopoverOpen}
                   value={form.banktype_id}
                   onValueChange={(value) =>
                     setForm({ ...form, banktype_id: value, type_id: "" })
                   }
-                  required
-                >
-                  <SelectTrigger className="w-full h-[52px] bg-transparent border border-input">
-                    <SelectValue placeholder="" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {bankTypes.map((item) => (
-                      <SelectItem key={item.id} value={String(item.id)}>
-                        {item.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                  options={bankTypes}
+                  placeholder="Select"
+                  label="Bank Type"
+                />
               </FloatingWrapper>
 
               <FloatingWrapper
@@ -460,24 +562,18 @@ const formatDate = (dateString) => {
                 hasValue={!!form.method_id}
                 isFocused={false}
               >
-                <Select
+                <ShadcnSelect
+                  popoverKey="add_method"
+                  popoverOpen={popoverOpen}
+                  setPopoverOpen={setPopoverOpen}
                   value={form.method_id}
                   onValueChange={(value) =>
                     setForm({ ...form, method_id: value })
                   }
-                  required
-                >
-                  <SelectTrigger className="w-full h-[52px] bg-transparent border border-input">
-                    <SelectValue placeholder="" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {accountingMethods.map((item) => (
-                      <SelectItem key={item.id} value={String(item.id)}>
-                        {item.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                  options={accountingMethods}
+                  placeholder="Select"
+                  label="Method"
+                />
               </FloatingWrapper>
 
               <FloatingWrapper
@@ -486,24 +582,18 @@ const formatDate = (dateString) => {
                 hasValue={!!form.type_id}
                 isFocused={false}
               >
-                <Select
+                <ShadcnSelect
+                  popoverKey="add_type"
+                  popoverOpen={popoverOpen}
+                  setPopoverOpen={setPopoverOpen}
                   value={form.type_id}
                   onValueChange={(value) =>
                     setForm({ ...form, type_id: value })
                   }
-                  required
-                >
-                  <SelectTrigger className="w-full h-[52px] bg-transparent border border-input">
-                    <SelectValue placeholder="" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {filteredDepositTypesAdd.map((item) => (
-                      <SelectItem key={item.id} value={String(item.id)}>
-                        {item.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                  options={filteredDepositTypesAdd}
+                  placeholder="Select"
+                  label="Type"
+                />
               </FloatingWrapper>
             </div>
 
@@ -519,7 +609,10 @@ const formatDate = (dateString) => {
                 label="Amount"
                 type="number"
                 value={form.amount}
-                onChange={(e) => setForm({ ...form, amount: e.target.value })}
+                onChange={(e) => {
+                  const validatedValue = validateAmount(e.target.value);
+                  setForm({ ...form, amount: validatedValue });
+                }}
                 required
               />
 
@@ -646,7 +739,10 @@ const formatDate = (dateString) => {
                   hasValue={!!editingDeposit.banktype_id}
                   isFocused={false}
                 >
-                  <Select
+                  <ShadcnSelect
+                    popoverKey="edit_bank_type"
+                    popoverOpen={popoverOpen}
+                    setPopoverOpen={setPopoverOpen}
                     value={String(editingDeposit.banktype_id || "")}
                     onValueChange={(value) =>
                       setEditingDeposit({
@@ -655,20 +751,10 @@ const formatDate = (dateString) => {
                         type_id: "",
                       })
                     }
-                    required
-                    disabled={true}
-                  >
-                    <SelectTrigger className="w-full h-[52px] bg-transparent border border-input">
-                      <SelectValue placeholder="" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {bankTypes.map((item) => (
-                        <SelectItem key={item.id} value={String(item.id)}>
-                          {item.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                    options={bankTypes}
+                    placeholder="Select"
+                    label="Bank Type"
+                  />
                 </FloatingWrapper>
 
                 <FloatingWrapper
@@ -677,24 +763,18 @@ const formatDate = (dateString) => {
                   hasValue={!!editingDeposit.method_id}
                   isFocused={false}
                 >
-                  <Select
+                  <ShadcnSelect
+                    popoverKey="edit_method"
+                    popoverOpen={popoverOpen}
+                    setPopoverOpen={setPopoverOpen}
                     value={String(editingDeposit.method_id || "")}
                     onValueChange={(value) =>
                       setEditingDeposit({ ...editingDeposit, method_id: value })
                     }
-                    required
-                  >
-                    <SelectTrigger className="w-full h-[52px] bg-transparent border border-input">
-                      <SelectValue placeholder="" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {accountingMethods.map((item) => (
-                        <SelectItem key={item.id} value={String(item.id)}>
-                          {item.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                    options={accountingMethods}
+                    placeholder="Select"
+                    label="Method"
+                  />
                 </FloatingWrapper>
 
                 <FloatingWrapper
@@ -703,25 +783,18 @@ const formatDate = (dateString) => {
                   hasValue={!!editingDeposit.type_id}
                   isFocused={false}
                 >
-                  <Select
+                  <ShadcnSelect
+                    popoverKey="edit_type"
+                    popoverOpen={popoverOpen}
+                    setPopoverOpen={setPopoverOpen}
                     value={String(editingDeposit.type_id || "")}
                     onValueChange={(value) =>
                       setEditingDeposit({ ...editingDeposit, type_id: value })
                     }
-                    required
-                    disabled={true}
-                  >
-                    <SelectTrigger className="w-full h-[52px] bg-transparent border border-input">
-                      <SelectValue placeholder="" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {filteredDepositTypesEdit.map((item) => (
-                        <SelectItem key={item.id} value={String(item.id)}>
-                          {item.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                    options={filteredDepositTypesEdit}
+                    placeholder="Select"
+                    label="Type"
+                  />
                 </FloatingWrapper>
               </div>
 
@@ -739,9 +812,10 @@ const formatDate = (dateString) => {
                   label="Amount"
                   type="number"
                   value={editingDeposit.amount || ""}
-                  onChange={(e) =>
-                    setEditingDeposit({ ...editingDeposit, amount: e.target.value })
-                  }
+                  onChange={(e) => {
+                    const validatedValue = validateAmount(e.target.value);
+                    setEditingDeposit({ ...editingDeposit, amount: validatedValue });
+                  }}
                   required
                 />
 

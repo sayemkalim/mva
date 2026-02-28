@@ -60,6 +60,34 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Navbar2 } from "@/components/navbar2";
 import { toast } from "sonner";
 
+// Validation functions
+const validateQuantity = (value) => {
+  const numValue = parseFloat(value);
+  if (numValue < 1) {
+    toast.error("Quantity cannot be less than 1. Setting to minimum value of 1.");
+    return "1";
+  }
+  return value;
+};
+
+const validateRate = (value) => {
+  const numValue = parseFloat(value);
+  if (numValue <= 0 && value !== "") {
+    toast.error("Rate cannot be zero or negative. Setting to minimum value of 1.");
+    return "1";
+  }
+  return value;
+};
+
+const validateAmount = (value) => {
+  const numValue = parseFloat(value);
+  if (numValue < 0 && value !== "") {
+    toast.error("Amount cannot be negative. Setting to 0.");
+    return "0";
+  }
+  return value;
+};
+
 function ShadcnSelect({
   value,
   onValueChange,
@@ -94,7 +122,7 @@ function ShadcnSelect({
           variant="outline"
           role="combobox"
           size="form"
-          className="w-full justify-between font-normal bg-muted"
+          className="w-full justify-between font-normal"
           type="button"
         >
           <span className={selected ? "" : "opacity-0"}>
@@ -853,6 +881,7 @@ const CostList = () => {
                     timekeeper: e.target.value,
                   })
                 }
+                disabled={true}
               />
               <FloatingInput
                 label="Date"
@@ -972,9 +1001,10 @@ const CostList = () => {
                     type="number"
                     min="0"
                     value={timeCardForm.rate}
-                    onChange={(e) =>
-                      setTimeCardForm({ ...timeCardForm, rate: e.target.value })
-                    }
+                    onChange={(e) => {
+                      const validatedValue = validateRate(e.target.value);
+                      setTimeCardForm({ ...timeCardForm, rate: validatedValue });
+                    }}
                   />
                 </div>
                 <div className="col-span-2">
@@ -1296,12 +1326,13 @@ const CostList = () => {
                   min="1"
                   placeholder=""
                   value={softCostForm.quantity}
-                  onChange={(e) =>
+                  onChange={(e) => {
+                    const validatedValue = validateQuantity(e.target.value);
                     setSoftCostForm({
                       ...softCostForm,
-                      quantity: e.target.value,
-                    })
-                  }
+                      quantity: validatedValue,
+                    });
+                  }}
                 />
               </div>
               <div className="space-y-2">
@@ -1312,9 +1343,10 @@ const CostList = () => {
                   min="0"
                   placeholder=""
                   value={softCostForm.rate}
-                  onChange={(e) =>
-                    setSoftCostForm({ ...softCostForm, rate: e.target.value })
-                  }
+                  onChange={(e) => {
+                    const validatedValue = validateRate(e.target.value);
+                    setSoftCostForm({ ...softCostForm, rate: validatedValue });
+                  }}
                 />
               </div>
               <div className="space-y-2">
@@ -1478,9 +1510,10 @@ const CostList = () => {
                   type="number"
                   min="0"
                   value={hardCostForm.amount}
-                  onChange={(e) =>
-                    setHardCostForm({ ...hardCostForm, amount: e.target.value })
-                  }
+                  onChange={(e) => {
+                    const validatedValue = validateAmount(e.target.value);
+                    setHardCostForm({ ...hardCostForm, amount: validatedValue });
+                  }}
                 />
               </div>
             </div>
@@ -1846,12 +1879,13 @@ const CostList = () => {
                     min="1"
                     placeholder=""
                     value={editingCost.quantity || ""}
-                    onChange={(e) =>
+                    onChange={(e) => {
+                      const validatedValue = validateQuantity(e.target.value);
                       setEditingCost({
                         ...editingCost,
-                        quantity: e.target.value,
-                      })
-                    }
+                        quantity: validatedValue,
+                      });
+                    }}
                   />
                 </div>
                 <div className="space-y-2">
@@ -1862,9 +1896,10 @@ const CostList = () => {
                     placeholder=""
                     min="0"
                     value={editingCost.rate || ""}
-                    onChange={(e) =>
-                      setEditingCost({ ...editingCost, rate: e.target.value })
-                    }
+                    onChange={(e) => {
+                      const validatedValue = validateRate(e.target.value);
+                      setEditingCost({ ...editingCost, rate: validatedValue });
+                    }}
                   />
                 </div>
                 <div className="space-y-2">
@@ -1990,6 +2025,7 @@ const CostList = () => {
                         timekeeker: e.target.value,
                       })
                     }
+                    disabled={true}
                   />
                 </div>
                 <div className="space-y-2">
@@ -2117,9 +2153,10 @@ const CostList = () => {
                       className="w-full"
                       min="0"
                       value={editingCost.rate || ""}
-                      onChange={(e) =>
-                        setEditingCost({ ...editingCost, rate: e.target.value })
-                      }
+                      onChange={(e) => {
+                        const validatedValue = validateRate(e.target.value);
+                        setEditingCost({ ...editingCost, rate: validatedValue });
+                      }}
                     />
                   </div>
                   <div className="space-y-2 col-span-2">
@@ -2481,9 +2518,10 @@ const CostList = () => {
                     type="number"
                     min="0"
                     value={editingCost.amount || ""}
-                    onChange={(e) =>
-                      setEditingCost({ ...editingCost, amount: e.target.value })
-                    }
+                    onChange={(e) => {
+                      const validatedValue = validateAmount(e.target.value);
+                      setEditingCost({ ...editingCost, amount: validatedValue });
+                    }}
                   />
                 </div>
               </div>
