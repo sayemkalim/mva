@@ -17,14 +17,27 @@ import {
   SidebarMenuSubButton,
   SidebarMenuSubItem,
 } from "@/components/ui/sidebar";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
 import { handleFileDownload, isApiUrl } from "@/utils/sidebar/sidebarData";
 import { cn } from "@/lib/utils";
+import { useTimer } from "@/context/TimerContext";
 
 // Recursive component for nested menu item
 function RecursiveMenuItems({ items, depth = 1 }) {
   const navigate = useNavigate();
   const location = useLocation();
   const [loadingId, setLoadingId] = useState(null);
+  const [showExitConfirm, setShowExitConfirm] = useState(false);
+  const [pendingNavigation, setPendingNavigation] = useState(null);
+  const { handleExitFile, seconds, isActive, isPaused } = useTimer();
 
   // Handle click for both navigation and download
   const handleItemClick = async (e, url, title, itemId) => {
@@ -32,6 +45,18 @@ function RecursiveMenuItems({ items, depth = 1 }) {
 
     e.preventDefault();
     e.stopPropagation();
+
+    // If this is EXIT FILE and timer has time, show confirmation
+    if (title === "EXIT FILE" && (seconds > 0 || isActive || isPaused)) {
+      setShowExitConfirm(true);
+      setPendingNavigation({ url, title, itemId });
+      return;
+    }
+
+    // If this is EXIT FILE, handle timer exit first
+    if (title === "EXIT FILE") {
+      handleExitFile();
+    }
 
     if (isApiUrl(url)) {
       // It's an API endpoint - download the file
@@ -313,11 +338,26 @@ export function NavMain({ items, showHeader = false, header }) {
   const location = useLocation();
   const [loadingId, setLoadingId] = useState(null);
   const [expandedItem, setExpandedItem] = useState(null); // track which parent's panel is open
+  const [showExitConfirm, setShowExitConfirm] = useState(false);
+  const [pendingNavigation, setPendingNavigation] = useState(null);
+  const { handleExitFile, seconds, isActive, isPaused } = useTimer();
 
   const handleItemClick = async (e, url, title, itemId) => {
     if (!url) return;
 
     e.preventDefault();
+
+    // If this is EXIT FILE and timer has time, show confirmation
+    if (title === "EXIT FILE" && (seconds > 0 || isActive || isPaused)) {
+      setShowExitConfirm(true);
+      setPendingNavigation({ url, title, itemId });
+      return;
+    }
+
+    // If this is EXIT FILE, handle timer exit first
+    if (title === "EXIT FILE") {
+      handleExitFile();
+    }
 
     if (isApiUrl(url)) {
       setLoadingId(itemId);
@@ -326,6 +366,30 @@ export function NavMain({ items, showHeader = false, header }) {
     } else {
       navigate(url);
     }
+  };
+
+  const handleConfirmExit = async () => {
+    handleExitFile();
+    
+    if (pendingNavigation) {
+      const { url, title, itemId } = pendingNavigation;
+      
+      if (isApiUrl(url)) {
+        setLoadingId(itemId);
+        await handleFileDownload(url, title);
+        setLoadingId(null);
+      } else {
+        navigate(url);
+      }
+    }
+    
+    setShowExitConfirm(false);
+    setPendingNavigation(null);
+  };
+
+  const handleCancelExit = () => {
+    setShowExitConfirm(false);
+    setPendingNavigation(null);
   };
   // Map of sidebar URLs to their related add/edit paths (same as RecursiveMenuItems)
   const relatedPaths = {
@@ -520,7 +584,26 @@ export function NavMain({ items, showHeader = false, header }) {
           item={expandedItem}
           onClose={() => setExpandedItem(null)}
         />
-      )}
-    </SidebarGroup>
+      )}      
+      {/* Exit Confirmation Dialog */}
+      <Dialog open={showExitConfirm} onOpenChange={setShowExitConfirm}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Exit File</DialogTitle>
+            <DialogDescription>
+              You have an active timer ({new Date((seconds || 0) * 1000).toISOString().substring(11, 19)}). 
+              Are you sure you want to exit? Your time will be saved.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={handleCancelExit}>
+              Cancel
+            </Button>
+            <Button onClick={handleConfirmExit}>
+              Exit & Save Time
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>    </SidebarGroup>
   );
 }
