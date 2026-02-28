@@ -59,7 +59,7 @@ function NotificationItem({
   const n = notification;
   const [isExiting, setIsExiting] = useState(false);
 
-  // Auto-hide notifications 
+  // Auto-hide notifications
   useEffect(() => {
     const timer = setTimeout(() => {
       setIsExiting(true);
@@ -156,7 +156,7 @@ function NotificationItem({
           {/* Close button */}
           <button
             onClick={handleDismiss}
-            className="text-gray-400 hover:text-muted-foreground transition-colors flex-shrink-0"
+            className="text-muted-foreground hover:text-foreground transition-colors flex-shrink-0"
             aria-label="Dismiss"
           >
             <X className="h-4 w-4" />
@@ -207,7 +207,7 @@ export default function NotificationContainer() {
   if (visibleNotifications.length === 0) return null;
 
   return (
-    <div className="fixed top-4 right-4 w-[380px] z-50 space-y-3">
+    <div className="fixed top-16 right-4 w-[380px] z-[100] space-y-3">
       {visibleNotifications.map((n) => (
         <NotificationItem
           key={n.notificationId || n.id}

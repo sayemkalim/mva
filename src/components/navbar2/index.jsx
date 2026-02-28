@@ -9,7 +9,6 @@ import {
   Sun,
   Moon,
   X,
-  Clock,
   Loader2,
   Filter,
 } from "lucide-react";
@@ -65,24 +64,22 @@ export function Navbar2() {
     return () => clearInterval(intervalRef.current);
   }, []);
 
-  const {
-    data: notificationsData,
-    isLoading: isLoadingNotifications,
-    refetch: refetchNotifications,
-  } = useQuery({
-    queryKey: ["notifications"],
-    queryFn: async () => {
-      const response = await getAllNotification();
-      if (response?.response?.data) {
-        return response.response.data;
-      } else if (response?.response) {
-        return response.response;
-      }
-      return [];
-    },
-    refetchOnWindowFocus: true,
-  });
-  const { data: unreadCountData, refetch: refetchUnreadCount } = useQuery({
+  const { data: notificationsData, isLoading: isLoadingNotifications } =
+    useQuery({
+      queryKey: ["notifications"],
+      queryFn: async () => {
+        const response = await getAllNotification();
+        if (response?.response?.data) {
+          return response.response.data;
+        } else if (response?.response) {
+          return response.response;
+        }
+        return [];
+      },
+      refetchOnWindowFocus: false,
+      staleTime: Infinity,
+    });
+  const { data: unreadCountData } = useQuery({
     queryKey: ["unreadCount"],
     queryFn: async () => {
       const response = await getUnreadCount();
@@ -93,23 +90,22 @@ export function Navbar2() {
       }
       return 0;
     },
-    refetchOnWindowFocus: true,
+    refetchOnWindowFocus: false,
+    staleTime: Infinity,
   });
-
-  // Refetch API data when a new WebSocket notification arrives
-  useEffect(() => {
-    if (wsNotifications.length > 0) {
-      refetchNotifications();
-      refetchUnreadCount();
-    }
-  }, [wsNotifications.length]);
 
   // Mutation for marking as read
   const markAsReadMutation = useMutation({
     mutationFn: (id) => readNotificationById(id),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["notifications"] });
-      queryClient.invalidateQueries({ queryKey: ["unreadCount"] });
+    onSuccess: (_, id) => {
+      queryClient.setQueryData(["notifications"], (old) =>
+        (old || []).map((n) =>
+          (n.id || n.notificationId) === id ? { ...n, is_read: true } : n,
+        ),
+      );
+      queryClient.setQueryData(["unreadCount"], (old) =>
+        Math.max((old || 0) - 1, 0),
+      );
     },
   });
 
@@ -117,40 +113,60 @@ export function Navbar2() {
   const markAllAsReadMutation = useMutation({
     mutationFn: readAllNotifications,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["notifications"] });
-      queryClient.invalidateQueries({ queryKey: ["unreadCount"] });
+      queryClient.setQueryData(["notifications"], (old) =>
+        (old || []).map((n) => ({ ...n, is_read: true })),
+      );
+      queryClient.setQueryData(["unreadCount"], () => 0);
     },
   });
 
   // Mutation for marking multiple as read
   const markMultipleAsReadMutation = useMutation({
     mutationFn: (ids) => readMultipleNotifications(ids),
-    onSuccess: () => {
+    onSuccess: (_, ids) => {
       setSelectedIds([]);
-      queryClient.invalidateQueries({ queryKey: ["notifications"] });
-      queryClient.invalidateQueries({ queryKey: ["unreadCount"] });
+      queryClient.setQueryData(["notifications"], (old) =>
+        (old || []).map((n) =>
+          ids.includes(n.id || n.notificationId) ? { ...n, is_read: true } : n,
+        ),
+      );
+      queryClient.setQueryData(["unreadCount"], (old) =>
+        Math.max((old || 0) - ids.length, 0),
+      );
     },
   });
   const deleteNotificationMutation = useMutation({
     mutationFn: (id) => deleteNotificationById(id),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["notifications"] });
-      queryClient.invalidateQueries({ queryKey: ["unreadCount"] });
+    onSuccess: (_, id) => {
+      const old = queryClient.getQueryData(["notifications"]) || [];
+      const deleted = old.find((n) => (n.id || n.notificationId) === id);
+      queryClient.setQueryData(["notifications"], (prev) =>
+        (prev || []).filter((n) => (n.id || n.notificationId) !== id),
+      );
+      if (deleted && !deleted.is_read) {
+        queryClient.setQueryData(["unreadCount"], (prev) =>
+          Math.max((prev || 0) - 1, 0),
+        );
+      }
     },
   });
   const deleteAllMutation = useMutation({
     mutationFn: deleteAllNotifications,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["notifications"] });
-      queryClient.invalidateQueries({ queryKey: ["unreadCount"] });
+      queryClient.setQueryData(["notifications"], () => []);
+      queryClient.setQueryData(["unreadCount"], () => 0);
       clearWsAll();
     },
   });
   const respondMutation = useMutation({
     mutationFn: ({ id, action }) => respondToNotification(id, action),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["notifications"] });
-      queryClient.invalidateQueries({ queryKey: ["unreadCount"] });
+    onSuccess: (_, { id }) => {
+      queryClient.setQueryData(["notifications"], (old) =>
+        (old || []).filter((n) => (n.id || n.notificationId) !== id),
+      );
+      queryClient.setQueryData(["unreadCount"], (old) =>
+        Math.max((old || 0) - 1, 0),
+      );
     },
   });
 
@@ -243,7 +259,8 @@ export function Navbar2() {
 
   // Handle dialog success
   const handleDialogSuccess = () => {
-    const notificationId = selectedNotification?.id || selectedNotification?.notificationId;
+    const notificationId =
+      selectedNotification?.id || selectedNotification?.notificationId;
     clearWsNotification(notificationId);
     deleteNotificationMutation.mutate(notificationId);
     setSelectedNotification(null);
@@ -261,9 +278,17 @@ export function Navbar2() {
   };
 
   // Combine API notifications with WebSocket real-time notifications
-  const allNotifications = Array.isArray(notificationsData)
+  const apiNotifications = Array.isArray(notificationsData)
     ? notificationsData
     : [];
+  const apiIds = new Set(apiNotifications.map((n) => n.id || n.notificationId));
+
+  // Only include ws notifications not already in the API response
+  const newWsNotifications = wsNotifications
+    .filter((n) => !apiIds.has(n.id || n.notificationId))
+    .map((n) => ({ ...n, is_read: false }));
+
+  const allNotifications = [...newWsNotifications, ...apiNotifications];
 
   // Filter notifications based on selected filter
   const filteredNotifications = allNotifications.filter((n) => {
@@ -273,7 +298,7 @@ export function Navbar2() {
   });
 
   // notification count
-  const notificationCount = unreadCountData || allNotifications?.length || 0;
+  const notificationCount = (unreadCountData || 0) + newWsNotifications.length;
 
   return (
     <nav className="sticky top-0 z-50 w-full flex items-center justify-between px-4 py-2 bg-muted border-b">
@@ -375,7 +400,9 @@ export function Navbar2() {
                 <div className="flex gap-1 flex-1">
                   <Button
                     size="sm"
-                    variant={notificationFilter === "all" ? "default" : "outline"}
+                    variant={
+                      notificationFilter === "all" ? "default" : "outline"
+                    }
                     onClick={() => setNotificationFilter("all")}
                     className="h-8 text-xs flex-1"
                   >
@@ -383,7 +410,9 @@ export function Navbar2() {
                   </Button>
                   <Button
                     size="sm"
-                    variant={notificationFilter === "action" ? "default" : "outline"}
+                    variant={
+                      notificationFilter === "action" ? "default" : "outline"
+                    }
                     onClick={() => setNotificationFilter("action")}
                     className="h-8 text-xs flex-1"
                   >
@@ -391,7 +420,9 @@ export function Navbar2() {
                   </Button>
                   <Button
                     size="sm"
-                    variant={notificationFilter === "normal" ? "default" : "outline"}
+                    variant={
+                      notificationFilter === "normal" ? "default" : "outline"
+                    }
                     onClick={() => setNotificationFilter("normal")}
                     className="h-8 text-xs flex-1"
                   >
@@ -409,15 +440,15 @@ export function Navbar2() {
                     type="checkbox"
                     checked={
                       selectedIds.length ===
-                      filteredNotifications.filter((n) => !n.is_read).length &&
-                      selectedIds.length > 0
+                        filteredNotifications.filter((n) => !n.is_read)
+                          .length && selectedIds.length > 0
                     }
                     onChange={(e) => {
                       if (e.target.checked) {
                         setSelectedIds(
                           filteredNotifications
                             .filter((n) => !n.is_read)
-                            .map((n) => n.id || n.notificationId)
+                            .map((n) => n.id || n.notificationId),
                         );
                       } else {
                         setSelectedIds([]);
@@ -451,12 +482,12 @@ export function Navbar2() {
 
             <div className="mt-3 space-y-3 max-h-[calc(100vh-180px)] overflow-y-auto">
               {isLoadingNotifications ? (
-                <div className="flex flex-col items-center justify-center py-12 text-gray-500">
+                <div className="flex flex-col items-center justify-center py-12 text-muted-foreground">
                   <Loader2 className="h-8 w-8 animate-spin mb-3" />
                   <p className="text-sm">Loading notifications...</p>
                 </div>
               ) : filteredNotifications.length === 0 ? (
-                <div className="flex flex-col items-center justify-center py-12 text-gray-500">
+                <div className="flex flex-col items-center justify-center py-12 text-muted-foreground">
                   <Bell className="h-12 w-12 mb-3 opacity-30" />
                   <p className="text-sm">
                     {notificationFilter === "all"
@@ -470,10 +501,11 @@ export function Navbar2() {
                 filteredNotifications.map((n) => (
                   <div
                     key={n.notificationId || n.id}
-                    className={`p-3 rounded-lg border transition-colors ${n.is_read
-                        ? "bg-muted border-gray-200"
-                        : "bg-blue-50 border-blue-200"
-                    } hover:bg-gray-100`}
+                    className={`p-3 rounded-lg border transition-colors ${
+                      n.is_read
+                        ? "bg-muted border-border"
+                        : "bg-primary/10 border-primary/30"
+                    } hover:bg-accent`}
                   >
                     <div className="flex items-start gap-3">
                       {/* Checkbox for unread notifications */}
@@ -481,7 +513,7 @@ export function Navbar2() {
                         <input
                           type="checkbox"
                           checked={selectedIds.includes(
-                            n.id || n.notificationId
+                            n.id || n.notificationId,
                           )}
                           onChange={(e) => {
                             const id = n.id || n.notificationId;
@@ -489,7 +521,7 @@ export function Navbar2() {
                               setSelectedIds((prev) => [...prev, id]);
                             } else {
                               setSelectedIds((prev) =>
-                                prev.filter((i) => i !== id)
+                                prev.filter((i) => i !== id),
                               );
                             }
                           }}
@@ -508,7 +540,7 @@ export function Navbar2() {
                           <h4 className="font-semibold text-foreground text-sm">
                             {n.name}
                           </h4>
-                          <span className="text-xs text-gray-500 flex-shrink-0">
+                          <span className="text-xs text-muted-foreground flex-shrink-0">
                             {formatTime(n.time || n.receivedAt)}
                           </span>
                         </div>
