@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Tooltip } from "@/components/ui/tooltip";
@@ -81,6 +81,8 @@ export function Navbar2() {
   const [dialogOpen, setDialogOpen] = useState(false);
 
   const [sheetOpen, setSheetOpen] = useState(false);
+  const intervalRef = useRef(null);
+
 
   useEffect(() => {
     return () => clearInterval(intervalRef.current);
