@@ -802,7 +802,7 @@ const FolderItem = ({
           "group flex items-center gap-3 py-2.5 px-3 rounded-lg cursor-pointer transition-all duration-200 border border-transparent",
           folderColors.hoverBg,
           folderColors.border,
-          level > 0 ? "ml-6 bg-gray-100 rounded-none": "border border-gray-200",
+          level > 0 ? "ml-6 bg-gray-100 dark:bg-gray-800 rounded-none": "border border-gray-200 dark:border-gray-700",
         )}
         onClick={toggleOpen}
       >
