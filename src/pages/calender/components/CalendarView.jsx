@@ -322,16 +322,33 @@ const CalendarView = () => {
           toast.error("Failed to fetch event details");
           return;
         }
+
+        // Calculate the original duration in milliseconds
+        const originalStart = new Date(completeEventData.start_time);
+        const originalEnd = new Date(completeEventData.end_time);
+        const originalDuration = originalEnd.getTime() - originalStart.getTime();
+        
+        // For single-day events, preserve the exact duration
+        const newStart = new Date(start);
+        let newEnd = new Date(end);
+        
+        // If the original event was a single-day event (same day), maintain that duration
+        if (originalDuration === 0 || (originalStart.toDateString() === originalEnd.toDateString() && originalDuration < 24 * 60 * 60 * 1000)) {
+          // Keep the same duration as the original event
+          newEnd = new Date(newStart.getTime() + originalDuration);
+        }
+        
         const updatedEventData = {
           // Use complete event data as base
           ...completeEventData,
           // Update only the time-related fields
-          start_time: start.toISOString().slice(0, 19).replace('T', ' '),
-          end_time: end.toISOString().slice(0, 19).replace('T', ' '),
+          start_time: newStart.toISOString().slice(0, 19).replace('T', ' '),
+          end_time: newEnd.toISOString().slice(0, 19).replace('T', ' '),
         };
 
         console.log("Event drop data:", {
           id: eventId,
+          originalDuration: originalDuration / (1000 * 60 * 60), // hours
           updatedEventData,
         });
 
@@ -357,13 +374,25 @@ const CalendarView = () => {
           toast.error("Failed to fetch event details");
           return;
         }        
+
+        // For resize, we want to use the provided start and end directly
+        const newStart = new Date(start);
+        const newEnd = new Date(end);
+        
         const updatedEventData = {
           // Use complete event data as base
           ...completeEventData,
           // Update only the time-related fields
-          start_time: start.toISOString().slice(0, 19).replace('T', ' '),
-          end_time: end.toISOString().slice(0, 19).replace('T', ' '),
+          start_time: newStart.toISOString().slice(0, 19).replace('T', ' '),
+          end_time: newEnd.toISOString().slice(0, 19).replace('T', ' '),
         };
+        
+        console.log("Event resize data:", {
+          id: eventId,
+          duration: (newEnd.getTime() - newStart.getTime()) / (1000 * 60 * 60), // hours
+          updatedEventData,
+        });
+        
         debouncedUpdate(eventId, updatedEventData);
       } catch (error) {
         console.error("Error fetching event data for resize:", error);
