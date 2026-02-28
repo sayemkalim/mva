@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Tooltip } from "@/components/ui/tooltip";
@@ -23,6 +23,8 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet";
 import { useNotificationContext } from "@/context/NotificationContext";
+import { useTimer } from "@/context/TimerContext";
+import { toast } from "sonner";
 import {
   getAllNotification,
   getUnreadCount,
@@ -38,12 +40,37 @@ import { NotificationDetailDialog } from "@/components/notification-detail-dialo
 export function Navbar2() {
   const queryClient = useQueryClient();
 
-  // Get real-time notifications from WebSocket
   const {
     notifications: wsNotifications,
     clearNotification: clearWsNotification,
     clearAll: clearWsAll,
   } = useNotificationContext();
+
+  const {
+    seconds,
+    isActive,
+    isPaused,
+    timerDisplay,
+    handleStart,
+    handlePause,
+    handleResume,
+    handleReset,
+    isInWorkstation,
+  } = useTimer();
+
+  const onTimerStart = () => {
+    const result = handleStart();
+    if (!result.success) {
+      toast.error(result.message);
+    }
+  };
+
+  const onTimerResume = () => {
+    const result = handleResume();
+    if (!result.success) {
+      toast.error(result.message);
+    }
+  };
 
   // Fullscreen logic
   const [isFullscreen, setIsFullscreen] = useState(false);
@@ -54,16 +81,7 @@ export function Navbar2() {
   const [selectedNotification, setSelectedNotification] = useState(null);
   const [dialogOpen, setDialogOpen] = useState(false);
 
-  const [seconds, setSeconds] = useState(0);
-  const [isActive, setIsActive] = useState(false);
-  const [isPaused, setIsPaused] = useState(false);
-  const intervalRef = useRef(null);
-
   const [sheetOpen, setSheetOpen] = useState(false);
-
-  useEffect(() => {
-    return () => clearInterval(intervalRef.current);
-  }, []);
 
   const {
     data: notificationsData,
@@ -154,32 +172,7 @@ export function Navbar2() {
     },
   });
 
-  const handleStart = () => {
-    setIsActive(true);
-    setIsPaused(false);
-    intervalRef.current = setInterval(() => {
-      setSeconds((prev) => prev + 1);
-    }, 1000);
-  };
 
-  const handlePause = () => {
-    clearInterval(intervalRef.current);
-    setIsPaused(true);
-  };
-
-  const handleResume = () => {
-    setIsPaused(false);
-    intervalRef.current = setInterval(() => {
-      setSeconds((prev) => prev + 1);
-    }, 1000);
-  };
-
-  const handleReset = () => {
-    clearInterval(intervalRef.current);
-    setIsActive(false);
-    setIsPaused(false);
-    setSeconds(0);
-  };
 
   const toggleFullscreen = () => {
     if (!document.fullscreenElement) {
@@ -197,7 +190,7 @@ export function Navbar2() {
     setTheme(newTheme);
   };
 
-  const timerDisplay = new Date(seconds * 1000).toISOString().substr(11, 8);
+
 
   // Format time for display
   const formatTime = (timeString) => {
@@ -213,6 +206,7 @@ export function Navbar2() {
       if (diffMins < 1440) return `${Math.floor(diffMins / 60)}h ago`;
       return date.toLocaleDateString();
     } catch (e) {
+      console.log(e);
       return "";
     }
   };
@@ -286,13 +280,18 @@ export function Navbar2() {
       <div className="flex items-center gap-2 bg-card rounded px-2 py-1 shadow">
         <Button
           onClick={
-            !isActive ? handleStart : isPaused ? handleResume : handlePause
+            !isActive ? onTimerStart : isPaused ? onTimerResume : handlePause
           }
           variant="outline"
+          disabled={!isInWorkstation && !isActive}
+          title={!isInWorkstation ? "Timer only works in workstation files" : ""}
+          className={!isInWorkstation && !isActive ? "opacity-50" : ""}
         >
           {!isActive ? "Start" : isPaused ? "Resume" : "Pause"}
         </Button>
-        <div className="font-mono text-lg min-w-[100px]">{timerDisplay}</div>
+        <div className="font-mono text-lg min-w-[100px] flex items-center gap-2">
+          {timerDisplay}
+        </div>
         <Button
           onClick={handleReset}
           variant="outline"
