@@ -419,16 +419,16 @@ function SidebarMenuItem({ className, ...props }) {
   );
 }
 
-// VARIANTS WITH #7f24fd ACTIVE COLOR
+// VARIANTS WITH #388e3c ACTIVE COLOR
 const sidebarMenuButtonVariants = cva(
-  "peer/menu-button flex w-full items-center gap-2 overflow-hidden rounded-md p-2 text-left text-sm outline-hidden ring-sidebar-ring transition-[width,height,padding] hover:bg-[#7f24fd]/10 hover:text-[#6659df] focus-visible:ring-2 active:bg-[#7f24fd]/10 active:text-[#7f24fd] disabled:pointer-events-none disabled:opacity-50 group-has-data-[sidebar=menu-action]/menu-item:pr-8 aria-disabled:pointer-events-none aria-disabled:opacity-50 data-[active=true]:bg-[#6659df]/10 data-[active=true]:font-medium data-[active=true]:text-[#7f24fd] data-[state=open]:hover:bg-[#7f24fd]/10 data-[state=open]:hover:text-[#6659df] group-data-[collapsible=icon]:size-8! group-data-[collapsible=icon]:p-2! [&>span:last-child]:truncate [&>svg]:size-4 [&>svg]:shrink-0 data-[active=true]:[&>svg]:text-[#7f24fd] hover:[&>svg]:text-[#7f24fd]",
+  "peer/menu-button flex w-full items-center gap-2 overflow-hidden rounded-md p-2 text-left text-sm font-medium outline-hidden ring-sidebar-ring transition-[width,height,padding] hover:bg-[#388e3c]/10 hover:text-[#388e3c] focus-visible:ring-2 active:bg-[#388e3c]/10 active:text-[#388e3c] disabled:pointer-events-none disabled:opacity-50 group-has-data-[sidebar=menu-action]/menu-item:pr-8 aria-disabled:pointer-events-none aria-disabled:opacity-50 data-[active=true]:bg-[#388e3c] data-[active=true]:text-white data-[active=true]:font-bold data-[active=true]:uppercase data-[state=open]:hover:bg-[#388e3c]/10 data-[state=open]:hover:text-[#388e3c] group-data-[collapsible=icon]:size-8! group-data-[collapsible=icon]:p-2! [&>span:last-child]:truncate [&>svg]:size-[25px] [&>svg]:shrink-0 data-[active=true]:[&>svg]:text-white hover:[&>svg]:text-[#388e3c]",
   {
     variants: {
       variant: {
         default:
-          "hover:bg-[#6659df]/10 hover:text-[#7f24fd] hover:[&>svg]:text-[#7f24fd]",
+          "hover:bg-[#388e3c]/10 hover:text-[#388e3c] hover:[&>svg]:text-[#388e3c]",
         outline:
-          "bg-background shadow-[0_0_0_1px_hsl(var(--sidebar-border))] hover:bg-[#7f24fd]/10 hover:text-[#7f24fd] hover:[&>svg]:text-[#7f24fd] hover:shadow-[0_0_0_1px_#7f24fd]",
+          "bg-background shadow-[0_0_0_1px_hsl(var(--sidebar-border))] hover:bg-[#388e3c]/10 hover:text-[#388e3c] hover:[&>svg]:text-[#388e3c] hover:shadow-[0_0_0_1px_#388e3c]",
       },
       size: {
         default: "h-8 text-sm",
@@ -652,10 +652,10 @@ function SidebarMenuSubButton({
       data-size={size}
       data-active={isActive}
       className={cn(
-        "text-sidebar-foreground ring-sidebar-ring hover:bg-green-500 hover:text-sidebar-accent-foreground active:bg-sidebar-accent active:text-sidebar-accent-foreground [&>svg]:text-sidebar-accent-foreground flex h-7 min-w-0 -translate-x-px items-center gap-2 overflow-hidden rounded-md px-2 outline-hidden focus-visible:ring-2 disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50 [&>span:last-child]:truncate [&>svg]:size-4 [&>svg]:shrink-0",
-        "data-[active=true]:bg-[#6659df]/10 data-[active=true]:text-[#7f24fd] data-[active=true]:font-medium",
+        "text-sidebar-foreground ring-sidebar-ring hover:bg-[#388e3c]/10 hover:text-[#388e3c] active:bg-[#388e3c]/10 active:text-[#388e3c] [&>svg]:text-sidebar-accent-foreground flex h-7 min-w-0 -translate-x-px items-center gap-2 overflow-hidden rounded-md px-2 text-[15px] font-normal outline-hidden focus-visible:ring-2 disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50 [&>span:last-child]:truncate [&>svg]:size-4 [&>svg]:shrink-0",
+        "data-[active=true]:bg-[#388e3c] data-[active=true]:text-white data-[active=true]:font-bold data-[active=true]:uppercase",
         size === "sm" && "text-xs",
-        size === "md" && "text-sm",
+        size === "md" && "text-[15px]",
         "group-data-[collapsible=icon]:hidden",
         className,
       )}
