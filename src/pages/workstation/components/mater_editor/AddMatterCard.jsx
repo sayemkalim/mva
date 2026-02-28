@@ -530,7 +530,7 @@ const AddMatterCard = ({
         </div>
       </div>
 
-      <div className="container mx-auto px-6 py-8 max-w-7xl">
+      <div className="container mx-auto px-6 py-8">
         <div className="bg-card rounded-lg shadow-sm border p-8">
           <h1 className="text-2xl font-bold mb-8 text-foreground">
             {isEditMode ? "Edit Matter" : "Add New Matter"}

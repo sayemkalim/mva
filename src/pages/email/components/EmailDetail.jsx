@@ -11,6 +11,8 @@ import {
   Star,
   Tag,
   Unlink,
+  Download,
+  Eye,
 } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
@@ -61,6 +63,44 @@ const EmailDetail = ({ email, onBack, onDelete, onMove, onReply, accounts, defau
   const [replyInitialData, setReplyInitialData] = useState(null);
 
   const emailDetail = emailData?.response?.data || emailData || email;
+
+  // Download attachment function
+  const downloadAttachment = async (attachment) => {
+    try {
+      const response = await fetch(attachment.path);
+      if (!response.ok) throw new Error('Download failed');
+      
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = attachment.file_name || attachment.original_name || `attachment_${attachment.id}`;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+      
+      toast.success(`Downloaded ${attachment.file_name || 'attachment'}`);
+    } catch (error) {
+      console.error('Download failed:', error);
+      toast.error('Failed to download attachment');
+    }
+  };
+
+  // Format file size
+  const formatFileSize = (bytes) => {
+    if (!bytes) return '';
+    const units = ['B', 'KB', 'MB', 'GB'];
+    let size = bytes;
+    let unitIndex = 0;
+    
+    while (size >= 1024 && unitIndex < units.length - 1) {
+      size /= 1024;
+      unitIndex++;
+    }
+    
+    return `${Math.round(size * 100) / 100} ${units[unitIndex]}`;
+  };
 
   const handleReply = () => {
     if (!emailDetail) return;
@@ -349,23 +389,54 @@ const EmailDetail = ({ email, onBack, onDelete, onMove, onReply, accounts, defau
       </div>
 
       {emailDetail.attachments && emailDetail.attachments.length > 0 && (
-        <div className="border-b border-border bg-card px-4 py-2">
-          <div className="flex items-center gap-2 text-sm">
+        <div className="border-b border-border bg-card px-4 py-3">
+          <div className="flex items-center gap-2 text-sm mb-3">
             <Paperclip className="size-4 text-muted-foreground" />
-            <span className="font-medium">Attachments:</span>
-            <div className="flex gap-2">
-              {emailDetail.attachments.map((attachment, index) => (
-                <a
-                  key={index}
-                  href={attachment.path || attachment.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-primary hover:underline"
-                >
-                  {attachment.name || attachment.original_name || `Attachment ${index + 1}`}
-                </a>
-              ))}
-            </div>
+            <span className="font-medium">
+              {emailDetail.attachments.length} Attachment{emailDetail.attachments.length > 1 ? 's' : ''}
+            </span>
+          </div>
+          <div className="space-y-2">
+            {emailDetail.attachments.map((attachment, index) => (
+              <div
+                key={attachment.id || index}
+                className="flex items-center justify-between gap-3 p-3 rounded-lg border bg-muted/30 hover:bg-muted/50 transition-colors"
+              >
+                <div className="flex items-center gap-3 min-w-0 flex-1">
+                  <div className="flex-shrink-0 w-8 h-8 bg-primary/10 rounded flex items-center justify-center">
+                    <Paperclip className="size-4 text-primary" />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <div className="font-medium text-sm truncate">
+                      {attachment.file_name || attachment.original_name || `Attachment ${index + 1}`}
+                    </div>
+                    <div className="text-xs text-muted-foreground">
+                      {attachment.mime_type} • {formatFileSize(attachment.file_size)}
+                    </div>
+                  </div>
+                </div>
+                <div className="flex items-center gap-1 flex-shrink-0">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => window.open(attachment.path, '_blank')}
+                    className="h-8 px-2"
+                    title="View attachment"
+                  >
+                    <Eye className="size-3" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => downloadAttachment(attachment)}
+                    className="h-8 px-2"
+                    title="Download attachment"
+                  >
+                    <Download className="size-3" />
+                  </Button>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       )}

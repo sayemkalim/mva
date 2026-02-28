@@ -248,7 +248,7 @@ const EmailList = ({ folder, accountId, searchQuery, onEmailSelect, onRefresh })
                       "text-xs shrink-0",
                       isUnread ? "font-medium text-blue-500" : "text-muted-foreground"
                     )}>
-                      {formatRelativeTime(email.created_at)}
+                      {formatRelativeTime(email.updated_at)}
                     </span>
                   </div>
 

@@ -936,15 +936,15 @@ const FolderItem = ({
         
         <div className="flex items-center gap-1.5">
           {hasSubFolders && (
-            <span className="text-xs font-medium text-purple-700 dark:text-purple-300 bg-purple-100 dark:bg-purple-900/50 px-2 py-0.5 rounded-full">
-              {folder.subFolders.length} subfolder
-              {folder.subFolders.length !== 1 ? "s" : ""}
+            <span className="text-xs font-medium text-purple-700 dark:text-purple-300 bg-purple-100 dark:bg-purple-900/50 px-2 py-0.5 rounded-full flex items-center gap-1">
+              <FolderClosed className="h-3 w-3" />
+              {folder.subFolders.length}
             </span>
           )}
           {hasDocuments && (
-            <span className="text-xs font-medium text-blue-700 dark:text-blue-300 bg-blue-100 dark:bg-blue-900/50 px-2 py-0.5 rounded-full">
-              {folder.documents.length} doc
-              {folder.documents.length !== 1 ? "s" : ""}
+            <span className="text-xs font-medium text-blue-700 dark:text-blue-300 bg-blue-100 dark:bg-blue-900/50 px-2 py-0.5 rounded-full flex items-center gap-1">
+              <FileText className="h-3 w-3" />
+              {folder.documents.length}
             </span>
           )}
         </div>

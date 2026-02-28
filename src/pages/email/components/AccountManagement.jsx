@@ -49,6 +49,7 @@ const AccountManagement = ({
   const [formData, setFormData] = useState({
     email: "",
     password: "",
+    name: "",
     imap_host: "mail.ratetrade.in",
     imap_port: 993,
     imap_encryption: "ssl",
@@ -71,6 +72,7 @@ const AccountManagement = ({
       setFormData({
         email: "",
         password: "",
+        name: "",
         imap_host: "mail.ratetrade.in",
         imap_port: 993,
         imap_encryption: "ssl",
@@ -114,6 +116,7 @@ const AccountManagement = ({
     const payload = {
       email: formData.email,
       password: formData.password,
+      name: formData.name,
       imap_host: formData.imap_host,
       imap_port: Number(formData.imap_port),
       imap_encryption: formData.imap_encryption,
@@ -142,6 +145,7 @@ const AccountManagement = ({
     setFormData({
       email: "",
       password: "",
+      name: "",
       imap_host: "mail.ratetrade.in",
       imap_port: 993,
       imap_encryption: "ssl",
@@ -214,6 +218,23 @@ const AccountManagement = ({
                         required
                       />
                     </div>
+                  </div>
+                  <div>
+                    <Label htmlFor="name">
+                      Name
+                    </Label>
+                    <Input
+                      id="name"
+                      type="text"
+                      value={formData.name}
+                      onChange={(e) =>
+                        setFormData((prev) => ({
+                          ...prev,
+                          name: e.target.value,
+                        }))
+                      }
+                      placeholder="Enter display name"
+                    />
                   </div>
                   <div className="flex items-center space-x-2">
                     <Checkbox
