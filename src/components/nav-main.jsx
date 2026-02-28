@@ -309,21 +309,21 @@ function ChildrenPanel({ item, onClose }) {
   return createPortal(
     <div
       ref={panelRef}
-      className="fixed inset-y-0 z-[15] flex flex-col border-r border-sidebar-border shadow-lg bg-[#a8dfc5] dark:bg-sidebar"
+      className="fixed inset-y-0 z-[15] flex flex-col border-r border-sidebar-border shadow-lg bg-[#c8e6c9] dark:bg-[#2a2f2a]"
       style={{ left: `${sidebarRect.right}px`, width: "12rem" }}
     >
-      <div className="flex items-center gap-3 px-2 py-4 border-b border-sidebar-border bg-green-500 dark:bg-sidebar-primary">
+      <div className="flex items-center gap-3 px-2 py-4 border-b border-sidebar-border bg-[#388e3c]">
         <button
           onClick={onClose}
           className="p-1.5 rounded-md hover:bg-sidebar-accent transition-colors"
         >
-          <ArrowLeft className="h-4 w-4 text-sidebar-foreground" />
+          <ArrowLeft className="h-4 w-4 text-white" />
         </button>
-        <span className="text-base font-semibold text-sidebar-primary-foreground truncate">
+        <span className="text-base font-semibold text-white truncate">
           {item.title}
         </span>
       </div>
-      <div className="flex-1 overflow-y-auto p-3 [&::-webkit-scrollbar]:hidden bg-[#a8dfc5] dark:bg-sidebar">
+      <div className="flex-1 overflow-y-auto p-3 [&::-webkit-scrollbar]:hidden bg-[#c8e6c9] dark:bg-[#2a2f2a] text-[#1f231f] dark:text-[#d0d0d0]">
         <SidebarMenuSub className="ml-0 pl-3 mr-1 border-l-0">
           <RecursiveMenuItems items={item.items} depth={1} />
         </SidebarMenuSub>
