@@ -238,6 +238,23 @@ export default function Identification() {
     }
   }, [slug, navigate]);
 
+  useEffect(() => {
+    const handleWindowDragOver = (e) => {
+      e.preventDefault();
+    };
+    const handleWindowDrop = (e) => {
+      e.preventDefault();
+    };
+
+    window.addEventListener("dragover", handleWindowDragOver);
+    window.addEventListener("drop", handleWindowDrop);
+
+    return () => {
+      window.removeEventListener("dragover", handleWindowDragOver);
+      window.removeEventListener("drop", handleWindowDrop);
+    };
+  }, []);
+
   // ✅ Backend se image URL load karna
   useEffect(() => {
     if (
@@ -246,26 +263,33 @@ export default function Identification() {
       identificationData.length > 0
     ) {
       setIdentifications(
-        identificationData.map((item) => ({
-          attachment_id: item.attachment_id || null,
-          copy_in_file_id: item.copy_in_file_id || "",
-          id_verification_date: item.id_verification_date
-            ? item.id_verification_date.split("T")[0]
-            : "",
-          id_verification_by: item.id_verification_by || "",
-          identification_type: item.identification_type || "",
-          identification_country: item.identification_country || "",
-          identification_number: item.identification_number || "",
-          expiry_date: item.expiry_date ? item.expiry_date.split("T")[0] : "",
-          file: null,
-          // ✅ Backend se filename aur preview URL set karna
-          fileName: item.attachment
-            ? `${item.attachment.original_name}.${item.attachment.extension}`
-            : "",
-          filePreview: item.attachment?.path || null,
-          isDragging: false,
-          isUploading: false,
-        }))
+        identificationData.map((item) => {
+          let previewUrl = item.attachment?.path || null;
+          if (previewUrl && !previewUrl.startsWith("http") && !previewUrl.startsWith("blob:")) {
+            previewUrl = `${import.meta.env.VITE_API_URL || "https://mva-backend.vsrlaw.ca/"}${previewUrl}`;
+          }
+
+          return {
+            attachment_id: item.attachment_id || null,
+            copy_in_file_id: item.copy_in_file_id || "",
+            id_verification_date: item.id_verification_date
+              ? item.id_verification_date.split("T")[0]
+              : "",
+            id_verification_by: item.id_verification_by || "",
+            identification_type: item.identification_type || "",
+            identification_country: item.identification_country || "",
+            identification_number: item.identification_number || "",
+            expiry_date: item.expiry_date ? item.expiry_date.split("T")[0] : "",
+            file: null,
+            // ✅ Backend se filename aur preview URL set karna
+            fileName: item.attachment
+              ? `${item.attachment.original_name}.${item.attachment.extension}`
+              : "",
+            filePreview: previewUrl,
+            isDragging: false,
+            isUploading: false,
+          };
+        })
       );
     }
   }, [identificationData]);
@@ -391,7 +415,7 @@ export default function Identification() {
     e.stopPropagation();
   };
 
-  const handleDrop = (index, e) => {
+  const handleDrop = async (index, e) => {
     e.preventDefault();
     e.stopPropagation();
     setIdentifications((prev) =>
@@ -399,9 +423,57 @@ export default function Identification() {
         i === index ? { ...item, isDragging: false } : item
       )
     );
-    const file = e.dataTransfer.files?.[0];
-    if (file) {
-      handleFileChange(index, file);
+
+    const item = identifications[index];
+    if (item.isUploading) return;
+
+    let droppedFile = null;
+
+    if (e.dataTransfer.items) {
+      for (let i = 0; i < e.dataTransfer.items.length; i++) {
+        if (e.dataTransfer.items[i].kind === "file") {
+          droppedFile = e.dataTransfer.items[i].getAsFile();
+          break;
+        }
+      }
+    }
+
+    if (!droppedFile && e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+      droppedFile = e.dataTransfer.files[0];
+    }
+
+    if (!droppedFile) {
+      const uriList = e.dataTransfer.getData("text/uri-list");
+      const html = e.dataTransfer.getData("text/html");
+
+      let imageUrl = null;
+      if (uriList) {
+        imageUrl = uriList.split("\n")[0].trim();
+      } else if (html) {
+        const match = html.match(/src=["'](.*?)["']/);
+        if (match) imageUrl = match[1];
+      }
+
+      if (imageUrl) {
+        try {
+          toast.info("Fetching dropped image...");
+          const response = await fetch(imageUrl);
+          const blob = await response.blob();
+          const ext = blob.type.split("/")[1] || "jpg";
+          const filename = "dropped_image." + ext;
+          droppedFile = new File([blob], filename, { type: blob.type });
+        } catch (error) {
+          console.error("Failed to fetch image:", error);
+          toast.error("Could not load image directly due to browser security. Please save the image to your computer first, then drag it here.");
+          return;
+        }
+      }
+    }
+
+    if (droppedFile) {
+      handleFileChange(index, droppedFile);
+    } else {
+      toast.error("Please drop a valid file from your computer.");
     }
   };
 
@@ -679,7 +751,7 @@ export default function Identification() {
                       )}
                     </Label>
                     <div
-                      className={`relative border-2 border-dashed rounded-lg transition-all ${identification.isUploading
+                      className={`relative border-2 border-dashed rounded-lg transition-all min-h-[150px] ${identification.isUploading
                         ? "border-blue-500 bg-blue-50"
                         : identification.isDragging
                           ? "border-blue-500 bg-blue-50"
@@ -687,6 +759,10 @@ export default function Identification() {
                             ? "border-green-500 bg-green-50/50"
                             : "border-input bg-card hover:border-gray-400"
                         }`}
+                      onDragEnter={(e) => handleDragEnter(index, e)}
+                      onDragLeave={(e) => handleDragLeave(index, e)}
+                      onDragOver={handleDragOver}
+                      onDrop={(e) => handleDrop(index, e)}
                     >
                       <input
                         id={`file_${index}`}
@@ -788,15 +864,19 @@ export default function Identification() {
                         </div>
                       ) : (
                         <div
-                          className="p-8 cursor-pointer"
-                          onDragEnter={(e) => handleDragEnter(index, e)}
-                          onDragLeave={(e) => handleDragLeave(index, e)}
-                          onDragOver={handleDragOver}
-                          onDrop={(e) => handleDrop(index, e)}
+                          className="p-8 cursor-pointer h-full min-h-[150px] flex flex-col items-center justify-center relative"
                           onClick={() =>
                             document.getElementById(`file_${index}`).click()
                           }
                         >
+                          {identification.isDragging && (
+                            <div className="absolute inset-0 z-50 flex items-center justify-center bg-blue-50/90 rounded-lg pointer-events-none">
+                              <div className="flex flex-col items-center text-blue-500">
+                                <Upload className="w-10 h-10 mb-2 animate-bounce" />
+                                <p className="font-semibold">Drop file here to upload!</p>
+                              </div>
+                            </div>
+                          )}
                           <div className="flex flex-col items-center justify-center gap-4">
                             <div className="w-16 h-16 rounded-lg bg-gray-100 flex items-center justify-center">
                               <Upload className="w-8 h-8 text-gray-400" />

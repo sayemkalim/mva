@@ -8,12 +8,12 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Loader2, ChevronRight } from "lucide-react";
 import { toast } from "sonner";
 import { Navbar2 } from "@/components/navbar2";
-import { fetchMvaProdById } from "../../helpers/fetchMvaProdById";
-import { createMvaProd, updateMvaProd } from "../../helpers/createMvaProd";
+import { fetchIntakeById } from "./helpers/fetchIntakeById";
+import { createIntake, updateIntake } from "./helpers/createIntake";
 import Billing from "@/components/billing";
 import { formatPhoneNumber } from "@/utils/formatters";
 
-export default function MvaPage() {
+export default function IntakePage() {
   const { id, slug } = useParams();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
@@ -24,8 +24,8 @@ export default function MvaPage() {
     isLoading,
     error,
   } = useQuery({
-    queryKey: ["mva", id],
-    queryFn: () => fetchMvaProdById(id),
+    queryKey: ["intake", id],
+    queryFn: () => fetchIntakeById(id),
     enabled: Boolean(isEditMode && id),
   });
 
@@ -572,18 +572,18 @@ export default function MvaPage() {
   const saveMutation = useMutation({
     mutationFn: ({ isEdit, idOrSlug, data }) =>
       isEdit
-        ? updateMvaProd(idOrSlug, data)
-        : createMvaProd({ slug: idOrSlug, data }),
+        ? updateIntake(idOrSlug, data)
+        : createIntake({ slug: idOrSlug, data }),
     onSuccess: (res, variables) => {
-      console.log("MVA save success =>", { res, variables });
+      console.log("Intake save success =>", { res, variables });
       const r = res?.data || res;
-      toast.success(r?.message || "MVA saved successfully");
-      queryClient.invalidateQueries({ queryKey: ["mva"] });
+      toast.success(r?.message || "Intake saved successfully");
+      queryClient.invalidateQueries({ queryKey: ["intake"] });
       navigate(-1);
     },
     onError: (error, variables) => {
-      console.error("MVA save error =>", { error, variables });
-      toast.error("Failed to save MVA");
+      console.error("Intake save error =>", { error, variables });
+      toast.error("Failed to save Intake");
     },
   });
 
@@ -636,7 +636,7 @@ export default function MvaPage() {
           </button>
           <ChevronRight className="w-4 h-4" />
           <span className="text-foreground font-medium">
-            {isEditMode ? "Edit" : "New"} MVA Intake
+            {isEditMode ? "Edit" : "New"} Intake
           </span>
         </div>
       </nav>
@@ -644,7 +644,7 @@ export default function MvaPage() {
       <main className="container mx-auto px-6 py-8 max-w-6xl">
         <div className="flex items-center justify-between mb-8">
           <h1 className="text-3xl font-bold text-foreground">
-            {isEditMode ? "Edit MVA" : "New MVA Intake"}
+            {isEditMode ? "Edit Intake" : "New Intake"}
           </h1>
           {/* <div className="text-sm text-gray-500">{isEditMode.toString()}</div> */}
         </div>

@@ -120,7 +120,9 @@ export default function MedicalPage() {
   const [file, setFile] = useState(null);
   const [fileName, setFileName] = useState("");
   const [filePreview, setFilePreview] = useState(null);
+  const [fileUrl, setFileUrl] = useState(null);
   const [fileType, setFileType] = useState(null);
+  const [isDragging, setIsDragging] = useState(false);
 
   useEffect(() => {
     if (conflictData) {
@@ -132,7 +134,12 @@ export default function MedicalPage() {
       });
 
       if (conflictData.file_url) {
-        setFilePreview(conflictData.file_url);
+        const fullUrl = conflictData.file_url.startsWith("http")
+          ? conflictData.file_url
+          : `${import.meta.env.VITE_API_URL || "https://mva-backend.vsrlaw.ca/"}${conflictData.file_url}`;
+
+        setFilePreview(fullUrl);
+        setFileUrl(fullUrl);
         setFileName(conflictData.file_name || "Uploaded file");
         const extension = conflictData.file_name
           ?.split(".")
@@ -161,11 +168,104 @@ export default function MedicalPage() {
       setFile(selectedFile);
       setFileName(selectedFile.name);
       setFilePreview(previewUrl);
+      setFileUrl(previewUrl);
       try {
         await uploadMutation.mutateAsync({ file: selectedFile });
       } catch (error) {
         console.error("Upload failed:", error);
       }
+    }
+  };
+
+  useEffect(() => {
+    const handleWindowDragOver = (e) => {
+      e.preventDefault();
+    };
+    const handleWindowDrop = (e) => {
+      e.preventDefault();
+    };
+
+    window.addEventListener("dragover", handleWindowDragOver);
+    window.addEventListener("drop", handleWindowDrop);
+
+    return () => {
+      window.removeEventListener("dragover", handleWindowDragOver);
+      window.removeEventListener("drop", handleWindowDrop);
+    };
+  }, []);
+
+  const handleDragEnter = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(true);
+  };
+
+  const handleDragOver = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+  };
+
+  const handleDrop = async (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+
+    if (mutation.isLoading || uploadMutation.isLoading) return;
+
+    let droppedFile = null;
+
+    if (e.dataTransfer.items) {
+      for (let i = 0; i < e.dataTransfer.items.length; i++) {
+        if (e.dataTransfer.items[i].kind === "file") {
+          droppedFile = e.dataTransfer.items[i].getAsFile();
+          break;
+        }
+      }
+    }
+
+    if (!droppedFile && e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+      droppedFile = e.dataTransfer.files[0];
+    }
+
+    if (!droppedFile) {
+      const uriList = e.dataTransfer.getData("text/uri-list");
+      const html = e.dataTransfer.getData("text/html");
+
+      let imageUrl = null;
+      if (uriList) {
+        imageUrl = uriList.split("\n")[0].trim();
+      } else if (html) {
+        const match = html.match(/src=["'](.*?)["']/);
+        if (match) imageUrl = match[1];
+      }
+
+      if (imageUrl) {
+        try {
+          toast.info("Fetching dropped image...");
+          const response = await fetch(imageUrl);
+          const blob = await response.blob();
+          const ext = blob.type.split("/")[1] || "jpg";
+          const filename = "dropped_image." + ext;
+          droppedFile = new File([blob], filename, { type: blob.type });
+        } catch (error) {
+          console.error("Failed to fetch image:", error);
+          toast.error("Could not load image directly due to browser security. Please save the image to your computer first, then drag it here.");
+          return;
+        }
+      }
+    }
+
+    if (droppedFile) {
+      handleFileChange(droppedFile);
+    } else {
+      toast.error("Please drop a valid file from your computer.");
     }
   };
 
@@ -176,6 +276,7 @@ export default function MedicalPage() {
     setFile(null);
     setFileName("");
     setFilePreview(null);
+    setFileUrl(null);
     setFileType(null);
     setFormData((prev) => ({
       ...prev,
@@ -301,12 +402,18 @@ export default function MedicalPage() {
               <div
                 className={`relative border-2 border-dashed rounded-lg transition-all overflow-hidden ${filePreview
                   ? "border-green-500 bg-green-50/50"
-                  : "border-input bg-muted hover:border-gray-400 hover:bg-gray-100"
+                  : isDragging
+                    ? "border-blue-500 bg-blue-50"
+                    : "border-input bg-muted hover:border-gray-400 hover:bg-gray-100"
                   } ${uploadMutation.isLoading
                     ? "pointer-events-none opacity-70"
                     : ""
                   }`}
                 style={{ minHeight: "250px" }}
+                onDragEnter={handleDragEnter}
+                onDragOver={handleDragOver}
+                onDragLeave={handleDragLeave}
+                onDrop={handleDrop}
               >
                 <input
                   id="conflictSearchFile"
@@ -319,6 +426,15 @@ export default function MedicalPage() {
                   accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
                   disabled={mutation.isLoading || uploadMutation.isLoading}
                 />
+
+                {isDragging && (
+                  <div className="absolute inset-0 z-50 flex items-center justify-center bg-blue-50/90 rounded-lg pointer-events-none">
+                    <div className="flex flex-col items-center text-blue-500">
+                      <Upload className="w-12 h-12 mb-2 animate-bounce" />
+                      <p className="font-semibold text-lg">Drop file here to upload!</p>
+                    </div>
+                  </div>
+                )}
 
                 {filePreview ? (
                   <div className="relative h-full min-h-[250px] flex flex-col items-center justify-center p-4">
@@ -384,6 +500,24 @@ export default function MedicalPage() {
                           )}
                         </div>
                       </div>
+                    )}
+
+                    {fileUrl && (
+                      <a
+                        href={fileUrl}
+                        download={fileName}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="mt-4"
+                      >
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                        >
+                          Download File
+                        </Button>
+                      </a>
                     )}
                   </div>
                 ) : (
@@ -455,9 +589,9 @@ export default function MedicalPage() {
                   Saving...
                 </>
               ) : id ? (
-                "Update Insurance Ownership"
+                "Update Medical Report"
               ) : (
-                "Save Insurance Ownership"
+                "Save Medical Report"
               )}
             </Button>
           </div>

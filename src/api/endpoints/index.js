@@ -1,6 +1,4 @@
-import { sortFolders } from "@/pages/document-i/helpers/sortFolders";
-import { add } from "date-fns";
-import { de, th } from "date-fns/locale";
+
 
 export const endpoints = {
   login: "api/login",
@@ -259,6 +257,9 @@ export const endpoints = {
   mvaProd: "api/v2/file/production/mva-client-fillable/show",
   deleteMvaProdList: "api/v2/file/production/mva-client-fillable/delete",
   mvaProdPrint: "api/v2/file/production/mva-client-fillable/print",
+  createIntake: "api/v2/file/intake",
+  updateIntake: "api/v2/file/intake",
+  intake: "api/v2/file/intake/show",
   psychologicalList: "api/v2/file/production/psychological/list",
   createPsychological: "api/v2/file/production/psychological",
   updatePsychological: "api/v2/file/production/psychological",

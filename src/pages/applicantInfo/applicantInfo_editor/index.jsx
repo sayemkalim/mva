@@ -109,9 +109,8 @@ function ShadcnSelect({
                 className="italic text-muted-foreground"
               >
                 <Check
-                  className={`mr-2 h-4 w-4 ${
-                    !value ? "opacity-100" : "opacity-0"
-                  }`}
+                  className={`mr-2 h-4 w-4 ${!value ? "opacity-100" : "opacity-0"
+                    }`}
                 />
                 None
               </CommandItem>
@@ -122,11 +121,10 @@ function ShadcnSelect({
                   onSelect={() => handleSelect(opt.id)}
                 >
                   <Check
-                    className={`mr-2 h-4 w-4 ${
-                      String(value) === String(opt.id)
+                    className={`mr-2 h-4 w-4 ${String(value) === String(opt.id)
                         ? "opacity-100"
                         : "opacity-0"
-                    }`}
+                      }`}
                   />
                   {opt.name}
                 </CommandItem>
@@ -171,14 +169,14 @@ export default function ApplicantInformation() {
   const socialMediaOptions = Array.isArray(socialPlatforms)
     ? socialPlatforms.map((p) => ({ id: p.name, name: p.name }))
     : [
-        { id: "Facebook", name: "Facebook" },
-        { id: "Instagram", name: "Instagram" },
-        { id: "TikTok", name: "TikTok" },
-        { id: "X (Twitter)", name: "X (Twitter)" },
-        { id: "Snapchat", name: "Snapchat" },
-        { id: "LinkedIn", name: "LinkedIn" },
-        { id: "Other", name: "Other social media platforms" },
-      ];
+      { id: "Facebook", name: "Facebook" },
+      { id: "Instagram", name: "Instagram" },
+      { id: "TikTok", name: "TikTok" },
+      { id: "X (Twitter)", name: "X (Twitter)" },
+      { id: "Snapchat", name: "Snapchat" },
+      { id: "LinkedIn", name: "LinkedIn" },
+      { id: "Other", name: "Other social media platforms" },
+    ];
 
   const { data: applicantData, isLoading: isLoadingApplicant } = useQuery({
     queryKey: ["applicantInfo", slug],
@@ -242,8 +240,8 @@ export default function ApplicantInformation() {
         } else {
           toast.error(
             data?.message ||
-              data?.response?.message ||
-              "Submission failed. Please try again.",
+            data?.response?.message ||
+            "Submission failed. Please try again.",
           );
           console.error("Create mutation returned:", data);
         }
@@ -325,6 +323,7 @@ export default function ApplicantInformation() {
   });
   const [popoverOpen, setPopoverOpen] = useState({});
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
 
   const [mailingAddressBackup, setMailingAddressBackup] = useState(null);
   const handleSameAddressChange = (checked) => {
@@ -400,25 +399,25 @@ export default function ApplicantInformation() {
 
         social_media_platform:
           applicantData.social_media_platform &&
-          applicantData.social_media_platform.length > 0
+            applicantData.social_media_platform.length > 0
             ? applicantData.social_media_platform.map((p) => ({
-                platform_name: p.platform_name ?? "",
-                platform_value: p.platform_value ?? "",
-                platform_status: p.platform_status ?? "Active",
-              }))
+              platform_name: p.platform_name ?? "",
+              platform_value: p.platform_value ?? "",
+              platform_status: p.platform_status ?? "Active",
+            }))
             : [
-                {
-                  platform_name: "",
-                  platform_value: "",
-                  platform_status: "Active",
-                },
-              ],
+              {
+                platform_name: "",
+                platform_value: "",
+                platform_status: "Active",
+              },
+            ],
         reaches:
           applicantData.reach && applicantData.reach.length > 0
             ? applicantData.reach.map((r) => ({
-                day_id: r.day_id ?? "",
-                time: r.time ? r.time.slice(0, 5) : "",
-              }))
+              day_id: r.day_id ?? "",
+              time: r.time ? r.time.slice(0, 5) : "",
+            }))
             : [{ day_id: "", time: "" }],
         client_availability_away_id:
           applicantData.client_availability_away_id ?? "",
@@ -476,24 +475,24 @@ export default function ApplicantInformation() {
         children:
           applicantData.children && applicantData.children.length > 0
             ? applicantData.children.map((c) => ({
-                first_name: c.first_name ?? "",
-                middle_number: c.middle_number ?? "",
-                last_name: c.last_name ?? "",
-                dob: c.dob ? c.dob.split("T")[0] : "",
-              }))
+              first_name: c.first_name ?? "",
+              middle_number: c.middle_number ?? "",
+              last_name: c.last_name ?? "",
+              dob: c.dob ? c.dob.split("T")[0] : "",
+            }))
             : [{ first_name: "", middle_number: "", last_name: "", dob: "" }],
         meeting_clients:
           applicantData.meeting_client &&
-          applicantData.meeting_client.length > 0
+            applicantData.meeting_client.length > 0
             ? applicantData.meeting_client.map((m) => ({
-                date: m.date ? m.date.split("T")[0] : "",
-              }))
+              date: m.date ? m.date.split("T")[0] : "",
+            }))
             : [{ date: "" }],
         child_check:
           applicantData.child_check === "true" ||
-          applicantData.child_check === true ||
-          applicantData.child_check === 1 ||
-          applicantData.child_check === "1"
+            applicantData.child_check === true ||
+            applicantData.child_check === 1 ||
+            applicantData.child_check === "1"
             ? true
             : false,
       });
@@ -559,6 +558,98 @@ export default function ApplicantInformation() {
       ...prev,
       [arrayName]: prev[arrayName].filter((_, i) => i !== index),
     }));
+  };
+
+  useEffect(() => {
+    const handleWindowDragOver = (e) => {
+      e.preventDefault();
+    };
+    const handleWindowDrop = (e) => {
+      e.preventDefault();
+    };
+
+    window.addEventListener("dragover", handleWindowDragOver);
+    window.addEventListener("drop", handleWindowDrop);
+
+    return () => {
+      window.removeEventListener("dragover", handleWindowDragOver);
+      window.removeEventListener("drop", handleWindowDrop);
+    };
+  }, []);
+
+  const handleDragEnter = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(true);
+  };
+
+  const handleDragOver = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+  };
+
+  const handleDrop = async (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+
+    if (uploadMutation.isLoading || createMutation.isLoading) return;
+
+    let droppedFile = null;
+
+    if (e.dataTransfer.items) {
+      for (let i = 0; i < e.dataTransfer.items.length; i++) {
+        if (e.dataTransfer.items[i].kind === "file") {
+          droppedFile = e.dataTransfer.items[i].getAsFile();
+          break;
+        }
+      }
+    }
+
+    if (!droppedFile && e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+      droppedFile = e.dataTransfer.files[0];
+    }
+
+    if (!droppedFile) {
+      const uriList = e.dataTransfer.getData("text/uri-list");
+      const html = e.dataTransfer.getData("text/html");
+
+      let imageUrl = null;
+      if (uriList) {
+        imageUrl = uriList.split("\n")[0].trim();
+      } else if (html) {
+        const match = html.match(/src=["'](.*?)["']/);
+        if (match) imageUrl = match[1];
+      }
+
+      if (imageUrl) {
+        try {
+          toast.info("Fetching dropped image...");
+          const response = await fetch(imageUrl);
+          const blob = await response.blob();
+          const ext = blob.type.split("/")[1] || "jpg";
+          const filename = "dropped_image." + ext;
+          droppedFile = new File([blob], filename, { type: blob.type });
+        } catch (error) {
+          console.error("Failed to fetch image:", error);
+          toast.error("Could not load image directly due to browser security. Please save the image to your computer first, then drag it here.");
+          return;
+        }
+      }
+    }
+
+    if (droppedFile) {
+      handleFileChange(droppedFile);
+    } else {
+      toast.error("Please drop a valid file from your computer.");
+    }
   };
 
   const handleFileChange = async (file) => {
@@ -1006,11 +1097,16 @@ export default function ApplicantInformation() {
                     <span className="text-red-500">(Max 1MB)</span>
                   </Label>
                   <div
-                    className={`relative border-2 border-dashed rounded-lg transition-all overflow-hidden ${
-                      formData.filePreview
+                    className={`relative border-2 border-dashed rounded-lg transition-all overflow-hidden ${formData.filePreview
                         ? "border-green-500 bg-green-50/50 h-[300px]"
-                        : "border-input bg-muted hover:border-gray-400 hover:bg-gray-100 h-[300px]"
-                    }`}
+                        : isDragging
+                          ? "border-blue-500 bg-blue-50 h-[300px]"
+                          : "border-input bg-muted hover:border-gray-400 hover:bg-gray-100 h-[300px]"
+                      }`}
+                    onDragEnter={handleDragEnter}
+                    onDragOver={handleDragOver}
+                    onDragLeave={handleDragLeave}
+                    onDrop={handleDrop}
                   >
                     <input
                       id="applicant_photo"
@@ -1022,6 +1118,15 @@ export default function ApplicantInformation() {
                       }}
                       accept="image/*"
                     />
+
+                    {isDragging && (
+                      <div className="absolute inset-0 z-50 flex items-center justify-center bg-blue-50/90 rounded-lg pointer-events-none">
+                        <div className="flex flex-col items-center text-blue-500">
+                          <Upload className="w-12 h-12 mb-2 animate-bounce" />
+                          <p className="font-semibold text-lg">Drop file here to upload!</p>
+                        </div>
+                      </div>
+                    )}
 
                     {formData.filePreview ? (
                       <div className="relative h-full flex flex-col items-center justify-center p-1">

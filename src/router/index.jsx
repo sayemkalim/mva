@@ -104,6 +104,7 @@ import SocProd from "@/pages/soc-prod";
 import SocProdPage from "@/pages/soc-prod/components/soc-prod_editor";
 import MvaProd from "@/pages/mva-prod";
 import MvaPage from "@/pages/mva-prod/components/mva-prod_editor";
+import IntakePage from "@/pages/intake_form";
 import PsychologicalPage from "@/pages/psychological/components/psychological_editor";
 import Psychological from "@/pages/psychological";
 import ReportPage from "@/pages/report";
@@ -556,6 +557,14 @@ const Router = () => {
           <Route
             path="/dashboard/mva-production/edit/:id"
             element={<MvaPage />}
+          />
+          <Route
+            path="/dashboard/intake/add/:slug"
+            element={<IntakePage />}
+          />
+          <Route
+            path="/dashboard/intake/edit/:id"
+            element={<IntakePage />}
           />
           <Route
             path="/dashboard/workstation/edit/:slug/psychological"
