@@ -309,6 +309,17 @@ const CalendarView = () => {
     setSelectedCalendar(value);
   };
 
+  // Helper function to format date consistently with event creation 
+  const formatDateTimeForAPI = (date) => {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+    const seconds = String(date.getSeconds()).padStart(2, '0');
+    return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+  };
+
   const handleEventDrop = useCallback(
     async ({ event, start, end }) => {
       const eventId = event.resource.id;
@@ -341,9 +352,9 @@ const CalendarView = () => {
         const updatedEventData = {
           // Use complete event data as base
           ...completeEventData,
-          // Update only the time-related fields
-          start_time: newStart.toISOString().slice(0, 19).replace('T', ' '),
-          end_time: newEnd.toISOString().slice(0, 19).replace('T', ' '),
+          // Update only the time-related fields using local time formatting (not UTC)
+          start_time: formatDateTimeForAPI(newStart),
+          end_time: formatDateTimeForAPI(newEnd),
         };
 
         console.log("Event drop data:", {
@@ -382,9 +393,9 @@ const CalendarView = () => {
         const updatedEventData = {
           // Use complete event data as base
           ...completeEventData,
-          // Update only the time-related fields
-          start_time: newStart.toISOString().slice(0, 19).replace('T', ' '),
-          end_time: newEnd.toISOString().slice(0, 19).replace('T', ' '),
+          // Update only the time-related fields using local time formatting (not UTC)
+          start_time: formatDateTimeForAPI(newStart),
+          end_time: formatDateTimeForAPI(newEnd),
         };
         
         console.log("Event resize data:", {
