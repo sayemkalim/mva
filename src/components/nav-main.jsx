@@ -221,6 +221,7 @@ function RecursiveMenuItems({ items, depth = 1 }) {
                   <SidebarMenuSubButton
                     className="text-xs"
                     isActive={hasActiveDescendant}
+                    title={subItem.title}
                   >
                     {subItem.icon && (
                       <subItem.icon className="h-3.5 w-3.5 shrink-0" />
@@ -255,6 +256,7 @@ function RecursiveMenuItems({ items, depth = 1 }) {
                 onClick={(e) =>
                   handleItemClick(e, subItem.url, subItem.title, itemId)
                 }
+                title={subItem.title}
                 className="cursor-pointer flex items-center gap-2 pl-2"
               >
                 {isLoading ? (
@@ -370,10 +372,10 @@ export function NavMain({ items, showHeader = false, header }) {
 
   const handleConfirmExit = async () => {
     handleExitFile();
-    
+
     if (pendingNavigation) {
       const { url, title, itemId } = pendingNavigation;
-      
+
       if (isApiUrl(url)) {
         setLoadingId(itemId);
         await handleFileDownload(url, title);
@@ -382,7 +384,7 @@ export function NavMain({ items, showHeader = false, header }) {
         navigate(url);
       }
     }
-    
+
     setShowExitConfirm(false);
     setPendingNavigation(null);
   };
@@ -584,7 +586,7 @@ export function NavMain({ items, showHeader = false, header }) {
           item={expandedItem}
           onClose={() => setExpandedItem(null)}
         />
-      )}      
+      )}
       {/* Exit Confirmation Dialog */}
       <Dialog open={showExitConfirm} onOpenChange={setShowExitConfirm}>
         <DialogContent className="sm:max-w-[425px]">
