@@ -33,6 +33,7 @@ const ExportOpposingCounsel = () => {
   });
 
   const [isExporting, setIsExporting] = useState(false);
+  const [exportFormat, setExportFormat] = useState("xlsx");
 
   const handleExport = async (e) => {
     e.preventDefault();
@@ -61,7 +62,9 @@ const ExportOpposingCounsel = () => {
       const response = await exportOpposingCounsel(filters);
       const csvData = response?.response || response || "";
 
-      exportToExcel(csvData, "opposing_counsel_export");
+      exportToExcel(csvData, "opposing_counsel_export", {
+        format: exportFormat,
+      });
 
       toast.success("Export completed successfully");
     } catch (error) {
@@ -90,7 +93,9 @@ const ExportOpposingCounsel = () => {
 
       <div className="flex-1 overflow-auto bg-muted">
         <div className="container mx-auto px-6 py-8 max-w-6xl">
-          <h1 className="text-2xl font-bold mb-6 text-foreground">EXPORT DATA</h1>
+          <h1 className="text-2xl font-bold mb-6 text-foreground">
+            EXPORT DATA
+          </h1>
 
           <form
             onSubmit={handleExport}
@@ -133,6 +138,32 @@ const ExportOpposingCounsel = () => {
                     }}
                   />
                 )}
+              </div>
+
+              {/* Export Format */}
+              <div className="space-y-6">
+                <div className="space-y-2">
+                  <Label className="text-foreground font-medium">
+                    Export Format
+                  </Label>
+                  <Select
+                    value={exportFormat}
+                    onValueChange={(value) => setExportFormat(value)}
+                  >
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Select format" />
+                    </SelectTrigger>
+                    <SelectContent side="bottom" avoidCollisions={false}>
+                      <SelectItem value="xlsx">Excel (.xlsx)</SelectItem>
+                      <SelectItem value="csv">CSV (.csv)</SelectItem>
+                      <SelectItem value="pdf">PDF (.pdf)</SelectItem>
+                      <SelectItem value="doc">Word (.doc)</SelectItem>
+                      <SelectItem value="xls">Excel Legacy (.xls)</SelectItem>
+                      <SelectItem value="tsv">TSV (.tsv)</SelectItem>
+                      <SelectItem value="json">JSON (.json)</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
               </div>
             </div>
 

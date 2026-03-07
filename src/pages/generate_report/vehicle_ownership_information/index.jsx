@@ -27,6 +27,7 @@ const ExportVehicleOwnershipInfo = () => {
   });
 
   const [isExporting, setIsExporting] = useState(false);
+  const [exportFormat, setExportFormat] = useState("xlsx");
 
   // Fetch dropdown options from API
   const { data: metadata, isLoading: isLoadingMetadata } = useQuery({
@@ -53,7 +54,9 @@ const ExportVehicleOwnershipInfo = () => {
       const response = await exportMvaCases(filters);
       const csvData = response?.response || response || "";
 
-      exportToExcel(csvData, "vehicle_ownership_information_export");
+      exportToExcel(csvData, "vehicle_ownership_information_export", {
+        format: exportFormat,
+      });
 
       toast.success("Export completed successfully");
     } catch (error) {
@@ -97,40 +100,66 @@ const ExportVehicleOwnershipInfo = () => {
             onSubmit={handleExport}
             className="bg-card rounded-lg shadow-sm border p-6 sm:p-8"
           >
-            <div className="flex items-end gap-6 mb-8">
-              {/* Type Dropdown */}
-              <div className="space-y-2 w-64">
-                <Label className="text-foreground font-medium">Type</Label>
-                <Select
-                  value={formData.type}
-                  onValueChange={(value) =>
-                    setFormData((prev) => ({
-                      ...prev,
-                      type: value,
-                    }))
-                  }
-                >
-                  <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Select type" />
-                  </SelectTrigger>
-                  <SelectContent side="bottom" avoidCollisions={false}>
-                    {vehicleOptions.map((option) => (
-                      <SelectItem key={option.id} value={String(option.id)}>
-                        {option.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
+            <div className="flex flex-col gap-6 mb-8">
+              <div className="flex flex-col md:flex-row md:items-end gap-6">
+                {/* Type Dropdown */}
+                <div className="space-y-2 w-full md:w-64">
+                  <Label className="text-foreground font-medium">Type</Label>
+                  <Select
+                    value={formData.type}
+                    onValueChange={(value) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        type: value,
+                      }))
+                    }
+                  >
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Select type" />
+                    </SelectTrigger>
+                    <SelectContent side="bottom" avoidCollisions={false}>
+                      {vehicleOptions.map((option) => (
+                        <SelectItem key={option.id} value={String(option.id)}>
+                          {option.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
 
-              {/* Export Button */}
-              <Button
-                type="submit"
-                disabled={isExporting || isLoadingMetadata}
-                className="bg-purple-600 hover:bg-purple-700 text-white px-8 py-2 h-9"
-              >
-                {isExporting ? "Exporting..." : "Export"}
-              </Button>
+                {/* Export Format */}
+                <div className="space-y-2 w-full md:w-64">
+                  <Label className="text-foreground font-medium">
+                    Export Format
+                  </Label>
+                  <Select
+                    value={exportFormat}
+                    onValueChange={(value) => setExportFormat(value)}
+                  >
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Select format" />
+                    </SelectTrigger>
+                    <SelectContent side="bottom" avoidCollisions={false}>
+                      <SelectItem value="xlsx">Excel (.xlsx)</SelectItem>
+                      <SelectItem value="csv">CSV (.csv)</SelectItem>
+                      <SelectItem value="pdf">PDF (.pdf)</SelectItem>
+                      <SelectItem value="doc">Word (.doc)</SelectItem>
+                      <SelectItem value="xls">Excel Legacy (.xls)</SelectItem>
+                      <SelectItem value="tsv">TSV (.tsv)</SelectItem>
+                      <SelectItem value="json">JSON (.json)</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {/* Export Button */}
+                <Button
+                  type="submit"
+                  disabled={isExporting || isLoadingMetadata}
+                  className="bg-purple-600 hover:bg-purple-700 text-white px-8 py-2 h-9"
+                >
+                  {isExporting ? "Exporting..." : "Export"}
+                </Button>
+              </div>
             </div>
           </form>
         </div>
