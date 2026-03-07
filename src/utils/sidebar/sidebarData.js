@@ -1233,6 +1233,12 @@ export const getEditModeData = (slug) => ({
       ],
       items: [],
     },
+    {
+      title: "Timer List",
+      url: `/dashboard/workstation/edit/${slug}/timer-list`,
+      icon: ActivityIcon,
+      items: [],
+    },
   ],
   projects: [],
 });

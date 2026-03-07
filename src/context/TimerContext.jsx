@@ -1,5 +1,8 @@
 import { createContext, useContext, useState, useRef, useEffect } from "react";
 import { useLocation } from "react-router-dom";
+import { apiService } from "@/api/api_service/apiService";
+import { endpoints } from "@/api/endpoints";
+import { getItem } from "@/utils/local_storage";
 
 const TimerContext = createContext();
 
@@ -20,6 +23,7 @@ export const TimerProvider = ({ children }) => {
   const [isPaused, setIsPaused] = useState(false);
   const intervalRef = useRef(null);
   const currentSlugRef = useRef(null);
+  const activityIdRef = useRef(null);
 
   // Extract slug from workstation URL
   const getCurrentSlug = () => {
@@ -73,35 +77,61 @@ export const TimerProvider = ({ children }) => {
       setIsActive(false);
       setIsPaused(false);
       setSeconds(0);
+      activityIdRef.current = null;
     }
     
-    // If entering a workstation, load timer state
+    // If entering a workstation, fetch running time from API
     if (currentSlug && currentSlug !== currentSlugRef.current) {
-      const savedData = loadSlugTimer(currentSlug);
-      if (savedData) {
-        let newSeconds = savedData.seconds;
-        
-        // If timer was active when leaving, calculate elapsed time
-        if (savedData.isActive && !savedData.isPaused) {
-          const elapsed = Math.floor((Date.now() - savedData.timestamp) / 1000);
-          newSeconds = savedData.seconds + elapsed;
+      const syncFromServer = async () => {
+        try {
+          const res = await apiService({
+            endpoint: `${endpoints.activityRunningTime}/${currentSlug}`,
+            method: "GET",
+          });
+          const data = res?.response?.data;
+          if (data && (data.status === "running" || data.status === "paused")) {
+            if (data.id) activityIdRef.current = data.id;
+            const serverSeconds = data.total_seconds ?? 0;
+            setSeconds(serverSeconds);
+            if (data.status === "running") {
+              setIsActive(true);
+              setIsPaused(false);
+            } else {
+              // paused
+              setIsActive(true);
+              setIsPaused(true);
+            }
+            // Also persist locally so offline reload works
+            saveSlugTimer(currentSlug, {
+              seconds: serverSeconds,
+              isActive: data.status === "running",
+              isPaused: data.status === "paused",
+            });
+            return;
+          }
+        } catch (err) {
+          console.error("Failed to fetch running time from server", err);
         }
-        
-        setSeconds(newSeconds);
-        setIsActive(savedData.isActive);
-        setIsPaused(savedData.isPaused);
-        
-        // Resume timer if it was active
-        if (savedData.isActive && !savedData.isPaused) {
-          setIsActive(true);
+
+        // Fallback: restore from localStorage
+        const savedData = loadSlugTimer(currentSlug);
+        if (savedData) {
+          let newSeconds = savedData.seconds;
+          if (savedData.isActive && !savedData.isPaused) {
+            const elapsed = Math.floor((Date.now() - savedData.timestamp) / 1000);
+            newSeconds = savedData.seconds + elapsed;
+          }
+          setSeconds(newSeconds);
+          setIsActive(savedData.isActive);
+          setIsPaused(savedData.isPaused);
+        } else {
+          setSeconds(0);
+          setIsActive(false);
           setIsPaused(false);
         }
-      } else {
-        // New workstation, reset timer
-        setSeconds(0);
-        setIsActive(false);
-        setIsPaused(false);
-      }
+      };
+
+      syncFromServer();
     }
     
     // If not in workstation, reset everything
@@ -155,15 +185,31 @@ export const TimerProvider = ({ children }) => {
   }, [isActive, isPaused, location.pathname]);
 
   // Timer functions
-  const handleStart = () => {
+  const handleStart = async () => {
     if (!isInWorkstation()) {
       return { success: false, message: "Timer can only be started in workstation files" };
     }
-    
+
+    const currentSlug = getCurrentSlug();
+
+    // Call start API
+    try {
+      const res = await apiService({
+        endpoint: `${endpoints.activityStart}/${currentSlug}`,
+        method: "POST",
+      });
+      if (res?.response?.data?.id) {
+        activityIdRef.current = res.response.data.id;
+      } else if (res?.response?.id) {
+        activityIdRef.current = res.response.id;
+      }
+    } catch (err) {
+      console.error("Activity start API error", err);
+    }
+
     setIsActive(true);
     setIsPaused(false);
-    
-    const currentSlug = getCurrentSlug();
+
     if (currentSlug) {
       saveSlugTimer(currentSlug, {
         seconds,
@@ -171,13 +217,25 @@ export const TimerProvider = ({ children }) => {
         isPaused: false,
       });
     }
-    
+
     return { success: true };
   };
 
-  const handlePause = () => {
+  const handlePause = async () => {
+    // Call pause API if we have an activity id
+    if (activityIdRef.current) {
+      try {
+        await apiService({
+          endpoint: `${endpoints.activityPause}/${activityIdRef.current}`,
+          method: "POST",
+        });
+      } catch (err) {
+        console.error("Activity pause API error", err);
+      }
+    }
+
     setIsPaused(true);
-    
+
     const currentSlug = getCurrentSlug();
     if (currentSlug) {
       saveSlugTimer(currentSlug, {
@@ -188,14 +246,30 @@ export const TimerProvider = ({ children }) => {
     }
   };
 
-  const handleResume = () => {
+  const handleResume = async () => {
     if (!isInWorkstation()) {
       return { success: false, message: "Timer can only be resumed in workstation files" };
     }
-    
-    setIsPaused(false);
-    
+
     const currentSlug = getCurrentSlug();
+
+    // Resume = start a fresh activity session
+    try {
+      const res = await apiService({
+        endpoint: `${endpoints.activityStart}/${currentSlug}`,
+        method: "POST",
+      });
+      if (res?.response?.data?.id) {
+        activityIdRef.current = res.response.data.id;
+      } else if (res?.response?.id) {
+        activityIdRef.current = res.response.id;
+      }
+    } catch (err) {
+      console.error("Activity resume (start) API error", err);
+    }
+
+    setIsPaused(false);
+
     if (currentSlug) {
       saveSlugTimer(currentSlug, {
         seconds,
@@ -203,7 +277,7 @@ export const TimerProvider = ({ children }) => {
         isPaused: false,
       });
     }
-    
+
     return { success: true };
   };
 
@@ -211,7 +285,8 @@ export const TimerProvider = ({ children }) => {
     setSeconds(0);
     setIsActive(false);
     setIsPaused(false);
-    
+    activityIdRef.current = null;
+
     const currentSlug = getCurrentSlug();
     if (currentSlug) {
       saveSlugTimer(currentSlug, {
@@ -220,6 +295,46 @@ export const TimerProvider = ({ children }) => {
         isPaused: false,
       });
     }
+  };
+
+  // Stop timer and call stop API with billing data
+  const handleStop = async ({ task, description, billing_status_id, timekeeper_id } = {}) => {
+    const activityId = activityIdRef.current;
+
+    if (activityId) {
+      const userId = getItem("userId");
+      try {
+        await apiService({
+          endpoint: `${endpoints.activityStop}/${activityId}`,
+          method: "POST",
+          data: {
+            task: task || "",
+            description: description || "",
+            billing_status_id: billing_status_id ?? undefined,
+            timekeeper_id: timekeeper_id ?? userId ?? undefined,
+          },
+        });
+      } catch (err) {
+        console.error("Activity stop API error", err);
+      }
+    }
+
+    // Reset local timer state
+    setSeconds(0);
+    setIsActive(false);
+    setIsPaused(false);
+    activityIdRef.current = null;
+
+    const currentSlug = getCurrentSlug();
+    if (currentSlug) {
+      saveSlugTimer(currentSlug, {
+        seconds: 0,
+        isActive: false,
+        isPaused: false,
+      });
+    }
+
+    return { success: true };
   };
 
   // Explicit exit file method
@@ -241,6 +356,7 @@ export const TimerProvider = ({ children }) => {
       
       setIsActive(false);
       setIsPaused(false);
+      activityIdRef.current = null;
       // Keep seconds display until route actually changes
     }
   };
@@ -257,6 +373,7 @@ export const TimerProvider = ({ children }) => {
     handlePause,
     handleResume,
     handleReset,
+    handleStop,
     handleExitFile,
     isInWorkstation: isInWorkstation(),
     currentSlug: getCurrentSlug(),
