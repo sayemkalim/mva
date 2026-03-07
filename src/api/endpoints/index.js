@@ -413,5 +413,8 @@ export const endpoints = {
   activityStop: "api/v2/file/activity/stop",
   activityMeta: "api/v2/file/accident-benefits/meta",
   activityRunningTime: "api/v2/file/activity/running-time",
+  activityList: "api/v2/file/activity/list",
+  activityUpdate: "api/v2/file/activity/update",
+  activityDelete: "api/v2/file/activity/delete",
 };
 

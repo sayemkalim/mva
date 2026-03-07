@@ -137,6 +137,7 @@ import ThirdPartyInvoice from "@/pages/third_party_invoice";
 import Invoice from "@/pages/invoice";
 import FinalSettlement from "@/pages/final_settlement";
 import DocumentI from "@/pages/document-i";
+import TimerList from "@/pages/timer_list";
 
 const Router = () => {
   return (
@@ -646,6 +647,10 @@ const Router = () => {
           <Route
             path="/dashboard/workstation/edit/:slug/email"
             element={<InternalEmail />}
+          />
+          <Route
+            path="/dashboard/workstation/edit/:slug/timer-list"
+            element={<TimerList />}
           />
           <Route path="/dashboard/report" element={<ReportPage />} />
           <Route
