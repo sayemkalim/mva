@@ -406,5 +406,12 @@ export const endpoints = {
   sortFolders: "api/v2/file/document-i/folders/sort",
   sortDocuments: "api/v2/file/document-i/document/sort",
   socialMediaPlatforms: "api/v2/file/applicant-information/social-media-platforms",
+
+  // Activity / Timer endpoints
+  activityStart: "api/v2/file/activity/start",
+  activityPause: "api/v2/file/activity/pause",
+  activityStop: "api/v2/file/activity/stop",
+  activityMeta: "api/v2/file/accident-benefits/meta",
+  activityRunningTime: "api/v2/file/activity/running-time",
 };
 

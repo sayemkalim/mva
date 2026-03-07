@@ -21,9 +21,29 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from "@/components/ui/select";
 import { useNotificationContext } from "@/context/NotificationContext";
 import { useTimer } from "@/context/TimerContext";
 import { toast } from "sonner";
+import { getItem } from "@/utils/local_storage";
+import { apiService } from "@/api/api_service/apiService";
+import { endpoints } from "@/api/endpoints";
 import {
   getAllNotification,
   getUnreadCount,
@@ -54,20 +74,78 @@ export function Navbar2() {
     handlePause,
     handleResume,
     handleReset,
+    handleStop,
     isInWorkstation,
   } = useTimer();
 
-  const onTimerStart = () => {
-    const result = handleStart();
+  const onTimerStart = async () => {
+    const result = await handleStart();
     if (!result.success) {
       toast.error(result.message);
     }
   };
 
-  const onTimerResume = () => {
-    const result = handleResume();
+  const onTimerResume = async () => {
+    const result = await handleResume();
     if (!result.success) {
       toast.error(result.message);
+    }
+  };
+
+  // Stop dialog state
+  const [stopDialogOpen, setStopDialogOpen] = useState(false);
+  const [isStoppingTimer, setIsStoppingTimer] = useState(false);
+  const defaultUserId = getItem("userId");
+  const [stopFormData, setStopFormData] = useState({
+    task: "",
+    description: "",
+    billing_status_id: "",
+    timekeeper_id: defaultUserId || "",
+  });
+
+  // Fetch activity meta (billing statuses + timekeepers) when dialog opens
+  const { data: activityMeta, isLoading: isLoadingMeta } = useQuery({
+    queryKey: ["activityMeta"],
+    queryFn: async () => {
+      const res = await apiService({ endpoint: endpoints.activityMeta, method: "GET" });
+      return res?.response || {};
+    },
+    staleTime: 300000,
+    enabled: stopDialogOpen,
+  });
+
+  const billingStatuses = activityMeta?.accounting_billing_status ?? [];
+  const timekeepers = activityMeta?.TimeKeeper ?? [];
+
+  const openStopDialog = () => {
+    setStopFormData({
+      task: "",
+      description: "",
+      billing_status_id: "",
+      timekeeper_id: defaultUserId ? String(defaultUserId) : "",
+    });
+    setStopDialogOpen(true);
+  };
+
+  const onConfirmStop = async () => {
+    setIsStoppingTimer(true);
+    try {
+      await handleStop({
+        task: stopFormData.task,
+        description: stopFormData.description,
+        billing_status_id: stopFormData.billing_status_id
+          ? Number(stopFormData.billing_status_id)
+          : undefined,
+        timekeeper_id: stopFormData.timekeeper_id
+          ? Number(stopFormData.timekeeper_id)
+          : undefined,
+      });
+      toast.success("Timer stopped successfully");
+      setStopDialogOpen(false);
+    } catch {
+      toast.error("Failed to stop timer");
+    } finally {
+      setIsStoppingTimer(false);
     }
   };
 
@@ -324,13 +402,121 @@ export function Navbar2() {
           {timerDisplay}
         </div>
         <Button
-          onClick={handleReset}
+          onClick={isActive || isPaused ? openStopDialog : handleReset}
           variant="outline"
           disabled={!isActive && seconds === 0}
         >
-          Reset
+          {isActive || isPaused ? "Stop" : "Reset"}
         </Button>
       </div>
+
+      {/* Stop Timer Dialog */}
+      <Dialog open={stopDialogOpen} onOpenChange={setStopDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Stop Timer</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-2">
+            <div className="space-y-1">
+              <Label htmlFor="stop-task">Task</Label>
+              <Input
+                id="stop-task"
+                placeholder="Enter task name"
+                value={stopFormData.task}
+                onChange={(e) =>
+                  setStopFormData((prev) => ({ ...prev, task: e.target.value }))
+                }
+              />
+            </div>
+            <div className="space-y-1">
+              <Label htmlFor="stop-description">Description</Label>
+              <Textarea
+                id="stop-description"
+                placeholder="Enter description"
+                rows={3}
+                value={stopFormData.description}
+                onChange={(e) =>
+                  setStopFormData((prev) => ({
+                    ...prev,
+                    description: e.target.value,
+                  }))
+                }
+              />
+            </div>
+            <div className="space-y-1">
+              <Label htmlFor="stop-billing">Billing Status</Label>
+              {isLoadingMeta ? (
+                <div className="flex items-center gap-2 text-sm text-muted-foreground h-9">
+                  <Loader2 className="h-4 w-4 animate-spin" /> Loading...
+                </div>
+              ) : (
+                <Select
+                  value={String(stopFormData.billing_status_id)}
+                  onValueChange={(val) =>
+                    setStopFormData((prev) => ({ ...prev, billing_status_id: val }))
+                  }
+                >
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Select billing status" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {billingStatuses.map((item) => (
+                      <SelectItem key={item.id} value={String(item.id)}>
+                        {item.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
+            </div>
+            <div className="space-y-1">
+              <Label htmlFor="stop-timekeeper">Timekeeper</Label>
+              {isLoadingMeta ? (
+                <div className="flex items-center gap-2 text-sm text-muted-foreground h-9">
+                  <Loader2 className="h-4 w-4 animate-spin" /> Loading...
+                </div>
+              ) : (
+                <Select
+                  value={String(stopFormData.timekeeper_id)}
+                  onValueChange={(val) =>
+                    setStopFormData((prev) => ({ ...prev, timekeeper_id: val }))
+                  }
+                >
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Select timekeeper" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {timekeepers.map((item) => (
+                      <SelectItem key={item.id} value={String(item.id)}>
+                        {item.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
+            </div>
+          </div>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setStopDialogOpen(false)}
+              disabled={isStoppingTimer}
+            >
+              Cancel
+            </Button>
+            <Button onClick={onConfirmStop} disabled={isStoppingTimer}>
+              {isStoppingTimer ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Stopping...
+                </>
+              ) : (
+                "Confirm Stop"
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       {/* Right side: Other buttons */}
       <div className="flex items-center gap-4">
