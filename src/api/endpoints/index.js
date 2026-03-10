@@ -416,5 +416,6 @@ export const endpoints = {
   activityList: "api/v2/file/activity/list",
   activityUpdate: "api/v2/file/activity/update",
   activityDelete: "api/v2/file/activity/delete",
+  activityTimecard: "api/v2/file/activity/timecard",
 };
 
