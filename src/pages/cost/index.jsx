@@ -605,7 +605,7 @@ const CostList = () => {
   const rateTypeOptions = metaData?.accounting_rate_type || [];
   const billingStatusOptions = metaData?.accounting_billing_status || [];
   const flagOptions = metaData?.accounting_flag || [];
-  const timeKeeperValue = metaData?.TimeKeeper || "";
+  const timeKeeperValue = metaData?.TimeKeeper?.[0]?.name || "";
 
   // Set timekeeper value from meta when available
   useEffect(() => {
@@ -1821,6 +1821,7 @@ const CostList = () => {
                         timekeeker: e.target.value,
                       })
                     }
+                    disabled={true}
                   />
                 </div>
                 <div className="space-y-2">
