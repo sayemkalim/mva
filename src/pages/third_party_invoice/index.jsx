@@ -1243,6 +1243,11 @@ const ThirdPartyInvoice = () => {
                     const validatedValue = validateAmount(e.target.value);
                     setForm({ ...form, amount: validatedValue });
                   }}
+                  onKeyDown={(e) => {
+                    if (!/[0-9.]/.test(e.key) && !["Backspace", "Delete", "ArrowLeft", "ArrowRight", "Tab", "Enter"].includes(e.key)) {
+                      e.preventDefault();
+                    }
+                  }}
                 />
               </div>
               <div className="space-y-2">
@@ -1255,6 +1260,11 @@ const ThirdPartyInvoice = () => {
                   onChange={(e) => {
                     const validatedValue = validateOriginalAmount(e.target.value);
                     setForm({ ...form, original_amount: validatedValue });
+                  }}
+                  onKeyDown={(e) => {
+                    if (!/[0-9.]/.test(e.key) && !["Backspace", "Delete", "ArrowLeft", "ArrowRight", "Tab", "Enter"].includes(e.key)) {
+                      e.preventDefault();
+                    }
                   }}
                 />
               </div>
@@ -1467,6 +1477,11 @@ const ThirdPartyInvoice = () => {
                       const validatedValue = validateAmount(e.target.value);
                       setEditingInvoice({ ...editingInvoice, amount: validatedValue });
                     }}
+                    onKeyDown={(e) => {
+                      if (!/[0-9.]/.test(e.key) && !["Backspace", "Delete", "ArrowLeft", "ArrowRight", "Tab", "Enter"].includes(e.key)) {
+                        e.preventDefault();
+                      }
+                    }}
                   />
                 </div>
                 <div className="space-y-2">
@@ -1479,6 +1494,11 @@ const ThirdPartyInvoice = () => {
                     onChange={(e) => {
                       const validatedValue = validateOriginalAmount(e.target.value);
                       setEditingInvoice({ ...editingInvoice, original_amount: validatedValue });
+                    }}
+                    onKeyDown={(e) => {
+                      if (!/[0-9.]/.test(e.key) && !["Backspace", "Delete", "ArrowLeft", "ArrowRight", "Tab", "Enter"].includes(e.key)) {
+                        e.preventDefault();
+                      }
                     }}
                   />
                 </div>

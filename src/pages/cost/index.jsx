@@ -1294,13 +1294,20 @@ const CostList = () => {
                 <FloatingInput
                   label="Expense"
                   placeholder=""
+                  type="number"
+                  min="0"
                   value={softCostForm.expense}
-                  onChange={(e) =>
-                    setSoftCostForm({
-                      ...softCostForm,
-                      expense: e.target.value,
-                    })
-                  }
+                  onChange={(e) => {
+                    const val = e.target.value.replace(/[^0-9.]/g, "");
+                    setSoftCostForm({ ...softCostForm, expense: val });
+                  }}
+                  onKeyDown={(e) => {
+                    if (!/[0-9.]/.test(e.key) && ![
+                      "Backspace", "Delete", "ArrowLeft", "ArrowRight", "Tab", "Enter"
+                    ].includes(e.key)) {
+                      e.preventDefault();
+                    }
+                  }}
                 />
               </div>
             </div>
@@ -1333,6 +1340,13 @@ const CostList = () => {
                       quantity: validatedValue,
                     });
                   }}
+                  onKeyDown={(e) => {
+                    if (!/[0-9.]/.test(e.key) && ![
+                      "Backspace", "Delete", "ArrowLeft", "ArrowRight", "Tab", "Enter"
+                    ].includes(e.key)) {
+                      e.preventDefault();
+                    }
+                  }}
                 />
               </div>
               <div className="space-y-2">
@@ -1346,6 +1360,13 @@ const CostList = () => {
                   onChange={(e) => {
                     const validatedValue = validateRate(e.target.value);
                     setSoftCostForm({ ...softCostForm, rate: validatedValue });
+                  }}
+                  onKeyDown={(e) => {
+                    if (!/[0-9.]/.test(e.key) && ![
+                      "Backspace", "Delete", "ArrowLeft", "ArrowRight", "Tab", "Enter"
+                    ].includes(e.key)) {
+                      e.preventDefault();
+                    }
                   }}
                 />
               </div>
@@ -1513,6 +1534,11 @@ const CostList = () => {
                   onChange={(e) => {
                     const validatedValue = validateAmount(e.target.value);
                     setHardCostForm({ ...hardCostForm, amount: validatedValue });
+                  }}
+                  onKeyDown={(e) => {
+                    if (!/[0-9.]/.test(e.key) && !["Backspace", "Delete", "ArrowLeft", "ArrowRight", "Tab", "Enter"].includes(e.key)) {
+                      e.preventDefault();
+                    }
                   }}
                 />
               </div>
@@ -1847,13 +1873,20 @@ const CostList = () => {
                   <FloatingInput
                     label="Expense"
                     placeholder=""
+                    type="number"
+                    min="0"
                     value={editingCost.expesne || ""}
-                    onChange={(e) =>
-                      setEditingCost({
-                        ...editingCost,
-                        expesne: e.target.value,
-                      })
-                    }
+                    onChange={(e) => {
+                      const val = e.target.value.replace(/[^0-9.]/g, "");
+                      setEditingCost({ ...editingCost, expesne: val });
+                    }}
+                    onKeyDown={(e) => {
+                      if (!/[0-9.]/.test(e.key) && ![
+                        "Backspace", "Delete", "ArrowLeft", "ArrowRight", "Tab", "Enter"
+                      ].includes(e.key)) {
+                        e.preventDefault();
+                      }
+                    }}
                   />
                 </div>
               </div>
@@ -1887,6 +1920,13 @@ const CostList = () => {
                         quantity: validatedValue,
                       });
                     }}
+                    onKeyDown={(e) => {
+                      if (!/[0-9.]/.test(e.key) && ![
+                        "Backspace", "Delete", "ArrowLeft", "ArrowRight", "Tab", "Enter"
+                      ].includes(e.key)) {
+                        e.preventDefault();
+                      }
+                    }}
                   />
                 </div>
                 <div className="space-y-2">
@@ -1900,6 +1940,13 @@ const CostList = () => {
                     onChange={(e) => {
                       const validatedValue = validateRate(e.target.value);
                       setEditingCost({ ...editingCost, rate: validatedValue });
+                    }}
+                    onKeyDown={(e) => {
+                      if (!/[0-9.]/.test(e.key) && ![
+                        "Backspace", "Delete", "ArrowLeft", "ArrowRight", "Tab", "Enter"
+                      ].includes(e.key)) {
+                        e.preventDefault();
+                      }
                     }}
                   />
                 </div>
@@ -2522,6 +2569,11 @@ const CostList = () => {
                     onChange={(e) => {
                       const validatedValue = validateAmount(e.target.value);
                       setEditingCost({ ...editingCost, amount: validatedValue });
+                    }}
+                    onKeyDown={(e) => {
+                      if (!/[0-9.]/.test(e.key) && !["Backspace", "Delete", "ArrowLeft", "ArrowRight", "Tab", "Enter"].includes(e.key)) {
+                        e.preventDefault();
+                      }
                     }}
                   />
                 </div>

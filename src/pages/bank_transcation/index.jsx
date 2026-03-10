@@ -616,6 +616,11 @@ const formatDate = (dateString) => {
                   const validatedValue = validateAmount(e.target.value);
                   setForm({ ...form, amount: validatedValue });
                 }}
+                onKeyDown={(e) => {
+                  if (!/[0-9.]/.test(e.key) && !["Backspace", "Delete", "ArrowLeft", "ArrowRight", "Tab", "Enter"].includes(e.key)) {
+                    e.preventDefault();
+                  }
+                }}
                 required
               />
 
@@ -820,6 +825,11 @@ const formatDate = (dateString) => {
                   onChange={(e) => {
                     const validatedValue = validateAmount(e.target.value);
                     setEditingDeposit({ ...editingDeposit, amount: validatedValue });
+                  }}
+                  onKeyDown={(e) => {
+                    if (!/[0-9.]/.test(e.key) && !["Backspace", "Delete", "ArrowLeft", "ArrowRight", "Tab", "Enter"].includes(e.key)) {
+                      e.preventDefault();
+                    }
                   }}
                   required
                 />
