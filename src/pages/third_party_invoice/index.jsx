@@ -775,6 +775,19 @@ const ThirdPartyInvoice = () => {
 
   const handlePaySubmit = () => {
     if (!payingInvoice) return;
+
+    if (!payForm.pay_date) {
+      toast.error("Date is required");
+      return;
+    }
+    if (!payForm.pay_method) {
+      toast.error("Method is required");
+      return;
+    }
+    if (!payForm.pay_to?.trim()) {
+      toast.error("Pay To is required");
+      return;
+    }
     
     const totalApplied = Object.values(appliedAmounts).reduce(
       (sum, val) => sum + (parseFloat(val) || 0),
