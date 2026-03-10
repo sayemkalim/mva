@@ -73,10 +73,11 @@ function ShadcnSelect({
   popoverKey,
   popoverOpen,
   setPopoverOpen,
+  disabled = false,
 }) {
   const options = Array.isArray(rawOptions) ? rawOptions : [];
   const selected = options.find((o) => String(o.id) === String(value)) || null;
-  const isOpen = !!(popoverOpen && popoverOpen[popoverKey]);
+  const isOpen = !disabled && !!(popoverOpen && popoverOpen[popoverKey]);
 
   const handleSelect = (id) => {
     if (onValueChange) onValueChange(id);
@@ -89,6 +90,7 @@ function ShadcnSelect({
     <Popover
       open={isOpen}
       onOpenChange={(open) =>
+        !disabled &&
         setPopoverOpen &&
         setPopoverOpen((p = {}) => ({ ...p, [popoverKey]: open }))
       }
@@ -100,6 +102,7 @@ function ShadcnSelect({
           size="form"
           className="w-full justify-between font-normal"
           type="button"
+          disabled={disabled}
         >
           <span className={selected ? "" : "opacity-0"}>
             {selected ? selected.name : placeholder}
@@ -613,6 +616,11 @@ const formatDate = (dateString) => {
                   const validatedValue = validateAmount(e.target.value);
                   setForm({ ...form, amount: validatedValue });
                 }}
+                onKeyDown={(e) => {
+                  if (!/[0-9.]/.test(e.key) && !["Backspace", "Delete", "ArrowLeft", "ArrowRight", "Tab", "Enter"].includes(e.key)) {
+                    e.preventDefault();
+                  }
+                }}
                 required
               />
 
@@ -754,6 +762,7 @@ const formatDate = (dateString) => {
                     options={bankTypes}
                     placeholder="Select"
                     label="Bank Type"
+                    disabled
                   />
                 </FloatingWrapper>
 
@@ -794,6 +803,7 @@ const formatDate = (dateString) => {
                     options={filteredDepositTypesEdit}
                     placeholder="Select"
                     label="Type"
+                    disabled
                   />
                 </FloatingWrapper>
               </div>
@@ -815,6 +825,11 @@ const formatDate = (dateString) => {
                   onChange={(e) => {
                     const validatedValue = validateAmount(e.target.value);
                     setEditingDeposit({ ...editingDeposit, amount: validatedValue });
+                  }}
+                  onKeyDown={(e) => {
+                    if (!/[0-9.]/.test(e.key) && !["Backspace", "Delete", "ArrowLeft", "ArrowRight", "Tab", "Enter"].includes(e.key)) {
+                      e.preventDefault();
+                    }
                   }}
                   required
                 />

@@ -320,6 +320,11 @@ export default function ClientSettlementPage() {
                     const validatedValue = validateSettlementAmount(e.target.value);
                     handleFieldChange("settlement_amount", validatedValue);
                   }}
+                  onKeyDown={(e) => {
+                    if (!/[0-9.]/.test(e.key) && !["Backspace", "Delete", "ArrowLeft", "ArrowRight", "Tab", "Enter"].includes(e.key)) {
+                      e.preventDefault();
+                    }
+                  }}
                 />
 
                 <FloatingInput
@@ -331,6 +336,11 @@ export default function ClientSettlementPage() {
                   onChange={(e) => {
                     const validatedValue = validatePercentage(e.target.value);
                     handleFieldChange("percentage", validatedValue);
+                  }}
+                  onKeyDown={(e) => {
+                    if (!/[0-9.]/.test(e.key) && !["Backspace", "Delete", "ArrowLeft", "ArrowRight", "Tab", "Enter"].includes(e.key)) {
+                      e.preventDefault();
+                    }
                   }}
                 />
               </div>
@@ -348,6 +358,11 @@ export default function ClientSettlementPage() {
                   onChange={(e) => {
                     const validatedValue = validatePrice(e.target.value);
                     handleFieldChange("price", validatedValue);
+                  }}
+                  onKeyDown={(e) => {
+                    if (!/[0-9.]/.test(e.key) && !["Backspace", "Delete", "ArrowLeft", "ArrowRight", "Tab", "Enter"].includes(e.key)) {
+                      e.preventDefault();
+                    }
                   }}
                   disabled={isContingency}
                   readOnly={isContingency}
