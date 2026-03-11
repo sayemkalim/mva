@@ -260,7 +260,7 @@ const MvaProdTable = ({ slug, setBlogsLength, params, setParams }) => {
       />
 
       <Dialog open={openImport} onOpenChange={setOpenImport}>
-        <DialogContent className="sm:max-w-[600px] min-h-[500px] flex flex-col">
+        <DialogContent className="sm:max-w-[800px] min-h-[500px] flex flex-col">
           <DialogHeader>
             <DialogTitle>Import MVA Data</DialogTitle>
             <DialogDescription>
@@ -287,10 +287,10 @@ const MvaProdTable = ({ slug, setBlogsLength, params, setParams }) => {
                     <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                   </Button>
                 </PopoverTrigger>
-                <PopoverContent className="w-[--radix-popover-trigger-width] p-0" align="start">
+                <PopoverContent className="w-[750px] p-0" align="start">
                   <Command>
                     <CommandInput placeholder="Search file..." />
-                    <CommandList 
+                    <CommandList
                       className="max-h-[225px] overflow-y-auto overflow-x-hidden"
                       onWheel={(e) => e.stopPropagation()}
                     >
