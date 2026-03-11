@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { format, isValid } from "date-fns";
 import ActionMenu from "@/components/action_menu";
-import { Import, Pencil, Printer, Trash2 } from "lucide-react";
+import { Import, Pencil, Printer, Trash2, Check, ChevronsUpDown, Loader2 } from "lucide-react";
 import CustomTable from "@/components/custom_table";
 import Typography from "@/components/typography";
 import { useEffect, useState } from "react";
@@ -24,16 +24,22 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Loader2 } from "lucide-react";
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import { Label } from "@/components/ui/label";
+import { cn } from "@/lib/utils";
 
-const PsychologicalTable = ({ slug, setBlogsLength }) => {
+const PsychologicalTable = ({ slug, setBlogsLength, params, setParams }) => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
@@ -42,36 +48,38 @@ const PsychologicalTable = ({ slug, setBlogsLength }) => {
     isLoading,
     error,
   } = useQuery({
-    queryKey: ["List", slug],
-    queryFn: () => fetchPsychologicalList(slug),
+    queryKey: ["psychologicalList", slug, params],
+    queryFn: () => fetchPsychologicalList(slug, params),
     enabled: !!slug,
   });
 
   const [openDelete, setOpenDelete] = useState(false);
   const [selectedSection, setSelectedSection] = useState(null);
 
-  const onOpenDialog = (row) => {
-    setOpenDelete(true);
-    setSelectedSection(row);
-  };
-
   const [openImport, setOpenImport] = useState(false);
   const [importList, setImportList] = useState([]);
   const [isFetchingImport, setIsFetchingImport] = useState(false);
   const [selectedImport, setSelectedImport] = useState("");
+  const [openDropdown, setOpenDropdown] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const perPage = 10;
 
   const onOpenImportDialog = async () => {
     setOpenImport(true);
     setIsFetchingImport(true);
     try {
       const data = await fetchImportList(slug);
-      console.log("Fetched Import Data:", data); // Added log for debugging
       setImportList(data?.response?.data || []);
     } catch (error) {
       toast.error("Failed to fetch import list");
     } finally {
       setIsFetchingImport(false);
     }
+  };
+
+  const onOpenDialog = (row) => {
+    setOpenDelete(true);
+    setSelectedSection(row);
   };
 
   const onCloseDialog = () => {
@@ -82,14 +90,15 @@ const PsychologicalTable = ({ slug, setBlogsLength }) => {
   const { mutate: deleteSectionMutation, isLoading: isDeleting } = useMutation({
     mutationFn: (id) => deletePsychologicalList(id),
     onSuccess: () => {
-      toast.success("ProdList deleted successfully.");
-      queryClient.invalidateQueries(["List", slug]);
+      toast.success("Record deleted successfully.");
+      queryClient.invalidateQueries(["psychologicalList", slug]);
       onCloseDialog();
     },
     onError: () => {
-      toast.error("Failed to delete section.");
+      toast.error("Failed to delete record.");
     },
   });
+
   const { mutate: printMutation, isLoading: isPrinting } = useMutation({
     mutationFn: (id) => printPsychological(id),
     onSuccess: () => {
@@ -104,7 +113,7 @@ const PsychologicalTable = ({ slug, setBlogsLength }) => {
     mutationFn: (id) => copyImportedData(id, slug),
     onSuccess: () => {
       toast.success("Data imported successfully.");
-      queryClient.invalidateQueries(["List", slug]);
+      queryClient.invalidateQueries(["psychologicalList", slug]);
       setOpenImport(false);
       setSelectedImport("");
     },
@@ -128,6 +137,14 @@ const PsychologicalTable = ({ slug, setBlogsLength }) => {
     printMutation(row.id);
   };
 
+  const onImport = () => {
+    if (selectedImport) {
+      copyMutation(selectedImport);
+    } else {
+      toast.error("Please select a file to import");
+    }
+  };
+
   const sections = Array.isArray(apiSectionResponse?.response?.data)
     ? apiSectionResponse.response.data
     : [];
@@ -135,6 +152,12 @@ const PsychologicalTable = ({ slug, setBlogsLength }) => {
   useEffect(() => {
     setBlogsLength(sections.length);
   }, [sections, setBlogsLength]);
+
+  const totalPages = Math.ceil(sections.length / perPage);
+  const paginatedData = sections.slice(
+    (currentPage - 1) * perPage,
+    currentPage * perPage
+  );
 
   const onNavigateToEdit = (section) => {
     if (!section?.id) {
@@ -146,9 +169,13 @@ const PsychologicalTable = ({ slug, setBlogsLength }) => {
 
   const columns = [
     {
-      key: "id",
-      label: "Psychological ID",
-      render: (value) => <Typography variant="p">{value || "-"}</Typography>,
+      key: "s_no",
+      label: "S.No.",
+      render: (value, row, index) => (
+        <Typography variant="p">
+          {(currentPage - 1) * perPage + index + 1}
+        </Typography>
+      ),
     },
     {
       key: "name",
@@ -218,10 +245,14 @@ const PsychologicalTable = ({ slug, setBlogsLength }) => {
       </div>
       <CustomTable
         columns={columns}
-        data={sections}
+        data={paginatedData}
         isLoading={isLoading}
         error={error}
         onRowClick={onNavigateToEdit}
+        totalPages={totalPages}
+        currentPage={currentPage}
+        perPage={perPage}
+        onPageChange={setCurrentPage}
       />
       <CustomDialog
         onOpen={openDelete}
@@ -234,45 +265,74 @@ const PsychologicalTable = ({ slug, setBlogsLength }) => {
       />
 
       <Dialog open={openImport} onOpenChange={setOpenImport}>
-        <DialogContent className="sm:max-w-[425px]">
+        <DialogContent className="sm:max-w-[600px] min-h-[500px] flex flex-col">
           <DialogHeader>
             <DialogTitle>Import Psychological Data</DialogTitle>
             <DialogDescription>
               Select a file to import data from.
             </DialogDescription>
           </DialogHeader>
-          <div className="grid gap-4 py-4">
+          <div className="grid gap-4 py-4 flex-1">
             <div className="flex flex-col gap-2">
               <Label htmlFor="import-select">Select File</Label>
-              <Select
-                onValueChange={setSelectedImport}
-                value={selectedImport}
-                disabled={isFetchingImport}
-              >
-                <SelectTrigger id="import-select">
-                  <SelectValue
-                    placeholder={
-                      isFetchingImport ? "Loading..." : "Select a file"
-                    }
-                  />
-                </SelectTrigger>
-                <SelectContent>
-                  {importList.length > 0 ? (
-                    importList.map((item) => (
-                      <SelectItem key={item.id} value={item.id.toString()}>
-                        {item.name}
-                      </SelectItem>
-                    ))
-                  ) : (
-                    <div className="p-2 text-sm text-muted-foreground text-center">
-                      {isFetchingImport ? "Fetching data..." : "No data available"}
-                    </div>
-                  )}
-                </SelectContent>
-              </Select>
+              <Popover open={openDropdown} onOpenChange={setOpenDropdown} modal={false}>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    role="combobox"
+                    aria-expanded={openDropdown}
+                    className="w-full justify-between"
+                    disabled={isFetchingImport}
+                  >
+                    {selectedImport
+                      ? importList.find(
+                        (item) => item.id.toString() === selectedImport
+                      )?.name
+                      : "Select a file..."}
+                    <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-[--radix-popover-trigger-width] p-0" align="start">
+                  <Command>
+                    <CommandInput placeholder="Search file..." />
+                    <CommandList
+                      className="max-h-[225px] overflow-y-auto overflow-x-hidden"
+                      onWheel={(e) => e.stopPropagation()}
+                    >
+                      <CommandEmpty>No file found.</CommandEmpty>
+                      <CommandGroup>
+                        {importList.map((item) => (
+                          <CommandItem
+                            key={item.id}
+                            value={item.id.toString()}
+                            onSelect={(currentValue) => {
+                              setSelectedImport(
+                                currentValue === selectedImport
+                                  ? ""
+                                  : currentValue
+                              );
+                              setOpenDropdown(false);
+                            }}
+                          >
+                            <Check
+                              className={cn(
+                                "mr-2 h-4 w-4",
+                                selectedImport === item.id.toString()
+                                  ? "opacity-100"
+                                  : "opacity-0"
+                              )}
+                            />
+                            {item.name}
+                          </CommandItem>
+                        ))}
+                      </CommandGroup>
+                    </CommandList>
+                  </Command>
+                </PopoverContent>
+              </Popover>
             </div>
           </div>
-          <DialogFooter>
+          <DialogFooter className="mt-auto">
             <Button
               variant="outline"
               onClick={() => {
@@ -283,17 +343,12 @@ const PsychologicalTable = ({ slug, setBlogsLength }) => {
               Cancel
             </Button>
             <Button
-              disabled={!selectedImport || isFetchingImport || isCopying}
-              onClick={() => {
-                if (selectedImport) {
-                  copyMutation(selectedImport);
-                }
-              }}
+              onClick={onImport}
+              disabled={isCopying || !selectedImport}
+              className="gap-2"
             >
-              {(isFetchingImport || isCopying) && (
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              )}
-              Import
+              {isCopying && <Loader2 className="h-4 w-4 animate-spin" />}
+              {isCopying ? "Importing..." : "Import"}
             </Button>
           </DialogFooter>
         </DialogContent>
