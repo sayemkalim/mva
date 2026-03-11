@@ -13,6 +13,25 @@ import { Button } from "@/components/ui/button";
 import { deletePsychologicalList } from "../helpers/deletePsychologicalList";
 import { fetchPsychologicalList } from "../helpers/fetchPsychological";
 import { printPsychological } from "../helpers/printPsychological";
+import { fetchImportList } from "../helpers/fetchImportList";
+import { copyImportedData } from "../helpers/copyImportedData";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Loader2 } from "lucide-react";
+import { Label } from "@/components/ui/label";
 
 const PsychologicalTable = ({ slug, setBlogsLength }) => {
   const navigate = useNavigate();
@@ -34,6 +53,25 @@ const PsychologicalTable = ({ slug, setBlogsLength }) => {
   const onOpenDialog = (row) => {
     setOpenDelete(true);
     setSelectedSection(row);
+  };
+
+  const [openImport, setOpenImport] = useState(false);
+  const [importList, setImportList] = useState([]);
+  const [isFetchingImport, setIsFetchingImport] = useState(false);
+  const [selectedImport, setSelectedImport] = useState("");
+
+  const onOpenImportDialog = async () => {
+    setOpenImport(true);
+    setIsFetchingImport(true);
+    try {
+      const data = await fetchImportList(slug);
+      console.log("Fetched Import Data:", data); // Added log for debugging
+      setImportList(data?.response?.data || []);
+    } catch (error) {
+      toast.error("Failed to fetch import list");
+    } finally {
+      setIsFetchingImport(false);
+    }
   };
 
   const onCloseDialog = () => {
@@ -59,6 +97,19 @@ const PsychologicalTable = ({ slug, setBlogsLength }) => {
     },
     onError: (error) => {
       toast.error(error.message || "Failed to download document.");
+    },
+  });
+
+  const { mutate: copyMutation, isLoading: isCopying } = useMutation({
+    mutationFn: (id) => copyImportedData(id, slug),
+    onSuccess: () => {
+      toast.success("Data imported successfully.");
+      queryClient.invalidateQueries(["List", slug]);
+      setOpenImport(false);
+      setSelectedImport("");
+    },
+    onError: (error) => {
+      toast.error(error?.response?.message || "Failed to import data.");
     },
   });
 
@@ -156,7 +207,11 @@ const PsychologicalTable = ({ slug, setBlogsLength }) => {
   return (
     <>
       <div className="flex justify-end mb-4">
-        <Button variant="outline" className="gap-2">
+        <Button
+          variant="outline"
+          className="gap-2"
+          onClick={onOpenImportDialog}
+        >
           <Import className="h-4 w-4" />
           Import
         </Button>
@@ -177,6 +232,72 @@ const PsychologicalTable = ({ slug, setBlogsLength }) => {
         id={selectedSection?.id}
         isLoading={isDeleting}
       />
+
+      <Dialog open={openImport} onOpenChange={setOpenImport}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Import Psychological Data</DialogTitle>
+            <DialogDescription>
+              Select a file to import data from.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <div className="flex flex-col gap-2">
+              <Label htmlFor="import-select">Select File</Label>
+              <Select
+                onValueChange={setSelectedImport}
+                value={selectedImport}
+                disabled={isFetchingImport}
+              >
+                <SelectTrigger id="import-select">
+                  <SelectValue
+                    placeholder={
+                      isFetchingImport ? "Loading..." : "Select a file"
+                    }
+                  />
+                </SelectTrigger>
+                <SelectContent>
+                  {importList.length > 0 ? (
+                    importList.map((item) => (
+                      <SelectItem key={item.id} value={item.id.toString()}>
+                        {item.name}
+                      </SelectItem>
+                    ))
+                  ) : (
+                    <div className="p-2 text-sm text-muted-foreground text-center">
+                      {isFetchingImport ? "Fetching data..." : "No data available"}
+                    </div>
+                  )}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => {
+                setOpenImport(false);
+                setSelectedImport("");
+              }}
+            >
+              Cancel
+            </Button>
+            <Button
+              disabled={!selectedImport || isFetchingImport || isCopying}
+              onClick={() => {
+                if (selectedImport) {
+                  copyMutation(selectedImport);
+                }
+              }}
+            >
+              {(isFetchingImport || isCopying) && (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              )}
+              Import
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </>
   );
 };

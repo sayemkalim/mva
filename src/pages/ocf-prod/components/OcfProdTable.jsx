@@ -10,10 +10,36 @@ import { useNavigate } from "react-router";
 import { toast } from "sonner";
 import { fetchOcfProdList } from "../helpers/fetchOcfProdList";
 import { deleteOcfProdList } from "../helpers/deleteOcfProdList";
+import { fetchImportList } from "../helpers/fetchImportList";
+import { copyImportedData } from "../helpers/copyImportedData";
 import { printOcfProd } from "../helpers/printOcfProd";
-import { Button } from "@/components/ui/button"; // Import Button component
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { Loader2, Import, Check, ChevronsUpDown } from "lucide-react";
+import { Label } from "@/components/ui/label";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
 
-const OcfProdTable = ({ slug, setBlogsLength }) => {
+const OcfProdTable = ({ slug, setBlogsLength, params, setParams }) => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
@@ -22,13 +48,34 @@ const OcfProdTable = ({ slug, setBlogsLength }) => {
     isLoading,
     error,
   } = useQuery({
-    queryKey: ["ocfProdList", slug],
-    queryFn: () => fetchOcfProdList(slug),
+    queryKey: ["ocfProdList", slug, params],
+    queryFn: () => fetchOcfProdList(slug, params),
     enabled: !!slug,
   });
 
   const [openDelete, setOpenDelete] = useState(false);
   const [selectedSection, setSelectedSection] = useState(null);
+
+  const [openImport, setOpenImport] = useState(false);
+  const [importList, setImportList] = useState([]);
+  const [isFetchingImport, setIsFetchingImport] = useState(false);
+  const [selectedImport, setSelectedImport] = useState("");
+  const [openDropdown, setOpenDropdown] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const perPage = 10;
+
+  const onOpenImportDialog = async () => {
+    setOpenImport(true);
+    setIsFetchingImport(true);
+    try {
+      const data = await fetchImportList(slug);
+      setImportList(data?.response?.data || []);
+    } catch (error) {
+      toast.error("Failed to fetch import list");
+    } finally {
+      setIsFetchingImport(false);
+    }
+  };
 
   const onOpenDialog = (row) => {
     setOpenDelete(true);
@@ -62,6 +109,19 @@ const OcfProdTable = ({ slug, setBlogsLength }) => {
     },
   });
 
+  const { mutate: copyMutation, isLoading: isCopying } = useMutation({
+    mutationFn: (id) => copyImportedData(id, slug),
+    onSuccess: () => {
+      toast.success("Data imported successfully.");
+      queryClient.invalidateQueries(["ocfProdList", slug]);
+      setOpenImport(false);
+      setSelectedImport("");
+    },
+    onError: (error) => {
+      toast.error(error?.response?.message || "Failed to import data.");
+    },
+  });
+
   const onDelete = () => {
     if (selectedSection?.id) {
       deleteSectionMutation(selectedSection.id);
@@ -69,12 +129,20 @@ const OcfProdTable = ({ slug, setBlogsLength }) => {
   };
 
   const onPrint = (e, row) => {
-    e.stopPropagation(); // Prevent row click event
+    e.stopPropagation();
     if (!row?.id) {
       toast.error("Invalid document");
       return;
     }
     printMutation(row.id);
+  };
+
+  const onImport = () => {
+    if (selectedImport) {
+      copyMutation(selectedImport);
+    } else {
+      toast.error("Please select a file to import");
+    }
   };
 
   const sections = Array.isArray(apiSectionResponse?.response?.data)
@@ -84,6 +152,12 @@ const OcfProdTable = ({ slug, setBlogsLength }) => {
   useEffect(() => {
     setBlogsLength(sections.length);
   }, [sections, setBlogsLength]);
+
+  const totalPages = Math.ceil(sections.length / perPage);
+  const paginatedData = sections.slice(
+    (currentPage - 1) * perPage,
+    currentPage * perPage
+  );
 
   const onNavigateToEdit = (section) => {
     if (!section?.id) {
@@ -95,9 +169,13 @@ const OcfProdTable = ({ slug, setBlogsLength }) => {
 
   const columns = [
     {
-      key: "id",
-      label: "OCF Production ID",
-      render: (value) => <Typography variant="p">{value || "-"}</Typography>,
+      key: "s_no",
+      label: "S.No.",
+      render: (value, row, index) => (
+        <Typography variant="p">
+          {(currentPage - 1) * perPage + index + 1}
+        </Typography>
+      ),
     },
     {
       key: "name",
@@ -155,12 +233,26 @@ const OcfProdTable = ({ slug, setBlogsLength }) => {
 
   return (
     <>
+      <div className="flex justify-end mb-4">
+        <Button
+          variant="outline"
+          className="gap-2"
+          onClick={onOpenImportDialog}
+        >
+          <Import className="h-4 w-4" />
+          Import
+        </Button>
+      </div>
       <CustomTable
         columns={columns}
-        data={sections}
+        data={paginatedData}
         isLoading={isLoading}
         error={error}
         onRowClick={onNavigateToEdit}
+        totalPages={totalPages}
+        currentPage={currentPage}
+        perPage={perPage}
+        onPageChange={setCurrentPage}
       />
       <CustomDialog
         onOpen={openDelete}
@@ -171,6 +263,95 @@ const OcfProdTable = ({ slug, setBlogsLength }) => {
         id={selectedSection?.id}
         isLoading={isDeleting}
       />
+      <Dialog open={openImport} onOpenChange={setOpenImport}>
+        <DialogContent className="sm:max-w-[600px] min-h-[500px] flex flex-col">
+          <DialogHeader>
+            <DialogTitle>Import Ocf Data</DialogTitle>
+            <DialogDescription>
+              Select a file to import data from.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-4 py-4 flex-1">
+            <div className="flex flex-col gap-2">
+              <Label htmlFor="import-select">Select File</Label>
+              <Popover open={openDropdown} onOpenChange={setOpenDropdown} modal={false}>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    role="combobox"
+                    aria-expanded={openDropdown}
+                    className="w-full justify-between"
+                    disabled={isFetchingImport}
+                  >
+                    {selectedImport
+                      ? importList.find(
+                        (item) => item.id.toString() === selectedImport
+                      )?.name
+                      : "Select a file..."}
+                    <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-[--radix-popover-trigger-width] p-0" align="start">
+                  <Command>
+                    <CommandInput placeholder="Search file..." />
+                    <CommandList
+                      className="max-h-[225px] overflow-y-auto overflow-x-hidden"
+                      onWheel={(e) => e.stopPropagation()}
+                    >
+                      <CommandEmpty>No file found.</CommandEmpty>
+                      <CommandGroup>
+                        {importList.map((item) => (
+                          <CommandItem
+                            key={item.id}
+                            value={item.id.toString()}
+                            onSelect={(currentValue) => {
+                              setSelectedImport(
+                                currentValue === selectedImport
+                                  ? ""
+                                  : currentValue
+                              );
+                              setOpenDropdown(false);
+                            }}
+                          >
+                            <Check
+                              className={cn(
+                                "mr-2 h-4 w-4",
+                                selectedImport === item.id.toString()
+                                  ? "opacity-100"
+                                  : "opacity-0"
+                              )}
+                            />
+                            {item.name}
+                          </CommandItem>
+                        ))}
+                      </CommandGroup>
+                    </CommandList>
+                  </Command>
+                </PopoverContent>
+              </Popover>
+            </div>
+          </div>
+          <DialogFooter className="mt-auto">
+            <Button
+              variant="outline"
+              onClick={() => {
+                setOpenImport(false);
+                setSelectedImport("");
+              }}
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={onImport}
+              disabled={isCopying || !selectedImport}
+              className="gap-2"
+            >
+              {isCopying && <Loader2 className="h-4 w-4 animate-spin" />}
+              {isCopying ? "Importing..." : "Import"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </>
   );
 };

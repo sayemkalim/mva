@@ -24,9 +24,9 @@ export default function IntakePage() {
     isLoading,
     error,
   } = useQuery({
-    queryKey: ["intake", id],
-    queryFn: () => fetchIntakeById(id),
-    enabled: Boolean(isEditMode && id),
+    queryKey: ["intake", id || slug],
+    queryFn: () => fetchIntakeById(id || slug),
+    enabled: Boolean(id || slug),
   });
 
   const mvaRecord = mvaResp?.data || null;
@@ -570,16 +570,13 @@ export default function IntakePage() {
     setFormData((prev) => ({ ...prev, [field]: checked }));
 
   const saveMutation = useMutation({
-    mutationFn: ({ isEdit, idOrSlug, data }) =>
-      isEdit
-        ? updateIntake(idOrSlug, data)
-        : createIntake({ slug: idOrSlug, data }),
+    mutationFn: ({ idOrSlug, data }) =>
+      updateIntake(idOrSlug, data),
     onSuccess: (res, variables) => {
       console.log("Intake save success =>", { res, variables });
       const r = res?.data || res;
       toast.success(r?.message || "Intake saved successfully");
       queryClient.invalidateQueries({ queryKey: ["intake"] });
-      navigate(-1);
     },
     onError: (error, variables) => {
       console.error("Intake save error =>", { error, variables });
@@ -594,8 +591,7 @@ export default function IntakePage() {
     const recordId = mvaResp?.id;
 
     saveMutation.mutate({
-      isEdit: isEditMode,
-      idOrSlug: isEditMode ? recordId || id : slug,
+      idOrSlug: id || slug || mvaRecord?.slug,
       data,
     });
   };
