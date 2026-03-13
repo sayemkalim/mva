@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useParams } from "react-router-dom";
-import { Pencil, Trash2, Loader2 } from "lucide-react";
+import { Pencil, Trash2, Loader2, Clock } from "lucide-react";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -31,7 +31,7 @@ import ActionMenu from "@/components/action_menu";
 import { apiService } from "@/api/api_service/apiService";
 import { endpoints } from "@/api/endpoints";
 
-// ── helpers ────────────────────────────────────────────────────────────────
+// ── helpers ────────────────────────────────────────────────────────────
 const formatSeconds = (totalSeconds) => {
   const h = Math.floor(totalSeconds / 3600);
   const m = Math.floor((totalSeconds % 3600) / 60);
@@ -55,6 +55,7 @@ const TimerList = () => {
   // ── state ──────────────────────────────────────────────────────────────
   const [editRow, setEditRow] = useState(null);      // row being edited
   const [deleteRow, setDeleteRow] = useState(null);  // row pending deletion
+  const [timecardRow, setTimecardRow] = useState(null); // row pending timecard add
   const [editForm, setEditForm] = useState({
     task: "",
     description: "",
@@ -129,6 +130,24 @@ const TimerList = () => {
       setDeleteRow(null);
     },
     onError: () => toast.error("Failed to delete record"),
+  });
+
+  const timecardMutation = useMutation({
+    mutationFn: (id) =>
+      apiService({
+        endpoint: `${endpoints.activityTimecard}/${id}`,
+        method: "POST",
+      }),
+    onSuccess: (res) => {
+      if (res?.error) {
+        toast.error(res?.response?.message || "Failed to add to timecard");
+        return;
+      }
+      toast.success("Successfully added to timecard");
+      queryClient.invalidateQueries(["activityList", slug]);
+      setTimecardRow(null);
+    },
+    onError: () => toast.error("Failed to add to timecard"),
   });
 
   // ── handlers ───────────────────────────────────────────────────────────
@@ -212,6 +231,12 @@ const TimerList = () => {
               className: row.is_deletable
                 ? "text-red-600 hover:text-red-700"
                 : "opacity-40 cursor-not-allowed pointer-events-none text-red-400",
+            },
+            {
+              label: "Add to Timecard",
+              icon: Clock,
+              action: () => setTimecardRow(row),
+              className: "text-blue-600 hover:text-blue-700",
             },
           ]}
         />
@@ -360,6 +385,42 @@ const TimerList = () => {
         onDelete={() => deleteMutation.mutate(deleteRow.id)}
         isLoading={deleteMutation.isPending}
       />
+
+      {/* ── Add to Timecard Confirmation ────────────────────────────── */}
+      <Dialog open={!!timecardRow} onOpenChange={(open) => !open && setTimecardRow(null)}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Add to Timecard</DialogTitle>
+          </DialogHeader>
+          <p className="text-sm text-muted-foreground">
+            Are you sure you want to add Timer Record{" "}
+            <span className="font-medium text-foreground">#{timecardRow?.id}</span> to the
+            timecard?
+          </p>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setTimecardRow(null)}
+              disabled={timecardMutation.isPending}
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={() => timecardMutation.mutate(timecardRow.id)}
+              disabled={timecardMutation.isPending}
+            >
+              {timecardMutation.isPending ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Adding...
+                </>
+              ) : (
+                "Confirm"
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

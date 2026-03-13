@@ -1,10 +1,20 @@
 import { apiService } from "@/api/api_service/apiService";
 import { endpoints } from "@/api/endpoints";
 
-export const fetchMvaProdList = async (slug) => {
+export const fetchMvaProdList = async (slug, params) => {
   try {
+    let endpoint = `${endpoints.mvaProdList}/${slug}`;
+
+    if (params) {
+      const searchParams = new URLSearchParams();
+      if (params.page) searchParams.append("page", params.page);
+      if (params.per_page) searchParams.append("per_page", params.per_page);
+      if (params.search) searchParams.append("search", params.search);
+      endpoint += `?${searchParams.toString()}`;
+    }
+
     const apiResponse = await apiService({
-      endpoint: `${endpoints.mvaProdList}/${slug}`,
+      endpoint,
     });
 
     console.log("ApFull API response:", apiResponse);

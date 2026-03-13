@@ -196,8 +196,8 @@ export const endpoints = {
   createNonEngagement: "api/v2/file/tracking/non-engagement",
   deleteNonEngagement: "api/v2/file/tracking/sue-to-driver-owner/delete",
   nonEngagement: "api/v2/file/tracking/non-engagement/show",
-  CreateClientSettlement: "api/v2/file/client-memo-settlement",
-  clientSettlement: "api/v2/file/client-memo-settlement/show",
+  CreateClientSettlement: "api/v2/file/accounting/client-memo-settlement/save",
+  clientSettlement: "api/v2/file/accounting/client-memo-settlement/show",
   createCost: "api/v2/file/accounting/expence",
   createTask: "api/v2/task/store",
   updateTask: "api/v2/task",
@@ -426,4 +426,5 @@ export const endpoints = {
   activityList: "api/v2/file/activity/list",
   activityUpdate: "api/v2/file/activity/update",
   activityDelete: "api/v2/file/activity/delete",
+  activityTimecard: "api/v2/file/activity/timecard",
 };

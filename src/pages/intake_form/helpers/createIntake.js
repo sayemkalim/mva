@@ -22,12 +22,12 @@ export const createIntake = async ({ slug, data }) => {
   }
 };
 
-export const updateIntake = async (id, data) => {
+export const updateIntake = async (slug, data) => {
   try {
-    if (!id) throw new Error("ID is required for updating Intake");
+    if (!slug) throw new Error("Slug is required for updating Intake");
 
     const apiResponse = await apiService({
-      endpoint: `${endpoints.updateIntake}/update/${id}`,
+      endpoint: `${endpoints.updateIntake}/save/${slug}`,
       method: "POST",
       data,
       headers: {
@@ -35,7 +35,7 @@ export const updateIntake = async (id, data) => {
       },
     });
 
-    console.log("✅ Update API Response:", apiResponse);
+    console.log("✅ Update API Response (Save):", apiResponse);
     return apiResponse;
   } catch (error) {
     console.error("❌ Error updating Intake:", error);

@@ -2,7 +2,7 @@ import { apiService } from "@/api/api_service/apiService";
 import { endpoints } from "@/api/endpoints";
 import { downloadFile } from "@/utils/fileDownload";
 
-export const printOcfProd3 = async (id) => {
+export const printOcfProd = async (id) => {
   try {
     const apiResponse = await apiService({
       endpoint: `${endpoints.ocfProdPrint5}/${id}`,
@@ -14,7 +14,7 @@ export const printOcfProd3 = async (id) => {
       downloadFile(
         apiResponse.response,
         apiResponse.headers,
-        `OCF-1-Production-${id}`
+        `OCF-5-Production-${id}`
       );
     }
 
