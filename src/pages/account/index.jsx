@@ -5,6 +5,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { FloatingInput } from "@/components/ui/floating-label";
+import { Checkbox } from "@/components/ui/checkbox";
 import { useState, useEffect, useRef } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiService } from "@/api/api_service/apiService";
@@ -73,9 +74,12 @@ const AccountPage = () => {
     province: "",
     postal_code: "",
     country: "",
+    password: "",
+    password_confirmation: "",
   });
   const [profilePicture, setProfilePicture] = useState(null);
   const [previewUrl, setPreviewUrl] = useState(null);
+  const [isChangingPassword, setIsChangingPassword] = useState(false);
 
   // Fetch current user data
   const {
@@ -117,6 +121,8 @@ const AccountPage = () => {
         province: userData.province || "",
         postal_code: userData.postal_code || "",
         country: userData.country || "",
+        password: "",
+        password_confirmation: "",
       });
     }
   }, [userData]);
@@ -158,8 +164,26 @@ const AccountPage = () => {
       return;
     }
 
+    if (isChangingPassword) {
+      if (!formData.password || formData.password.length < 6) {
+        toast.error("Password must be at least 6 characters");
+        return;
+      }
+      if (formData.password !== formData.password_confirmation) {
+        toast.error("Passwords do not match");
+        return;
+      }
+    }
+
     const submitData = new FormData();
     Object.keys(formData).forEach((key) => {
+      // Ignore password fields if strictly not changing it or if unchecked
+      if (
+        !isChangingPassword &&
+        (key === "password" || key === "password_confirmation")
+      ) {
+        return;
+      }
       if (formData[key]) {
         submitData.append(key, formData[key]);
       }
@@ -195,8 +219,11 @@ const AccountPage = () => {
         province: userData.province || "",
         postal_code: userData.postal_code || "",
         country: userData.country || "",
+        password: "",
+        password_confirmation: "",
       });
     }
+    setIsChangingPassword(false);
   };
 
   const formatDate = (dateString) => {
@@ -426,9 +453,7 @@ const AccountPage = () => {
                   label="Email Address"
                   type="email"
                   value={formData.email}
-                  onChange={(e) =>
-                    handleInputChange("email", e.target.value)
-                  }
+                  onChange={(e) => handleInputChange("email", e.target.value)}
                 />
               ) : (
                 <div className="space-y-2">
@@ -474,6 +499,13 @@ const AccountPage = () => {
             {isEditing ? (
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <FloatingInput
+                  label="Unit Number"
+                  value={formData.unit_number}
+                  onChange={(e) =>
+                    handleInputChange("unit_number", e.target.value)
+                  }
+                />
+                <FloatingInput
                   label="Street Number"
                   value={formData.street_number}
                   onChange={(e) =>
@@ -487,13 +519,7 @@ const AccountPage = () => {
                     handleInputChange("street_name", e.target.value)
                   }
                 />
-                <FloatingInput
-                  label="Unit Number"
-                  value={formData.unit_number}
-                  onChange={(e) =>
-                    handleInputChange("unit_number", e.target.value)
-                  }
-                />
+
                 <FloatingInput
                   label="City"
                   value={formData.city}
@@ -533,6 +559,56 @@ const AccountPage = () => {
             )}
           </CardContent>
         </Card>
+
+        {/* Change Password (Only visible in edit mode) */}
+        {isEditing && (
+          <Card>
+            <CardHeader>
+              <CardTitle>Security</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="flex items-center space-x-2">
+                <Checkbox
+                  id="account_change_password"
+                  checked={isChangingPassword}
+                  onCheckedChange={(checked) => {
+                    setIsChangingPassword(checked);
+                    if (!checked) {
+                      handleInputChange("password", "");
+                      handleInputChange("password_confirmation", "");
+                    }
+                  }}
+                />
+                <Label
+                  htmlFor="account_change_password"
+                  className="font-semibold cursor-pointer"
+                >
+                  Change Password
+                </Label>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <FloatingInput
+                  label="New Password"
+                  type="password"
+                  value={formData.password}
+                  onChange={(e) =>
+                    handleInputChange("password", e.target.value)
+                  }
+                />
+
+                <FloatingInput
+                  label="Confirm New Password"
+                  type="password"
+                  value={formData.password_confirmation}
+                  onChange={(e) =>
+                    handleInputChange("password_confirmation", e.target.value)
+                  }
+                />
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
         {/* Account Details */}
         <Card>

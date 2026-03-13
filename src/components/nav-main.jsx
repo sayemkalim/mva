@@ -219,7 +219,7 @@ function RecursiveMenuItems({ items, depth = 1 }) {
               <SidebarMenuSubItem>
                 <CollapsibleTrigger asChild>
                   <SidebarMenuSubButton
-                    className="text-xs"
+                    className="text-sm"
                     isActive={hasActiveDescendant}
                     title={subItem.title}
                   >
@@ -248,7 +248,7 @@ function RecursiveMenuItems({ items, depth = 1 }) {
             <SidebarMenuSubButton
               asChild
               isActive={isActive}
-              className="text-xs"
+              className="text-sm"
               disabled={isLoading}
             >
               <a
@@ -281,7 +281,7 @@ function ChildrenPanel({ item, onClose }) {
     const mainContent = document.querySelector('[data-slot="sidebar-inset"]');
     if (mainContent) {
       mainContent.style.transition = "margin-left 0.2s ease";
-      mainContent.style.marginLeft = "12rem";
+      mainContent.style.marginLeft = "14rem";
     }
     return () => {
       if (mainContent) {
@@ -312,7 +312,7 @@ function ChildrenPanel({ item, onClose }) {
     <div
       ref={panelRef}
       className="fixed inset-y-0 z-[15] flex flex-col border-r border-sidebar-border shadow-lg bg-[#c8e6c9] dark:bg-[#2a2f2a]"
-      style={{ left: `${sidebarRect.right}px`, width: "12rem" }}
+      style={{ left: `${sidebarRect.right}px`, width: "14rem" }}
     >
       <div className="flex items-center gap-3 px-2 py-4 border-b border-sidebar-border bg-[#388e3c]">
         <button
@@ -579,7 +579,6 @@ export function NavMain({ items, showHeader = false, header }) {
           );
         })}
       </SidebarMenu>
-
       {/* Full-height children panel to the right */}
       {expandedItem && (
         <ChildrenPanel
@@ -593,19 +592,19 @@ export function NavMain({ items, showHeader = false, header }) {
           <DialogHeader>
             <DialogTitle>Exit File</DialogTitle>
             <DialogDescription>
-              You have an active timer ({new Date((seconds || 0) * 1000).toISOString().substring(11, 19)}). 
-              Are you sure you want to exit? Your time will be saved.
+              You have an active timer (
+              {new Date((seconds || 0) * 1000).toISOString().substring(11, 19)}
+              ). Are you sure you want to exit? Your time will be saved.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
             <Button variant="outline" onClick={handleCancelExit}>
               Cancel
             </Button>
-            <Button onClick={handleConfirmExit}>
-              Exit & Save Time
-            </Button>
+            <Button onClick={handleConfirmExit}>Exit & Save Time</Button>
           </DialogFooter>
         </DialogContent>
-      </Dialog>    </SidebarGroup>
+      </Dialog>{" "}
+    </SidebarGroup>
   );
 }

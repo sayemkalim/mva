@@ -43,6 +43,20 @@ export const readNotificationById = async (id) => {
   }
 };
 
+// Mark single notification as unread
+export const unreadNotificationById = async (id) => {
+  try {
+    const response = await apiService({
+      endpoint: `${endpoints.unreadNotificationById}/${id}`,
+      method: "POST",
+    });
+    return response;
+  } catch (error) {
+    console.error("Error marking notification as unread:", error);
+    return null;
+  }
+};
+
 // Mark multiple notifications as read
 export const readMultipleNotifications = async (ids) => {
   try {

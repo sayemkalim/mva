@@ -1,5 +1,3 @@
-
-
 export const endpoints = {
   login: "api/login",
   signup: "api/firm/register",
@@ -87,6 +85,12 @@ export const endpoints = {
   deleteSection258List: "api/v2/file/third-party/section-258/delete",
   createTpCounsel: "api/v2/file/third-party/tp-counsel",
   tpCounsel: "api/v2/file/third-party/tp-counsel/show",
+  mediationList: "api/v2/file/third-party/mediation/list",
+  mediationShow: "api/v2/file/third-party/mediation/show",
+  createMediation: "api/v2/file/third-party/mediation/save",
+  updateMediation: "api/v2/file/third-party/mediation/save",
+  deleteMediation: "api/v2/file/third-party/mediation/delete",
+  createMediationLog: "api/v2/file/third-party/mediation/create",
   soc: "api/v2/file/soc/show",
   createSoc: "api/v2/file/soc",
   createStatement: "api/v2/file/soc/statamnet-of-defence",
@@ -309,6 +313,7 @@ export const endpoints = {
   readNotificationById: "api/v2/notifications/read",
   readMultipleNotification: "api/v2/notifications/read-multiple",
   readAllNotification: "api/v2/notifications/read-all",
+  unreadNotificationById: "api/v2/notifications/unread",
   deleteNotificationById: "api/v2/notifications/clear",
   deleteAllNotification: "api/v2/notifications/clear-all",
   unreadNotification: "api/v2/notifications/unread-count",
@@ -377,12 +382,16 @@ export const endpoints = {
   invoiceCreate: "api/v2/file/accounting/invoice/create-invoice",
   invoiceUpdate: "api/v2/file/accounting/invoice/update-invoice",
   invoiceDelete: "api/v2/file/accounting/invoice/delete",
-  invoicePaymentDetail: "api/v2/file/accounting/invoice-payments/invoice-detail",
-  invoicePaymentSaveTrust: "api/v2/file/accounting/invoice-payments/save/trust-bank",
-  invoicePaymentSaveOperating: "api/v2/file/accounting/invoice-payments/save/operating-bank",
+  invoicePaymentDetail:
+    "api/v2/file/accounting/invoice-payments/invoice-detail",
+  invoicePaymentSaveTrust:
+    "api/v2/file/accounting/invoice-payments/save/trust-bank",
+  invoicePaymentSaveOperating:
+    "api/v2/file/accounting/invoice-payments/save/operating-bank",
   invoicePaymentHistory: "api/v2/file/accounting/invoice-payments/invoice",
   invoicePaymentDelete: "api/v2/file/accounting/invoice-payments/delete",
-  downloadPaymentHistory: "api/v2/file/accounting/invoice/print-invoice-payments",
+  downloadPaymentHistory:
+    "api/v2/file/accounting/invoice/print-invoice-payments",
   downloadInvoice: "api/v2/file/accounting/invoice/print-invoice",
   invoiceWriteOff: "api/v2/file/accounting/invoice-write-off/save",
 
@@ -390,7 +399,7 @@ export const endpoints = {
   finalSettlementShow: "api/v2/file/accounting/final-settlement/show",
   finalSettlementSave: "api/v2/file/accounting/final-settlement/save",
   downloadFinalSettlement: "api/v2/file/accounting/final-settlement/download",
-  //billing 
+  //billing
   billing: "api/v2/file/accounting/financial-status",
   createMedicalCentre: "api/v2/file/medical-centre",
   medicalCentre: "api/v2/file/medical-centre/show",
@@ -405,7 +414,8 @@ export const endpoints = {
   documentiDeleteFolder: "api/v2/file/document-i/folders/delete",
   sortFolders: "api/v2/file/document-i/folders/sort",
   sortDocuments: "api/v2/file/document-i/document/sort",
-  socialMediaPlatforms: "api/v2/file/applicant-information/social-media-platforms",
+  socialMediaPlatforms:
+    "api/v2/file/applicant-information/social-media-platforms",
 
   // Activity / Timer endpoints
   activityStart: "api/v2/file/activity/start",
@@ -417,4 +427,3 @@ export const endpoints = {
   activityUpdate: "api/v2/file/activity/update",
   activityDelete: "api/v2/file/activity/delete",
 };
-

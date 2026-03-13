@@ -13,8 +13,8 @@ import {
 import { Label } from "@/components/ui/label";
 import { ChevronRight } from "lucide-react";
 import { toast } from "sonner";
-import { exportToExcel } from "@/utils/exportToExcel";
-import { getVsrMeta, exportVsr } from "./helper/exportVsr";
+import { downloadExportResponse } from "@/utils/exportToExcel";
+import { getVsrMeta, exportVsr } from "@/utils/exportReportHelpers";
 
 const ExportVsrExamination = () => {
   const navigate = useNavigate();
@@ -24,7 +24,6 @@ const ExportVsrExamination = () => {
   });
 
   const [isExporting, setIsExporting] = useState(false);
-  const [exportFormat, setExportFormat] = useState("xlsx");
 
   // Fetch dropdown options from API
   const { data: metadata, isLoading: isLoadingMetadata } = useQuery({
@@ -46,11 +45,7 @@ const ExportVsrExamination = () => {
       };
 
       const response = await exportVsr(filters);
-      const csvData = response?.response || response || "";
-
-      exportToExcel(csvData, "vsr_examination_export", {
-        format: exportFormat,
-      });
+      await downloadExportResponse(response, "vsr_examination_export");
 
       toast.success("Export completed successfully");
     } catch (error) {
@@ -132,37 +127,13 @@ const ExportVsrExamination = () => {
                   </SelectContent>
                 </Select>
               </div>
-
-              {/* Export Format */}
-              <div className="space-y-2">
-                <Label className="text-foreground font-medium">
-                  Export Format
-                </Label>
-                <Select
-                  value={exportFormat}
-                  onValueChange={(value) => setExportFormat(value)}
-                >
-                  <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Select format" />
-                  </SelectTrigger>
-                  <SelectContent side="bottom" avoidCollisions={false}>
-                    <SelectItem value="xlsx">Excel (.xlsx)</SelectItem>
-                    <SelectItem value="csv">CSV (.csv)</SelectItem>
-                    <SelectItem value="pdf">PDF (.pdf)</SelectItem>
-                    <SelectItem value="doc">Word (.doc)</SelectItem>
-                    <SelectItem value="xls">Excel Legacy (.xls)</SelectItem>
-                    <SelectItem value="tsv">TSV (.tsv)</SelectItem>
-                    <SelectItem value="json">JSON (.json)</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
             </div>
 
             <div className="flex justify-center mt-8">
               <Button
                 type="submit"
                 disabled={isExporting || isLoadingMetadata}
-                className="bg-purple-600 hover:bg-purple-700 text-white px-8 py-2 h-auto"
+                className="bg-primary hover:bg-primary\/90 text-white px-8 py-2 h-auto"
               >
                 {isExporting ? "Exporting..." : "Export"}
               </Button>
