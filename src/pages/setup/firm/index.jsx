@@ -15,11 +15,9 @@ import { apiService } from "@/api/api_service/apiService";
 import { Navbar2 } from "@/components/navbar2";
 import NavbarItem from "@/components/navbar/navbar_item";
 import { FloatingInput, FloatingWrapper } from "@/components/ui/floating-label";
-import {
-  Building2,
-  Loader2,
-  Save,
-} from "lucide-react";
+import { Building2, Loader2, Save, Upload, X, Eye } from "lucide-react";
+import { Label } from "@/components/ui/label";
+import { uploadAttachment } from "@/pages/applicantInfo/helpers/uploadAttachment";
 
 const FirmSettings = () => {
   const [formData, setFormData] = useState({
@@ -29,6 +27,7 @@ const FirmSettings = () => {
     phone_number: "",
     firm_name: "",
     address: "",
+    unit_no: "",
     city: "",
     state: "",
     zip_code: "",
@@ -37,8 +36,16 @@ const FirmSettings = () => {
     fax_number: "",
     toll_free_number: "",
     website_address: "",
+    letter_head_header_id: null,
+    letter_head_footer_id: null,
+    headerPreview: null,
+    footerPreview: null,
+    headerFileName: "",
+    footerFileName: "",
   });
   const [countryCodeOpen, setCountryCodeOpen] = useState(false);
+  const [isDraggingHeader, setIsDraggingHeader] = useState(false);
+  const [isDraggingFooter, setIsDraggingFooter] = useState(false);
 
   const breadcrumbs = [
     { title: "Setup", isNavigation: false },
@@ -103,6 +110,7 @@ const FirmSettings = () => {
         country_code_id: firmData.country_code_id?.toString() || "",
         phone_number: phoneNumber,
         firm_name: firmData.firm_name || "",
+        unit_no: firmData.unit_no || "",
         address: firmData.address || "",
         city: firmData.city || "",
         state: firmData.state || "",
@@ -112,9 +120,92 @@ const FirmSettings = () => {
         fax_number: firmData.fax_number || "",
         toll_free_number: firmData.toll_free_number || "",
         website_address: firmData.website_address || "",
+        letter_head_header_id: firmData.letter_head_header_url || null,
+        letter_head_footer_id: firmData.letter_head_footer_url || null,
+        headerPreview: firmData.letter_head_header_url || null,
+        footerPreview: firmData.letter_head_footer_url || null,
+        headerFileName: firmData.letter_head_header_url
+          ? "Current Header Image"
+          : "",
+        footerFileName: firmData.letter_head_footer_url
+          ? "Current Footer Image"
+          : "",
       });
     }
   }, [firmData]);
+
+  const fileUploadMutation = useMutation({
+    mutationFn: async ({ file, type }) => {
+      const response = await uploadAttachment({ file });
+      return { response, type };
+    },
+    onSuccess: (data) => {
+      const { response: apiResponse, type } = data;
+      const attachmentId = apiResponse?.response?.attachment_id;
+      if (attachmentId) {
+        setFormData((prev) => ({
+          ...prev,
+          [type === "header"
+            ? "letter_head_header_id"
+            : "letter_head_footer_id"]: attachmentId,
+        }));
+        toast.success(
+          `${type === "header" ? "Header" : "Footer"} uploaded successfully!`,
+        );
+      } else {
+        toast.error(`Failed to retrieve ${type} attachment ID.`);
+      }
+    },
+    onError: (error) => {
+      toast.error("Failed to upload image. Please try again.");
+      console.error("Upload error:", error);
+    },
+  });
+
+  const handleFileChange = (file, type) => {
+    if (file && file.size > 1024 * 1024) {
+      toast.error(`File size must be less than 1MB`);
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      if (type === "header") {
+        setFormData((prev) => ({
+          ...prev,
+          headerPreview: e.target.result,
+          headerFileName: file.name,
+        }));
+      } else {
+        setFormData((prev) => ({
+          ...prev,
+          footerPreview: e.target.result,
+          footerFileName: file.name,
+        }));
+      }
+    };
+    reader.readAsDataURL(file);
+
+    // Trigger the file upload API immediately
+    fileUploadMutation.mutate({ file, type });
+  };
+
+  const removeFile = (type) => {
+    if (type === "header") {
+      setFormData((prev) => ({
+        ...prev,
+        letter_head_header_id: null,
+        headerPreview: null,
+        headerFileName: "",
+      }));
+    } else {
+      setFormData((prev) => ({
+        ...prev,
+        letter_head_footer_id: null,
+        footerPreview: null,
+        footerFileName: "",
+      }));
+    }
+  };
 
   // Update mutation
   const updateMutation = useMutation({
@@ -122,8 +213,21 @@ const FirmSettings = () => {
       // Create FormData for multipart/form-data
       const formDataToSend = new FormData();
       Object.keys(data).forEach((key) => {
-        if (data[key] !== null && data[key] !== undefined && data[key] !== "") {
-          formDataToSend.append(key, data[key]);
+        if (
+          ![
+            "headerPreview",
+            "footerPreview",
+            "headerFileName",
+            "footerFileName",
+          ].includes(key)
+        ) {
+          if (
+            data[key] !== null &&
+            data[key] !== undefined &&
+            data[key] !== ""
+          ) {
+            formDataToSend.append(key, data[key]);
+          }
         }
       });
 
@@ -294,7 +398,10 @@ const FirmSettings = () => {
                               handleSelectChange("country_code_id", value)
                             }
                           >
-                            <SelectTrigger className="h-[48px] bg-transparent border border-input text-sm">
+                            <SelectTrigger
+                              className="w-full bg-transparent border border-input text-sm"
+                              style={{ height: "52px" }}
+                            >
                               <SelectValue placeholder="" />
                             </SelectTrigger>
                             <SelectContent>
@@ -386,7 +493,17 @@ const FirmSettings = () => {
               <div>
                 <h3 className="text-sm font-medium mb-4">Address</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="grid gap-3 md:col-span-2">
+                  <div className="grid gap-3">
+                    <FloatingInput
+                      id="unit_no"
+                      type="text"
+                      label="Unit No."
+                      value={formData.unit_no}
+                      onChange={handleChange}
+                    />
+                  </div>
+
+                  <div className="grid gap-3">
                     <FloatingInput
                       id="address"
                       type="text"
@@ -434,6 +551,186 @@ const FirmSettings = () => {
                       value={formData.country}
                       onChange={handleChange}
                     />
+                  </div>
+                </div>
+              </div>
+
+              {/* Letterhead Upload */}
+              <div>
+                <h3 className="text-sm font-medium mb-4">Letterhead Images</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {/* Header Image */}
+                  <div className="space-y-2">
+                    <Label className="text-foreground font-medium">
+                      Header Image{" "}
+                      <span className="text-red-500">(Max 1MB)</span>
+                    </Label>
+                    <div
+                      className={`relative border-2 border-dashed rounded-lg transition-all overflow-hidden ${
+                        formData.headerPreview
+                          ? "border-green-500 bg-green-50/50 h-[200px]"
+                          : isDraggingHeader
+                            ? "border-primary bg-primary/10 h-[200px]"
+                            : "border-input bg-muted hover:border-gray-400 hover:bg-gray-100 h-[200px]"
+                      }`}
+                      onDragEnter={(e) => {
+                        e.preventDefault();
+                        setIsDraggingHeader(true);
+                      }}
+                      onDragOver={(e) => {
+                        e.preventDefault();
+                        setIsDraggingHeader(true);
+                      }}
+                      onDragLeave={(e) => {
+                        e.preventDefault();
+                        setIsDraggingHeader(false);
+                      }}
+                      onDrop={(e) => {
+                        e.preventDefault();
+                        setIsDraggingHeader(false);
+                        const file = e.dataTransfer.files?.[0];
+                        if (file) handleFileChange(file, "header");
+                      }}
+                    >
+                      <input
+                        id="letter_head_header_id"
+                        type="file"
+                        className="hidden"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file) handleFileChange(file, "header");
+                        }}
+                        accept="image/*"
+                      />
+                      {formData.headerPreview ? (
+                        <div className="relative h-full flex flex-col items-center justify-center p-1">
+                          <div className="absolute top-2 right-2 z-10 flex gap-2">
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                removeFile("header");
+                              }}
+                              className="w-7 h-7 bg-red-500 hover:bg-red-600 text-white rounded-full flex items-center justify-center transition-colors shadow-md"
+                            >
+                              <X className="w-4 h-4" />
+                            </button>
+                          </div>
+                          <img
+                            src={formData.headerPreview}
+                            alt="Header Preview"
+                            className="w-full h-24 object-contain rounded border border-green-300 shadow-sm"
+                          />
+                          <p className="text-xs text-muted-foreground mt-2 truncate max-w-full px-4">
+                            {formData.headerFileName}
+                          </p>
+                        </div>
+                      ) : (
+                        <div
+                          className="h-full flex flex-col items-center justify-center cursor-pointer p-4 group"
+                          onClick={() =>
+                            document
+                              .getElementById("letter_head_header_id")
+                              .click()
+                          }
+                        >
+                          <Upload className="w-8 h-8 text-gray-400 group-hover:text-primary transition-colors mb-2" />
+                          <p className="text-sm font-semibold text-foreground group-hover:text-primary transition-colors">
+                            Upload Header
+                          </p>
+                          <p className="text-xs text-gray-400 mt-1">
+                            PNG, JPG (Max 1MB)
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Footer Image */}
+                  <div className="space-y-2">
+                    <Label className="text-foreground font-medium">
+                      Footer Image{" "}
+                      <span className="text-red-500">(Max 1MB)</span>
+                    </Label>
+                    <div
+                      className={`relative border-2 border-dashed rounded-lg transition-all overflow-hidden ${
+                        formData.footerPreview
+                          ? "border-green-500 bg-green-50/50 h-[200px]"
+                          : isDraggingFooter
+                            ? "border-primary bg-primary/10 h-[200px]"
+                            : "border-input bg-muted hover:border-gray-400 hover:bg-gray-100 h-[200px]"
+                      }`}
+                      onDragEnter={(e) => {
+                        e.preventDefault();
+                        setIsDraggingFooter(true);
+                      }}
+                      onDragOver={(e) => {
+                        e.preventDefault();
+                        setIsDraggingFooter(true);
+                      }}
+                      onDragLeave={(e) => {
+                        e.preventDefault();
+                        setIsDraggingFooter(false);
+                      }}
+                      onDrop={(e) => {
+                        e.preventDefault();
+                        setIsDraggingFooter(false);
+                        const file = e.dataTransfer.files?.[0];
+                        if (file) handleFileChange(file, "footer");
+                      }}
+                    >
+                      <input
+                        id="letter_head_footer_id"
+                        type="file"
+                        className="hidden"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file) handleFileChange(file, "footer");
+                        }}
+                        accept="image/*"
+                      />
+                      {formData.footerPreview ? (
+                        <div className="relative h-full flex flex-col items-center justify-center p-1">
+                          <div className="absolute top-2 right-2 z-10 flex gap-2">
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                removeFile("footer");
+                              }}
+                              className="w-7 h-7 bg-red-500 hover:bg-red-600 text-white rounded-full flex items-center justify-center transition-colors shadow-md"
+                            >
+                              <X className="w-4 h-4" />
+                            </button>
+                          </div>
+                          <img
+                            src={formData.footerPreview}
+                            alt="Footer Preview"
+                            className="w-full h-24 object-contain rounded border border-green-300 shadow-sm"
+                          />
+                          <p className="text-xs text-muted-foreground mt-2 truncate max-w-full px-4">
+                            {formData.footerFileName}
+                          </p>
+                        </div>
+                      ) : (
+                        <div
+                          className="h-full flex flex-col items-center justify-center cursor-pointer p-4 group"
+                          onClick={() =>
+                            document
+                              .getElementById("letter_head_footer_id")
+                              .click()
+                          }
+                        >
+                          <Upload className="w-8 h-8 text-gray-400 group-hover:text-primary transition-colors mb-2" />
+                          <p className="text-sm font-semibold text-foreground group-hover:text-primary transition-colors">
+                            Upload Footer
+                          </p>
+                          <p className="text-xs text-gray-400 mt-1">
+                            PNG, JPG (Max 1MB)
+                          </p>
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </div>
               </div>

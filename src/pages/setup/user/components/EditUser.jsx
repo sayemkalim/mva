@@ -5,6 +5,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { FloatingInput } from "@/components/ui/floating-label";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Select,
   SelectContent,
@@ -51,6 +52,7 @@ export default function EditUser() {
   const [profilePicture, setProfilePicture] = useState(null);
   const [profilePreview, setProfilePreview] = useState(null);
   const [originalRoleId, setOriginalRoleId] = useState(null);
+  const [isChangingPassword, setIsChangingPassword] = useState(false);
 
   // Fetch user data
   const { data: apiResponse, isLoading: isLoadingUser } = useQuery({
@@ -69,13 +71,26 @@ export default function EditUser() {
 
   // Prefill form when user data is loaded
   useEffect(() => {
-    const user = apiResponse?.response?.data;
+    const user = apiResponse?.response?.data || apiResponse?.response;
     if (user) {
-      // Ensure role_id is properly set - check for role object or role_id field
-      const roleId = user.role?.id || user.role_id || "";
+      // Ensure role_id is properly set, fallbacks for string matching
+      let roleId = user.roles?.[0]?.id || user.role?.id || user.role_id || "";
 
-      setFormData({
-        role_id: String(roleId),
+      if (
+        !roleId &&
+        user.role &&
+        typeof user.role === "string" &&
+        roles.length > 0
+      ) {
+        const matched = roles.find(
+          (r) => r.name?.toLowerCase() === user.role.toLowerCase(),
+        );
+        if (matched) roleId = matched.id;
+      }
+
+      setFormData((prev) => ({
+        ...prev,
+        role_id: roleId ? String(roleId) : "",
         first_name: user.first_name || "",
         last_name: user.last_name || "",
         email: user.email || "",
@@ -89,8 +104,8 @@ export default function EditUser() {
         country: user.country || "",
         password: "",
         password_confirmation: "",
-      });
-      setOriginalRoleId(String(roleId));
+      }));
+      setOriginalRoleId(roleId ? String(roleId) : "");
       if (user.profile_picture) {
         // Construct proper URL for existing profile picture
         if (user.profile_picture.startsWith("http")) {
@@ -101,7 +116,7 @@ export default function EditUser() {
         }
       }
     }
-  }, [apiResponse]);
+  }, [apiResponse, roles.length]);
 
   const updateMutation = useMutation({
     mutationFn: (data) => updateUser(id, data),
@@ -122,7 +137,11 @@ export default function EditUser() {
       const currentUserId = getItem("userId");
       if (currentUserId && String(currentUserId) === String(id)) {
         // Check if the role was changed
-        if (originalRoleId && formData.role_id && originalRoleId !== formData.role_id) {
+        if (
+          originalRoleId &&
+          formData.role_id &&
+          originalRoleId !== formData.role_id
+        ) {
           // Update the stored role ID
           const { setItem } = await import("@/utils/local_storage");
           setItem({ userRole: formData.role_id });
@@ -145,7 +164,9 @@ export default function EditUser() {
       if (errorData?.Apistatus === false) {
         toast.error(errorData?.message || "Validation failed");
       } else {
-        toast.error(errorData?.message || "Failed to update user. Please try again.");
+        toast.error(
+          errorData?.message || "Failed to update user. Please try again.",
+        );
       }
     },
   });
@@ -184,8 +205,8 @@ export default function EditUser() {
     }
 
     // Password validation only if password is being changed
-    if (formData.password) {
-      if (formData.password.length < 6) {
+    if (isChangingPassword) {
+      if (!formData.password || formData.password.length < 6) {
         toast.error("Password must be at least 6 characters");
         return;
       }
@@ -198,6 +219,13 @@ export default function EditUser() {
     // Create FormData for file upload
     const submitData = new FormData();
     Object.keys(formData).forEach((key) => {
+      // Ignore password fields if strictly not changing it
+      if (
+        !isChangingPassword &&
+        (key === "password" || key === "password_confirmation")
+      ) {
+        return;
+      }
       if (formData[key]) {
         submitData.append(key, formData[key]);
       }
@@ -292,9 +320,7 @@ export default function EditUser() {
                 <FloatingInput
                   label="Phone Number"
                   value={formData.phone_number}
-                  onChange={(e) =>
-                    handleChange("phone_number", e.target.value)
-                  }
+                  onChange={(e) => handleChange("phone_number", e.target.value)}
                 />
               </div>
             </div>
@@ -326,9 +352,7 @@ export default function EditUser() {
                 <FloatingInput
                   label="Unit Number"
                   value={formData.unit_number}
-                  onChange={(e) =>
-                    handleChange("unit_number", e.target.value)
-                  }
+                  onChange={(e) => handleChange("unit_number", e.target.value)}
                 />
 
                 <FloatingInput
@@ -346,9 +370,7 @@ export default function EditUser() {
                 <FloatingInput
                   label="Postal Code"
                   value={formData.postal_code}
-                  onChange={(e) =>
-                    handleChange("postal_code", e.target.value)
-                  }
+                  onChange={(e) => handleChange("postal_code", e.target.value)}
                 />
 
                 <FloatingInput
@@ -361,12 +383,26 @@ export default function EditUser() {
 
             {/* Password (Optional for edit) */}
             <div className="border-t pt-6">
-              <h3 className="font-semibold text-foreground mb-4">
-                Change Password{" "}
-                <span className="text-sm font-normal text-muted-foreground">
-                  (Leave blank to keep current password)
-                </span>
-              </h3>
+              <div className="flex items-center space-x-2 mb-4">
+                <Checkbox
+                  id="change_password"
+                  checked={isChangingPassword}
+                  onCheckedChange={(checked) => {
+                    setIsChangingPassword(checked);
+                    if (!checked) {
+                      handleChange("password", "");
+                      handleChange("password_confirmation", "");
+                    }
+                  }}
+                />
+                <Label
+                  htmlFor="change_password"
+                  className="font-semibold text-foreground text-sm cursor-pointer"
+                >
+                  Change Password
+                </Label>
+              </div>
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <FloatingInput
                   label="New Password"

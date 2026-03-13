@@ -20,8 +20,8 @@ import {
 } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
 import { cn } from "@/lib/utils";
-import { exportToExcel } from "@/utils/exportToExcel";
-import { exportApplicantAccidentDetail } from "./helper/exportApplicantAccidentDetail";
+import { downloadExportResponse } from "@/utils/exportToExcel";
+import { exportApplicantAccidentDetail } from "@/utils/exportReportHelpers";
 import ContactSearch from "@/pages/calender/components/ContactSearch";
 
 const ExportApplicantAccidentDetail = () => {
@@ -41,7 +41,6 @@ const ExportApplicantAccidentDetail = () => {
   const [isExporting, setIsExporting] = useState(false);
   const [fromDatePickerOpen, setFromDatePickerOpen] = useState(false);
   const [toDatePickerOpen, setToDatePickerOpen] = useState(false);
-  const [exportFormat, setExportFormat] = useState("xlsx");
 
   const handleFromDateChange = (date) => {
     if (!date) return;
@@ -90,11 +89,10 @@ const ExportApplicantAccidentDetail = () => {
       }
 
       const response = await exportApplicantAccidentDetail(filters);
-      const csvData = response?.response || response || "";
-
-      exportToExcel(csvData, "applicant_accident_detail_export", {
-        format: exportFormat,
-      });
+      await downloadExportResponse(
+        response,
+        "applicant_accident_detail_export",
+      );
 
       toast.success("Export completed successfully");
     } catch (error) {
@@ -362,34 +360,11 @@ const ExportApplicantAccidentDetail = () => {
               </div>
             </div>
 
-            <div className="mt-4 mb-4 space-y-2">
-              <Label className="text-foreground font-medium">
-                Export Format
-              </Label>
-              <Select
-                value={exportFormat}
-                onValueChange={(value) => setExportFormat(value)}
-              >
-                <SelectTrigger className="w-full md:w-64">
-                  <SelectValue placeholder="Select format" />
-                </SelectTrigger>
-                <SelectContent side="bottom" avoidCollisions={false}>
-                  <SelectItem value="xlsx">Excel (.xlsx)</SelectItem>
-                  <SelectItem value="csv">CSV (.csv)</SelectItem>
-                  <SelectItem value="pdf">PDF (.pdf)</SelectItem>
-                  <SelectItem value="doc">Word (.doc)</SelectItem>
-                  <SelectItem value="xls">Excel Legacy (.xls)</SelectItem>
-                  <SelectItem value="tsv">TSV (.tsv)</SelectItem>
-                  <SelectItem value="json">JSON (.json)</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
             <div className="flex justify-center mt-4">
               <Button
                 type="submit"
                 disabled={isExporting}
-                className="bg-purple-600 hover:bg-purple-700 text-white px-8 py-2 h-auto"
+                className="bg-primary hover:bg-primary\/90 text-white px-8 py-2 h-auto"
               >
                 {isExporting ? "Exporting..." : "Export"}
               </Button>

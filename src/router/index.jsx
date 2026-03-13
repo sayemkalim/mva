@@ -38,6 +38,8 @@ import VehicleInfoForm from "@/pages/tp_vechile/tpvechile_editor";
 import Section28 from "@/pages/section258";
 import Section258Form from "@/pages/section258/components/section28_editor";
 import TpCounselForm from "@/pages/tp_counsel/tpCounsel_editor";
+
+import MediationForm from "@/pages/mediation/mediation_editor";
 import SocForm from "@/pages/soc/soc_editor";
 import StatementOfDefencePage from "@/pages/statement/statement_editor";
 import ScheduledPage from "@/pages/scheduled/scheduled_editor";
@@ -254,6 +256,10 @@ const Router = () => {
             element={<TpCounselForm />}
           />
           <Route
+            path="/dashboard/workstation/edit/:slug/mediation"
+            element={<MediationForm />}
+          />
+          <Route
             path="/dashboard/workstation/edit/:slug/soc"
             element={<SocForm />}
           />
@@ -461,8 +467,14 @@ const Router = () => {
             path="/dashboard/workstation/edit/:slug/third-party-invoice"
             element={<ThirdPartyInvoice />}
           />
-          <Route path="/dashboard/workstation/edit/:slug/invoice" element={<Invoice />} />
-          <Route path="/dashboard/workstation/edit/:slug/final-settlement" element={<FinalSettlement />} />
+          <Route
+            path="/dashboard/workstation/edit/:slug/invoice"
+            element={<Invoice />}
+          />
+          <Route
+            path="/dashboard/workstation/edit/:slug/final-settlement"
+            element={<FinalSettlement />}
+          />
           <Route
             path="/dashboard/workstation/edit/:slug/task"
             element={<Task />}
@@ -559,14 +571,8 @@ const Router = () => {
             path="/dashboard/mva-production/edit/:id"
             element={<MvaPage />}
           />
-          <Route
-            path="/dashboard/intake/add/:slug"
-            element={<IntakePage />}
-          />
-          <Route
-            path="/dashboard/intake/edit/:id"
-            element={<IntakePage />}
-          />
+          <Route path="/dashboard/intake/add/:slug" element={<IntakePage />} />
+          <Route path="/dashboard/intake/edit/:id" element={<IntakePage />} />
           <Route
             path="/dashboard/workstation/edit/:slug/psychological"
             element={<Psychological />}
@@ -579,7 +585,10 @@ const Router = () => {
             path="/dashboard/psychological/edit/:id"
             element={<PsychologicalPage />}
           />
-          <Route path="/dashboard/workstation/edit/:slug/documents-i" element={<DocumentI />} />
+          <Route
+            path="/dashboard/workstation/edit/:slug/documents-i"
+            element={<DocumentI />}
+          />
           <Route path="/dashboard/event" element={<Calender />} />
           <Route path="/dashboard/email" element={<Email />} />
           <Route path="/dashboard/account" element={<AccountPage />} />

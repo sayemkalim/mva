@@ -53,6 +53,7 @@ import {
   deleteNotificationById,
   deleteAllNotifications,
   respondToNotification,
+  unreadNotificationById,
 } from "./helper";
 import { NotificationDetailDialog } from "@/components/notification-detail-dialog";
 
@@ -107,7 +108,10 @@ export function Navbar2() {
   const { data: activityMeta, isLoading: isLoadingMeta } = useQuery({
     queryKey: ["activityMeta"],
     queryFn: async () => {
-      const res = await apiService({ endpoint: endpoints.activityMeta, method: "GET" });
+      const res = await apiService({
+        endpoint: endpoints.activityMeta,
+        method: "GET",
+      });
       return res?.response || {};
     },
     staleTime: 300000,
@@ -161,7 +165,6 @@ export function Navbar2() {
   const [sheetOpen, setSheetOpen] = useState(false);
   const intervalRef = useRef(null);
 
-
   useEffect(() => {
     return () => clearInterval(intervalRef.current);
   }, []);
@@ -208,6 +211,19 @@ export function Navbar2() {
       queryClient.setQueryData(["unreadCount"], (old) =>
         Math.max((old || 0) - 1, 0),
       );
+    },
+  });
+
+  // Mutation for marking as unread
+  const markAsUnreadMutation = useMutation({
+    mutationFn: (id) => unreadNotificationById(id),
+    onSuccess: (_, id) => {
+      queryClient.setQueryData(["notifications"], (old) =>
+        (old || []).map((n) =>
+          (n.id || n.notificationId) === id ? { ...n, is_read: false } : n,
+        ),
+      );
+      queryClient.setQueryData(["unreadCount"], (old) => (old || 0) + 1);
     },
   });
 
@@ -272,8 +288,6 @@ export function Navbar2() {
     },
   });
 
-
-
   const toggleFullscreen = () => {
     if (!document.fullscreenElement) {
       document.documentElement.requestFullscreen();
@@ -289,8 +303,6 @@ export function Navbar2() {
     const newTheme = effectiveTheme === "light" ? "dark" : "light";
     setTheme(newTheme);
   };
-
-
 
   // Format time for display
   const formatTime = (timeString) => {
@@ -314,6 +326,11 @@ export function Navbar2() {
   // Mark single notification as read
   const markAsRead = (id) => {
     markAsReadMutation.mutate(id);
+  };
+
+  // Mark single notification as unread
+  const markAsUnread = (id) => {
+    markAsUnreadMutation.mutate(id);
   };
 
   // Handle action (accept/reject)
@@ -393,7 +410,9 @@ export function Navbar2() {
           }
           variant="outline"
           disabled={!isInWorkstation && !isActive}
-          title={!isInWorkstation ? "Timer only works in workstation files" : ""}
+          title={
+            !isInWorkstation ? "Timer only works in workstation files" : ""
+          }
           className={!isInWorkstation && !isActive ? "opacity-50" : ""}
         >
           {!isActive ? "Start" : isPaused ? "Resume" : "Pause"}
@@ -453,7 +472,10 @@ export function Navbar2() {
                 <Select
                   value={String(stopFormData.billing_status_id)}
                   onValueChange={(val) =>
-                    setStopFormData((prev) => ({ ...prev, billing_status_id: val }))
+                    setStopFormData((prev) => ({
+                      ...prev,
+                      billing_status_id: val,
+                    }))
                   }
                 >
                   <SelectTrigger className="w-full">
@@ -557,7 +579,7 @@ export function Navbar2() {
             <SheetHeader>
               <div className="flex items-center justify-between">
                 <SheetTitle>Notifications</SheetTitle>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 pr-8">
                   {allNotifications.some((n) => !n.is_read) && (
                     <Button
                       variant="ghost"
@@ -773,7 +795,7 @@ export function Navbar2() {
                         {/* Action links for non-action notifications */}
                         {n.type !== "action" && (
                           <div className="flex items-center gap-3 mt-2">
-                            {!n.is_read && (
+                            {!n.is_read ? (
                               <button
                                 onClick={() =>
                                   markAsRead(n.id || n.notificationId)
@@ -782,6 +804,16 @@ export function Navbar2() {
                                 className="text-xs text-green-600 hover:text-green-800"
                               >
                                 Mark as Read
+                              </button>
+                            ) : (
+                              <button
+                                onClick={() =>
+                                  markAsUnread(n.id || n.notificationId)
+                                }
+                                disabled={markAsUnreadMutation.isPending}
+                                className="text-xs text-amber-600 hover:text-amber-800"
+                              >
+                                Mark as Unread
                               </button>
                             )}
                             <button

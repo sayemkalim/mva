@@ -20,8 +20,8 @@ import {
 } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
 import { cn } from "@/lib/utils";
-import { exportToExcel } from "@/utils/exportToExcel";
-import { exportAdjustersOnFiles } from "./helper/exportAdjustersOnFiles";
+import { downloadExportResponse } from "@/utils/exportToExcel";
+import { exportAdjustersOnFiles } from "@/utils/exportReportHelpers";
 import ContactSearch from "@/pages/calender/components/ContactSearch";
 
 const ExportAdjustersOnFiles = () => {
@@ -32,7 +32,6 @@ const ExportAdjustersOnFiles = () => {
   });
 
   const [isExporting, setIsExporting] = useState(false);
-  const [exportFormat, setExportFormat] = useState("xlsx");
 
   const handleExport = async (e) => {
     e.preventDefault();
@@ -50,11 +49,7 @@ const ExportAdjustersOnFiles = () => {
       };
 
       const response = await exportAdjustersOnFiles(filters);
-      const csvData = response?.response || response || "";
-
-      exportToExcel(csvData, "adjusters_on_files_export", {
-        format: exportFormat,
-      });
+      await downloadExportResponse(response, "adjusters_on_files_export");
 
       toast.success("Export completed successfully");
     } catch (error) {
@@ -123,30 +118,6 @@ const ExportAdjustersOnFiles = () => {
                     </SelectContent>
                   </Select>
                 </div>
-
-                {/* Export Format */}
-                <div className="space-y-2">
-                  <Label className="text-foreground font-medium">
-                    Export Format
-                  </Label>
-                  <Select
-                    value={exportFormat}
-                    onValueChange={(value) => setExportFormat(value)}
-                  >
-                    <SelectTrigger className="w-full">
-                      <SelectValue placeholder="Select format" />
-                    </SelectTrigger>
-                    <SelectContent side="bottom" avoidCollisions={false}>
-                      <SelectItem value="xlsx">Excel (.xlsx)</SelectItem>
-                      <SelectItem value="csv">CSV (.csv)</SelectItem>
-                      <SelectItem value="pdf">PDF (.pdf)</SelectItem>
-                      <SelectItem value="doc">Word (.doc)</SelectItem>
-                      <SelectItem value="xls">Excel Legacy (.xls)</SelectItem>
-                      <SelectItem value="tsv">TSV (.tsv)</SelectItem>
-                      <SelectItem value="json">JSON (.json)</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
               </div>
             </div>
 
@@ -154,7 +125,7 @@ const ExportAdjustersOnFiles = () => {
               <Button
                 type="submit"
                 disabled={isExporting}
-                className="bg-purple-600 hover:bg-purple-700 text-white px-8 py-2 h-auto"
+                className="bg-primary hover:bg-primary\/90 text-white px-8 py-2 h-auto"
               >
                 {isExporting ? "Exporting..." : "Export"}
               </Button>

@@ -13,11 +13,11 @@ import {
 import { Label } from "@/components/ui/label";
 import { ChevronRight } from "lucide-react";
 import { toast } from "sonner";
-import { exportToExcel } from "@/utils/exportToExcel";
+import { downloadExportResponse } from "@/utils/exportToExcel";
 import {
   getVehicleOwnershipMeta,
   exportMvaCases,
-} from "./helper/exportVehicleOwnership";
+} from "@/utils/exportReportHelpers";
 
 const ExportVehicleOwnershipInfo = () => {
   const navigate = useNavigate();
@@ -27,7 +27,6 @@ const ExportVehicleOwnershipInfo = () => {
   });
 
   const [isExporting, setIsExporting] = useState(false);
-  const [exportFormat, setExportFormat] = useState("xlsx");
 
   // Fetch dropdown options from API
   const { data: metadata, isLoading: isLoadingMetadata } = useQuery({
@@ -52,11 +51,7 @@ const ExportVehicleOwnershipInfo = () => {
       const filters = { type: formData.type };
 
       const response = await exportMvaCases(filters);
-      const csvData = response?.response || response || "";
-
-      exportToExcel(csvData, "vehicle_ownership_information_export", {
-        format: exportFormat,
-      });
+      await downloadExportResponse(response, "vehicle_ownership_export");
 
       toast.success("Export completed successfully");
     } catch (error) {
@@ -94,7 +89,9 @@ const ExportVehicleOwnershipInfo = () => {
 
       <div className="flex-1 overflow-auto bg-muted">
         <div className="container mx-auto px-6 py-8 max-w-6xl">
-          <h1 className="text-2xl font-bold mb-6 text-foreground">EXPORT DATA</h1>
+          <h1 className="text-2xl font-bold mb-6 text-foreground">
+            EXPORT DATA
+          </h1>
 
           <form
             onSubmit={handleExport}
@@ -127,35 +124,11 @@ const ExportVehicleOwnershipInfo = () => {
                   </Select>
                 </div>
 
-                {/* Export Format */}
-                <div className="space-y-2 w-full md:w-64">
-                  <Label className="text-foreground font-medium">
-                    Export Format
-                  </Label>
-                  <Select
-                    value={exportFormat}
-                    onValueChange={(value) => setExportFormat(value)}
-                  >
-                    <SelectTrigger className="w-full">
-                      <SelectValue placeholder="Select format" />
-                    </SelectTrigger>
-                    <SelectContent side="bottom" avoidCollisions={false}>
-                      <SelectItem value="xlsx">Excel (.xlsx)</SelectItem>
-                      <SelectItem value="csv">CSV (.csv)</SelectItem>
-                      <SelectItem value="pdf">PDF (.pdf)</SelectItem>
-                      <SelectItem value="doc">Word (.doc)</SelectItem>
-                      <SelectItem value="xls">Excel Legacy (.xls)</SelectItem>
-                      <SelectItem value="tsv">TSV (.tsv)</SelectItem>
-                      <SelectItem value="json">JSON (.json)</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-
                 {/* Export Buttons */}
                 <Button
                   type="submit"
                   disabled={isExporting || isLoadingMetadata}
-                  className="bg-purple-600 hover:bg-purple-700 text-white px-8 py-2 h-9"
+                  className="bg-primary hover:bg-primary\/90 text-white px-8 py-2 h-9"
                 >
                   {isExporting ? "Exporting..." : "Export"}
                 </Button>

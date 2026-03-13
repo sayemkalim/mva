@@ -146,9 +146,6 @@ ${body
   triggerDownload(blob, `${fileName}.doc`);
 };
 
-/**
- * Export CSV data to the requested format.
- */
 export const exportToExcel = (csvData, fileName = "export", options = {}) => {
   const format = (options.format || "xlsx").toLowerCase();
 
@@ -178,4 +175,103 @@ export const exportToExcel = (csvData, fileName = "export", options = {}) => {
       exportAsXlsx(csvData, fileName);
       break;
   }
+};
+
+/* ───────────── download handler ───────────── */
+
+const BINARY_FORMATS = ["xlsx", "xls", "pdf", "ods"];
+
+const detectFormatFromHeaders = (headers) => {
+  if (!headers) return null;
+
+  const disposition =
+    headers["content-disposition"] || headers["Content-Disposition"] || "";
+  const filenameMatch = disposition.match(
+    /filename[^;=\n]*=["']?([^"';\n]*)["']?/,
+  );
+  if (filenameMatch) {
+    const ext = filenameMatch[1].split(".").pop()?.toLowerCase();
+    if (
+      ext &&
+      ["xlsx", "xls", "csv", "tsv", "json", "pdf", "doc", "ods"].includes(ext)
+    ) {
+      return ext;
+    }
+  }
+
+  const contentType = (
+    headers["content-type"] ||
+    headers["Content-Type"] ||
+    ""
+  ).toLowerCase();
+  if (
+    contentType.includes("spreadsheetml") ||
+    contentType.includes("openxmlformats")
+  )
+    return "xlsx";
+  if (contentType.includes("ms-excel") && !contentType.includes("openxml"))
+    return "xls";
+  if (contentType.includes("csv")) return "csv";
+  if (contentType.includes("tab-separated")) return "tsv";
+  if (contentType.includes("json")) return "json";
+  if (contentType.includes("pdf")) return "pdf";
+  if (contentType.includes("msword") || contentType.includes("wordprocessing"))
+    return "doc";
+
+  return null;
+};
+
+
+const detectFormatFromContent = (data) => {
+  if (!data || typeof data !== "string") return null;
+  const trimmed = data.trim();
+
+  // JSON
+  if (
+    (trimmed.startsWith("{") && trimmed.endsWith("}")) ||
+    (trimmed.startsWith("[") && trimmed.endsWith("]"))
+  ) {
+    try {
+      JSON.parse(trimmed);
+      return "json";
+    } catch (e) {
+      /* not JSON */
+    }
+  }
+
+  const firstLine = trimmed.split("\n")[0] || "";
+  const tabCount = (firstLine.match(/\t/g) || []).length;
+  const commaCount = (firstLine.match(/,/g) || []).length;
+  if (tabCount > 0 && tabCount >= commaCount) return "tsv";
+  if (commaCount > 0 && trimmed.includes("\n")) return "csv";
+
+  return null;
+};
+
+export const downloadExportResponse = async (
+  apiResponse,
+  fileName = "export",
+) => {
+  const headers = apiResponse?.headers || {};
+  const rawData = apiResponse?.response;
+
+  if (!rawData) return;
+
+  const format = detectFormatFromHeaders(headers);
+
+  if (format && BINARY_FORMATS.includes(format)) {
+    const blob = rawData instanceof Blob ? rawData : new Blob([rawData]);
+    triggerDownload(blob, `${fileName}.${format}`);
+    return;
+  }
+
+  let textData;
+  if (rawData instanceof Blob) {
+    textData = await rawData.text();
+  } else {
+    textData = rawData;
+  }
+
+  const detectedFormat = format || detectFormatFromContent(textData) || "xlsx";
+  exportToExcel(textData, fileName, { format: detectedFormat });
 };

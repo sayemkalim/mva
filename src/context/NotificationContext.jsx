@@ -60,7 +60,7 @@ export function NotificationProvider({ children }) {
 
   // Notification sound
   useEffect(() => {
-    audioRef.current = new Audio("/notification-sound/notification.wav");
+    audioRef.current = new Audio("/notification-sound/messenger.mp3");
     audioRef.current.volume = 0.7;
     const unlock = () => {
       audioRef.current
@@ -103,10 +103,10 @@ export function NotificationProvider({ children }) {
           typeof payload === "string"
             ? JSON.parse(payload)
             : payload?.data
-            ? typeof payload.data === "string"
-              ? JSON.parse(payload.data)
-              : payload.data
-            : payload;
+              ? typeof payload.data === "string"
+                ? JSON.parse(payload.data)
+                : payload.data
+              : payload;
       } catch {
         return;
       }
@@ -149,7 +149,7 @@ export function NotificationProvider({ children }) {
 
   const clearNotification = (id) => {
     setNotifications((prev) =>
-      prev.filter((n) => (n.notificationId || n.id) !== id)
+      prev.filter((n) => (n.notificationId || n.id) !== id),
     );
   };
 

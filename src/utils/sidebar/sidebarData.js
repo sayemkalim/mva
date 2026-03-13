@@ -79,13 +79,13 @@ export const handleFileDownload = async (url, fileName = "document") => {
     if (!response.ok) {
       if (response.status === 404) {
         throw new Error(
-          "File not found. The document may not have been generated yet."
+          "File not found. The document may not have been generated yet.",
         );
       } else if (response.status === 401) {
         throw new Error("Unauthorized. Please log in again.");
       } else if (response.status === 403) {
         throw new Error(
-          "Access denied. You don't have permission to download this file."
+          "Access denied. You don't have permission to download this file.",
         );
       } else if (response.status === 500) {
         throw new Error("Server error. Please try again later.");
@@ -106,7 +106,7 @@ export const handleFileDownload = async (url, fileName = "document") => {
 
     if (contentDisposition) {
       const fileNameMatch = contentDisposition.match(
-        /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/
+        /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/,
       );
       if (fileNameMatch && fileNameMatch[1]) {
         downloadFileName = fileNameMatch[1].replace(/['"]/g, "");
@@ -591,6 +591,11 @@ export const getEditModeData = (slug) => ({
           url: `/dashboard/workstation/edit/${slug}/tp-counsel`,
           icon: User,
           permission: "tp_counsel",
+        },
+        {
+          title: "Mediation",
+          url: `/dashboard/workstation/edit/${slug}/mediation`,
+          icon: User,
         },
         {
           title: "Pleadings",
@@ -1190,7 +1195,7 @@ export const getEditModeData = (slug) => ({
               title: "Final Settlement",
               url: `/dashboard/workstation/edit/${slug}/final-settlement`,
               icon: User,
-            }
+            },
           ],
         },
       ],
