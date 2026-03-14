@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useId } from "react";
+import React, { useState, useEffect, useId, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
@@ -12,6 +12,13 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
 import {
   Command,
   CommandEmpty,
@@ -408,10 +415,10 @@ export default function MediationForm() {
         toast.error(resp?.message || "Log validation failed");
         return;
       }
-      toast.success(resp?.message || "Log added!");
+      setShowClientLogForm(false);
+      setShowSystemLogForm(false);
       setLogForm({
         logs: "",
-        type: "client",
         date: new Date().toISOString().split("T")[0],
         time: "",
       });
@@ -468,12 +475,14 @@ export default function MediationForm() {
 
   const [logForm, setLogForm] = useState({
     logs: "",
-    type: "client",
     date: new Date().toISOString().split("T")[0],
     time: "",
   });
 
-  const [showLogForm, setShowLogForm] = useState(false);
+  const [showClientLogForm, setShowClientLogForm] = useState(false);
+  const [showSystemLogForm, setShowSystemLogForm] = useState(false);
+  const initialLogIdsRef = useRef(null);
+  const recentLogTimesRef = useRef({});
 
   useEffect(() => {
     if (activeMediation && isEditMode) {
@@ -580,7 +589,7 @@ export default function MediationForm() {
     }));
   };
 
-  const handleLogSubmit = (e) => {
+  const handleLogSubmit = (e, type) => {
     e.preventDefault();
     if (!mediationData?.id && !mediationData?.mediation_id) {
       toast.error("Mediation not created yet. Please save mediation first.");
@@ -589,6 +598,7 @@ export default function MediationForm() {
     logMutation.mutate({
       mediation_id: mediationData.id || mediationData.mediation_id,
       ...logForm,
+      type,
     });
   };
 
@@ -631,15 +641,6 @@ export default function MediationForm() {
     },
   });
 
-  if (loadingMediation) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-        <span className="ml-2 text-lg">Loading...</span>
-      </div>
-    );
-  }
-
   // To display past logs dynamically extracting both lists from exactly matched IDs
   const pastLogs = [
     ...(Array.isArray(activeMediation?.system_logs)
@@ -657,6 +658,153 @@ export default function MediationForm() {
         }))
       : []),
   ].sort((a, b) => (a.id || 0) - (b.id || 0));
+
+  // Track which logs existed initially
+  useEffect(() => {
+    if (!pastLogs || pastLogs.length === 0) return;
+
+    if (!initialLogIdsRef.current) {
+      initialLogIdsRef.current = new Set(
+        pastLogs.map((log) => log.id).filter(Boolean),
+      );
+      return;
+    }
+
+    pastLogs.forEach((log) => {
+      if (!log.id) return;
+      if (
+        !initialLogIdsRef.current.has(log.id) &&
+        !recentLogTimesRef.current[log.id]
+      ) {
+        recentLogTimesRef.current[log.id] = Date.now();
+      }
+    });
+  }, [pastLogs]);
+
+  const clientLogs = pastLogs.filter((log) => log.type === "client");
+  const systemLogs = pastLogs.filter((log) => log.type === "system");
+
+  const canDeleteLog = (logItem) => {
+    const id = logItem.id;
+    if (!id) return false;
+
+    const createdAt = recentLogTimesRef.current[id];
+    if (!createdAt) return false;
+
+    const diffMs = Date.now() - createdAt;
+    return diffMs <= 30 * 60 * 1000;
+  };
+
+  const renderLogSection = ({
+    title,
+    logs,
+    showForm,
+    setShowForm,
+    onSubmit,
+  }) => (
+    <div className="bg-card rounded-lg shadow-sm border p-6">
+      <div className="flex justify-end mb-4">
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          onClick={() => setShowForm(true)}
+        >
+          <Plus className="h-4 w-4 mr-2" />
+          Add Log
+        </Button>
+      </div>
+
+      {/* Combined log preview area */}
+      {logs.length > 0 && (
+        <div className="max-h-[300px] overflow-y-auto pr-1">
+          <div className="w-full rounded-md border bg-background text-sm text-foreground px-3 py-2 space-y-3">
+            {logs.map((logItem, index) => (
+              <div
+                key={index}
+                className="border-b last:border-b-0 border-border pb-2 last:pb-0 relative group"
+              >
+                {canDeleteLog(logItem) && (
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    className={`absolute -top-2 right-0 opacity-0 group-hover:opacity-100 transition-opacity text-red-500 hover:text-red-700 hover:bg-red-50`}
+                    onClick={() => deleteLogMutation.mutate(logItem.id)}
+                    disabled={deleteLogMutation.isLoading}
+                    title="Delete Log"
+                  >
+                    {deleteLogMutation.isLoading ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                      <Trash2 className="h-4 w-4" />
+                    )}
+                  </Button>
+                )}
+                {(logItem.date || logItem.created_at || logItem.time) && (
+                  <p className="text-[11px] text-muted-foreground mb-1 pr-6">
+                    {(logItem.date || "No date") +
+                      (logItem.time ? ` at ${logItem.time}` : "")}
+                  </p>
+                )}
+                <div className="whitespace-pre-wrap text-sm">
+                  {logItem.logs}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      <Dialog open={showForm} onOpenChange={setShowForm}>
+        <DialogContent className="sm:max-w-md max-w-md">
+          <DialogHeader>
+            <DialogTitle>Add Log</DialogTitle>
+          </DialogHeader>
+          <form onSubmit={onSubmit} className="space-y-6 mt-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <FloatingInput
+                label="Date"
+                type="date"
+                value={logForm.date}
+                onChange={(e) =>
+                  setLogForm((p) => ({ ...p, date: e.target.value }))
+                }
+              />
+              <FloatingInput
+                label="Time"
+                type="time"
+                value={logForm.time}
+                onChange={(e) =>
+                  setLogForm((p) => ({ ...p, time: e.target.value }))
+                }
+              />
+            </div>
+            <FloatingTextarea
+              label="Log Entry"
+              value={logForm.logs}
+              onChange={(e) =>
+                setLogForm((p) => ({ ...p, logs: e.target.value }))
+              }
+              rows={3}
+            />
+            <DialogFooter>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setShowForm(false)}
+              >
+                Cancel
+              </Button>
+              <Button type="submit" disabled={logMutation.isLoading}>
+                {logMutation.isLoading ? "Adding Log..." : "Submit Log"}
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
 
   return (
     <div className="min-h-screen bg-muted">
@@ -696,7 +844,7 @@ export default function MediationForm() {
           {/* 1. Mediation Status */}
           <section className="space-y-4">
             <h2 className="text-lg font-semibold">Mediation Status</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <SearchableSelect
                 label="Mediation Required"
                 value={formData.mediation_required_id}
@@ -772,7 +920,7 @@ export default function MediationForm() {
           {/* 3. Mediator Information */}
           <section className="space-y-4">
             <h2 className="text-lg font-semibold">Mediator Information</h2>
-            <div className="max-w-3xl">
+            <div className="w-full">
               <FloatingTextarea
                 label="Contact Details"
                 name="contact_details"
@@ -915,7 +1063,7 @@ export default function MediationForm() {
           </section>
 
           {/* 6. Offer Tracking System (During Mediation) */}
-          <section className="space-y-4">
+          <section className="space-y-6">
             <h2 className="text-lg font-semibold">
               Offer Tracking System (During Mediation)
             </h2>
@@ -942,12 +1090,19 @@ export default function MediationForm() {
                 onChange={handleInputChange}
               />
             </div>
+            {renderLogSection({
+              title: "System Logs",
+              logs: systemLogs,
+              showForm: showSystemLogForm,
+              setShowForm: setShowSystemLogForm,
+              onSubmit: (e) => handleLogSubmit(e, "system"),
+            })}
           </section>
 
           {/* 7. Client Authorization */}
-          <section className="space-y-4">
+          <section className="space-y-6">
             <h2 className="text-lg font-semibold">Client Authorization</h2>
-            <div className="max-w-64 ">
+            <div className="max-w-64">
               <FileUploadField
                 label="Digital Consent Upload"
                 value={formData.digital_consent_upload_id}
@@ -959,6 +1114,14 @@ export default function MediationForm() {
                 placeholder="Upload Consent"
               />
             </div>
+
+            {renderLogSection({
+              title: "Client Logs",
+              logs: clientLogs,
+              showForm: showClientLogForm,
+              setShowForm: setShowClientLogForm,
+              onSubmit: (e) => handleLogSubmit(e, "client"),
+            })}
           </section>
 
           {/* 9. If Settled */}
@@ -1058,113 +1221,6 @@ export default function MediationForm() {
             </Button>
           </div>
         </form>
-
-        {/* Logs Form Block */}
-        <div className="bg-card rounded-lg shadow-sm border p-8 mt-8">
-          <div className="flex justify-between items-center mb-4">
-            <h2 className="text-xl font-bold">Mediation Logs</h2>
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              onClick={() => setShowLogForm(!showLogForm)}
-            >
-              <Plus className="h-4 w-4 mr-2" />
-              {showLogForm ? "Cancel Log" : "Add Log"}
-            </Button>
-          </div>
-
-          {/* List existing logs */}
-          {pastLogs.length > 0 && (
-            <div className="space-y-4 mb-8 max-h-[300px] overflow-y-auto pr-2">
-              {pastLogs.map((logItem, index) => (
-                <div
-                  key={index}
-                  className="border-l-4 border-primary pl-4 py-2 bg-muted/30 rounded-r-md relative group"
-                >
-                  <div className="flex justify-between items-start">
-                    <div>
-                      {logItem.date || logItem.created_at ? (
-                        <p className="text-sm font-medium pr-8">
-                          {logItem.date || "No date"}{" "}
-                          {logItem.time ? `at ${logItem.time}` : ""}
-                        </p>
-                      ) : null}
-                      <p className="text-sm text-muted-foreground capitalize mb-1">
-                        {logItem.type || "Event"}
-                      </p>
-                    </div>
-                    {logItem.id && (
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="icon"
-                        className={`absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity text-red-500 hover:text-red-700 hover:bg-red-50`}
-                        onClick={() => deleteLogMutation.mutate(logItem.id)}
-                        disabled={deleteLogMutation.isLoading}
-                        title="Delete Log"
-                      >
-                        {deleteLogMutation.isLoading ? (
-                          <Loader2 className="h-4 w-4 animate-spin" />
-                        ) : (
-                          <Trash2 className="h-4 w-4" />
-                        )}
-                      </Button>
-                    )}
-                  </div>
-                  <p className="text-foreground mt-1 pr-8 text-sm whitespace-pre-wrap">
-                    {logItem.logs}
-                  </p>
-                </div>
-              ))}
-            </div>
-          )}
-
-          {showLogForm && (
-            <form onSubmit={handleLogSubmit} className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <FloatingInput
-                  label="Date"
-                  type="date"
-                  value={logForm.date}
-                  onChange={(e) =>
-                    setLogForm((p) => ({ ...p, date: e.target.value }))
-                  }
-                />
-                <FloatingInput
-                  label="Time"
-                  type="time"
-                  value={logForm.time}
-                  onChange={(e) =>
-                    setLogForm((p) => ({ ...p, time: e.target.value }))
-                  }
-                />
-                <SearchableSelect
-                  label="Log Type"
-                  value={logForm.type}
-                  defaultName={logForm.type === "system" ? "System" : "Client"}
-                  options={[
-                    { id: "client", name: "Client" },
-                    { id: "system", name: "System" },
-                  ]}
-                  onChange={(val) => setLogForm((p) => ({ ...p, type: val }))}
-                  placeholder="Select Type"
-                />
-              </div>
-              <FloatingTextarea
-                label="Log Entry"
-                value={logForm.logs}
-                onChange={(e) =>
-                  setLogForm((p) => ({ ...p, logs: e.target.value }))
-                }
-                rows={3}
-              />
-              <Button type="submit" disabled={logMutation.isLoading}>
-                {logMutation.isLoading ? "Adding Log..." : "Submit Log"}
-              </Button>
-            </form>
-          )}
-        </div>
       </main>
     </div>
   );
