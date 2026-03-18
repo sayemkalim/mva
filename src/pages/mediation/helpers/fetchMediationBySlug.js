@@ -2,6 +2,10 @@ import { apiService } from "@/api/api_service/apiService";
 import { endpoints } from "@/api/endpoints";
 
 export const fetchMediationBySlug = async (slug) => {
+  if (!slug) {
+    throw new Error("Slug is required to fetch mediation");
+  }
+
   try {
     const apiResponse = await apiService({
       endpoint: `${endpoints.mediationShow}/${slug}`,

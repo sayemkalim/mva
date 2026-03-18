@@ -613,6 +613,12 @@ export default function MediationForm() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+
+    if (!slug) {
+      toast.error("Unable to save: File slug is missing from URL");
+      return;
+    }
+
     const payload = { ...formData };
     if (isEditMode && !payload.id) payload.id = id;
 
@@ -626,7 +632,7 @@ export default function MediationForm() {
         }));
     }
 
-    saveMutation.mutate({ slug: slug, data: payload, isEditMode });
+    saveMutation.mutate({ slug, data: payload, isEditMode });
   };
 
   const deleteLogMutation = useMutation({
