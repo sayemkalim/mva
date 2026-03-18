@@ -251,7 +251,7 @@ const FileUploadField = ({
           accept="image/*,.pdf,.doc,.docx"
         />
 
-        {uploadMutation.isLoading && (
+        {(uploadMutation.isLoading || uploadMutation.isPending) && (
           <div className="absolute inset-0 z-50 flex items-center justify-center bg-background/80">
             <Loader2 className="h-8 w-8 animate-spin text-primary" />
           </div>
@@ -415,6 +415,7 @@ export default function MediationForm() {
         toast.error(resp?.message || "Log validation failed");
         return;
       }
+      toast.success(resp?.message || "Log added successfully!");
       setShowClientLogForm(false);
       setShowSystemLogForm(false);
       setLogForm({
@@ -423,6 +424,14 @@ export default function MediationForm() {
         time: "",
       });
       queryClient.invalidateQueries(["mediation", slug]);
+    },
+    onError: (error) => {
+      const errorData = error?.response?.data;
+      if (errorData?.Apistatus === false) {
+        toast.error(errorData?.message || "Failed to add log");
+      } else {
+        toast.error(errorData?.message || error?.message || "Failed to add log");
+      }
     },
   });
 
@@ -709,6 +718,8 @@ export default function MediationForm() {
           variant="outline"
           size="sm"
           onClick={() => setShowForm(true)}
+          disabled={!id}
+          title={!id ? "Save mediation first to add logs" : ""}
         >
           <Plus className="h-4 w-4 mr-2" />
           Add Log
@@ -731,10 +742,10 @@ export default function MediationForm() {
                     size="icon"
                     className={`absolute -top-2 right-0 opacity-0 group-hover:opacity-100 transition-opacity text-red-500 hover:text-red-700 hover:bg-red-50`}
                     onClick={() => deleteLogMutation.mutate(logItem.id)}
-                    disabled={deleteLogMutation.isLoading}
+                    disabled={deleteLogMutation.isLoading || deleteLogMutation.isPending}
                     title="Delete Log"
                   >
-                    {deleteLogMutation.isLoading ? (
+                    {(deleteLogMutation.isLoading || deleteLogMutation.isPending) ? (
                       <Loader2 className="h-4 w-4 animate-spin" />
                     ) : (
                       <Trash2 className="h-4 w-4" />
@@ -796,8 +807,8 @@ export default function MediationForm() {
               >
                 Cancel
               </Button>
-              <Button type="submit" disabled={logMutation.isLoading}>
-                {logMutation.isLoading ? "Adding Log..." : "Submit Log"}
+              <Button type="submit" disabled={logMutation.isLoading || logMutation.isPending}>
+                {(logMutation.isLoading || logMutation.isPending) ? "Adding Log..." : "Submit Log"}
               </Button>
             </DialogFooter>
           </form>
@@ -1215,9 +1226,9 @@ export default function MediationForm() {
             </Button>
             <Button
               type="submit"
-              disabled={saveMutation.isLoading || loadingMediation}
+              disabled={saveMutation.isLoading || saveMutation.isPending || loadingMediation}
             >
-              {saveMutation.isLoading ? "Saving..." : "Save Mediation"}
+              {(saveMutation.isLoading || saveMutation.isPending) ? "Saving..." : "Save Mediation"}
             </Button>
           </div>
         </form>
