@@ -598,6 +598,11 @@ export const getEditModeData = (slug) => ({
           icon: User,
         },
         {
+          title: "Trial",
+          url: `/dashboard/workstation/edit/${slug}/trial`,
+          icon: User,
+        },
+        {
           title: "Pleadings",
           url: ``,
           icon: Radar,

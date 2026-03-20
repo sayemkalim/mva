@@ -90,6 +90,8 @@ export const endpoints = {
   createMediation: "api/v2/file/third-party/mediation/save",
   updateMediation: "api/v2/file/third-party/mediation/save",
   deleteMediation: "api/v2/file/third-party/mediation/delete",
+  trialShow: "api/v2/file/third-party/trail/show",
+  createTrial: "api/v2/file/third-party/trail/save",
   createMediationLog: "api/v2/file/third-party/mediation/create",
   soc: "api/v2/file/soc/show",
   createSoc: "api/v2/file/soc",

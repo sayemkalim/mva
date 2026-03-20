@@ -40,6 +40,7 @@ import Section258Form from "@/pages/section258/components/section28_editor";
 import TpCounselForm from "@/pages/tp_counsel/tpCounsel_editor";
 
 import MediationForm from "@/pages/mediation/mediation_editor";
+import TrialForm from "@/pages/trial/trial_editor";
 import SocForm from "@/pages/soc/soc_editor";
 import StatementOfDefencePage from "@/pages/statement/statement_editor";
 import ScheduledPage from "@/pages/scheduled/scheduled_editor";
@@ -258,6 +259,10 @@ const Router = () => {
           <Route
             path="/dashboard/workstation/edit/:slug/mediation"
             element={<MediationForm />}
+          />
+          <Route
+            path="/dashboard/workstation/edit/:slug/trial"
+            element={<TrialForm />}
           />
           <Route
             path="/dashboard/workstation/edit/:slug/soc"
